@@ -2,14 +2,23 @@
 # canVODpy Monorepo - Root Justfile
 # ============================================================================
 
+# ANSI color codes
+GREEN := '\033[0;32m'
+BOLD := '\033[1m'
+NORMAL := '\033[0m'
+
 # Default command lists all available recipes
 _default:
     @just --list --unsorted
 
+alias b := bump
 alias c := clean
+alias d := dist
 alias h := hooks
 alias q := check
 alias t := test
+
+PROJ := `uv version --short`
 
 # ============================================================================
 # Code Quality (All Packages)
@@ -39,7 +48,18 @@ check: check-lint check-format check-types
 
 # run tests with coverage for all packages
 test:
-    uv run pytest
+    uv run pytest tests/
+
+# run tests for all supported Python versions
+testall:
+    uv run --python=3.13 pytest
+
+# run all formatting, linting, and testing commands
+ci PYTHON="3.13":
+    uv run --python={{ PYTHON }} ruff format .
+    uv run --python={{ PYTHON }} ruff check . --fix
+    uv run --python={{ PYTHON }} ty check .
+    uv run --python={{ PYTHON }} pytest tests/
 
 # ============================================================================
 # Utilities
@@ -48,6 +68,11 @@ test:
 # setup the pre-commit hooks
 hooks:
     uvx pre-commit install
+
+# print the current status of the project
+status:
+    @echo "Project Version: {{ PROJ }}"
+    @echo "Running on: `uname`"
 
 # clean all python build/compilation files and directories
 clean: clean-build clean-pyc clean-test
@@ -82,6 +107,36 @@ sync:
     uv sync
 
 # ============================================================================
+# Version Management
+# ============================================================================
+
+[confirm("Do you really want to bump? (y/n)")]
+[private]
+prompt-confirm:
+
+# bump the version, commit and add a tag <major|minor|patch|...>
+bump INCREMENT="patch": && tag
+    @uv version --bump {{ INCREMENT }} --dry-run
+    @just prompt-confirm
+    uv version --bump {{ INCREMENT }}
+
+# tag the latest version
+tag VERSION=`uv version --short`:
+    git add pyproject.toml
+    git add uv.lock
+    git commit -m "Bumped version to {{VERSION}}"
+    git tag -a "v{{VERSION}}"
+    @echo "{{ GREEN }}{{ BOLD }}Version has been bumped to {{VERSION}}.{{ NORMAL }}"
+
+# ============================================================================
+# Building & Distribution
+# ============================================================================
+
+# build the source distribution and wheel file
+dist:
+    uv build
+
+# ============================================================================
 # Per-Package Commands
 # ============================================================================
 
@@ -101,6 +156,17 @@ build-package PACKAGE:
 # Documentation
 # ============================================================================
 
-# preview the documentation locally
+# preview the documentation locally (serve the myst website)
 docs:
     uv run myst
+
+# ============================================================================
+# Initialization
+# ============================================================================
+
+# initialize a git repo and add all files
+init: sync
+    git init --initial-branch=main
+    git add .
+    git commit -m "initial commit"
+    @echo "{{ GREEN }}{{ BOLD }}Git has been initialized{{ NORMAL }}"
