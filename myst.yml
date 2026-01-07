@@ -1,0 +1,66 @@
+version: 1
+
+extends:
+  - https://github.com/TUW-GEO/cookiecutter-docs-config/raw/main/myst.yml
+
+project:
+  title: canVODpy
+  subtitle: Modern GNSS Vegetation Optical Depth Analysis
+  authors:
+    - name: Nicolas Bader
+      email: nicolas.bader@geo.tuwien.ac.at
+      affiliation: TU Wien, Department of Geodesy and Geoinformation
+  github: https://github.com/nfb2021/canvodpy
+  open_access: true
+  license: Apache-2.0
+  
+  toc:
+    - file: README.md
+      title: Overview
+    
+    - title: Documentation
+      children:
+        - file: docs/index.md
+          title: Documentation Home
+        - file: docs/architecture.md
+          title: Architecture Overview
+        - file: docs/tooling.md
+          title: Development Tooling
+        - file: docs/namespace-packages.md
+          title: Namespace Packages
+        - file: docs/development-workflow.md
+          title: Development Workflow
+        - file: docs/build-system.md
+          title: Build System
+    
+    - title: Packages
+      children:
+        - file: packages/canvod-readers/README.md
+          title: canvod-readers
+        - file: packages/canvod-aux/README.md
+          title: canvod-aux
+        - file: packages/canvod-grids/README.md
+          title: canvod-grids
+        - file: packages/canvod-vod/README.md
+          title: canvod-vod
+        - file: packages/canvod-store/README.md
+          title: canvod-store
+        - file: packages/canvod-viz/README.md
+          title: canvod-viz
+        - file: canvodpy/README.md
+          title: canvodpy (umbrella)
+    
+    - title: Development
+      children:
+        - file: CONTRIBUTING.md
+          title: Contributing Guide
+        - file: LICENSE
+          title: License
+  
+  error_rules:
+    - rule: image-downloads
+      severity: ignore
+    - rule: image-format-converts
+      severity: ignore
+    - rule: link-resolves
+      severity: ignore
