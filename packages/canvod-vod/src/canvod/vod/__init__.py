@@ -1,0 +1,1 @@
+"""Vegetation Optical Depth calculations."""

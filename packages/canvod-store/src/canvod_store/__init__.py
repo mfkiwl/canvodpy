@@ -1,1 +1,0 @@
-"""canvod-store package."""
