@@ -1,14 +1,13 @@
 [project]
 name = "canvod-viz"
 version = "0.1.0"
-description = "Placeholder for viz"
+description = "Visualization and plotting utilities"
 requires-python = ">=3.13"
 dependencies = []
 
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false
+[tool.uv.build-backend]
+module-name = "canvod.viz"
