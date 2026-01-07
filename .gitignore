@@ -1,0 +1,307 @@
+# ============================================================================
+# Python
+# ============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Sphinx documentation
+docs/_build/
+docs/_api/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Environments
+.env
+.env.local
+.venv
+.venv*/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ============================================================================
+# Package Managers & Build Tools
+# ============================================================================
+
+# uv
+uv.lock
+.python-version.lock
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+poetry.toml
+
+# pdm
+.pdm.toml
+.pdm-python
+__pypackages__/
+
+# PEP 582
+__pypackages__/
+
+# ============================================================================
+# Type Checkers & Linters
+# ============================================================================
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# pyright
+pyrightconfig.json
+
+# ruff
+.ruff_cache/
+
+# ty (Astral's type checker)
+.ty_cache/
+
+# ============================================================================
+# IDEs & Editors
+# ============================================================================
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+.ionide
+*.vsix
+
+# JetBrains (PyCharm, IntelliJ IDEA, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+out/
+
+# Zed
+.zed/
+
+# Windsurf
+.windsurf/
+
+# Cursor
+.cursor/
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+.vimrc.local
+
+# Emacs
+*~
+\#*\#
+.\#*
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# TextMate
+*.tmproj
+*.tmproject
+tmtags
+
+# ============================================================================
+# Operating Systems
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+
+# ============================================================================
+# Project Specific
+# ============================================================================
+
+# Logs
+*.log
+.logs/
+logs/
+
+# Data directories
+.data/
+data/
+*.nc
+*.zarr/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Custom plotting outputs
+.vod_plotly_plots/
+*.html
+
+# Documentation builds
+site/
+_site/
+_build/
+
+# MyST documentation
+_build/
+.mystmd/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# ============================================================================
+# CI/CD & Testing
+# ============================================================================
+
+# GitHub Actions
+.github/workflows/*.local.yml
+
+# Coverage reports
+.coverage.*
+coverage/
+htmlcov/
+
+# Benchmark results
+.benchmarks/
+
+# ============================================================================
+# Security & Credentials
+# ============================================================================
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Secrets
+*.pem
+*.key
+*.cert
+secrets.yml
+secrets.yaml
+credentials.json
+
+# ============================================================================
+# Misc
+# ============================================================================
+
+# Cython debug symbols
+cython_debug/
+
+# Rope (Python refactoring)
+.ropeproject
+
+# Profiling data
+*.prof
+*.lprof
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Spyder
+.spyderproject
+.spyproject
