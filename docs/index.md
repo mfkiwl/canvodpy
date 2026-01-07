@@ -270,6 +270,7 @@ index.md (you are here)
 ```
 
 **Suggested reading order:**
+
 1. Start: index.md (overview)
 2. Architecture → tooling → namespace-packages → development-workflow → build-system
 
@@ -286,6 +287,7 @@ index.md (you are here)
 - 🔨 [Build System →](build-system.md) - Package building
 
 **Or:**
+
 - Clone the repo: `git clone https://github.com/nfb2021/canvodpy.git`
 - Set up: `cd canvodpy && uv sync`
 - Explore: Look around and start coding!

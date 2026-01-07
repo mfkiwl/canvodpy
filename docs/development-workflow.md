@@ -110,10 +110,10 @@ touch src/canvod/readers/rinex_v4.py
 
 class Rnxv4Obs:
     """Read RINEX 4 observation files."""
-    
+
     def __init__(self, filepath: str):
         self.filepath = filepath
-    
+
     def read(self) -> dict:
         """Read the file and return data."""
         # Implementation here
@@ -324,17 +324,20 @@ git commit -m "Add feature"
 On every push, GitHub Actions runs:
 
 1. **Code Quality** (`.github/workflows/code_quality.yml`):
+
    - Lock file check
    - Linting
    - Formatting
    - Type checking
 
 2. **Test Coverage** (`.github/workflows/test_coverage.yml`):
+
    - Run tests
    - Generate coverage report
    - Post coverage comment on PR
 
 3. **Multi-platform Tests** (`.github/workflows/test_platforms.yml`):
+
    - Test on Ubuntu, Windows, macOS
    - Test on Python 3.13
 
@@ -556,13 +559,13 @@ Add docstrings to all public functions:
 ```python
 def parse_rinex(filepath: str) -> dict:
     """Parse a RINEX observation file.
-    
+
     Args:
         filepath: Path to RINEX file
-        
+
     Returns:
         Dictionary containing observations
-        
+
     Raises:
         FileNotFoundError: If file doesn't exist
     """

@@ -309,7 +309,7 @@ pip install canvodpy  # Umbrella package that depends on all
    ```bash
    # Store token securely
    uv publish --token $PYPI_TOKEN
-   
+
    # OR use .pypirc
    cat > ~/.pypirc << EOF
    [pypi]
@@ -471,6 +471,7 @@ module-name = "canvod.readers"
 ```
 
 **Metadata shows up on PyPI:**
+
 - Package name, description
 - Author information
 - License

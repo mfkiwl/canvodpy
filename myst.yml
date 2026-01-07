@@ -3,6 +3,9 @@ version: 1
 extends:
   - https://github.com/TUW-GEO/cookiecutter-docs-config/raw/main/myst.yml
 
+site:
+  logo: null  # Remove the TU Wien logo
+
 project:
   title: canVODpy
   subtitle: Modern GNSS Vegetation Optical Depth Analysis
@@ -13,6 +16,9 @@ project:
   github: https://github.com/nfb2021/canvodpy
   open_access: true
   license: Apache-2.0
+  exports:
+    - format: pdf
+      output: canvodpy-documentation.pdf
   
   toc:
     - file: README.md
@@ -54,8 +60,6 @@ project:
       children:
         - file: CONTRIBUTING.md
           title: Contributing Guide
-        - file: LICENSE
-          title: License
   
   error_rules:
     - rule: image-downloads

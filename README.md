@@ -13,7 +13,7 @@ GNSS Vegetation Optical Depth (VOD) analysis package - Modern monorepo architect
 
 ## Overview
 
-canVODpy is a modular ecosystem for GNSS-based vegetation optical depth analysis, organized as a monorepo with independent packages:
+canVODpy is a modular ecosystem for GNSS-T-based vegetation optical depth analysis, organized as a monorepo with independent packages:
 
 - **canvod-readers** - RINEX and GNSS data format readers
 - **canvod-aux** - Auxiliary data handling
