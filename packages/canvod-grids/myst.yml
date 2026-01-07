@@ -1,0 +1,21 @@
+version: 1
+
+extends:
+  - https://github.com/TUW-GEO/cookiecutter-docs-config/raw/main/myst.yml
+
+project:
+  title: canvod-grids
+  authors:
+    - name: Nicolas Bader
+  github: https://github.com/nfb2021/canvodpy
+  open_access: true
+  toc:
+    - file: README.md
+    - title: "API"
+      children:
+        - file: docs/index.ipynb
+  error_rules:
+    - rule: image-downloads
+      severity: ignore
+    - rule: link-resolves
+      severity: ignore

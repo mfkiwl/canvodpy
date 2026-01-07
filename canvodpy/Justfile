@@ -1,0 +1,25 @@
+_default:
+    @just --list --unsorted
+
+alias c := clean
+alias q := check
+alias t := test
+
+check:
+    uv run ruff check . --fix
+    uv run ruff format .
+    uv run ty check
+
+test:
+    uv run pytest
+
+clean:
+    rm -fr build/ dist/ .eggs/
+    find . -name '*.egg-info' -exec rm -fr {} +
+    find . -name '__pycache__' -exec rm -fr {} +
+
+sync:
+    uv sync
+
+build:
+    uv build
