@@ -1,5 +1,17 @@
 # MyST Configuration Guide
 
+## Custom Theme
+
+canVODpy uses a custom dark theme optimized for documentation. See [THEME.md](THEME.md) for complete details.
+
+**Quick facts:**
+- **Colors**: Dark mode palette (#000000, #007449, #53585F, #C9DABC, #CCD9BF, #2A2338)
+- **Font**: Space Grotesk
+- **Logo**: TU Wien (white version)
+- **File**: `docs/assets/canvod-style.css`
+
+---
+
 ## Logo Customization
 
 The TU Wien logo appears because your `myst.yml` extends the TUW-GEO configuration:

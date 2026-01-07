@@ -1,0 +1,452 @@
+/* canVODpy Custom Dark Theme
+ * Colors from presentation: #000000, #007449, #53585F, #C9DABC, #CCD9BF, #2A2338
+ * Font: Space Grotesk
+ */
+
+/* Import Space Grotesk font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* ========================================
+   ROOT VARIABLES - Color Scheme
+   ======================================== */
+:root {
+  /* Brand Colors */
+  --canvod-black: #000000;
+  --canvod-green: #007449;
+  --canvod-gray: #53585F;
+  --canvod-light-green-1: #C9DABC;
+  --canvod-light-green-2: #CCD9BF;
+  --canvod-purple: #2A2338;
+  
+  /* Semantic Colors */
+  --color-background: var(--canvod-black);
+  --color-surface: var(--canvod-purple);
+  --color-primary: var(--canvod-green);
+  --color-primary-hover: #009960;
+  --color-text: var(--canvod-light-green-1);
+  --color-text-muted: var(--canvod-gray);
+  --color-border: var(--canvod-gray);
+  --color-accent: var(--canvod-light-green-2);
+  
+  /* Font */
+  --font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-mono: 'Monaco', 'Consolas', 'Courier New', monospace;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+html {
+  background-color: var(--color-background);
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family);
+  font-weight: 600;
+  color: var(--canvod-light-green-1);
+}
+
+h1 {
+  color: var(--canvod-green);
+  font-weight: 700;
+  border-bottom: 2px solid var(--canvod-green);
+  padding-bottom: 0.5rem;
+}
+
+h2 {
+  color: var(--canvod-light-green-2);
+  border-bottom: 1px solid var(--canvod-gray);
+  padding-bottom: 0.3rem;
+}
+
+h3 {
+  color: var(--canvod-light-green-1);
+}
+
+p, li, td, th {
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+strong, b {
+  color: var(--canvod-light-green-2);
+  font-weight: 600;
+}
+
+em, i {
+  color: var(--canvod-light-green-2);
+}
+
+/* ========================================
+   LINKS
+   ======================================== */
+a {
+  color: var(--canvod-green);
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+  border-bottom-color: var(--color-primary-hover);
+}
+
+a:visited {
+  color: var(--canvod-green);
+}
+
+/* ========================================
+   NAVIGATION & SIDEBAR
+   ======================================== */
+.article-navigation,
+.site-navigation,
+nav {
+  background-color: var(--canvod-purple);
+  border-right: 1px solid var(--canvod-gray);
+}
+
+.nav-link,
+.site-navigation a {
+  color: var(--color-text);
+  font-family: var(--font-family);
+}
+
+.nav-link:hover,
+.site-navigation a:hover {
+  color: var(--canvod-green);
+  background-color: rgba(0, 116, 73, 0.1);
+}
+
+.nav-link.active,
+.site-navigation a.active {
+  color: var(--canvod-green);
+  font-weight: 600;
+  border-left: 3px solid var(--canvod-green);
+}
+
+/* ========================================
+   CODE BLOCKS
+   ======================================== */
+code {
+  font-family: var(--font-family-mono);
+  background-color: var(--canvod-purple);
+  color: var(--canvod-light-green-2);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+pre {
+  background-color: var(--canvod-purple);
+  border: 1px solid var(--canvod-gray);
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+  color: var(--canvod-light-green-1);
+}
+
+/* Syntax highlighting adjustments */
+.highlight {
+  background-color: var(--canvod-purple);
+}
+
+.highlight .k,  /* Keywords */
+.highlight .kn { /* Keyword namespace */
+  color: var(--canvod-green);
+  font-weight: 600;
+}
+
+.highlight .s,  /* Strings */
+.highlight .s1,
+.highlight .s2 {
+  color: var(--canvod-light-green-2);
+}
+
+.highlight .c,  /* Comments */
+.highlight .cm {
+  color: var(--canvod-gray);
+  font-style: italic;
+}
+
+.highlight .n,  /* Names */
+.highlight .nf { /* Function names */
+  color: var(--canvod-light-green-1);
+}
+
+/* ========================================
+   TABLES
+   ======================================== */
+table {
+  border-collapse: collapse;
+  background-color: var(--canvod-purple);
+  border: 1px solid var(--canvod-gray);
+}
+
+th {
+  background-color: var(--canvod-green);
+  color: var(--canvod-black);
+  font-weight: 600;
+  padding: 0.75rem;
+  text-align: left;
+  border: 1px solid var(--canvod-gray);
+}
+
+td {
+  padding: 0.75rem;
+  border: 1px solid var(--canvod-gray);
+}
+
+tr:nth-child(even) {
+  background-color: rgba(42, 35, 56, 0.5);
+}
+
+tr:hover {
+  background-color: rgba(0, 116, 73, 0.1);
+}
+
+/* ========================================
+   BLOCKQUOTES & ADMONITIONS
+   ======================================== */
+blockquote {
+  border-left: 4px solid var(--canvod-green);
+  background-color: var(--canvod-purple);
+  padding: 1rem;
+  margin: 1rem 0;
+  color: var(--canvod-light-green-1);
+}
+
+.admonition,
+.note,
+.warning,
+.tip {
+  background-color: var(--canvod-purple);
+  border-left: 4px solid var(--canvod-green);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+.admonition-title,
+.note-title,
+.warning-title,
+.tip-title {
+  color: var(--canvod-green);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.warning {
+  border-left-color: #ff9800;
+}
+
+.warning .warning-title {
+  color: #ff9800;
+}
+
+/* ========================================
+   HEADER & LOGO
+   ======================================== */
+.header,
+.site-header {
+  background-color: var(--canvod-black);
+  border-bottom: 2px solid var(--canvod-green);
+}
+
+.logo img {
+  max-height: 48px;
+  filter: brightness(0.9);
+}
+
+.site-title {
+  color: var(--canvod-green);
+  font-family: var(--font-family);
+  font-weight: 700;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+footer,
+.site-footer {
+  background-color: var(--canvod-purple);
+  border-top: 1px solid var(--canvod-gray);
+  color: var(--canvod-gray);
+  padding: 2rem 0;
+  margin-top: 4rem;
+}
+
+footer a {
+  color: var(--canvod-green);
+}
+
+/* ========================================
+   BUTTONS & INTERACTIVE ELEMENTS
+   ======================================== */
+button,
+.button {
+  background-color: var(--canvod-green);
+  color: var(--canvod-black);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-family: var(--font-family);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover,
+.button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* ========================================
+   SEARCH
+   ======================================== */
+.search-input,
+input[type="search"] {
+  background-color: var(--canvod-purple);
+  color: var(--color-text);
+  border: 1px solid var(--canvod-gray);
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-family: var(--font-family);
+}
+
+.search-input:focus,
+input[type="search"]:focus {
+  outline: none;
+  border-color: var(--canvod-green);
+  box-shadow: 0 0 0 2px rgba(0, 116, 73, 0.2);
+}
+
+/* ========================================
+   CARDS & CONTAINERS
+   ======================================== */
+.card,
+.container,
+.content-block {
+  background-color: var(--canvod-purple);
+  border: 1px solid var(--canvod-gray);
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* ========================================
+   HORIZONTAL RULES
+   ======================================== */
+hr {
+  border: none;
+  border-top: 2px solid var(--canvod-gray);
+  margin: 2rem 0;
+}
+
+/* ========================================
+   LISTS
+   ======================================== */
+ul, ol {
+  padding-left: 1.5rem;
+}
+
+li::marker {
+  color: var(--canvod-green);
+}
+
+/* Task lists */
+input[type="checkbox"] {
+  accent-color: var(--canvod-green);
+}
+
+/* ========================================
+   SCROLLBAR (Webkit browsers)
+   ======================================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--canvod-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--canvod-gray);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--canvod-green);
+}
+
+/* ========================================
+   SELECTION
+   ======================================== */
+::selection {
+  background-color: var(--canvod-green);
+  color: var(--canvod-black);
+}
+
+::-moz-selection {
+  background-color: var(--canvod-green);
+  color: var(--canvod-black);
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+:focus-visible {
+  outline: 2px solid var(--canvod-green);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+  
+  a {
+    color: #007449;
+  }
+  
+  pre, code {
+    background-color: #f5f5f5;
+    color: black;
+  }
+}
