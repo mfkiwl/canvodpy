@@ -1,7 +1,7 @@
 [project]
 name = "canvod-viz"
 version = "0.1.0"
-description = "canVOD viz subpackage"
+description = "Placeholder for viz"
 requires-python = ">=3.13"
 dependencies = []
 
@@ -11,4 +11,4 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-namespaces = true
+namespaces = false
