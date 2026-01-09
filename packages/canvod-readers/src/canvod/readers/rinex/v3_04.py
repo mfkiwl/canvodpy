@@ -13,42 +13,31 @@ Classes:
 - Rnxv3Obs: Main reader class, converts RINEX to xarray Dataset
 """
 
+import hashlib
+import json
+import warnings
 from collections import Counter, defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timedelta
-import hashlib
-import json
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Set, Tuple, Union
-import warnings
 
 import georinex as gr
 import numpy as np
 import pint
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-    PrivateAttr,
-    ValidationError,
-    field_validator,
-    model_validator,
-)
-from pydantic.dataclasses import dataclass
 import pytz
 import xarray as xr
-
-from canvod.readers._shared.exceptions import (
-    IncompleteEpochError,
-    InvalidEpochError,
-    MissingEpochError,
-)
 from canvod.readers._shared.constants import (
     AGGREGATE_GLONASS_FDMA,
     COMPRESSION,
     EPOCH_RECORD_INDICATOR,
     KEEP_RNX_VARS,
     UREG,
+)
+from canvod.readers._shared.exceptions import (
+    IncompleteEpochError,
+    InvalidEpochError,
+    MissingEpochError,
 )
 from canvod.readers._shared.metadata import (
     CN0_METADATA,
@@ -59,8 +48,6 @@ from canvod.readers._shared.metadata import (
     OBSERVABLES_METADATA,
     SNR_METADATA,
 )
-from canvod.readers._shared.signals import SignalIDMapper
-from canvod.readers._shared.utils import get_version_from_pyproject, rinex_file_hash
 from canvod.readers._shared.models import (
     Epoch,
     Observation,
@@ -71,6 +58,18 @@ from canvod.readers._shared.models import (
     RnxVersion3Model,
     Satellite,
 )
+from canvod.readers._shared.signals import SignalIDMapper
+from canvod.readers._shared.utils import get_version_from_pyproject, rinex_file_hash
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
+from pydantic.dataclasses import dataclass
 
 
 class Rnxv3Header(BaseModel):
@@ -140,27 +139,20 @@ class Rnxv3Header(BaseModel):
     @classmethod
     def from_file(cls, fpath: Path) -> "Rnxv3Header":
         """Factory method to create header from RINEX file."""
-        # External validation models handle file and version checks
 
-        # token = set_file_context(fpath)  # Removed: logging
-        # log = get_logger()  # Removed: logging
         try:
-            # log.info("Reading RINEX header")
             file_model = RnxObsFileModel(fpath=fpath)
 
             try:
                 header = gr.rinexheader(fpath)
             except Exception as e:
-                # log.exception("Failed to read RINEX header")
                 raise ValueError(f"Failed to read RINEX header: {e}")
 
             RnxVersion3Model.version_must_be_3(header["version"])
             parsed_data = cls._parse_header_data(header, fpath)
-            # log.info("Successfully parsed header")
             return cls.model_validate(parsed_data)
         finally:
             pass
-            # reset_context(token)  # Removed: logging
 
     @classmethod
     def from_file(cls, fpath: Path) -> "Rnxv3Header":
@@ -191,7 +183,6 @@ class Rnxv3Header(BaseModel):
             'systems': header.get("systems", ""),
         }
 
-        # 🔧 Use original logic for PGM / RUN BY / DATE (returns datetime)
         if "PGM / RUN BY / DATE" in header:
             pgm, run_by, date_dt = Rnxv3Header._get_pgm_runby_date(header)
             data.update({
@@ -206,7 +197,6 @@ class Rnxv3Header(BaseModel):
                 'date': datetime.now()  # Default to current time
             })
 
-        # Use original logic for other parsing methods
         if "OBSERVER / AGENCY" in header:
             observer, agency = Rnxv3Header._get_observer_agency(header)
             data.update({'observer': observer, 'agency': agency})
@@ -261,7 +251,6 @@ class Rnxv3Header(BaseModel):
             ],
         })
 
-        # Use original time parsing method
         if "TIME OF FIRST OBS" in header:
             data['t0'] = Rnxv3Header._get_time_of_first_obs(header)
         else:
@@ -612,8 +601,7 @@ class Rnxv3Obs(BaseModel):
         epoch_record_indicator: str = EPOCH_RECORD_INDICATOR
     ) -> list[tuple[int, int]]:
         """Get the start and end line numbers for each epoch in the file."""
-        # with open(self.fpath, "r") as f:
-        # lines = f.readlines()
+
         starts = [
             i for i, line in enumerate(self._load_file())
             if line.startswith(epoch_record_indicator)
@@ -756,40 +744,6 @@ class Rnxv3Obs(BaseModel):
 
         return satellite
 
-    # @property
-    # def epochs(self) -> List[Rnxv3ObsEpochRecord]:
-    #     """Get all epochs from the RINEX file."""
-    #     batch_list = self.get_epoch_record_batches()
-    #     _epochs = []
-
-    #     # with open(self.fpath, "r") as f:
-    #     #     lines = f.readlines()
-    #     for batch in batch_list:
-    #         try:
-    #             info = Rnxv3ObsEpochRecordLineModel(
-    #                 epoch=self._lines[batch[0]])
-    #             data = self._lines[batch[0] + 1:batch[1]]
-    #             epoch = Rnxv3ObsEpochRecord(
-    #                 info=info,
-    #                 data=[self.process_satellite_data(line) for line in data])
-    #             _epochs.append(epoch)
-
-    #         except (InvalidEpochError, IncompleteEpochError) as e:
-    #             # get_logger().warning(
-    #                 "Error in epoch record, skipping",
-    #                 error=str(e),
-    #                 epoch_start_line=batch[0],
-    #             )
-
-    #         except Exception as e:
-    #             # get_logger().exception(
-    #                 "Unexpected error processing epoch, skipping",
-    #                 error=str(e),
-    #                 epoch_start_line=batch[0],
-    #             )
-
-    #     return _epochs
-
     @property
     def epochs(self) -> list[Rnxv3ObsEpochRecord]:
         """Materialize all epochs (legacy compatibility)."""
@@ -808,10 +762,7 @@ class Rnxv3Obs(BaseModel):
                 )
                 yield epoch
             except (InvalidEpochError, IncompleteEpochError) as e:
-                # Logging removed: get_logger().warning("Error in epoch record, skipping")
-                pass
-            except Exception as e:
-                # Logging removed: get_logger().exception("Unexpected error processing epoch, skipping")
+                # Skip unexpected errors silently
                 pass
 
     def iter_epochs_in_range(self, start: datetime,
@@ -822,17 +773,6 @@ class Rnxv3Obs(BaseModel):
             if start <= dt <= end:
                 yield epoch
 
-    # def get_epochs_in_range(self, start: datetime,
-    #                         end: datetime) -> List[Rnxv3ObsEpochRecord]:
-    #     """Get all epochs within a specified time range."""
-    #     # return [
-    #     #     epoch for epoch in self.epochs if start <=
-    #     #     self.get_datetime_from_epoch_record_info(epoch.info) <= end
-    #     # ]
-    #     return [
-    #         epoch for epoch in self.iter_epochs() if start <=
-    #         self.get_datetime_from_epoch_record_info(epoch.info) <= end
-    #     ]
 
     def get_datetime_from_epoch_record_info(
             self, epoch_record_info: Rnxv3ObsEpochRecordLineModel) -> datetime:
@@ -861,8 +801,6 @@ class Rnxv3Obs(BaseModel):
     def _epoch_datetimes(self) -> list[datetime]:
         """Extract epoch datetimes from the file (using the same epoch parsing you already have)."""
         dts: list[datetime] = []
-        # with open(self.fpath, "r") as f:
-        #     lines = f.readlines()
 
         for start, end in self.get_epoch_record_batches():
             info = Rnxv3ObsEpochRecordLineModel(epoch=self._lines[start])
@@ -950,8 +888,8 @@ class Rnxv3Obs(BaseModel):
         if sampling_interval is None:
             inferred = self.infer_sampling_interval()
             if inferred is None:
-                raise ValueError(
-                    "Could not infer sampling interval from epochs.")
+                msg = "Could not infer sampling interval from epochs"
+                raise ValueError(msg)
             sampling_interval = inferred
         else:
             # normalize to pint
@@ -964,8 +902,8 @@ class Rnxv3Obs(BaseModel):
             inferred_dump = self.infer_dump_interval(
                 sampling_interval=sampling_interval)
             if inferred_dump is None:
-                raise ValueError("Could not infer dump interval from file.")
-            dump_interval = inferred_dump
+                msg = "Could not infer dump interval from file"
+                raise ValueError(msg)            dump_interval = inferred_dump
         else:
             if not isinstance(dump_interval, pint.Quantity):
                 # Accept '15 min', '1h', etc.
@@ -1002,236 +940,6 @@ class Rnxv3Obs(BaseModel):
             else:
                 keep.append(sid)
         return ds.sel(sid=keep)
-
-    # def create_rinex_netcdf_with_signal_id(
-    #     self,
-    #     analyze_conflicts: bool = False,
-    #     analyze_systems: bool = False,
-    # ) -> xr.Dataset:
-    #     # raw_epochs = self.epochs
-    #     if analyze_conflicts:
-    #         print(
-    #             "\nNote: Conflict analysis will be adapted for sid structure.")
-    #     if analyze_systems:
-    #         print("\nNote: System analysis will be adapted for sid structure.")
-
-    #     signal_ids = set()
-    #     signal_id_to_properties: Dict[str, Dict[str, object]] = {}
-    #     timestamps: List[np.datetime64] = []
-
-    #     # for epoch in raw_epochs:
-    #     for epoch in self.iter_epochs():
-    #         dt = self.epochrecordinfo_dt_to_numpy_dt(epoch)
-    #         timestamps.append(np.datetime64(dt, "ns"))
-
-    #         for sat in epoch.data:
-    #             sv = sat.sv
-    #             for obs in sat.observations:
-    #                 if not self.include_auxiliary and obs.observation_freq_tag.endswith(
-    #                         "|X1"):
-    #                     continue
-
-    #                 sid = self._signal_mapper.create_signal_id(
-    #                     sv, obs.observation_freq_tag)
-    #                 signal_ids.add(sid)
-
-    #                 if sid not in signal_id_to_properties:
-    #                     sv_part, band, code = self._signal_mapper.parse_signal_id(
-    #                         sid)
-    #                     system = sv_part[0]
-    #                     center_frequency = self._signal_mapper.get_band_frequency(
-    #                         band)
-    #                     bandwidth = self._signal_mapper.get_band_bandwidth(
-    #                         band)
-    #                     overlapping_group = self._signal_mapper.get_overlapping_group(
-    #                         band)
-
-    #                     if center_frequency is not None and bandwidth is not None:
-    #                         bw = bandwidth[0] if isinstance(
-    #                             bandwidth, list) else bandwidth
-    #                         freq_min = center_frequency - (bw / 2.0)
-    #                         freq_max = center_frequency + (bw / 2.0)
-    #                     else:
-    #                         bw = np.nan
-    #                         freq_min = np.nan
-    #                         freq_max = np.nan
-
-    #                     signal_id_to_properties[sid] = {
-    #                         "sv": sv_part,
-    #                         "system": system,
-    #                         "band": band,
-    #                         "code": code,
-    #                         "freq_center": center_frequency or np.nan,
-    #                         "freq_min": freq_min,
-    #                         "freq_max": freq_max,
-    #                         "bandwidth": bw,
-    #                         "overlapping_group": overlapping_group,
-    #                     }
-
-    #     sorted_signal_ids = sorted(signal_ids)
-    #     n_epochs = len(timestamps)
-    #     n_signals = len(sorted_signal_ids)
-    #     # print(
-    #     #     f"Creating dataset with {n_epochs} epochs and {n_signals} Signal_IDs"
-    #     # )
-
-    #     data_arrays = {
-    #         "SNR":
-    #         np.full((n_epochs, n_signals), np.nan, dtype=DTYPES["SNR"]),
-    #         "Pseudorange":
-    #         np.full((n_epochs, n_signals), np.nan,
-    #                 dtype=DTYPES["Pseudorange"]),
-    #         "Phase":
-    #         np.full((n_epochs, n_signals), np.nan, dtype=DTYPES["Phase"]),
-    #         "Doppler":
-    #         np.full((n_epochs, n_signals), np.nan, dtype=DTYPES["Doppler"]),
-    #         "LLI":
-    #         np.full((n_epochs, n_signals), -1, dtype=DTYPES["LLI"]),
-    #         "SSI":
-    #         np.full((n_epochs, n_signals), -1, dtype=DTYPES["SSI"]),
-    #     }
-    #     sid_to_idx = {sid: i for i, sid in enumerate(sorted_signal_ids)}
-
-    #     # for t_idx, epoch in enumerate(raw_epochs):
-    #     for t_idx, epoch in enumerate(self.iter_epochs()):
-    #         for sat in epoch.data:
-    #             sv = sat.sv
-    #             for obs in sat.observations:
-    #                 if not self.include_auxiliary and obs.observation_freq_tag.endswith(
-    #                         "|X1"):
-    #                     continue
-    #                 if obs.value is None:
-    #                     continue
-    #                 sid = self._signal_mapper.create_signal_id(
-    #                     sv, obs.observation_freq_tag)
-    #                 if sid not in sid_to_idx:
-    #                     continue
-    #                 s_idx = sid_to_idx[sid]
-
-    #                 ot = obs.obs_type
-    #                 if ot == "S" and obs.value != 0:
-    #                     data_arrays["SNR"][t_idx, s_idx] = obs.value
-    #                 elif ot == "C":
-    #                     data_arrays["Pseudorange"][t_idx, s_idx] = obs.value
-    #                 elif ot == "L":
-    #                     data_arrays["Phase"][t_idx, s_idx] = obs.value
-    #                 elif ot == "D":
-    #                     data_arrays["Doppler"][t_idx, s_idx] = obs.value
-    #                 elif ot == "X":
-    #                     data_arrays.setdefault(
-    #                         "Auxiliary",
-    #                         np.full((n_epochs, n_signals),
-    #                                 np.nan,
-    #                                 dtype=np.float32))
-    #                     data_arrays["Auxiliary"][t_idx, s_idx] = obs.value
-
-    #                 if obs.lli is not None:
-    #                     data_arrays["LLI"][t_idx, s_idx] = obs.lli
-    #                 if obs.ssi is not None:
-    #                     data_arrays["SSI"][t_idx, s_idx] = obs.ssi
-
-    #     # coords & metadata
-    #     signal_id_coord = xr.DataArray(sorted_signal_ids,
-    #                                    dims=["sid"],
-    #                                    attrs=COORDS_METADATA['sid'])
-    #     sv_list = [
-    #         signal_id_to_properties[sid]["sv"] for sid in sorted_signal_ids
-    #     ]
-    #     constellation_list = [
-    #         signal_id_to_properties[sid]["system"] for sid in sorted_signal_ids
-    #     ]
-    #     band_list = [
-    #         signal_id_to_properties[sid]["band"] for sid in sorted_signal_ids
-    #     ]
-    #     code_list = [
-    #         signal_id_to_properties[sid]["code"] for sid in sorted_signal_ids
-    #     ]
-    #     freq_center_list = [
-    #         signal_id_to_properties[sid]["freq_center"]  #.magnitude
-    #         for sid in sorted_signal_ids
-    #     ]
-    #     freq_min_list = [
-    #         signal_id_to_properties[sid]["freq_min"]  #.magnitude
-    #         for sid in sorted_signal_ids
-    #     ]
-    #     freq_max_list = [
-    #         signal_id_to_properties[sid]["freq_max"]  #.magnitude
-    #         for sid in sorted_signal_ids
-    #     ]
-
-    #     freq_center_coord = xr.DataArray(freq_center_list,
-    #                                      dims=["sid"],
-    #                                      attrs=COORDS_METADATA['freq_center'])
-    #     freq_min_coord = xr.DataArray(freq_min_list,
-    #                                   dims=["sid"],
-    #                                   attrs=COORDS_METADATA['freq_min'])
-    #     freq_max_coord = xr.DataArray(freq_max_list,
-    #                                   dims=["sid"],
-    #                                   attrs=COORDS_METADATA['freq_max'])
-
-    #     coord_arrays = {
-    #         "sv":
-    #         sv_list,
-    #         "system":
-    #         constellation_list,
-    #         "band":
-    #         band_list,
-    #         "code":
-    #         code_list,
-    #         "freq_center":
-    #         np.asarray(freq_center_list, dtype=DTYPES["freq_center"]),
-    #         "freq_min":
-    #         np.asarray(freq_min_list, dtype=DTYPES["freq_min"]),
-    #         "freq_max":
-    #         np.asarray(freq_max_list, dtype=DTYPES["freq_max"]),
-    #     }
-
-    #     coords = {
-    #         "epoch": ("epoch", timestamps, COORDS_METADATA["epoch"]),
-    #         "sid": signal_id_coord,
-    #     }
-
-    #     for name, arr in coord_arrays.items():
-    #         coords[name] = ("sid", arr, COORDS_METADATA[name])
-
-    #     if self.header.signal_strength_unit == UREG.dBHz:
-    #         snr_meta = CN0_METADATA
-    #     else:
-    #         snr_meta = SNR_METADATA
-
-    #     ds = xr.Dataset(
-    #         data_vars={
-    #             "SNR": (["epoch", "sid"], data_arrays["SNR"], snr_meta),
-    #             "Pseudorange": (["epoch", "sid"], data_arrays["Pseudorange"],
-    #                             OBSERVABLES_METADATA["Pseudorange"]),
-    #             "Phase":
-    #             (["epoch",
-    #               "sid"], data_arrays["Phase"], OBSERVABLES_METADATA["Phase"]),
-    #             "Doppler": (["epoch", "sid"], data_arrays["Doppler"],
-    #                         OBSERVABLES_METADATA["Doppler"]),
-    #             "LLI":
-    #             (["epoch",
-    #               "sid"], data_arrays["LLI"], OBSERVABLES_METADATA["LLI"]),
-    #             "SSI": (["epoch", "sid"], data_arrays["SSI"],
-    #                     OBSERVABLES_METADATA["SSI"]),
-    #         },
-    #         coords=coords,
-    #         attrs={**self._create_basic_attrs()},
-    #     )
-
-    #     if "Auxiliary" in data_arrays:
-    #         ds["Auxiliary"] = (
-    #             ["epoch", "sid"],
-    #             data_arrays["Auxiliary"],
-    #             OBSERVABLES_METADATA["Auxiliary"],
-    #         )
-
-    #     # optional overlap filter at creation time
-    #     if self.apply_overlap_filter:
-    #         ds = self.filter_by_overlapping_groups(ds,
-    #                                                self.overlap_preferences)
-
-    #     return ds
 
     def create_rinex_netcdf_with_signal_id(
         self,
@@ -1500,7 +1208,7 @@ class Rnxv3Obs(BaseModel):
             pass
 
         # TODO: Move to canvod-store
-            # ds = IcechunkPreprocessor.normalize_sid_dtype(ds)
+        # ds = IcechunkPreprocessor.normalize_sid_dtype(ds)
 
         if write_global_attrs:
             ds.attrs.update(self._create_comprehensive_attrs())
@@ -1579,11 +1287,6 @@ class Rnxv3Obs(BaseModel):
             json.dumps(self.header.glonass_slot_freq_dict),
             "Leap Seconds":
             f"{self.header.leap_seconds:~}",
-            # "Observation Codes":
-            # json.dumps({
-            #     SignalIDMapper().lut_system[k]: v
-            #     for k, v in self.header.obs_codes_per_system.items()
-            # }),
         }
         return attrs
 
@@ -1700,7 +1403,6 @@ if __name__ == "__main__":
     filepath = Path(
         '/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/05_data/01_Rosalia/02_canopy/01_GNSS/01_raw/25036/ract036b30.25o'
     )
-    # filepath = Path('/home/nbader/Developer/new_gnss_datastructure/rnx.25o')
     # Example of how to use it
 
     # Create NetCDF with observation frequency tags instead of frequencies
@@ -1715,12 +1417,8 @@ if __name__ == "__main__":
     # Create sid based dataset
     ds_signal_id = rnx.to_ds(
         outname="enhanced_rinex_signal_id3.nc",
-        # keep_rnx_data_vars=[
-        #     "Pseudorange", "Phase", "Doppler", "SNR", "LLI", "SSI", "Auxiliary"
-        # ],
-        keep_rnx_data_vars=["SNR"],
+        keep_rnx_data_vars=["SNR"], # ["Pseudorange", "Phase", "Doppler", "SNR"]
         write_global_attrs=False,
-        # apply_overlap_filter=True,
     )
 
     print("sid Dataset created successfully!")
@@ -1731,17 +1429,17 @@ if __name__ == "__main__":
 
     # Example filtering operations:
 
-    # # Filter by system
-    # gps_data = ds_signal_id.where(ds_signal_id.system == 'G', drop=True)
+    # Filter by system
+    gps_data = ds_signal_id.where(ds_signal_id.system == 'G', drop=True)
 
-    # # Filter by specific band
-    # l1_data = ds_signal_id.where(ds_signal_id.band == 'L1', drop=True)
+    # Filter by specific band
+    l1_data = ds_signal_id.where(ds_signal_id.band == 'L1', drop=True)
 
-    # # Filter by code type
-    # ca_code_data = ds_signal_id.where(ds_signal_id.code == 'C', drop=True)
+    # Filter by code type
+    ca_code_data = ds_signal_id.where(ds_signal_id.code == 'C', drop=True)
 
-    # # Complex filtering - GPS L1 C/A code signals only
-    # gps_l1_ca = ds_signal_id.where(
-    #     (ds_signal_id.system == 'G') & (ds_signal_id.band == 'L1') &
-    #     (ds_signal_id.code == 'C'),
-    #     drop=True)
+    # Complex filtering - GPS L1 C/A code signals only
+    gps_l1_ca = ds_signal_id.where(
+        (ds_signal_id.system == 'G') & (ds_signal_id.band == 'L1') &
+        (ds_signal_id.code == 'C'),
+        drop=True)
