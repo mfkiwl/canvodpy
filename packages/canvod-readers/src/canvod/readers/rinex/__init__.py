@@ -1,0 +1,13 @@
+"""RINEX format readers.
+
+Supports multiple RINEX versions:
+- v3.04 (current)
+- v2.x (future)
+- v4.x (future)
+"""
+
+from canvod.readers.rinex.v3_04 import Rnxv3Reader
+
+__all__ = [
+    "Rnxv3Reader",
+]
