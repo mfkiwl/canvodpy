@@ -37,6 +37,17 @@
         // --- Python Environment ---
         "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
 
+        // --- Testing Configuration ---
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": [
+            "-v",
+            "--tb=short",
+            "--strict-markers",
+            "--strict-config"
+        ],
+        "python.testing.autoTestDiscoverOnSaveEnabled": true,
+
         // --- Ruff (native server) ---
         "ruff.enable": true,
         "ruff.lint.enable": true,
@@ -55,6 +66,15 @@
         "python.analysis.typeCheckingMode": "strict",
         "python.analysis.diagnosticSeverityOverrides": {
             "reportMissingTypeStubs": "none"
+        },
+
+        // --- File Exclusions ---
+        "files.exclude": {
+            "**/__pycache__": true,
+            "**/*.pyc": true,
+            "**/.pytest_cache": true,
+            "**/*.egg-info": true,
+            "**/.ruff_cache": true
         },
 
         // --- Theme / UI ---

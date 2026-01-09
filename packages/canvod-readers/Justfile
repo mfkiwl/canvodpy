@@ -34,3 +34,11 @@ sync:
 # build package
 build:
     uv build
+
+# run marimo notebook
+marimo:
+    uv run marimo edit docs/examples.py
+
+# run marimo notebook in presentation mode
+marimo-present:
+    uv run marimo run docs/examples.py

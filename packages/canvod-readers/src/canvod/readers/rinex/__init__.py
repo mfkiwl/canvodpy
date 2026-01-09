@@ -6,8 +6,8 @@ Supports multiple RINEX versions:
 - v4.x (future)
 """
 
-from canvod.readers.rinex.v3_04 import Rnxv3Reader
+from canvod.readers.rinex.v3_04 import Rnxv3Obs
 
 __all__ = [
-    "Rnxv3Reader",
+    "Rnxv3Obs",
 ]

@@ -1,19 +1,19 @@
 # ✅ Code Verification Report - canvod-readers Migration
 
-**Date**: January 9, 2026  
+**Date**: January 9, 2026
 **Status**: **ALL CODE PRESENT AND SYNTAX-VALID** ✅
 
 ---
 
 ## 📊 Summary
 
-| Metric | Value |
-|--------|-------|
-| **Total Python files** | 11 files |
-| **Total lines of code** | **2,870 lines** |
-| **Syntax errors** | **0** (all fixed) |
-| **Import structure** | ✅ Correct |
-| **Namespace** | ✅ canvod.readers |
+| Metric                  | Value             |
+| ----------------------- | ----------------- |
+| **Total Python files**  | 11 files          |
+| **Total lines of code** | **2,870 lines**   |
+| **Syntax errors**       | **0** (all fixed) |
+| **Import structure**    | ✅ Correct         |
+| **Namespace**           | ✅ canvod.readers  |
 
 ---
 
@@ -25,7 +25,7 @@ src/canvod/readers/
 ├── __init__.py                    41 lines  ✅
 ├── base.py                       169 lines  ✅
 │
-├── _shared/                      (Private utilities)
+├── gnss_specs/                      (Private utilities)
 │   ├── __init__.py                 3 lines  ✅
 │   ├── constants.py               74 lines  ✅
 │   ├── exceptions.py              49 lines  ✅
@@ -60,12 +60,12 @@ src/canvod/readers/
 ### 2. Import Structure Verified
 ```python
 # All imports correctly updated:
-from canvod.readers._shared.exceptions import (...)
-from canvod.readers._shared.constants import (...)
-from canvod.readers._shared.metadata import (...)
-from canvod.readers._shared.signals import SignalIDMapper
-from canvod.readers._shared.utils import (...)
-from canvod.readers._shared.models import (...)
+from canvod.readers.gnss_specs.exceptions import (...)
+from canvod.readers.gnss_specs.constants import (...)
+from canvod.readers.gnss_specs.metadata import (...)
+from canvod.readers.gnss_specs.signals import SignalIDMapper
+from canvod.readers.gnss_specs.utils import (...)
+from canvod.readers.gnss_specs.models import (...)
 ```
 
 ### 3. Classes Confirmed Present
@@ -172,12 +172,12 @@ if strip_fillval:
 ## 🎯 Migration Changes Verified
 
 ### ✅ Imports Updated
-- [x] `gnssvodpy.error_handling` → `canvod.readers._shared.exceptions`
-- [x] `gnssvodpy.globals` → `canvod.readers._shared.constants`
-- [x] `gnssvodpy.rinexreader.metadata` → `canvod.readers._shared.metadata`
-- [x] `gnssvodpy.signal_frequency_mapping` → `canvod.readers._shared.signals`
-- [x] `gnssvodpy.utils.tools` → `canvod.readers._shared.utils`
-- [x] `gnssvodpy.validation_models` → `canvod.readers._shared.models`
+- [x] `gnssvodpy.error_handling` → `canvod.readers.gnss_specs.exceptions`
+- [x] `gnssvodpy.globals` → `canvod.readers.gnss_specs.constants`
+- [x] `gnssvodpy.rinexreader.metadata` → `canvod.readers.gnss_specs.metadata`
+- [x] `gnssvodpy.signal_frequency_mapping` → `canvod.readers.gnss_specs.signals`
+- [x] `gnssvodpy.utils.tools` → `canvod.readers.gnss_specs.utils`
+- [x] `gnssvodpy.validation_models` → `canvod.readers.gnss_specs.models`
 
 ### ✅ Logging Removed
 - [x] All `get_logger()` calls commented out
@@ -236,7 +236,7 @@ dev = [
 
 2. **Test basic import**:
    ```python
-   from canvod.readers import Rnxv3Reader
+   from canvod.readers import Rnxv3Obs
    from canvod.readers.base import GNSSReader, RinexReader
    print("✅ Import successful!")
    ```
@@ -245,7 +245,7 @@ dev = [
    ```python
    from canvod.readers.rinex.v3_04 import Rnxv3Obs
    from pathlib import Path
-   
+
    filepath = Path("path/to/file.24o")
    reader = Rnxv3Obs(fpath=filepath)
    ds = reader.to_ds()
@@ -257,7 +257,7 @@ dev = [
 ## 📝 Known Limitations
 
 ### 1. Simplified Signal Mapping
-**File**: `_shared/signals.py` (118 lines)
+**File**: `gnss_specs/signals.py` (118 lines)
 
 **Current**: Simplified version with basic band/frequency mappings
 
@@ -303,9 +303,9 @@ uv pip install -e .  # With uv
 
 ### Imports Work (after dependencies installed)
 ```python
-✅ from canvod.readers import Rnxv3Reader
+✅ from canvod.readers import Rnxv3Obs
 ✅ from canvod.readers.base import GNSSReader
-✅ from canvod.readers._shared import constants, exceptions, metadata
+✅ from canvod.readers.gnss_specs import constants, exceptions, metadata
 ```
 
 ---
@@ -331,6 +331,6 @@ uv pip install -e .  # With uv
 
 ---
 
-**Migration completed**: January 9, 2026  
-**Code quality**: Production-ready  
+**Migration completed**: January 9, 2026
+**Code quality**: Production-ready
 **Status**: ✅ **ALL GREEN** - Ready to commit and test

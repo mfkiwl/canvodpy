@@ -1,0 +1,275 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.19.0"
+  },
+  "cells": [
+    {
+      "id": "MJUe",
+      "code_hash": "bffbddf5a07de92a58c8f35d518c619c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"canvod-readers-examples\">canvod-readers Examples</h1>\n<span class=\"paragraph\">GNSS data format readers for the canVODpy ecosystem.</span>\n<span class=\"paragraph\">This package provides readers for various GNSS data formats, with a focus on RINEX v3.04 observation files.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "71935dea8a2a9c46cbb64b234625483e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"installation\">Installation</h2>\n<div class=\"language-bash codehilite\"><pre><span></span><code>uv<span class=\"w\"> </span>pip<span class=\"w\"> </span>install<span class=\"w\"> </span>canvod-readers\n</code></pre></div>\n<span class=\"paragraph\">For development:\n<div class=\"language-bash codehilite\"><pre><span></span><code>git<span class=\"w\"> </span>clone<span class=\"w\"> </span>https://github.com/nfb2021/canvodpy.git\n<span class=\"nb\">cd</span><span class=\"w\"> </span>canvodpy\nuv<span class=\"w\"> </span>sync\n</code></pre></div></span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "84db12ba145aac1cdc13a39d0a2ef45c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"import-the-package\">Import the Package</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "d416d801354d8e9bbf586b201f18d362",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"reading-rinex-v304-files\">Reading RINEX v3.04 Files</h2>\n<span class=\"paragraph\">The main class for reading RINEX v3.04 observation files is <code>Rnxv3Obs</code>.\nIt automatically parses the header and validates the file structure.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "ee1813136a97ef10fa6df264665f0da8",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"header-information\">Header Information</h2>\n<span class=\"paragraph\">The RINEX header contains important metadata about the observation file.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "856f6b83816e86863b12cfeb2416972d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"convert-to-xarray-dataset\">Convert to xarray Dataset</h2>\n<span class=\"paragraph\">The <code>to_ds()</code> method converts RINEX observations into an xarray Dataset\nwith proper metadata and coordinates.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "6d66070a8d8b4907a1b4ca8a6a81a974",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"filtering-data\">Filtering Data</h2>\n<span class=\"paragraph\">You can filter the dataset by system, band, or code.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "461b56bde8f1939f10f74ce3bed4a3f1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"epoch-iteration\">Epoch Iteration</h2>\n<span class=\"paragraph\">For memory-efficient processing, you can iterate through epochs:</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "4bccfdf3d7b1ce4e22ac2b3f512aa1e4",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"validation\">Validation</h2>\n<span class=\"paragraph\">The reader automatically validates epoch completeness:</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "1aba6b2a4fd77c25667f04c51e985cda",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"summary\">Summary</h2>\n<span class=\"paragraph\">Key features of <code>canvod-readers</code>:</span>\n<ul>\n<li><strong>Automatic validation</strong>: Header parsing and file structure validation</li>\n<li><strong>Signal IDs</strong>: Unique identifiers for each GNSS signal</li>\n<li><strong>xarray integration</strong>: Convert to xarray Datasets for analysis</li>\n<li><strong>Memory efficient</strong>: Lazy iteration through epochs</li>\n<li><strong>Flexible filtering</strong>: Filter by system, band, or code</li>\n<li><strong>Metadata rich</strong>: Comprehensive attributes and coordinates</li>\n</ul>\n<span class=\"paragraph\">For more information, see the <a href=\"../README.md\">API documentation</a>.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hbol",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "f23a9c179badcb1d5f4079b1c3caf0de",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "No module named 'gnssvodpy'",
+          "traceback": []
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/var/folders/28/y_s9x5m571b57m9rjqqnb0pm0000gp/T/marimo_28840/__marimo__cell_lEQa_.py&quot;</span>, line <span class=\"m\">3</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"kn\">from</span><span class=\"w\"> </span><span class=\"nn\">canvod.readers</span><span class=\"w\"> </span><span class=\"kn\">import</span> <span class=\"n\">Rnxv3Obs</span>\n  File <span class=\"nb\">&quot;/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers/src/canvod/readers/__init__.py&quot;</span>, line <span class=\"m\">31</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"kn\">from</span><span class=\"w\"> </span><span class=\"nn\">canvod.readers.rinex</span><span class=\"w\"> </span><span class=\"kn\">import</span> <span class=\"n\">Rnxv3Obs</span>\n  File <span class=\"nb\">&quot;/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers/src/canvod/readers/rinex/__init__.py&quot;</span>, line <span class=\"m\">9</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"kn\">from</span><span class=\"w\"> </span><span class=\"nn\">canvod.readers.rinex.v3_04</span><span class=\"w\"> </span><span class=\"kn\">import</span> <span class=\"n\">Rnxv3Obs</span>\n  File <span class=\"nb\">&quot;/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers/src/canvod/readers/rinex/v3_04.py&quot;</span>, line <span class=\"m\">72</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"kn\">from</span><span class=\"w\"> </span><span class=\"nn\">canvod.readers._shared.signals</span><span class=\"w\"> </span><span class=\"kn\">import</span> <span class=\"n\">SignalIDMapper</span>\n  File <span class=\"nb\">&quot;/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers/src/canvod/readers/_shared/signals.py&quot;</span>, line <span class=\"m\">7</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"kn\">from</span><span class=\"w\"> </span><span class=\"nn\">gnssvodpy.globals</span><span class=\"w\"> </span><span class=\"kn\">import</span> <span class=\"n\">FREQ_UNIT</span><span class=\"p\">,</span> <span class=\"n\">SPEEDOFLIGHT</span>\n<span class=\"gr\">ModuleNotFoundError</span>: <span class=\"n\">No module named &#39;gnssvodpy&#39;</span>\n</pre></div>\n</span>",
+          "mimetype": "application/vnd.marimo+traceback"
+        }
+      ]
+    },
+    {
+      "id": "Xref",
+      "code_hash": "661a53adbf68b7f8128f7792ef1bcfdf",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (ModuleNotFoundError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "88d20503b9c3da1a543f3a95913f4e44",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (ModuleNotFoundError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "d2ca0aafefaba16acc73d391e6abf6e4",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (ModuleNotFoundError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "a54efb230ab51694eff9a2f7bd7e58e8",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (ModuleNotFoundError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "7da3392a855d426759264d9fcb76edad",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (ModuleNotFoundError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "3a6bbc3a49308b438ad0ec055175ca96",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (ModuleNotFoundError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "a813394881970dbd31dfcc684e2271df",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (ModuleNotFoundError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "49936146e122448b4e39ff62bb36e5bb",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (ModuleNotFoundError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    }
+  ]
+}

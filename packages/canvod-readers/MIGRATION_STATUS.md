@@ -9,7 +9,7 @@ canvod-readers/
 │   ├── __init__.py              ✅ Main entry point
 │   ├── base.py                  ✅ Abstract base classes (170 lines)
 │   │
-│   ├── _shared/                 ✅ Private utilities
+│   ├── gnss_specs/                 ✅ Private utilities
 │   │   ├── __init__.py
 │   │   ├── constants.py         ✅ 75 lines
 │   │   ├── exceptions.py        ✅ 50 lines
@@ -18,8 +18,8 @@ canvod-readers/
 │   │   ├── signals.py           ⚠️ 118 lines - Simplified (TODO: full)
 │   │   └── utils.py             ✅ 62 lines
 │   │
-│   └── rinex/                   
-│       ├── __init__.py          ✅ Exports Rnxv3Reader
+│   └── rinex/
+│       ├── __init__.py          ✅ Exports Rnxv3Obs
 │       └── v3_04.py             ⚠️ NEEDS MANUAL COPY (1747 lines)
 │
 ├── pyproject.toml               ✅ Dependencies added
@@ -49,7 +49,7 @@ dev = [
 ```
 
 ### 3. Migration Changes
-- ✅ All imports updated: `gnssvodpy.*` → `canvod.readers._shared.*`
+- ✅ All imports updated: `gnssvodpy.*` → `canvod.readers.gnss_specs.*`
 - ✅ Logging removed (commented out)
 - ✅ IcechunkPreprocessor calls removed (TODO: move to canvod-store)
 - ✅ All functionality preserved
@@ -80,18 +80,18 @@ The main RINEX reader file (1747 lines) is ready but needs manual installation:
 
 ## 📊 Migration Statistics
 
-| Component | Status | Lines | File |
-|-----------|--------|-------|------|
-| Structure | ✅ | - | Multiple files |
-| Base classes | ✅ | 170 | base.py |
-| Constants | ✅ | 75 | _shared/constants.py |
-| Exceptions | ✅ | 50 | _shared/exceptions.py |
-| Metadata | ✅ | 230 | _shared/metadata.py |
-| Models | ✅ | 371 | _shared/models.py |
-| Signals | ⚠️ | 118 | _shared/signals.py (simplified) |
-| Utils | ✅ | 62 | _shared/utils.py |
-| **RINEX Reader** | ⚠️ | **1747** | **rinex/v3_04.py** (needs copy) |
-| Dependencies | ✅ | - | pyproject.toml |
+| Component        | Status | Lines    | File                            |
+| ---------------- | ------ | -------- | ------------------------------- |
+| Structure        | ✅      | -        | Multiple files                  |
+| Base classes     | ✅      | 170      | base.py                         |
+| Constants        | ✅      | 75       | gnss_specs/constants.py            |
+| Exceptions       | ✅      | 50       | gnss_specs/exceptions.py           |
+| Metadata         | ✅      | 230      | gnss_specs/metadata.py             |
+| Models           | ✅      | 371      | gnss_specs/models.py               |
+| Signals          | ⚠️      | 118      | gnss_specs/signals.py (simplified) |
+| Utils            | ✅      | 62       | gnss_specs/utils.py                |
+| **RINEX Reader** | ⚠️      | **1747** | **rinex/v3_04.py** (needs copy) |
+| Dependencies     | ✅      | -        | pyproject.toml                  |
 
 **Total**: ~2,823 lines migrated
 
@@ -107,16 +107,16 @@ The main RINEX reader file (1747 lines) is ready but needs manual installation:
    ```bash
    cd ~/Developer/GNSS/canvodpy/packages/canvod-readers
    uv sync
-   uv run python -c "from canvod.readers import Rnxv3Reader; print('✅ Import successful')"
+   uv run python -c "from canvod.readers import Rnxv3Obs; print('✅ Import successful')"
    ```
 
 3. **Test basic functionality**:
    ```python
-   from canvod.readers import Rnxv3Reader
+   from canvod.readers import Rnxv3Obs
    from pathlib import Path
-   
+
    # Test with actual RINEX file
-   reader = Rnxv3Reader()
+   reader = Rnxv3Obs()
    filepath = Path("path/to/rinex/file.24o")
    dataset = reader.read(filepath)
    print(dataset)
@@ -156,16 +156,16 @@ git commit -m "Complete canvod-readers migration Phase 1-2
 Migration from gnssvodpy to canvod-readers namespace package:
 
 Phase 1: Structure
-- Created rinex/, _shared/ subpackages
+- Created rinex/, gnss_specs/ subpackages
 - Added abstract base classes (GNSSReader, RinexReader)
 - Proper namespace package structure
 
-Phase 2: Code Migration  
+Phase 2: Code Migration
 - Migrated validation models (371 lines)
 - Migrated signal mapping (simplified, 118 lines)
 - Migrated utilities (62 lines)
 - Migrated RINEX v3.04 reader (1747 lines)
-- All imports updated to canvod.readers._shared
+- All imports updated to canvod.readers.gnss_specs
 - Removed logging (commented)
 - Removed IcechunkPreprocessor (TODO: canvod-store)
 
@@ -200,7 +200,7 @@ Next: Testing, README, full signal mapping migration"
 
 TODO: Migrate complete signal mapping system:
 - bands.py (338 lines) - Full band definitions
-- gnss_systems.py (993 lines) - Complete constellation classes  
+- gnss_systems.py (993 lines) - Complete constellation classes
 - signal_mapping.py (186 lines) - Full signal mapper
 """
 ```

@@ -10,32 +10,46 @@ Supported formats:
 Quick Start
 -----------
 ```python
-from canvod.readers import Rnxv3Reader
+from canvod.readers import Rnxv3Obs
 
 # Read RINEX v3 file
-reader = Rnxv3Reader()
-dataset = reader.read("station.24o")
+reader = Rnxv3Obs(fpath="station.24o")
+dataset = reader.to_ds()
+```
+
+Or use the factory for automatic format detection:
+```python
+from canvod.readers import ReaderFactory
+
+# Auto-detects format
+reader = ReaderFactory.create("station.24o")
+dataset = reader.to_ds()
 ```
 
 Or use the abstract base for type hints:
 ```python
-from canvod.readers import GNSSReader
+from canvod.readers import GNSSDataReader
 
-def process_data(reader: GNSSReader, filepath: Path):
+def process_data(reader: GNSSDataReader):
     # Works with any GNSS reader
-    dataset = reader.read(filepath)
+    dataset = reader.to_ds()
 ```
 """
 
-from canvod.readers.base import GNSSReader, RinexReader
-from canvod.readers.rinex import Rnxv3Reader
+from canvod.readers.base import (
+    GNSSDataReader,
+    DatasetStructureValidator,
+    ReaderFactory,
+)
+from canvod.readers.rinex.v3_04 import Rnxv3Obs
 
 __version__ = "0.1.0"
 
 __all__ = [
     # Abstract interfaces
-    "GNSSReader",
-    "RinexReader",
+    "GNSSDataReader",
+    "DatasetStructureValidator",
+    "ReaderFactory",
     # Concrete implementations
-    "Rnxv3Reader",
+    "Rnxv3Obs",
 ]

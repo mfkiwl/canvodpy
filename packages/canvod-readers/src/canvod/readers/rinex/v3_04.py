@@ -3,7 +3,7 @@
 Migrated from: gnssvodpy/rinexreader/rinex_reader.py
 
 Changes from original:
-- Updated imports to use canvod.readers._shared
+- Updated imports to use canvod.readers.gnss_specs
 - Removed logging (commented out with # log.method(...))
 - Removed IcechunkPreprocessor calls (TODO: move to canvod-store)
 - Preserved all other functionality
@@ -20,26 +20,26 @@ from collections import Counter, defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Set, Tuple, Union
 
 import georinex as gr
 import numpy as np
 import pint
 import pytz
 import xarray as xr
-from canvod.readers._shared.constants import (
+from canvod.readers.base import GNSSDataReader
+from canvod.readers.gnss_specs.constants import (
     AGGREGATE_GLONASS_FDMA,
     COMPRESSION,
     EPOCH_RECORD_INDICATOR,
     KEEP_RNX_VARS,
     UREG,
 )
-from canvod.readers._shared.exceptions import (
+from canvod.readers.gnss_specs.exceptions import (
     IncompleteEpochError,
     InvalidEpochError,
     MissingEpochError,
 )
-from canvod.readers._shared.metadata import (
+from canvod.readers.gnss_specs.metadata import (
     CN0_METADATA,
     COORDS_METADATA,
     DATAVARS_TO_BE_FILLED,
@@ -48,7 +48,7 @@ from canvod.readers._shared.metadata import (
     OBSERVABLES_METADATA,
     SNR_METADATA,
 )
-from canvod.readers._shared.models import (
+from canvod.readers.gnss_specs.models import (
     Epoch,
     Observation,
     RnxObsFileModel,
@@ -58,8 +58,8 @@ from canvod.readers._shared.models import (
     RnxVersion3Model,
     Satellite,
 )
-from canvod.readers._shared.signals import SignalIDMapper
-from canvod.readers._shared.utils import get_version_from_pyproject, rinex_file_hash
+from canvod.readers.gnss_specs.signals import SignalIDMapper
+from canvod.readers.gnss_specs.utils import get_version_from_pyproject, rinex_file_hash
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -254,7 +254,11 @@ class Rnxv3Header(BaseModel):
             data['t0'] = Rnxv3Header._get_time_of_first_obs(header)
         else:
             now = datetime.now()
-            data['t0'] = {"UTC": now.replace(tzinfo=pytz.UTC) if now.tzinfo is None else now, "GPS": now}
+            data['t0'] = {
+                "UTC":
+                now.replace(tzinfo=pytz.UTC) if now.tzinfo is None else now,
+                "GPS": now
+            }
 
         # Signal strength unit
         data['signal_strength_unit'] = Rnxv3Header._get_signal_strength_unit(
@@ -512,7 +516,7 @@ class Rnxv3Header(BaseModel):
                 f"  Date: {self.date.strftime('%Y-%m-%d %H:%M:%S %Z')}\n")
 
 
-class Rnxv3Obs(BaseModel):
+class Rnxv3Obs(GNSSDataReader, BaseModel):
     fpath: Path
     polarization: str = "RHCP"
 
@@ -594,6 +598,42 @@ class Rnxv3Obs(BaseModel):
     def file_hash(self) -> str:
         """Return cached SHA256 short hash of the file content."""
         return self._file_hash
+
+    @property
+    def start_time(self) -> datetime:
+        """Return start time of observations from header."""
+        return min(self.header.t0.values())
+
+    @property
+    def end_time(self) -> datetime:
+        """Return end time of observations from last epoch."""
+        last_epoch = None
+        for epoch in self.iter_epochs():
+            last_epoch = epoch
+        if last_epoch:
+            return self.get_datetime_from_epoch_record_info(last_epoch.info)
+        return self.start_time
+
+    @property
+    def systems(self) -> List[str]:
+        """Return list of GNSS systems in file."""
+        if self.header.systems == 'M':
+            return list(self.header.obs_codes_per_system.keys())
+        return [self.header.systems]
+
+    @property
+    def num_epochs(self) -> int:
+        """Return number of epochs in file."""
+        return len(list(self.get_epoch_record_batches()))
+
+    @property
+    def num_satellites(self) -> int:
+        """Return total number of unique satellites observed."""
+        satellites = set()
+        for epoch in self.iter_epochs():
+            for sat in epoch.data:
+                satellites.add(sat.sv)
+        return len(satellites)
 
     def get_epoch_record_batches(
         self,
@@ -772,7 +812,6 @@ class Rnxv3Obs(BaseModel):
             if start <= dt <= end:
                 yield epoch
 
-
     def get_datetime_from_epoch_record_info(
             self, epoch_record_info: Rnxv3ObsEpochRecordLineModel) -> datetime:
         """Convert epoch record info to datetime object."""
@@ -902,7 +941,8 @@ class Rnxv3Obs(BaseModel):
                 sampling_interval=sampling_interval)
             if inferred_dump is None:
                 msg = "Could not infer dump interval from file"
-                raise ValueError(msg)            dump_interval = inferred_dump
+                raise ValueError(msg)
+            dump_interval = inferred_dump
         else:
             if not isinstance(dump_interval, pint.Quantity):
                 # Accept '15 min', '1h', etc.
@@ -1218,6 +1258,10 @@ class Rnxv3Obs(BaseModel):
             encoding = {var: {**COMPRESSION} for var in ds.data_vars}
             ds.to_netcdf(str(outname), encoding=encoding)
             # print(f"Dataset saved to {outname}")
+
+        # Validate output structure for pipeline compatibility
+        self.validate_output(ds, required_vars=keep_rnx_data_vars)
+
         return ds
 
     def _create_basic_attrs(self) -> dict[str, object]:
@@ -1416,7 +1460,8 @@ if __name__ == "__main__":
     # Create sid based dataset
     ds_signal_id = rnx.to_ds(
         outname="enhanced_rinex_signal_id3.nc",
-        keep_rnx_data_vars=["SNR"], # ["Pseudorange", "Phase", "Doppler", "SNR"]
+        keep_rnx_data_vars=["SNR"
+                            ],  # ["Pseudorange", "Phase", "Doppler", "SNR"]
         write_global_attrs=False,
     )
 
