@@ -168,11 +168,11 @@ Ruff implements **700+ linting rules** from many different tools:
 **Our configuration:**
 
 ```toml
-[tool.ruff]
+[tool.ty]
 line-length = 88
 target-version = "py313"
 
-[tool.ruff.lint]
+[tool.ty.lint]
 select = ["ALL"]  # Enable ALL rules
 ignore = [
     "D",      # pydocstyle (we'll add docstrings later)
@@ -421,17 +421,17 @@ uv run myst        # Preview docs locally
 
 ## Tool Comparison
 
-| Task | Traditional | Modern (Our Choice) |
-|------|------------|---------------------|
-| Package manager | pip | **uv** |
-| Environment | venv | **uv** (built-in) |
-| Linting | flake8 + pylint | **ruff** |
-| Formatting | black + isort | **ruff** |
-| Type checking | mypy | **ty** |
-| Building | setuptools | **uv_build** |
-| Task runner | make / shell | **just** |
-| Testing | pytest | **pytest** (same) |
-| Documentation | Sphinx | **MyST** |
+| Task            | Traditional     | Modern (Our Choice) |
+| --------------- | --------------- | ------------------- |
+| Package manager | pip             | **uv**              |
+| Environment     | venv            | **uv** (built-in)   |
+| Linting         | flake8 + pylint | **ruff**            |
+| Formatting      | black + isort   | **ruff**            |
+| Type checking   | mypy            | **ty**              |
+| Building        | setuptools      | **uv_build**        |
+| Task runner     | make / shell    | **just**            |
+| Testing         | pytest          | **pytest** (same)   |
+| Documentation   | Sphinx          | **MyST**            |
 
 ---
 

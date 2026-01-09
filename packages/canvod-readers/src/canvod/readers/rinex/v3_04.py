@@ -83,7 +83,6 @@ class Rnxv3Header(BaseModel):
 
     model_config = ConfigDict(
         frozen=True,
-        slots=True,
         validate_assignment=True,
         arbitrary_types_allowed=True,
         str_strip_whitespace=True,
@@ -255,7 +254,7 @@ class Rnxv3Header(BaseModel):
             data['t0'] = Rnxv3Header._get_time_of_first_obs(header)
         else:
             now = datetime.now()
-            data['t0'] = {"UTC": pytz.UTC.localize(now), "GPS": now}
+            data['t0'] = {"UTC": now.replace(tzinfo=pytz.UTC) if now.tzinfo is None else now, "GPS": now}
 
         # Signal strength unit
         data['signal_strength_unit'] = Rnxv3Header._get_signal_strength_unit(
