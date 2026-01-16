@@ -1,4 +1,35 @@
-"""Metadata definitions for RINEX datasets."""
+"""Metadata definitions for RINEX datasets.
+
+Defines CF-compliant metadata for xarray.Dataset coordinates, data variables,
+and global attributes. Used by all readers to ensure consistent NetCDF output
+compatible with downstream VOD calculations and storage operations.
+
+Module Contents
+---------------
+OBSERVABLES_METADATA : dict
+    Metadata for GNSS observables (Pseudorange, Phase, Doppler, etc.)
+CN0_METADATA : dict
+    Metadata for Carrier-to-Noise density ratio (C/N0) measurements.
+SNR_METADATA : dict
+    Metadata for Signal-to-Noise ratio (SNR) measurements.
+COORDS_METADATA : dict
+    Metadata for dataset coordinates (epoch, sid, sv, etc.)
+DTYPES : dict
+    Data types for coordinates and variables.
+GLOBAL_ATTRS_TEMPLATE : dict
+    Template for global attributes (author, institution, etc.)
+DATAVARS_TO_BE_FILLED : dict
+    Metadata for auxiliary variables (r, theta, phi, v, a).
+
+Notes
+-----
+All metadata follows CF (Climate and Forecast) conventions for NetCDF files
+to ensure interoperability with standard tools and libraries.
+
+See Also
+--------
+canvod.readers.base.DatasetStructureValidator : Validates dataset structure
+"""
 
 from typing import Any
 
@@ -177,9 +208,9 @@ DTYPES: dict[str, np.dtype] = {
     "Doppler": np.dtype("float32"),
     "LLI": np.dtype("int8"),
     "SSI": np.dtype("int8"),
-    "freq_center": np.dtype("float32"),
-    "freq_min": np.dtype("float32"),
-    "freq_max": np.dtype("float32"),
+    "freq_center": np.dtype("float64"),
+    "freq_min": np.dtype("float64"),
+    "freq_max": np.dtype("float64"),
 }
 
 # -------------------

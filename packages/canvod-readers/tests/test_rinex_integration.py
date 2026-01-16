@@ -229,8 +229,8 @@ class TestRINEXIntegration:
         ds = obs.to_ds(keep_rnx_data_vars=["SNR"])
         
         # Check dataset is not empty
-        assert ds.dims["epoch"] > 0
-        assert ds.dims["sid"] > 0
+        assert ds.sizes["epoch"] > 0
+        assert ds.sizes["sid"] > 0
         
         # Check data is not all NaN
         if "SNR" in ds.data_vars:

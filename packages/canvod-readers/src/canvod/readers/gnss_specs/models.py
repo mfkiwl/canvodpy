@@ -4,28 +4,23 @@ These models provide runtime validation for RINEX data parsing,
 ensuring data integrity and correct formats.
 """
 
+import re
+import warnings
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-import re
-from typing import Dict, List, Optional, Tuple, Union
-import warnings
 
 import pint
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-from pydantic.dataclasses import dataclass
 import xarray as xr
-
-from canvod.readers.gnss_specs.exceptions import (
-    IncompleteEpochError,
-    MissingEpochError,
-)
 from canvod.readers.gnss_specs.constants import (
     EPOCH_RECORD_INDICATOR,
     IGS_RNX_DUMP_INTERVALS,
     SEPTENTRIO_SAMPLING_INTERVALS,
-    UREG as ureg,
 )
+from canvod.readers.gnss_specs.constants import UREG as ureg
+from canvod.readers.gnss_specs.exceptions import IncompleteEpochError, MissingEpochError
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic.dataclasses import dataclass
 
 
 @dataclass(kw_only=True, config=ConfigDict(arbitrary_types_allowed=True))
@@ -54,11 +49,13 @@ class Observation:
 
             # Validate satellite part
             if not re.match(r"^[GRECJSI]\d{2}$", sv):
-                raise ValueError(f"Invalid satellite identifier in observation code: {sv}")
+                raise ValueError(
+                    f"Invalid satellite identifier in observation code: {sv}")
 
             # More permissive observation type validation to handle all systems
             if not re.match(r"^[A-Z0-9][A-Z0-9\d]?[A-Z0-9]?$", obs_type):
-                raise ValueError(f"Invalid observation type in code: {obs_type}")
+                raise ValueError(
+                    f"Invalid observation type in code: {obs_type}")
 
             return v
         except ValueError as e:
@@ -67,7 +64,8 @@ class Observation:
             ) from e
 
     @field_validator("frequency")
-    def validate_frequency(cls, v: pint.Quantity | None) -> pint.Quantity | None:
+    def validate_frequency(cls,
+                           v: pint.Quantity | None) -> pint.Quantity | None:
         """Validate that frequency is a proper pint.Quantity with frequency units."""
         if v is not None and not isinstance(v, pint.Quantity):
             raise ValueError("Frequency must be a pint.Quantity")
@@ -117,15 +115,15 @@ class Satellite:
     def get_observation(self, observation_freq_tag: str) -> Observation | None:
         """Get an observation by its code."""
         return next(
-            (obs for obs in self.observations if obs.observation_freq_tag == observation_freq_tag),
+            (obs for obs in self.observations
+             if obs.observation_freq_tag == observation_freq_tag),
             None,
         )
 
     def get_observation_values(self, obs_code: str) -> list[float]:
         """Get all values for a specific observation code."""
         return [
-            obs.value
-            for obs in self.observations
+            obs.value for obs in self.observations
             if obs.observation_freq_tag == obs_code and obs.value is not None
         ]
 
@@ -181,7 +179,8 @@ class RnxObsFileModel(BaseModel):
 
     @field_validator("fpath")
     def file_must_have_correct_suffix(cls, v):
-        rinex_suffix_pattern = re.compile(r"\.2\d[o]$")  # Ensures the format ".2Xo"
+        rinex_suffix_pattern = re.compile(
+            r"\.2\d[o]$")  # Ensures the format ".2Xo"
 
         if not (rinex_suffix_pattern.fullmatch(v.suffix) or v.suffix == ".o"):
             raise ValueError(
@@ -217,8 +216,7 @@ class Rnxv3ObsEpochRecordCompletenessModel(BaseModel):
         if value not in IGS_RNX_DUMP_INTERVALS:
             warnings.warn(
                 f"Unexpected dump interval: {value}. "
-                f"Expected one of: {[str(v) for v in IGS_RNX_DUMP_INTERVALS]}"
-            )
+                f"Expected one of: {[str(v) for v in IGS_RNX_DUMP_INTERVALS]}")
         return value
 
     @field_validator("sampling_interval")
@@ -233,26 +231,26 @@ class Rnxv3ObsEpochRecordCompletenessModel(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def check_intervals(cls, values):
-        epoch_records_indeces = values.epoch_records_indeces
-        rnx_file_dump_interval = values.rnx_file_dump_interval
-        sampling_interval = values.sampling_interval
+    def check_intervals(self):
+        """Validate epoch intervals consistency."""
+        epoch_records_indeces = self.epoch_records_indeces
+        rnx_file_dump_interval = self.rnx_file_dump_interval
+        sampling_interval = self.sampling_interval
 
         if epoch_records_indeces and rnx_file_dump_interval and sampling_interval:
-            total_sampling_time = len(epoch_records_indeces) * sampling_interval.to(ureg.seconds)
-            rnx_file_dump_interval_in_seconds = rnx_file_dump_interval.to(ureg.seconds)
+            total_sampling_time = len(
+                epoch_records_indeces) * sampling_interval.to(ureg.seconds)
+            rnx_file_dump_interval_in_seconds = rnx_file_dump_interval.to(
+                ureg.seconds)
             if total_sampling_time != rnx_file_dump_interval_in_seconds:
-                warnings.warn(
-                    f"Mismatch in expected dump interval: "
-                    f"total_sampling_time={total_sampling_time}, "
-                    f"expected={rnx_file_dump_interval_in_seconds}"
-                )
+                warnings.warn(f"Mismatch in expected dump interval: "
+                              f"total_sampling_time={total_sampling_time}, "
+                              f"expected={rnx_file_dump_interval_in_seconds}")
                 raise MissingEpochError(
                     f"The total sampling time ({total_sampling_time}) does not equal "
                     f"the rnx_file_dump_interval ({rnx_file_dump_interval_in_seconds}). "
-                    f"This might indicate missing epochs."
-                )
-        return values
+                    f"This might indicate missing epochs.")
+        return self
 
 
 class Rnxv3ObsEpochRecordLineModel(BaseModel):
@@ -282,7 +280,8 @@ class Rnxv3ObsEpochRecordLineModel(BaseModel):
                 f'A valid format is "> yyyy mm dd hh mm ss.sss epoch_flag num_satellites [reserved] [receiver_clock_offset]"'
             )
 
-        values["epoch_record_indicator"] = match.group("epoch_record_indicator")
+        values["epoch_record_indicator"] = match.group(
+            "epoch_record_indicator")
         values["year"] = int(match.group("year"))
         values["month"] = int(match.group("month"))
         values["day"] = int(match.group("day"))
@@ -291,10 +290,11 @@ class Rnxv3ObsEpochRecordLineModel(BaseModel):
         values["seconds"] = float(match.group("seconds"))
         values["epoch_flag"] = int(match.group("epoch_flag"))
         values["num_satellites"] = int(match.group("num_satellites"))
-        values["reserved"] = int(match.group("reserved")) if match.group("reserved") else None
+        values["reserved"] = int(
+            match.group("reserved")) if match.group("reserved") else None
         values["receiver_clock_offset"] = (
-            float(match.group("receiver_clock_offset")) if match.group("receiver_clock_offset") else None
-        )
+            float(match.group("receiver_clock_offset"))
+            if match.group("receiver_clock_offset") else None)
 
         return values
 
@@ -352,11 +352,13 @@ class VodDataValidator(BaseModel):
         required_vars = ["Elevation", "Azimuth"]
         for var in required_vars:
             if var not in value.data_vars:
-                raise ValueError(f"Missing required data variable '{var}' in vod_data.")
+                raise ValueError(
+                    f"Missing required data variable '{var}' in vod_data.")
 
         # Validate VOD variable
         if "VOD" not in value.data_vars:
-            raise ValueError("Missing required data variable 'VOD' in the VOD data.")
+            raise ValueError(
+                "Missing required data variable 'VOD' in the VOD data.")
 
         # Validate VOD coordinates
         vod = value["VOD"]
@@ -364,6 +366,7 @@ class VodDataValidator(BaseModel):
 
         for coord in required_coords:
             if coord not in vod.coords:
-                raise ValueError(f"VOD is missing required coordinate '{coord}'.")
+                raise ValueError(
+                    f"VOD is missing required coordinate '{coord}'.")
 
         return value

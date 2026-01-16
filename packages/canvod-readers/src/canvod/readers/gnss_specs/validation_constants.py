@@ -5,15 +5,13 @@ based on RINEX Version 3.04 specification (November 23, 2018).
 
 Tables extracted from:
 - Table 4: GPS Observation Codes
-- Table 5: GLONASS Observation Codes  
+- Table 5: GLONASS Observation Codes
 - Table 6: Galileo Observation Codes
 - Table 7: SBAS Observation Codes
 - Table 8: QZSS Observation Codes
 - Table 9: BDS Observation Codes
 - Table 10: IRNSS Observation Codes
 """
-
-from typing import Dict, List, Set
 
 # ========================================
 # GNSS System Identifiers
@@ -37,7 +35,7 @@ GPS_BANDS = {
     '1': {
         'name': 'L1',
         'frequency': 1575.42,  # MHz
-        'bandwidth': 30.69,    # MHz
+        'bandwidth': 30.69,  # MHz
         'codes': {'C', 'S', 'L', 'X', 'P', 'W', 'Y', 'M', 'N'},
     },
     '2': {
@@ -226,7 +224,7 @@ IRNSS_BANDS = {
 # ========================================
 # Combined System Observation Codes
 # ========================================
-VALID_OBS_CODES: Dict[str, Dict] = {
+VALID_OBS_CODES: dict[str, dict] = {
     'G': GPS_BANDS,
     'R': GLONASS_BANDS,
     'E': GALILEO_BANDS,
@@ -252,15 +250,15 @@ OBSERVATION_TYPES = {
 # Signal Strength Ranges (Table 12)
 # ========================================
 SIGNAL_STRENGTH_RANGES = {
-    1: (0, 12),      # < 12 dBHz
+    1: (0, 12),  # < 12 dBHz
     2: (12, 17),
     3: (18, 23),
     4: (24, 29),
-    5: (30, 35),     # Threshold for good tracking
+    5: (30, 35),  # Threshold for good tracking
     6: (36, 41),
     7: (42, 47),
     8: (48, 53),
-    9: (54, 999),    # >= 54 dBHz
+    9: (54, 999),  # >= 54 dBHz
 }
 
 # ========================================
@@ -302,7 +300,7 @@ PHASE_REFERENCE_SIGNALS = {
     },
     'R': {
         '1': 'C',  # G1: C/A is reference
-        '2': 'C',  # G2: C/A is reference  
+        '2': 'C',  # G2: C/A is reference
         '3': 'I',  # G3: I component is reference
         '4': 'A',  # G1a: A is reference
         '6': 'A',  # G2a: A is reference
@@ -363,12 +361,12 @@ MARKER_TYPES = {
 # ========================================
 # Reasonable ranges for data validation
 OBSERVATION_RANGES = {
-    'C': (15e6, 30e6),      # Pseudorange: 15M to 30M meters
-    'L': (-1e9, 1e9),       # Phase: -1G to 1G cycles
-    'D': (-50000, 50000),   # Doppler: -50k to 50k Hz
-    'S': (0, 60),           # Signal strength: 0-60 dBHz
-    'I': (-1e6, 1e6),       # Ionosphere delay: reasonable range
-    'X': (1, 99),           # Channel number: 1-99
+    'C': (15e6, 30e6),  # Pseudorange: 15M to 30M meters
+    'L': (-1e9, 1e9),  # Phase: -1G to 1G cycles
+    'D': (-50000, 50000),  # Doppler: -50k to 50k Hz
+    'S': (0, 60),  # Signal strength: 0-60 dBHz
+    'I': (-1e6, 1e6),  # Ionosphere delay: reasonable range
+    'X': (1, 99),  # Channel number: 1-99
 }
 
 # ========================================

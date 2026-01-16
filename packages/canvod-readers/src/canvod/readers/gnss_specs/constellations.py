@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
 import json
-from pathlib import Path
 import re
 import sqlite3
 import threading
-from typing import Dict, List, Optional
+from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
+from pathlib import Path
 
-from natsort import natsorted
 import pandas as pd
 import pint
 import requests
-
 from canvod.readers.gnss_specs.constants import FREQ_UNIT, UREG
+from natsort import natsorted
 
 
 # ================================================================
@@ -316,7 +314,6 @@ class ConstellationBase(ABC):
         dict
             Keys of the form ``"SV|*1C"`` and values are frequencies.
         """
-        pass
 
 
 # ================================================================
@@ -712,7 +709,9 @@ class GLONASS(ConstellationBase):
                 if "slot" in lines[i] and "Channel" in lines[i + 1]:
                     slots_line = lines[i].strip().split("|")[1:-1]
                     channels_line = lines[i + 1].strip().split("|")[1:-1]
-                    for slot, channel in zip(slots_line, channels_line, strict=False):
+                    for slot, channel in zip(slots_line,
+                                             channels_line,
+                                             strict=False):
                         if slot.strip().isdigit() and channel.strip().lstrip(
                                 "-").isdigit():
                             slot_channel_dict[int(slot.strip())] = int(

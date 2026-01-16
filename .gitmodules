@@ -1,3 +1,6 @@
 [submodule "demo"]
 	path = demo
 	url = https://github.com/nfb2021/canvodpy-demo.git
+[submodule "packages/canvod-readers/tests/test_data"]
+	path = packages/canvod-readers/tests/test_data
+	url = https://github.com/nfb2021/canvodpy-test-data.git

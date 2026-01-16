@@ -1,18 +1,76 @@
 [project]
 name = "canvod-aux"
 version = "0.1.0"
-description = "Auxiliary data handling"
+description = "Auxiliary data augmentation for GNSS VOD analysis"
+authors = [
+    {name = "TU Wien - Department of Geodesy and Geoinformation", email = "climers@geo.tuwien.ac.at"}
+]
+readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
-
-[build-system]
-requires = ["uv_build>=0.9.17,<0.10.0"]
-build-backend = "uv_build"
-
-[tool.ty]
-extend-exclude = [
-    "**/docs/*.ipynb",
+keywords = ["GNSS", "VOD", "auxiliary", "SP3", "CLK", "ephemeris", "clock"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
 ]
 
-[tool.uv.build-backend]
-module-name = "canvod.aux"
+dependencies = [
+    "scipy>=1.15.0",
+    "numpy>=1.24.0",
+    "xarray>=2023.12.0",
+    "pydantic>=2.5.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.1",
+    "retrying>=1.3.4",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.3.0",
+    "pint>=0.23",
+    "pymap3d>=3.0.0",
+    "tqdm>=4.67.1",
+    "hvplot>=0.12.2",
+    "plotly>=6.5.1",
+    "mcp>=1.25.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.14",
+    "ty>=0.0.9",
+    "marimo>=0.9.0",
+    "matplotlib>=3.8.0",
+    "polars>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/canvod"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "--disable-warnings",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "network: marks tests that require network access",
+]

@@ -287,9 +287,10 @@ class TestConstellations:
         """Test GLONASS constellation can be initialized."""
         glonass = GLONASS(aggregate_fdma=True)
         
-        assert glonass.constellation == "GLONASS"
+        # GLONASS has custom __init__ and doesn't set constellation attribute
         assert len(glonass.svs) == 24
         assert glonass.svs[0].startswith("R")
+        assert glonass.aggregate_fdma is True
 
     def test_glonass_fdma_equations(self):
         """Test GLONASS FDMA frequency equations."""

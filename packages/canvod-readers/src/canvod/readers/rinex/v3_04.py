@@ -20,6 +20,7 @@ from collections import Counter, defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any, Literal
 
 import georinex as gr
 import numpy as np
@@ -615,7 +616,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         return self.start_time
 
     @property
-    def systems(self) -> List[str]:
+    def systems(self) -> list[str]:
         """Return list of GNSS systems in file."""
         if self.header.systems == 'M':
             return list(self.header.obs_codes_per_system.keys())
@@ -1034,24 +1035,41 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                             band)
 
                         if center_frequency is not None and bandwidth is not None:
+                            # Extract bandwidth value
                             bw = bandwidth[0] if isinstance(
                                 bandwidth, list) else bandwidth
+
+                            # Ensure both are pint quantities
+                            if not hasattr(center_frequency, 'm_as'):
+                                center_frequency = center_frequency * UREG.MHz
+                            if not hasattr(bw, 'm_as'):
+                                bw = bw * UREG.MHz
+
+                            # Calculate frequency range
                             freq_min = center_frequency - (bw / 2.0)
                             freq_max = center_frequency + (bw / 2.0)
+
+                            # Extract magnitudes to ensure float64 dtype
+                            center_frequency = float(
+                                center_frequency.m_as(UREG.MHz))
+                            freq_min = float(freq_min.m_as(UREG.MHz))
+                            freq_max = float(freq_max.m_as(UREG.MHz))
+                            bw = float(bw.m_as(UREG.MHz))
                         else:
                             print(
                                 f"WARNING: No frequency data for sid={sid}, band={band}, sv={sv_part}"
                             )
-                            bw = np.nan
+                            center_frequency = np.nan
                             freq_min = np.nan
                             freq_max = np.nan
+                            bw = np.nan
 
                         signal_id_to_properties[sid] = {
                             "sv": sv_part,
                             "system": system,
                             "band": band,
                             "code": code,
-                            "freq_center": center_frequency or np.nan,
+                            "freq_center": center_frequency,
                             "freq_min": freq_min,
                             "freq_max": freq_max,
                             "bandwidth": bw,
@@ -1264,6 +1282,72 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
         return ds
 
+    def validate_rinex_304_compliance(
+            self,
+            ds: xr.Dataset = None,
+            strict: bool = False,
+            print_report: bool = True) -> dict[str, list[str]]:
+        """Run enhanced RINEX 3.04 specification validation.
+
+        Validates:
+        1. System-specific observation codes
+        2. GLONASS mandatory fields (slot/frequency, biases)
+        3. Phase shift records (RINEX 3.01+)
+        4. Observation value ranges
+
+        Parameters
+        ----------
+        ds : xr.Dataset, optional
+            Dataset to validate. If None, creates one from current file.
+        strict : bool
+            If True, raise ValueError on validation failures
+        print_report : bool
+            If True, print validation report to console
+
+        Returns
+        -------
+        dict[str, list[str]]
+            Validation results by category
+
+        Examples
+        --------
+        >>> reader = Rnxv3Obs(fpath="station.24o")
+        >>> results = reader.validate_rinex_304_compliance()
+        >>> # Or validate a specific dataset
+        >>> ds = reader.to_ds()
+        >>> results = reader.validate_rinex_304_compliance(ds=ds)
+        """
+        from canvod.readers.gnss_specs.validators import RINEX304Validator
+
+        if ds is None:
+            ds = self.to_ds(write_global_attrs=False)
+
+        # Prepare header dict for validators
+        header_dict = {
+            'obs_codes_per_system': self.header.obs_codes_per_system,
+        }
+
+        # Add GLONASS-specific headers if available
+        if hasattr(self.header, 'glonass_slot_frq'):
+            header_dict['GLONASS SLOT / FRQ #'] = self.header.glonass_slot_frq
+
+        if hasattr(self.header, 'glonass_cod_phs_bis'):
+            header_dict[
+                'GLONASS COD/PHS/BIS'] = self.header.glonass_cod_phs_bis
+
+        if hasattr(self.header, 'phase_shift'):
+            header_dict['SYS / PHASE SHIFT'] = self.header.phase_shift
+
+        # Run validation
+        results = RINEX304Validator.validate_all(ds=ds,
+                                                 header_dict=header_dict,
+                                                 strict=strict)
+
+        if print_report:
+            RINEX304Validator.print_validation_report(results)
+
+        return results
+
     def _create_basic_attrs(self) -> dict[str, object]:
         attrs = {
             "Created": f"{datetime.now().isoformat()}",
@@ -1440,6 +1524,18 @@ def adapt_existing_rnxv3obs_class(original_class_path: str = None) -> str:
 
     return integration_guide
 
+
+# Auto-register with ReaderFactory
+def _register_with_factory():
+    """Register Rnxv3Obs with ReaderFactory on module import."""
+    try:
+        from canvod.readers.base import ReaderFactory
+        ReaderFactory.register('rinex_v3', Rnxv3Obs)
+    except ImportError:
+        pass  # ReaderFactory not yet available
+
+
+_register_with_factory()
 
 if __name__ == "__main__":
 

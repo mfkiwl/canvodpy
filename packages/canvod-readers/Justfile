@@ -6,6 +6,7 @@ alias c := clean
 alias h := hooks
 alias q := check
 alias t := test
+alias d := docs
 
 # lint, format, and type-check
 check:
@@ -34,6 +35,18 @@ sync:
 # build package
 build:
     uv build
+
+# preview documentation locally (MyST)
+docs:
+    uv run myst start
+
+# build documentation to HTML
+docs-build:
+    uv run myst build --html
+
+# clean documentation build
+docs-clean:
+    rm -rf _build/
 
 # run marimo notebook
 marimo:

@@ -1,21 +1,15 @@
 version: 1
 
-extends:
-  - https://github.com/TUW-GEO/cookiecutter-docs-config/raw/main/myst.yml
-
 project:
   title: canvod-aux
   authors:
-    - name: Nicolas Bader
-  github: https://github.com/nfb2021/canvodpy
-  open_access: true
+    - name: Nicolas F. Bader
+      email: nicolas.bader@geo.tuwien.ac.at
   toc:
     - file: README.md
-    - title: "API"
+    - title: "Documentation"
       children:
         - file: docs/index.ipynb
-  error_rules:
-    - rule: image-downloads
-      severity: ignore
-    - rule: link-resolves
-      severity: ignore
+    - title: "Developing"
+      children:
+        - file: QUICK_START.md

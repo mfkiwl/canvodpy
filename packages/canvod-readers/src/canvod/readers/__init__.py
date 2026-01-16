@@ -40,6 +40,9 @@ from canvod.readers.base import (
     GNSSDataReader,
     DatasetStructureValidator,
     ReaderFactory,
+    # Backwards compatibility aliases
+    GNSSReader,
+    RinexReader,
 )
 from canvod.readers.rinex.v3_04 import Rnxv3Obs
 
@@ -50,6 +53,9 @@ __all__ = [
     "GNSSDataReader",
     "DatasetStructureValidator",
     "ReaderFactory",
+    # Backwards compatibility aliases
+    "GNSSReader",
+    "RinexReader",
     # Concrete implementations
     "Rnxv3Obs",
 ]

@@ -1,9 +1,9 @@
-"""Test shared utility modules."""
+"""Test core gnss_specs modules: constants, exceptions, models, utils, metadata."""
 
 import pytest
 from pathlib import Path
 
-from canvod.readers.gnss_specs import constants, exceptions, models, signals, utils
+from canvod.readers.gnss_specs import constants, exceptions, models, utils
 
 
 class TestExceptions:
@@ -131,58 +131,6 @@ class TestModels:
         assert len(epoch.satellites) == 0
 
 
-class TestSignalMapper:
-    """Test signal ID mapper."""
-
-    def test_mapper_initialization(self):
-        """Test SignalIDMapper can be initialized."""
-        mapper = signals.SignalIDMapper()
-        assert mapper is not None
-
-    def test_create_signal_id_gps(self):
-        """Test signal ID creation for GPS."""
-        mapper = signals.SignalIDMapper()
-        sid = mapper.create_signal_id("G01", "G01|S1C")
-        
-        assert sid == "G01|L1|C"
-
-    def test_create_signal_id_galileo(self):
-        """Test signal ID creation for Galileo."""
-        mapper = signals.SignalIDMapper()
-        sid = mapper.create_signal_id("E05", "E05|S1C")
-        
-        assert sid == "E05|E1|C"
-
-    def test_parse_signal_id(self):
-        """Test parsing signal ID."""
-        mapper = signals.SignalIDMapper()
-        sv, band, code = mapper.parse_signal_id("G01|L1|C")
-        
-        assert sv == "G01"
-        assert band == "L1"
-        assert code == "C"
-
-    def test_get_band_frequency(self):
-        """Test getting band frequency."""
-        mapper = signals.SignalIDMapper()
-        freq = mapper.get_band_frequency("L1")
-        
-        assert freq is not None
-        assert freq == pytest.approx(1575.42)
-
-    def test_auxiliary_observation(self):
-        """Test auxiliary observation detection."""
-        mapper = signals.SignalIDMapper()
-        
-        # X1 is auxiliary
-        is_aux = mapper.is_auxiliary_observation("G01|X1|X")
-        assert is_aux is True
-        
-        # L1 is not auxiliary
-        is_aux = mapper.is_auxiliary_observation("G01|L1|C")
-        assert is_aux is False
-
-
 class TestUtils:
     """Test utility functions."""
 
@@ -244,7 +192,7 @@ class TestMetadata:
         assert isinstance(metadata.OBSERVABLES_METADATA, dict)
         
         # Check common observables
-        observables = ['SNR', 'Pseudorange', 'Phase', 'Doppler']
+        observables = ['Pseudorange', 'Phase', 'Doppler']
         for obs in observables:
             assert obs in metadata.OBSERVABLES_METADATA
 
