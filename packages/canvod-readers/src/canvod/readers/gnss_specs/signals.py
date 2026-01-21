@@ -5,20 +5,8 @@ and bandwidth information. Handles all major GNSS constellations and
 special cases like auxiliary observations.
 """
 
-from pathlib import Path
 
-import numpy as np
-import pint
 from canvod.readers.gnss_specs.bands import Bands
-from canvod.readers.gnss_specs.constants import FREQ_UNIT, SPEEDOFLIGHT
-from canvod.readers.gnss_specs.constellations import (
-    BEIDOU,
-    GALILEO,
-    GLONASS,
-    GPS,
-    IRNSS,
-)
-from canvod.readers.gnss_specs.models import Observation, Rnxv3ObsEpochRecord, Satellite
 
 
 class SignalIDMapper:
@@ -66,6 +54,7 @@ class SignalIDMapper:
     >>> freq = mapper.get_band_frequency("L1")
     >>> freq
     1575.42
+
     """
 
     def __init__(self, aggregate_glonass_fdma: bool = True) -> None:
@@ -75,6 +64,7 @@ class SignalIDMapper:
         ----------
         aggregate_glonass_fdma : bool, optional
             If True, aggregate GLONASS FDMA channels. Default is True.
+
         """
         self.aggregate_glonass_fdma = aggregate_glonass_fdma
         self._bands = Bands(aggregate_glonass_fdma=self.aggregate_glonass_fdma)
@@ -121,13 +111,14 @@ class SignalIDMapper:
 
         >>> mapper.create_signal_id("R12", "R12|S1C")
         'R12|G1|C'
+
         """
         try:
-            sv, observation_code = obs_code.split('|')
+            sv, observation_code = obs_code.split("|")
             system = sv[0]
 
             # Special handling for X1 observation code
-            if observation_code == 'X1':
+            if observation_code == "X1":
                 return f"{sv}|X1|X"  # Treat as auxiliary observation
 
             # Standard handling for 3-character observation codes
@@ -139,15 +130,14 @@ class SignalIDMapper:
                 # Get system-specific band name
                 if system in self.SYSTEM_BANDS:
                     band_name = self.SYSTEM_BANDS[system].get(
-                        band_num, f'UnknownBand{band_num}')
+                        band_num, f"UnknownBand{band_num}")
                 else:
                     band_name = f"UnknownBand{band_num}"
 
                 return f"{sv}|{band_name}|{code}"
 
             # Fallback for unexpected observation code formats
-            else:
-                return f"{sv}|{observation_code}|Unknown"
+            return f"{sv}|{observation_code}|Unknown"
 
         except (ValueError, IndexError) as e:
             # Fallback for malformed input
@@ -181,8 +171,9 @@ class SignalIDMapper:
 
         >>> mapper.parse_signal_id("invalid")
         ('', '', '')
+
         """
-        parts = signal_id.split('|')
+        parts = signal_id.split("|")
         if len(parts) != 3:
             print(f"Invalid signal ID format: {signal_id}")
             return "", "", ""
@@ -209,8 +200,9 @@ class SignalIDMapper:
 
         >>> mapper.get_band_frequency("E5a")
         1176.45
+
         """
-        return self.BAND_PROPERTIES.get(band_name, {}).get('freq')
+        return self.BAND_PROPERTIES.get(band_name, {}).get("freq")
 
     def get_band_bandwidth(self, band_name: str) -> float | list[float] | None:
         """Get bandwidth for a band.
@@ -234,8 +226,9 @@ class SignalIDMapper:
 
         >>> mapper.get_band_bandwidth("UnknownBand")
         None
+
         """
-        return self.BAND_PROPERTIES.get(band_name, {}).get('bandwidth')
+        return self.BAND_PROPERTIES.get(band_name, {}).get("bandwidth")
 
     def get_overlapping_group(self, band_name: str) -> str | None:
         """Get overlapping group for a band.
@@ -264,6 +257,7 @@ class SignalIDMapper:
 
         >>> mapper.get_overlapping_group("X1")
         'group_aux'
+
         """
         for group, bands in self.OVERLAPPING_GROUPS.items():
             if band_name in bands:
@@ -294,7 +288,8 @@ class SignalIDMapper:
 
         >>> mapper.is_auxiliary_observation("G01|L1|C")
         False
+
         """
         _, band, _ = self.parse_signal_id(signal_id)
         band_props = self.BAND_PROPERTIES.get(band, {})
-        return band_props.get('auxiliary', False)
+        return band_props.get("auxiliary", False)

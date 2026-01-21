@@ -30,6 +30,7 @@ def get_version_from_pyproject(pyproject_path: Path | None = None) -> str:
         If pyproject.toml cannot be found.
     KeyError
         If version field is missing from pyproject.toml.
+
     """
     if pyproject_path is None:
         # Auto-find pyproject.toml (3 levels up from this file)
@@ -66,6 +67,7 @@ def rinex_file_hash(path: Path, chunk_size: int = 8192) -> str:
     >>> hash2 = rinex_file_hash(Path("station.24o"))
     >>> hash1 == hash2
     True
+
     """
     h = hashlib.sha256()
 
@@ -98,6 +100,7 @@ def isfloat(value: str) -> bool:
     False
     >>> isfloat("-2.5")
     True
+
     """
     try:
         float(value)

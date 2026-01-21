@@ -11,14 +11,11 @@ NORMAL := '\033[0m'
 _default:
     @just --list --unsorted
 
-alias b := bump
 alias c := clean
 alias d := dist
 alias h := hooks
 alias q := check
 alias t := test
-
-PROJ := `uv version --short`
 
 # ============================================================================
 # Code Quality (All Packages)
@@ -71,7 +68,7 @@ hooks:
 
 # print the current status of the project
 status:
-    @echo "Project Version: {{ PROJ }}"
+    @echo "canVODpy Monorepo"
     @echo "Running on: `uname`"
 
 # clean all python build/compilation files and directories
@@ -109,24 +106,27 @@ sync:
 # ============================================================================
 # Version Management
 # ============================================================================
+# Note: Version management should be done at the package level
+# Use: just build-package <package-name>
+# Workspace root does not have a version
 
-[confirm("Do you really want to bump? (y/n)")]
-[private]
-prompt-confirm:
+# [confirm("Do you really want to bump? (y/n)")]
+# [private]
+# prompt-confirm:
 
 # bump the version, commit and add a tag <major|minor|patch|...>
-bump INCREMENT="patch": && tag
-    @uv version --bump {{ INCREMENT }} --dry-run
-    @just prompt-confirm
-    uv version --bump {{ INCREMENT }}
+# bump INCREMENT="patch": && tag
+#     @uv version --bump {{ INCREMENT }} --dry-run
+#     @just prompt-confirm
+#     uv version --bump {{ INCREMENT }}
 
 # tag the latest version
-tag VERSION=`uv version --short`:
-    git add pyproject.toml
-    git add uv.lock
-    git commit -m "Bumped version to {{VERSION}}"
-    git tag -a "v{{VERSION}}"
-    @echo "{{ GREEN }}{{ BOLD }}Version has been bumped to {{VERSION}}.{{ NORMAL }}"
+# tag VERSION=`uv version --short`:
+#     git add pyproject.toml
+#     git add uv.lock
+#     git commit -m "Bumped version to {{VERSION}}"
+#     git tag -a "v{{VERSION}}"
+#     @echo "{{ GREEN }}{{ BOLD }}Version has been bumped to {{VERSION}}.{{ NORMAL }}"
 
 # ============================================================================
 # Building & Distribution

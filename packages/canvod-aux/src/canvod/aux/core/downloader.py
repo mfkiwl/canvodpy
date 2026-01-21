@@ -1,11 +1,10 @@
 """File downloaders for auxiliary GNSS data."""
 
+import gzip
+import shutil
 from abc import ABC, abstractmethod
 from ftplib import FTP_TLS, error_perm
-import gzip
 from pathlib import Path
-import shutil
-from typing import Optional
 from urllib import request
 
 from tqdm import tqdm

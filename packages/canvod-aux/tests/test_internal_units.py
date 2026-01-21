@@ -4,7 +4,8 @@ Tests for internal unit utilities.
 Tests the UREG unit registry and custom unit definitions.
 """
 import pytest
-from canvod.aux._internal import UREG, SPEEDOFLIGHT
+
+from canvod.aux._internal import SPEEDOFLIGHT, UREG
 
 
 def test_ureg_import():
@@ -31,7 +32,7 @@ def test_speedoflight_constant():
     """Test that SPEEDOFLIGHT constant is defined correctly."""
     # Speed of light should be approximately 299792458 m/s
     assert SPEEDOFLIGHT.magnitude == pytest.approx(299792458, rel=1e-6)
-    
+
     # Check units are meter/second
     expected_units = UREG.meter / UREG.second
     assert SPEEDOFLIGHT.units == expected_units

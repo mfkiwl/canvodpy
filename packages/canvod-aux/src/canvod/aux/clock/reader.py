@@ -4,22 +4,24 @@ This module provides the main ClkFile class for handling GNSS clock files
 in CLK format, integrated with the product registry for multi-agency support.
 """
 
-import datetime
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import xarray as xr
 from pydantic import ConfigDict
 from pydantic.dataclasses import dataclass
 
-from canvod.aux.core.base import AuxFile
-from canvod.aux.products.registry import get_product_spec
-from canvod.aux._internal.units import UREG
 from canvod.aux._internal.date_utils import get_gps_week_from_filename
+from canvod.aux._internal.units import UREG
 from canvod.aux.clock.parser import parse_clk_file
 from canvod.aux.clock.validator import validate_clk_dataset
-from canvod.aux.interpolation import Interpolator, ClockConfig, ClockInterpolationStrategy
+from canvod.aux.core.base import AuxFile
+from canvod.aux.interpolation import (
+    ClockConfig,
+    ClockInterpolationStrategy,
+    Interpolator,
+)
+from canvod.aux.products.registry import get_product_spec
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
@@ -98,13 +100,13 @@ class ClkFile(AuxFile):
 
         # Get product spec from registry
         spec = get_product_spec(self.agency, self.product_type)
-        
+
         # Use product spec's path pattern
         ftp_path = spec.ftp_path_pattern.format(
             gps_week=gps_week,
             file=f"{clock_file}.gz",
         )
-        
+
         full_url = f"{self.ftp_server}{ftp_path}"
         destination = self.local_dir / clock_file
 

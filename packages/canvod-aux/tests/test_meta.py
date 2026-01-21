@@ -44,14 +44,14 @@ def test_internal_utilities_import():
 def test_core_api_imports():
     """Test that core API classes can be imported (no gnssvodpy dependencies)."""
     from canvod.aux import (
-        Sp3File,
-        ClkFile,
         AuxFile,
+        ClkFile,
+        ClockConfig,
         Interpolator,
         Sp3Config,
-        ClockConfig,
+        Sp3File,
     )
-    
+
     # Verify all imports are classes
     assert Sp3File is not None
     assert ClkFile is not None
@@ -64,12 +64,12 @@ def test_core_api_imports():
 def test_public_api_imports():
     """Test that all available public API classes can be imported."""
     import canvod.aux
-    
+
     # Core classes should always be available
     assert hasattr(canvod.aux, 'Sp3File')
     assert hasattr(canvod.aux, 'ClkFile')
     assert hasattr(canvod.aux, 'AuxFile')
-    
+
     # Optional classes (require gnssvodpy)
     # These may or may not be available depending on whether gnssvodpy is installed
 
@@ -91,11 +91,11 @@ def test_pipeline_import():
 def test_augmentation_imports():
     """Test that augmentation framework can be imported (requires gnssvodpy)."""
     from canvod.aux import (
-        AuxDataAugmenter,
-        AugmentationStep,
         AugmentationContext,
+        AugmentationStep,
+        AuxDataAugmenter,
     )
-    
+
     assert AuxDataAugmenter is not None
     assert AugmentationStep is not None
     assert AugmentationContext is not None
@@ -104,11 +104,11 @@ def test_augmentation_imports():
 def test_interpolation_imports():
     """Test that interpolation strategies can be imported."""
     from canvod.aux import (
-        Sp3InterpolationStrategy,
         ClockInterpolationStrategy,
+        Sp3InterpolationStrategy,
         create_interpolator_from_attrs,
     )
-    
+
     assert Sp3InterpolationStrategy is not None
     assert ClockInterpolationStrategy is not None
     assert create_interpolator_from_attrs is not None
@@ -117,7 +117,7 @@ def test_interpolation_imports():
 def test_container_imports():
     """Test that container utilities can be imported."""
     from canvod.aux import FileDownloader, FtpDownloader, GnssData
-    
+
     assert FileDownloader is not None
     assert FtpDownloader is not None
     assert GnssData is not None

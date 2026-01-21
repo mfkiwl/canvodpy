@@ -24,13 +24,13 @@ def main():
             local_dir=temp_dir,
         )
 
-        print(f"✓ Success!")
+        print("✓ Success!")
         print(f"  File: {sp3_file.fpath}")
         print(f"  Size: {sp3_file.fpath.stat().st_size / 1024:.1f} KB")
 
         # Test data access
         ds = sp3_file.data
-        print(f"\n✓ Dataset loaded")
+        print("\n✓ Dataset loaded")
         print(f"  Dimensions: {dict(ds.sizes)}")
         print(f"  Satellites: {len(ds.sv)}")
 

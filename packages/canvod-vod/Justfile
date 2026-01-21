@@ -1,36 +1,31 @@
-# Default command lists all available recipes
-_default:
-    @just --list --unsorted
+# Justfile for canvod-vod
 
-alias c := clean
-alias h := hooks
-alias q := check
-alias t := test
-
-# lint, format, and type-check
-check:
-    uv run ruff check . --fix
-    uv run ruff format .
-    uv run ty check
-
-# run tests
+# Test this package
 test:
     uv run pytest
 
-# clean build artifacts
-clean:
-    rm -fr build/ dist/ .eggs/
-    find . -name '*.egg-info' -exec rm -fr {} +
-    find . -name '__pycache__' -exec rm -fr {} +
+# Lint this package
+lint:
+    uv run ruff check .
 
-# setup pre-commit hooks
-hooks:
-    uvx pre-commit install
+# Format this package
+format:
+    uv run ruff format .
 
-# sync dependencies
-sync:
-    uv sync
+# Auto-fix linting
+fix:
+    uv run ruff check --fix .
+    uv run ruff format .
 
-# build package
+# Type check this package  
+typecheck:
+    uv run ty check src/
+
+# Build this package
 build:
     uv build
+
+# Clean artifacts
+clean:
+    rm -rf dist/ build/ *.egg-info
+    find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true

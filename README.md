@@ -101,6 +101,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
 
-## Affiliation
+## Author & Affiliation
 
-Developed at TU Wien, Department of Geodesy and Geoinformation (GEO).
+**Author:** Nicolas F. Bader (nicolas.bader@geo.tuwien.ac.at)
+
+Developed at the **Climate and Environmental Remote Sensing Research Unit (CLIMERS)**  
+Department of Geodesy and Geoinformation  
+TU Wien (Vienna University of Technology)  
+[https://www.tuwien.at/en/mg/geo/climers](https://www.tuwien.at/en/mg/geo/climers)

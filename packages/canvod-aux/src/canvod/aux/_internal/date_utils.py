@@ -56,10 +56,10 @@ def gpsweekday(input_date: datetime.date | str) -> tuple[int, int]:
         (GPS week number, day of week)
     """
     gps_start_date = datetime.date(1980, 1, 6)
-    
+
     if isinstance(input_date, str):
         input_date = datetime.datetime.strptime(input_date, "%d-%m-%Y").date()
-    
+
     return divmod((input_date - gps_start_date).days, 7)
 
 

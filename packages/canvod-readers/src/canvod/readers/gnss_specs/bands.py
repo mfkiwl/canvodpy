@@ -1,6 +1,5 @@
 # from canvod.readers.gnss_specs.constants import UREG
 
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from canvod.readers.gnss_specs.constellations import (
     BEIDOU,
@@ -11,13 +10,13 @@ from canvod.readers.gnss_specs.constellations import (
     QZSS,
     SBAS,
 )
+from matplotlib import patches
 from pint import Quantity
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel
 
 
 class Bands(BaseModel):
-    """
-    Registry of GNSS band definitions and properties.
+    """Registry of GNSS band definitions and properties.
 
     Attributes
     ----------
@@ -27,6 +26,7 @@ class Bands(BaseModel):
         Mapping of GNSS system abbreviations → bands.
     OVERLAPPING_GROUPS : dict
         Mapping of overlapping groups of bands.
+
     """
 
     BAND_PROPERTIES: dict[str, dict[str, float | str | bool]]
@@ -100,27 +100,25 @@ class Bands(BaseModel):
                 "group_9": ["G3"],
                 "group_aux": ["X1"],
             }
-        else:
-            return {
-                "group_1": ["L1", "E1", "B1I", "B1C", "S", "J1"],
-                "group_2": ["L5", "E5a", "B2a", "S", "J5", "I5"],
-                "group_3": ["L2", "E5b", "B2b", "B2I", "B2", "G2a"],
-                "group_4": ["E5a", "E5b", "E5"],
-                "group_5": ["B2a", "B2b", "B2"],
-                "group_6": ["E6", "B3I", "L6"],
-                "group_7": ["G1_FDMA"],
-                "group_8": ["G2_FDMA"],
-                "group_9": ["G3"],
-                "group_aux": ["X1"],
-            }
+        return {
+            "group_1": ["L1", "E1", "B1I", "B1C", "S", "J1"],
+            "group_2": ["L5", "E5a", "B2a", "S", "J5", "I5"],
+            "group_3": ["L2", "E5b", "B2b", "B2I", "B2", "G2a"],
+            "group_4": ["E5a", "E5b", "E5"],
+            "group_5": ["B2a", "B2b", "B2"],
+            "group_6": ["E6", "B3I", "L6"],
+            "group_7": ["G1_FDMA"],
+            "group_8": ["G2_FDMA"],
+            "group_9": ["G3"],
+            "group_aux": ["X1"],
+        }
 
     def plot_bands(self,
                    available_combinations=None,
                    figsize=(16, 8),
                    savepath: str = None,
                    exclude_systems=None):
-        """
-        Draw GNSS frequency plan with proper frequency ordering and x-axis break.
+        """Draw GNSS frequency plan with proper frequency ordering and x-axis break.
         Mimics the uploaded image layout exactly.
 
         Parameters
@@ -133,8 +131,8 @@ class Bands(BaseModel):
             If provided, saves the figure to this path.
         exclude_systems : list, optional
             List of system-band-code combinations to exclude.
+
         """
-        import matplotlib.patches as patches
         import matplotlib.pyplot as plt
         from matplotlib import gridspec
 
@@ -146,7 +144,7 @@ class Bands(BaseModel):
             available_combinations = []
             for system, system_bands in self.SYSTEM_BANDS.items():
                 for band in system_bands:
-                    for code in ['C', 'L', 'W', 'I', 'Q']:
+                    for code in ["C", "L", "W", "I", "Q"]:
                         available_combinations.append(
                             f"{system}_{band}_{code}")
 
@@ -165,18 +163,18 @@ class Bands(BaseModel):
         recorded_combinations = []
         for key in available_combinations:
             if any(
-                    key.startswith(ex.rsplit('_', 1)[0])
+                    key.startswith(ex.rsplit("_", 1)[0])
                     for ex in exclude_systems):
                 continue  # Skip excluded combinations
 
-            system_band = '_'.join(key.split('_')[:2])  # e.g., 'G_L1', 'R_G1'
+            system_band = "_".join(key.split("_")[:2])  # e.g., 'G_L1', 'R_G1'
             if system_band not in recorded_combinations:
                 recorded_combinations.append(system_band)
 
         # Sort by frequency
         band_frequencies = []
         for sys_band in recorded_combinations:
-            system, band = sys_band.split('_')
+            system, band = sys_band.split("_")
             if band in self.BAND_PROPERTIES:
                 freq = self.BAND_PROPERTIES[band]["freq"]
                 band_frequencies.append((freq, sys_band))
@@ -193,7 +191,7 @@ class Bands(BaseModel):
         high_freq_combos = []
 
         for sys_band in sorted_combinations:
-            system, band = sys_band.split('_')
+            system, band = sys_band.split("_")
             freq = self.BAND_PROPERTIES[band]["freq"]
             if freq < break_freq:
                 low_freq_combos.append(sys_band)
@@ -201,7 +199,7 @@ class Bands(BaseModel):
                 high_freq_combos.append(sys_band)
 
         # Create figure with broken axis
-        fig = plt.figure(figsize=figsize, facecolor='black')
+        fig = plt.figure(figsize=figsize, facecolor="black")
 
         # Create grid: 1 row, 2 columns with different widths
         gs = gridspec.GridSpec(1,
@@ -214,7 +212,7 @@ class Bands(BaseModel):
         ax2 = fig.add_subplot(gs[1])  # Right panel (high frequencies)
 
         for ax in [ax1, ax2]:
-            ax.set_facecolor('black')
+            ax.set_facecolor("black")
 
         # Plot function for each panel
         def plot_panel(ax, combinations, panel_name):
@@ -230,7 +228,7 @@ class Bands(BaseModel):
             bws_in_panel = []
 
             for sys_band in combinations:
-                system, band = sys_band.split('_')
+                system, band = sys_band.split("_")
                 props = self.BAND_PROPERTIES[band]
                 freq, bw = props["freq"], props["bandwidth"]
 
@@ -280,18 +278,18 @@ class Bands(BaseModel):
                 ax.set_ylim(-0.5, current_y + 0.5)
 
             # Style axes
-            ax.set_xlabel("Frequency [MHz]", fontsize=12, color='white')
+            ax.set_xlabel("Frequency [MHz]", fontsize=12, color="white")
             if panel_name == "left":
                 ax.set_ylabel("System-Band Combinations",
                               fontsize=12,
-                              color='white')
+                              color="white")
 
-            ax.grid(axis="x", linestyle="-", alpha=0.3, color='white')
-            ax.tick_params(colors='white', which='both')
+            ax.grid(axis="x", linestyle="-", alpha=0.3, color="white")
+            ax.tick_params(colors="white", which="both")
 
             # Style spines
             for spine in ax.spines.values():
-                spine.set_color('white')
+                spine.set_color("white")
 
         # Plot both panels
         plot_panel(ax1, low_freq_combos, "left")
@@ -301,13 +299,13 @@ class Bands(BaseModel):
         fig.suptitle("GNSS Frequency Bands Overview",
                      fontsize=14,
                      weight="bold",
-                     color='white')
+                     color="white")
 
         # Create legend
         legend_elements = []
         all_systems = set()
         for combo in sorted_combinations:
-            all_systems.add(combo.split('_')[0])
+            all_systems.add(combo.split("_")[0])
 
         system_names = {
             "C": "C",
@@ -331,30 +329,30 @@ class Bands(BaseModel):
                             fontsize=10,
                             title_fontsize=11,
                             frameon=True,
-                            facecolor='black',
-                            edgecolor='white')
+                            facecolor="black",
+                            edgecolor="white")
 
         # Style legend text
-        legend.get_title().set_color('white')
+        legend.get_title().set_color("white")
         for text in legend.get_texts():
-            text.set_color('white')
+            text.set_color("white")
 
         # Add break indicators (optional)
         # Add text to show the frequency gap
         fig.text(0.5,
                  0.02,
                  f"Frequency break: <{break_freq} MHz | >{break_freq} MHz",
-                 ha='center',
-                 va='bottom',
-                 color='white',
+                 ha="center",
+                 va="bottom",
+                 color="white",
                  fontsize=10)
 
         plt.tight_layout()
         if savepath:
             fig.savefig(savepath,
                         dpi=300,
-                        bbox_inches='tight',
-                        facecolor='black')
+                        bbox_inches="tight",
+                        facecolor="black")
         return fig, (ax1, ax2)
 
 
@@ -363,6 +361,6 @@ if __name__ == "__main__":
     print(bands.BAND_PROPERTIES)
     print(bands.SYSTEM_BANDS)
     print(bands.OVERLAPPING_GROUPS)
-    fig, ax = bands.plot_bands(savepath='gnss_bands.png')
+    fig, ax = bands.plot_bands(savepath="gnss_bands.png")
 
     plt.show()

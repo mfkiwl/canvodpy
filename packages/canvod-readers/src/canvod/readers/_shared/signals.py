@@ -7,10 +7,7 @@ pending in Phase 2 expansion.
 TODO: Migrate complete signal mapping system from gnssvodpy/signal_frequency_mapping/
 """
 
-from typing import Dict, List, Optional, Tuple
 
-import pint
-from canvod.readers._shared.constants import FREQ_UNIT, SPEEDOFLIGHT
 
 
 class SignalIDMapper:
@@ -29,76 +26,76 @@ class SignalIDMapper:
 
         # Simplified band mapping - expand with full migration
         self.SYSTEM_BANDS = {
-            'G': {
-                '1': 'L1',
-                '2': 'L2',
-                '5': 'L5'
+            "G": {
+                "1": "L1",
+                "2": "L2",
+                "5": "L5"
             },  # GPS
-            'E': {
-                '1': 'E1',
-                '5': 'E5a',
-                '7': 'E5b',
-                '8': 'E5'
+            "E": {
+                "1": "E1",
+                "5": "E5a",
+                "7": "E5b",
+                "8": "E5"
             },  # Galileo
-            'R': {
-                '1': 'G1',
-                '2': 'G2',
-                '3': 'G3'
+            "R": {
+                "1": "G1",
+                "2": "G2",
+                "3": "G3"
             },  # GLONASS
-            'C': {
-                '2': 'B1I',
-                '7': 'B2I',
-                '6': 'B3I'
+            "C": {
+                "2": "B1I",
+                "7": "B2I",
+                "6": "B3I"
             },  # BeiDou
-            'J': {
-                '1': 'L1',
-                '2': 'L2',
-                '5': 'L5'
+            "J": {
+                "1": "L1",
+                "2": "L2",
+                "5": "L5"
             },  # QZSS
-            'I': {
-                '5': 'L5',
-                '9': 'S'
+            "I": {
+                "5": "L5",
+                "9": "S"
             },  # IRNSS
-            'S': {
-                '1': 'L1',
-                '5': 'L5'
+            "S": {
+                "1": "L1",
+                "5": "L5"
             },  # SBAS
         }
 
         # Simplified frequency properties
         self.BAND_PROPERTIES = {
-            'L1': {
-                'freq': 1575.42
+            "L1": {
+                "freq": 1575.42
             },
-            'L2': {
-                'freq': 1227.60
+            "L2": {
+                "freq": 1227.60
             },
-            'L5': {
-                'freq': 1176.45
+            "L5": {
+                "freq": 1176.45
             },
-            'E1': {
-                'freq': 1575.42
+            "E1": {
+                "freq": 1575.42
             },
-            'E5a': {
-                'freq': 1176.45
+            "E5a": {
+                "freq": 1176.45
             },
-            'E5b': {
-                'freq': 1207.14
+            "E5b": {
+                "freq": 1207.14
             },
-            'G1': {
-                'freq': 1602.00
+            "G1": {
+                "freq": 1602.00
             },
-            'G2': {
-                'freq': 1246.00
+            "G2": {
+                "freq": 1246.00
             },
-            'B1I': {
-                'freq': 1561.098
+            "B1I": {
+                "freq": 1561.098
             },
-            'B2I': {
-                'freq': 1207.14
+            "B2I": {
+                "freq": 1207.14
             },
-            'B3I': {
-                'freq': 1268.52
+            "B3I": {
+                "freq": 1268.52
             },
         }
 
@@ -114,13 +111,14 @@ class SignalIDMapper:
 
         Returns:
             Formatted signal ID
+
         """
         try:
-            sv, observation_code = obs_code.split('|')
+            sv, observation_code = obs_code.split("|")
             system = sv[0]
 
             # Special handling for X1 auxiliary observations
-            if observation_code == 'X1':
+            if observation_code == "X1":
                 return f"{sv}|X1|X"
 
             # Standard 3-character observation codes
@@ -130,14 +128,14 @@ class SignalIDMapper:
 
                 # Get system-specific band name
                 band_name = self.SYSTEM_BANDS.get(system, {}).get(
-                    band_num, f'UnknownBand{band_num}')
+                    band_num, f"UnknownBand{band_num}")
 
                 return f"{sv}|{band_name}|{code}"
 
             # Fallback
             return f"{sv}|{observation_code}|Unknown"
 
-        except (ValueError, IndexError) as e:
+        except (ValueError, IndexError):
             return f"{sv}|Unknown|Unknown"
 
     def parse_signal_id(self, signal_id: str) -> tuple[str, str, str]:
@@ -148,17 +146,18 @@ class SignalIDMapper:
 
         Returns:
             Tuple of (sv, band, code)
+
         """
-        parts = signal_id.split('|')
+        parts = signal_id.split("|")
         if len(parts) != 3:
             return "", "", ""
         return parts[0], parts[1], parts[2]
 
     def get_band_frequency(self, band_name: str) -> float | None:
         """Get central frequency for a band name in MHz."""
-        return self.BAND_PROPERTIES.get(band_name, {}).get('freq')
+        return self.BAND_PROPERTIES.get(band_name, {}).get("freq")
 
     def is_auxiliary_observation(self, signal_id: str) -> bool:
         """Check if signal ID represents auxiliary data (like X1)."""
         _, band, _ = self.parse_signal_id(signal_id)
-        return band == 'X1'
+        return band == "X1"

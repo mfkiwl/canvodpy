@@ -8,10 +8,9 @@ Manages downloading, reading, preprocessing, and caching of auxiliary files
 import os
 import threading
 from pathlib import Path
-from typing import Dict, Optional
 
 import xarray as xr
-from gnssvodpy.data_handler.data_handler import DataDirMatcher, MatchedDirs
+from canvod.readers.matching import MatchedDirs
 from gnssvodpy.globals import (
     AGENCY,
     CLK_FILE_PATH,
@@ -21,13 +20,12 @@ from gnssvodpy.globals import (
 )
 from gnssvodpy.icechunk_manager.preprocessing import IcechunkPreprocessor
 from gnssvodpy.settings import get_settings
-from pydantic import ConfigDict
-from pydantic.dataclasses import dataclass
 
 from canvod.aux._internal import YYYYDOY, get_logger
 from canvod.aux.clock import ClkFile
 from canvod.aux.core.base import AuxFile
 from canvod.aux.ephemeris import Sp3File
+
 """
 Auxiliary Data Pipeline for GNSS Processing
 
@@ -363,7 +361,6 @@ class AuxDataPipeline:
         from gnssvodpy.globals import CLK_FILE_PATH, SP3_FILE_PATH
         from gnssvodpy.globals import FTP_SERVER as DEFAULT_FTP_SERVER
         from gnssvodpy.globals import PRODUCT_TYPE as DEFAULT_PRODUCT_TYPE
-        from gnssvodpy.settings import get_settings
 
         from canvod.aux.clock import ClkFile
         from canvod.aux.ephemeris import Sp3File

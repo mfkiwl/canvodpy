@@ -27,6 +27,7 @@ class RinexError(Exception):
     ...     reader = Rnxv3Obs("nonexistent.24o")
     ... except RinexError as e:
     ...     print(f"RINEX error: {e}")
+
     """
 
 
@@ -45,6 +46,7 @@ class AttributeOverrideError(RinexError):
     --------
     >>> raise AttributeOverrideError("fpath")
     AttributeOverrideError: Overriding attribute 'fpath' is not allowed...
+
     """
 
     def __init__(self, attribute: str) -> None:
@@ -67,6 +69,7 @@ class MissingEpochError(RinexError):
     Examples
     --------
     >>> raise MissingEpochError("Epochs 5-10 missing from file")
+
     """
 
     def __init__(self, message: str) -> None:
@@ -87,6 +90,7 @@ class CorruptedFileError(RinexError):
     Examples
     --------
     >>> raise CorruptedFileError("Invalid header format at line 10")
+
     """
 
     def __init__(self, message: str) -> None:
@@ -107,6 +111,7 @@ class IncompleteEpochError(RinexError):
     Examples
     --------
     >>> raise IncompleteEpochError("Epoch at 2024-01-01 12:00:00 missing G01 data")
+
     """
 
     def __init__(self, message: str) -> None:
@@ -126,6 +131,7 @@ class InvalidEpochError(RinexError):
     Examples
     --------
     >>> raise InvalidEpochError("Epoch flag 9 is invalid (must be 0-6)")
+
     """
 
     def __init__(self, message: str) -> None:
@@ -143,6 +149,7 @@ class FileNotExistError(RinexError):
     Examples
     --------
     >>> raise FileNotExistError("File not found: /path/to/station.24o")
+
     """
 
     def __init__(self, message: str) -> None:

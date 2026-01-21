@@ -14,21 +14,23 @@ Architecture:
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
-import pint
-import pymap3d as pm
 import xarray as xr
-from canvod.aux.pipeline import AuxDataPipeline
-from canvod.aux._internal import UREG
+
 from canvod.aux._internal import get_logger
-from gnssvodpy.position.position import ECEFPosition
-from gnssvodpy.position.spherical_coords import (
+from canvod.aux.matching import DatasetMatcher
+from canvod.aux.position import (
+    ECEFPosition,
     add_spherical_coords_to_dataset,
     compute_spherical_coordinates,
 )
-from gnssvodpy.processor.matcher import DatasetMatcher
+
+# Lazy import to avoid gnssvodpy dependency at module load
+# AuxDataPipeline requires gnssvodpy - only imported for type hints
+if TYPE_CHECKING:
+    from canvod.aux.pipeline import AuxDataPipeline
 
 
 class AugmentationContext:
@@ -102,7 +104,7 @@ class AugmentationStep(ABC):
         self._logger = get_logger()
 
     @abstractmethod
-    def augment(self, ds: xr.Dataset, aux_pipeline: AuxDataPipeline,
+    def augment(self, ds: xr.Dataset, aux_pipeline: "AuxDataPipeline",
                 context: AugmentationContext) -> xr.Dataset:
         """
         Augment the dataset with computed values.
@@ -157,7 +159,7 @@ class SphericalCoordinateAugmentation(AugmentationStep):
     def get_required_aux_files(self) -> list[str]:
         return ['ephemerides']
 
-    def augment(self, ds: xr.Dataset, aux_pipeline: AuxDataPipeline,
+    def augment(self, ds: xr.Dataset, aux_pipeline: "AuxDataPipeline",
                 context: AugmentationContext) -> xr.Dataset:
         """Compute and add spherical coordinates using shared utility."""
 
@@ -209,7 +211,7 @@ class ClockCorrectionAugmentation(AugmentationStep):
     def get_required_aux_files(self) -> list[str]:
         return ['clock']
 
-    def augment(self, ds: xr.Dataset, aux_pipeline: AuxDataPipeline,
+    def augment(self, ds: xr.Dataset, aux_pipeline: "AuxDataPipeline",
                 context: AugmentationContext) -> xr.Dataset:
         """
         Apply clock corrections (placeholder implementation).
@@ -277,7 +279,7 @@ class AuxDataAugmenter:
     """
 
     def __init__(self,
-                 aux_pipeline: AuxDataPipeline,
+                 aux_pipeline: "AuxDataPipeline",
                  steps: list[AugmentationStep] | None = None):
         self.aux_pipeline = aux_pipeline
         self.steps = steps or self._get_default_steps()
@@ -427,21 +429,10 @@ Demonstrates:
 2. Augmenting RINEX datasets with spherical coordinates
 3. Using default and custom augmentation steps
 4. Caching receiver position across multiple files
+
+NOTE: These examples require gnssvodpy to be installed.
+Run with: python -m canvod.aux.augmentation
 """
-
-from pathlib import Path
-
-import xarray as xr
-from canvod.aux.augmentation import (
-    AugmentationContext,
-    AugmentationStep,
-    AuxDataAugmenter,
-    ClockCorrectionAugmentation,
-    SphericalCoordinateAugmentation,
-)
-from canvod.aux.pipeline import AuxDataPipeline
-from gnssvodpy.data_handler.data_handler import MatchedDirs
-from gnssvodpy.utils.date_time import YYYYDOY
 
 
 def example_basic_augmentation():
@@ -503,7 +494,6 @@ def example_custom_augmentation_step():
             return []  # Uses already computed theta
 
         def augment(self, ds, aux_pipeline, context):
-            import numpy as np
 
             # Check if theta exists
             if 'theta' not in ds.data_vars:
@@ -675,7 +665,6 @@ def example_adding_custom_steps():
             return []
 
         def augment(self, ds, aux_pipeline, context):
-            import numpy as np
             elevation_rad = np.pi / 2 - ds['theta'].values
             elevation_deg = np.rad2deg(elevation_rad)
             ds = ds.assign({
@@ -696,6 +685,15 @@ def example_adding_custom_steps():
 
 
 if __name__ == '__main__':
+    # Conditional imports for examples - requires gnssvodpy
+    from pathlib import Path
+
+    import xarray as xr
+    from gnssvodpy.data_handler.data_handler import MatchedDirs
+    from gnssvodpy.utils.date_time import YYYYDOY
+
+    from canvod.aux.pipeline import AuxDataPipeline
+
     print("\n" + "=" * 60)
     print("AUGMENTATION FRAMEWORK EXAMPLES")
     print("=" * 60)

@@ -14,6 +14,10 @@ import requests
 from canvod.readers.gnss_specs.constants import FREQ_UNIT, UREG
 from natsort import natsorted
 
+# Register SQLite adapters for datetime (Python 3.12+ compatibility)
+sqlite3.register_adapter(datetime, lambda dt: dt.isoformat())
+sqlite3.register_converter("DATETIME", lambda s: datetime.fromisoformat(s.decode()))
+
 
 # ================================================================
 # -------------------- Shared Wikipedia Cache --------------------
@@ -22,11 +26,11 @@ class WikipediaCache:
     """Shared cache for all GNSS constellation satellite lists."""
 
     def __init__(self, cache_hours: int = 6) -> None:
-        """
-        Parameters
+        """Parameters
         ----------
         cache_hours : int, optional
             How long cache entries are considered valid (default: 6).
+
         """
         self.cache_file: str = "gnss_satellites_cache.db"
         self.cache_hours: int = cache_hours
@@ -38,7 +42,7 @@ class WikipediaCache:
 
     def _init_db(self) -> None:
         """Initialize SQLite database if it does not exist."""
-        conn = sqlite3.connect(self.cache_file)
+        conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
         conn.execute("""
             CREATE TABLE IF NOT EXISTS satellite_cache (
                 constellation TEXT PRIMARY KEY,
@@ -52,8 +56,7 @@ class WikipediaCache:
         conn.close()
 
     def _get_lock(self, constellation: str) -> threading.Lock:
-        """
-        Parameters
+        """Parameters
         ----------
         constellation : str
             Constellation identifier (e.g., "GPS").
@@ -62,14 +65,14 @@ class WikipediaCache:
         -------
         threading.Lock
             A per-constellation threading lock.
+
         """
         if constellation not in self._locks:
             self._locks[constellation] = threading.Lock()
         return self._locks[constellation]
 
     def get_cached_svs(self, constellation: str) -> list[str] | None:
-        """
-        Retrieve fresh cached SV list for a constellation.
+        """Retrieve fresh cached SV list for a constellation.
 
         Parameters
         ----------
@@ -80,8 +83,9 @@ class WikipediaCache:
         -------
         list of str or None
             List of SV PRNs if cache is valid, else None.
+
         """
-        conn = sqlite3.connect(self.cache_file)
+        conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
         cutoff = datetime.now() - timedelta(hours=self.cache_hours)
         cursor = conn.execute(
             "SELECT svs_data FROM satellite_cache WHERE constellation = ? AND fetched_at > ?",
@@ -92,8 +96,7 @@ class WikipediaCache:
         return json.loads(result[0]) if result else None
 
     def get_stale_cache(self, constellation: str) -> list[str] | None:
-        """
-        Retrieve most recent cached SV list (ignores freshness).
+        """Retrieve most recent cached SV list (ignores freshness).
 
         Parameters
         ----------
@@ -104,8 +107,9 @@ class WikipediaCache:
         -------
         list of str or None
             List of SV PRNs if present in cache, else None.
+
         """
-        conn = sqlite3.connect(self.cache_file)
+        conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
         cursor = conn.execute(
             "SELECT svs_data FROM satellite_cache WHERE constellation = ? ORDER BY fetched_at DESC LIMIT 1",
             (constellation, ),
@@ -123,8 +127,7 @@ class WikipediaCache:
         status_filter: dict[str, str] | None = None,
         re_pattern: str = r"\b[A-Z]\d{2}\b",
     ) -> list[str]:
-        """
-        Fetch constellation satellite list from Wikipedia, clean it,
+        """Fetch constellation satellite list from Wikipedia, clean it,
         and cache results.
 
         Parameters
@@ -147,6 +150,7 @@ class WikipediaCache:
         -------
         list of str
             Sorted list of SV identifiers.
+
         """
         lock = self._get_lock(constellation)
         with lock:
@@ -186,7 +190,7 @@ class WikipediaCache:
                 if not clean_list:
                     raise ValueError("No valid PRN data found after cleaning")
 
-                conn = sqlite3.connect(self.cache_file)
+                conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
                 conn.execute(
                     """
                     INSERT OR REPLACE INTO satellite_cache
@@ -234,8 +238,7 @@ class ConstellationBase(ABC):
         static_svs: list[str] | None = None,
         aggregate_fdma: bool = True,
     ) -> None:
-        """
-        Parameters
+        """Parameters
         ----------
         constellation : str
             Name of the constellation (e.g., "GPS", "GALILEO").
@@ -253,6 +256,7 @@ class ConstellationBase(ABC):
             If True, fetch SVs from Wikipedia (default True).
         static_svs : list of str, optional
             Provide a static list of SVs if not using Wikipedia.
+
         """
         self.constellation: str = constellation
         self.url: str | None = url
@@ -266,13 +270,13 @@ class ConstellationBase(ABC):
         self.aggregate_fdma = aggregate_fdma
 
     def get_svs(self) -> list[str]:
-        """
-        Fetch the list of SVs for this constellation.
+        """Fetch the list of SVs for this constellation.
 
         Returns
         -------
         list of str
             List of PRNs (satellite identifiers).
+
         """
         cached = _wikipedia_cache.get_cached_svs(self.constellation)
         if cached:
@@ -288,13 +292,13 @@ class ConstellationBase(ABC):
 
     @property
     def bands_freqs(self) -> dict[str, pint.Quantity]:
-        """
-        Generate RINEX observation codes mapped to frequencies.
+        """Generate RINEX observation codes mapped to frequencies.
 
         Returns
         -------
         dict
             Keys are obs codes (e.g., ``"*1C"``), values are frequencies in Hz.
+
         """
         out: dict[str, pint.Quantity] = {}
         for band_num, band_name in self.BANDS.items():
@@ -306,13 +310,13 @@ class ConstellationBase(ABC):
     @property
     @abstractmethod
     def freqs_lut(self) -> dict[str, pint.Quantity]:
-        """
-        Build mapping of SV|obs_code to frequency.
+        """Build mapping of SV|obs_code to frequency.
 
         Returns
         -------
         dict
             Keys of the form ``"SV|*1C"`` and values are frequencies.
+
         """
 
 
@@ -337,7 +341,7 @@ class GALILEO(ConstellationBase):
     Note 2:
     -------
     Bandwidths specified here refer to the Receiver Reference Bandwidths.
-   """
+    """
 
     BANDS = {"1": "E1", "5": "E5a", "7": "E5b", "6": "E6", "8": "E5"}
     BAND_CODES = {
@@ -397,8 +401,7 @@ class GALILEO(ConstellationBase):
 
 
 class GPS(ConstellationBase):
-    """
-    GPS constellation model.
+    """GPS constellation model.
 
     - Band numbers and codes from RINEX v3.04 Guide: \
         http://acc.igs.org/misc/rinex304.pdf , Table 4
@@ -410,7 +413,7 @@ class GPS(ConstellationBase):
         https://www.gps.gov/technical/icwg/IS-GPS-705J.pdf , "3.3.1.1 Frequency Plan"
 
     Note:
-    -----
+    ----
     L1/L2 bandwidth technically depends on the GPS Block. Blocks IIR, IIR-M and IIF have a bandwidth of 20.46 MHz, \
         while Block III and IIIF has a bandwidth of 30.69 MHz. We assume the larger bandwidth here.
 
@@ -468,8 +471,7 @@ class GPS(ConstellationBase):
 
 
 class BEIDOU(ConstellationBase):
-    """
-    BeiDou constellation model.
+    """BeiDou constellation model.
 
     - Band numbers and codes from RINEX v3.04 Guide: \
         http://acc.igs.org/misc/rinex304.pdf , Table 9
@@ -575,8 +577,7 @@ class BEIDOU(ConstellationBase):
 
 
 class GLONASS(ConstellationBase):
-    """
-    GLONASS constellation model (uses FDMA for L1/L2).
+    """GLONASS constellation model (uses FDMA for L1/L2).
 
     Parameters
     ----------
@@ -678,8 +679,7 @@ class GLONASS(ConstellationBase):
             }
 
     def get_channel_used_by_SV(self, sv: str) -> int:
-        """
-        Parameters
+        """Parameters
         ----------
         sv : str
             GLONASS satellite identifier (e.g., "R01").
@@ -688,24 +688,25 @@ class GLONASS(ConstellationBase):
         -------
         int
             Channel number for this satellite.
+
         """
         slot = int(sv[1:3])
         return self.glonass_slots_channels[slot]
 
     @property
     def glonass_slots_channels(self) -> dict[int, int]:
-        """
-        Parse GLONASS channel file.
+        """Parse GLONASS channel file.
 
         Returns
         -------
         dict
             Mapping slot → channel.
+
         """
         slot_channel_dict: dict[int, int] = {}
         with open(self.pth) as file:
             lines = file.readlines()
-            for i in range(0, len(lines)):
+            for i in range(len(lines)):
                 if "slot" in lines[i] and "Channel" in lines[i + 1]:
                     slots_line = lines[i].strip().split("|")[1:-1]
                     channels_line = lines[i + 1].strip().split("|")[1:-1]
@@ -729,11 +730,11 @@ class GLONASS(ConstellationBase):
                 UREG.MHz).to(FREQ_UNIT)
 
     def freqs_G1_G2_lut(self) -> dict[str, pint.Quantity]:
-        """
-        Returns
+        """Returns
         -------
         dict
             SV|obs_code → frequency for FDMA-dependent L1/L2 bands.
+
         """
         out: dict[str, pint.Quantity] = {}
         for band in self.SV_DEPENDENT_BANDS:
@@ -746,7 +747,6 @@ class GLONASS(ConstellationBase):
     @property
     def freqs_lut(self) -> dict[str, pint.Quantity]:
         """See base class + GLONASS-specific FDMA."""
-
         out = {
             f"{sv}|{obs}": freq
             for obs, freq in self.bands_freqs.items()
@@ -766,8 +766,7 @@ class GLONASS(ConstellationBase):
 
 
 class SBAS(ConstellationBase):
-    """
-    SBAS constellation model (WAAS, EGNOS, GAGAN, MSAS, SDCM).
+    """SBAS constellation model (WAAS, EGNOS, GAGAN, MSAS, SDCM).
 
     - Band numbers and codes from RINEX v3.04 Guide: \
         http://acc.igs.org/misc/rinex304.pdf , Table 7
@@ -823,8 +822,7 @@ class SBAS(ConstellationBase):
 
 
 class IRNSS(ConstellationBase):
-    """
-    IRNSS (NavIC) constellation model.
+    """IRNSS (NavIC) constellation model.
 
     - Band numbers and codes from RINEX v3.04 Guide:
         http://acc.igs.org/misc/rinex304.pdf , Table 10
@@ -878,8 +876,7 @@ class IRNSS(ConstellationBase):
 
 
 class QZSS(ConstellationBase):
-    """
-    QZSS constellation model (GPS-compatible + unique L6).
+    """QZSS constellation model (GPS-compatible + unique L6).
 
     - Band numbers and codes from RINEX v3.04 Guide: \
         http://acc.igs.org/misc/rinex304.pdf , Table 8
@@ -891,7 +888,7 @@ class QZSS(ConstellationBase):
         https://gssc.esa.int/navipedia/index.php?title=QZSS_Signal_Plan
 
     Note:
-    -----
+    ----
     Bandwidth technically depends on the GPS Block. Like with `GPS`, we assume the larger bandwidth here.
 
     """

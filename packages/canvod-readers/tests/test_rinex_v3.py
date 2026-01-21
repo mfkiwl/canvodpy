@@ -4,9 +4,7 @@ from pathlib import Path
 
 import pytest
 import xarray as xr
-
 from canvod.readers.rinex.v3_04 import Rnxv3Header, Rnxv3Obs
-
 
 # Test data paths
 TEST_DATA_DIR = Path(__file__).parent / "test_data"
@@ -27,7 +25,7 @@ class TestRnxv3Header:
     def test_header_from_file(self, rinex_file):
         """Test header can be parsed from file."""
         header = Rnxv3Header.from_file(rinex_file)
-        
+
         assert header is not None
         assert header.version >= 3.0
         assert header.version < 4.0
@@ -36,7 +34,7 @@ class TestRnxv3Header:
     def test_header_required_fields(self, rinex_file):
         """Test header contains required fields."""
         header = Rnxv3Header.from_file(rinex_file)
-        
+
         # Required fields
         assert header.marker_name
         assert header.receiver_type
@@ -47,22 +45,22 @@ class TestRnxv3Header:
     def test_header_position_data(self, rinex_file):
         """Test header position information."""
         header = Rnxv3Header.from_file(rinex_file)
-        
+
         assert len(header.approx_position) == 3
         assert len(header.antenna_position) == 3
-        
+
         # Check positions have units
         for pos in header.approx_position:
-            assert hasattr(pos, 'magnitude')
-            assert hasattr(pos, 'units')
+            assert hasattr(pos, "magnitude")
+            assert hasattr(pos, "units")
 
     def test_header_observation_codes(self, rinex_file):
         """Test observation codes are parsed."""
         header = Rnxv3Header.from_file(rinex_file)
-        
+
         assert header.obs_codes_per_system
         assert isinstance(header.obs_codes_per_system, dict)
-        
+
         # Should have at least one GNSS system
         assert len(header.obs_codes_per_system) > 0
 
@@ -73,7 +71,7 @@ class TestRnxv3Obs:
     def test_obs_initialization(self, rinex_file):
         """Test Rnxv3Obs can be initialized."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         assert obs is not None
         assert obs.fpath == rinex_file
         assert obs.header is not None
@@ -81,30 +79,30 @@ class TestRnxv3Obs:
     def test_obs_header_access(self, rinex_file):
         """Test header is accessible from obs object."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         assert obs.header.version >= 3.0
         assert obs.header.marker_name
 
     def test_epoch_iteration(self, rinex_file):
         """Test epoch iteration works."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         epochs = list(obs.iter_epochs())
-        
+
         assert len(epochs) > 0
-        
+
         # Check first epoch structure
         first_epoch = epochs[0]
-        assert hasattr(first_epoch, 'info')
-        assert hasattr(first_epoch, 'data')
+        assert hasattr(first_epoch, "info")
+        assert hasattr(first_epoch, "data")
         assert len(first_epoch.data) > 0
 
     def test_epoch_batches(self, rinex_file):
         """Test epoch batch extraction."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         batches = obs.get_epoch_record_batches()
-        
+
         assert len(batches) > 0
         assert all(isinstance(b, tuple) and len(b) == 2 for b in batches)
         assert all(b[0] < b[1] for b in batches)  # Start < end
@@ -112,19 +110,19 @@ class TestRnxv3Obs:
     def test_sampling_interval_inference(self, rinex_file):
         """Test sampling interval can be inferred."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         interval = obs.infer_sampling_interval()
-        
+
         if interval is not None:
             assert interval.magnitude > 0
-            assert hasattr(interval, 'units')
+            assert hasattr(interval, "units")
 
     def test_to_ds_basic(self, rinex_file):
         """Test conversion to xarray Dataset."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         ds = obs.to_ds(keep_rnx_data_vars=["SNR"])
-        
+
         assert isinstance(ds, xr.Dataset)
         assert "epoch" in ds.dims
         assert "sid" in ds.dims
@@ -133,9 +131,9 @@ class TestRnxv3Obs:
     def test_to_ds_coordinates(self, rinex_file):
         """Test Dataset has required coordinates."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         ds = obs.to_ds(keep_rnx_data_vars=["SNR"])
-        
+
         # Required coordinates
         required_coords = ["epoch", "sid", "sv", "system", "band", "code"]
         for coord in required_coords:
@@ -144,9 +142,9 @@ class TestRnxv3Obs:
     def test_to_ds_frequency_info(self, rinex_file):
         """Test Dataset has frequency information."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         ds = obs.to_ds(keep_rnx_data_vars=["SNR"])
-        
+
         # Frequency coordinates
         assert "freq_center" in ds.coords
         assert "freq_min" in ds.coords
@@ -155,9 +153,9 @@ class TestRnxv3Obs:
     def test_to_ds_metadata(self, rinex_file):
         """Test Dataset has global attributes."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         ds = obs.to_ds(keep_rnx_data_vars=["SNR"])
-        
+
         assert "Created" in ds.attrs
         assert "Software" in ds.attrs
         assert "Institution" in ds.attrs
@@ -165,19 +163,19 @@ class TestRnxv3Obs:
     def test_file_hash_generation(self, rinex_file):
         """Test file hash is generated."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         file_hash = obs.file_hash
-        
+
         assert file_hash
         assert len(file_hash) == 16  # Short hash
-        assert all(c in '0123456789abcdef' for c in file_hash)
+        assert all(c in "0123456789abcdef" for c in file_hash)
 
     def test_multiple_data_vars(self, rinex_file):
         """Test keeping multiple data variables."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
-        
+
         ds = obs.to_ds(keep_rnx_data_vars=["SNR", "Pseudorange", "Phase"])
-        
+
         assert "SNR" in ds.data_vars
         assert "Pseudorange" in ds.data_vars
         assert "Phase" in ds.data_vars
@@ -190,24 +188,24 @@ class TestSignalMapping:
         """Test signal IDs have correct format."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
         ds = obs.to_ds(keep_rnx_data_vars=["SNR"])
-        
+
         # Check signal ID format: "SV|BAND|CODE"
         for sid in ds.sid.values:
-            parts = str(sid).split('|')
+            parts = str(sid).split("|")
             assert len(parts) == 3, f"Invalid signal ID format: {sid}"
-            
+
             sv, band, code = parts
             assert len(sv) == 3  # e.g., "G01"
-            assert sv[0] in 'GRECJSI'  # Valid GNSS systems
+            assert sv[0] in "GRECJSI"  # Valid GNSS systems
             assert sv[1:3].isdigit()
 
     def test_system_coordinate(self, rinex_file):
         """Test system coordinate matches signal IDs."""
         obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
         ds = obs.to_ds(keep_rnx_data_vars=["SNR"])
-        
+
         for i, sid in enumerate(ds.sid.values):
-            sv_system = str(sid).split('|')[0][0]
+            sv_system = str(sid).split("|")[0][0]
             assert str(ds.system.values[i]) == sv_system
 
 
@@ -223,7 +221,7 @@ class TestErrorHandling:
         """Test error on invalid file type."""
         invalid_file = tmp_path / "test.txt"
         invalid_file.write_text("Not a RINEX file")
-        
+
         with pytest.raises(ValueError):
             Rnxv3Header.from_file(invalid_file)
 
@@ -233,6 +231,6 @@ def test_individual_data_vars(rinex_file, data_var):
     """Test each data variable can be read individually."""
     obs = Rnxv3Obs(fpath=rinex_file, completeness_mode="off")
     ds = obs.to_ds(keep_rnx_data_vars=[data_var])
-    
+
     assert data_var in ds.data_vars
     assert ds[data_var].dims == ("epoch", "sid")

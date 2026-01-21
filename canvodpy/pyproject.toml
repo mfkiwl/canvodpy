@@ -21,9 +21,18 @@ classifiers = [
 dependencies = [
     "canvod-readers",
     "canvod-aux",
+    "canvod-store",
+    "canvod-vod",
     "ipykernel>=7.1.0",
     "marimo>=0.9.0",
     "matplotlib>=3.8.0",
+    "pint>=0.20",
+    "structlog>=23.0",
+    "pydantic>=2.0",
+    "tqdm>=4.65",
+    "tomli>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "natsort>=8.0.0",
 ]
 
 [dependency-groups]
@@ -43,6 +52,8 @@ build-backend = "uv_build"
 [tool.uv.sources]
 canvod-readers = { workspace = true }
 canvod-aux = { workspace = true }
+canvod-store = { workspace = true }
+canvod-vod = { workspace = true }
 
 [tool.ty]
 extend-exclude = [

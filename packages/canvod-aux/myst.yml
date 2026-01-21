@@ -1,15 +1,42 @@
 version: 1
 
+extends:
+  - https://github.com/TUW-GEO/cookiecutter-docs-config/raw/main/myst.yml
+
 project:
   title: canvod-aux
+  subtitle: Auxiliary Data Augmentation for GNSS VOD Analysis
   authors:
-    - name: Nicolas F. Bader
+    - name: Nicolas Bader
       email: nicolas.bader@geo.tuwien.ac.at
+      affiliation: TU Wien, Department of Geodesy and Geoinformation
+  github: https://github.com/nfb2021/canvodpy
+  open_access: true
+  license: Apache-2.0
+  
   toc:
     - file: README.md
-    - title: "Documentation"
+      title: Package Overview
+    
+    - title: Documentation
       children:
-        - file: docs/index.ipynb
-    - title: "Developing"
-      children:
-        - file: QUICK_START.md
+        - file: docs/source/index.md
+          title: Documentation Home
+        - file: docs/source/overview.md
+          title: Overview
+        - file: docs/source/preprocessing.md
+          title: Preprocessing (sv→sid)
+        - file: docs/source/interpolation.md
+          title: Interpolation Strategies
+        - file: docs/source/products.md
+          title: Product Registry
+        - file: docs/source/position.md
+          title: Position & Coordinates
+        - file: docs/source/api_reference.md
+          title: API Reference
+  
+  error_rules:
+    - rule: image-downloads
+      severity: ignore
+    - rule: link-resolves
+      severity: ignore

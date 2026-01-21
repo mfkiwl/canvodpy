@@ -80,6 +80,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Prevent package-level virtual environments (monorepo uses root .venv only)
+packages/**/.venv/
+canvodpy/.venv/
+
 # ============================================================================
 # Package Managers & Build Tools
 # ============================================================================

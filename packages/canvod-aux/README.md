@@ -225,7 +225,7 @@ If you use canvod-aux in your research, please cite:
 
 ```bibtex
 @software{canvodpy2025,
-  author = {Bader, Nicolas},
+  author = {Bader, Nicolas F.},
   title = {canVODpy: GNSS Vegetation Optical Depth Analysis},
   year = {2025},
   publisher = {TU Wien},
@@ -233,9 +233,11 @@ If you use canvod-aux in your research, please cite:
 }
 ```
 
-## Contact
+## Author & Affiliation
 
-**Nicolas Bader**  
-TU Wien - Department of Geodesy and Geoinformation  
+**Nicolas F. Bader**  
+Climate and Environmental Remote Sensing Research Unit (CLIMERS)  
+Department of Geodesy and Geoinformation  
+TU Wien (Vienna University of Technology)  
 Email: nicolas.bader@geo.tuwien.ac.at  
-GitHub: [@nfb2021](https://github.com/nfb2021)
+[https://www.tuwien.at/en/mg/geo/climers](https://www.tuwien.at/en/mg/geo/climers)

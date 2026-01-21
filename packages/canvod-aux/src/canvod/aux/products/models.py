@@ -1,6 +1,5 @@
 """Pydantic models for auxiliary file validation."""
 
-from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -14,7 +13,7 @@ class Sp3Header(BaseModel):
     Validates the header section of SP3 (Standard Product #3) orbit files
     according to IGS format specifications.
     """
-    
+
     version: str = Field(..., description="SP3 version (#d or #P)")
     epoch_count: int = Field(..., gt=0, description="Number of epochs")
     data_used: str = Field(..., description="Data used indicator")
@@ -27,7 +26,7 @@ class Sp3Header(BaseModel):
     mjd_start: int = Field(..., description="Modified Julian Day start")
     fractional_day: float = Field(..., ge=0, lt=1, description="Fractional day")
     num_satellites: int = Field(..., gt=0, le=200, description="Number of satellites")
-    
+
     @field_validator("version")
     @classmethod
     def validate_version(cls, v: str) -> str:
@@ -35,7 +34,7 @@ class Sp3Header(BaseModel):
         if not (v.startswith("#d") or v.startswith("#P")):
             raise ValueError("SP3 version must start with #d or #P")
         return v
-    
+
     @field_validator("coordinate_system")
     @classmethod
     def validate_coordinate_system(cls, v: str) -> str:
@@ -53,7 +52,7 @@ class ClkHeader(BaseModel):
     Validates the header section of RINEX clock correction files
     according to RINEX 3.04 specifications.
     """
-    
+
     version: str = Field(..., pattern=r"^3\.04", description="RINEX version")
     file_type: Literal["C"] = Field(..., description="Clock file type")
     time_system: str = Field(..., description="Time system (GPS, GLO, GAL, BDS, QZSS)")
@@ -64,7 +63,7 @@ class ClkHeader(BaseModel):
     analysis_center: str = Field(..., description="Analysis center name")
     pcvs_applied: dict[str, str] = Field(default_factory=dict, description="PCV models applied")
     dcbs_applied: dict[str, str] = Field(default_factory=dict, description="DCB sources applied")
-    
+
     @field_validator("file_type")
     @classmethod
     def validate_file_type(cls, v: str) -> str:
@@ -72,7 +71,7 @@ class ClkHeader(BaseModel):
         if v != "C":
             raise ValueError("Must be clock file (type C)")
         return v
-    
+
     @field_validator("time_system")
     @classmethod
     def validate_time_system(cls, v: str) -> str:
@@ -90,7 +89,7 @@ class ProductRequest(BaseModel):
     Validates all parameters required to download an auxiliary file,
     including date format, agency/product availability, and file format compatibility.
     """
-    
+
     date: str = Field(..., pattern=r"^\d{7}$", description="Date in YYYYDOY format")
     agency: str = Field(..., min_length=3, max_length=3, description="Agency code (3 letters)")
     product_type: Literal["final", "rapid", "ultrarapid", "predicted"] = Field(
@@ -98,7 +97,7 @@ class ProductRequest(BaseModel):
     )
     file_format: Literal["SP3", "CLK"] = Field(..., description="File format")
     local_dir: Path = Field(..., description="Local directory for storage")
-    
+
     @field_validator("date")
     @classmethod
     def validate_date(cls, v: str) -> str:
@@ -124,7 +123,7 @@ class ProductRequest(BaseModel):
         except ValueError as e:
             raise ValueError(f"Invalid YYYYDOY format: {v}") from e
         return v
-    
+
     @model_validator(mode="after")
     def validate_product_exists(self) -> "ProductRequest":
         """
@@ -137,18 +136,18 @@ class ProductRequest(BaseModel):
             ValueError: If product not available in registry or format not supported
         """
         from canvod.aux.products.registry import get_product_spec
-        
+
         try:
             spec = get_product_spec(self.agency, self.product_type)
         except ValueError as e:
             raise ValueError(f"Product not available: {e}") from e
-        
+
         if self.file_format not in spec.available_formats:
             raise ValueError(
                 f"{self.file_format} not available for {self.agency}/{self.product_type}. "
                 f"Available formats: {spec.available_formats}"
             )
-        
+
         return self
 
 
@@ -158,22 +157,22 @@ class FileValidationResult(BaseModel):
     
     Stores validation results including success status, errors, and warnings.
     """
-    
+
     is_valid: bool = Field(..., description="Whether file passed validation")
     errors: list[str] = Field(default_factory=list, description="Validation errors")
     warnings: list[str] = Field(default_factory=list, description="Validation warnings")
     file_path: Path = Field(..., description="Path to validated file")
     file_type: Literal["SP3", "CLK"] = Field(..., description="File type")
-    
+
     def add_error(self, error: str) -> None:
         """Add validation error."""
         self.errors.append(error)
         self.is_valid = False
-    
+
     def add_warning(self, warning: str) -> None:
         """Add validation warning."""
         self.warnings.append(warning)
-    
+
     def summary(self) -> str:
         """Get validation summary."""
         status = "✅ VALID" if self.is_valid else "❌ INVALID"
@@ -182,13 +181,13 @@ class FileValidationResult(BaseModel):
             f"File: {self.file_path}",
             f"Type: {self.file_type}",
         ]
-        
+
         if self.errors:
             lines.append(f"\nErrors ({len(self.errors)}):")
             lines.extend(f"  - {e}" for e in self.errors)
-        
+
         if self.warnings:
             lines.append(f"\nWarnings ({len(self.warnings)}):")
             lines.extend(f"  - {w}" for w in self.warnings)
-        
+
         return "\n".join(lines)

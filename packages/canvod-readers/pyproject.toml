@@ -5,7 +5,10 @@ description = "GNSS data format readers for canVODpy"
 readme = "README.md"
 requires-python = ">=3.13"
 authors = [
-    { name = "Nicolas F. Bader", email = "nicolas.bader@tuwien.ac.at" },
+    {name = "Nicolas F. Bader", email = "nicolas.bader@geo.tuwien.ac.at"},
+]
+maintainers = [
+    {name = "Climate and Environmental Remote Sensing (CLIMERS)", email = "climers@geo.tuwien.ac.at"},
 ]
 keywords = ["GNSS", "RINEX", "GPS", "geodesy", "remote sensing"]
 classifiers = [

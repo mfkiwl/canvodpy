@@ -1,6 +1,5 @@
 """Meta tests for canvod-readers package."""
 
-import pytest
 
 
 class TestPackageStructure:
@@ -65,13 +64,13 @@ class TestPackageMetadata:
         """Test package has version."""
         import canvod.readers
 
-        assert hasattr(canvod.readers, '__version__')
+        assert hasattr(canvod.readers, "__version__")
         assert canvod.readers.__version__ is not None
 
     def test_all_exports(self):
         """Test __all__ is defined."""
         import canvod.readers
 
-        assert hasattr(canvod.readers, '__all__')
+        assert hasattr(canvod.readers, "__all__")
         assert isinstance(canvod.readers.__all__, list)
         assert len(canvod.readers.__all__) > 0

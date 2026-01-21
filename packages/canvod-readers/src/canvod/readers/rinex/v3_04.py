@@ -43,14 +43,12 @@ from canvod.readers.gnss_specs.exceptions import (
 from canvod.readers.gnss_specs.metadata import (
     CN0_METADATA,
     COORDS_METADATA,
-    DATAVARS_TO_BE_FILLED,
     DTYPES,
     GLOBAL_ATTRS_TEMPLATE,
     OBSERVABLES_METADATA,
     SNR_METADATA,
 )
 from canvod.readers.gnss_specs.models import (
-    Epoch,
     Observation,
     RnxObsFileModel,
     Rnxv3ObsEpochRecord,
@@ -60,22 +58,19 @@ from canvod.readers.gnss_specs.models import (
     Satellite,
 )
 from canvod.readers.gnss_specs.signals import SignalIDMapper
-from canvod.readers.gnss_specs.utils import get_version_from_pyproject, rinex_file_hash
+from canvod.readers.gnss_specs.utils import get_version_from_pyproject
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
     PrivateAttr,
-    ValidationError,
     field_validator,
     model_validator,
 )
-from pydantic.dataclasses import dataclass
 
 
 class Rnxv3Header(BaseModel):
-    """
-    Enhanced RINEX v3 header following the original implementation logic.
+    """Enhanced RINEX v3 header following the original implementation logic.
 
     Key changes from previous version:
     - date field is now datetime (like original)
@@ -125,7 +120,7 @@ class Rnxv3Header(BaseModel):
                              dict[str,
                                   float | None]] = Field(default_factory=dict)
 
-    @field_validator('marker_number', mode='before')
+    @field_validator("marker_number", mode="before")
     @classmethod
     def parse_marker_number(cls, v: Any) -> int | None:
         """Convert empty strings to None, parse valid integers."""
@@ -139,7 +134,6 @@ class Rnxv3Header(BaseModel):
     @classmethod
     def from_file(cls, fpath: Path) -> "Rnxv3Header":
         """Factory method to create header from RINEX file."""
-
         try:
             file_model = RnxObsFileModel(fpath=fpath)
 
@@ -176,53 +170,53 @@ class Rnxv3Header(BaseModel):
                            fpath: Path) -> dict[str, Any]:
         """Parse raw header into structured data using original logic."""
         data = {
-            'fpath': fpath,
-            'version': header.get("version", 3.0),
-            'filetype': header.get("filetype", ""),
-            'rinextype': header.get("rinextype", ""),
-            'systems': header.get("systems", ""),
+            "fpath": fpath,
+            "version": header.get("version", 3.0),
+            "filetype": header.get("filetype", ""),
+            "rinextype": header.get("rinextype", ""),
+            "systems": header.get("systems", ""),
         }
 
         if "PGM / RUN BY / DATE" in header:
             pgm, run_by, date_dt = Rnxv3Header._get_pgm_runby_date(header)
             data.update({
-                'pgm': pgm,
-                'run_by': run_by,
-                'date': date_dt  # This is now a datetime object
+                "pgm": pgm,
+                "run_by": run_by,
+                "date": date_dt  # This is now a datetime object
             })
         else:
             data.update({
-                'pgm': "",
-                'run_by': "",
-                'date': datetime.now()  # Default to current time
+                "pgm": "",
+                "run_by": "",
+                "date": datetime.now()  # Default to current time
             })
 
         if "OBSERVER / AGENCY" in header:
             observer, agency = Rnxv3Header._get_observer_agency(header)
-            data.update({'observer': observer, 'agency': agency})
+            data.update({"observer": observer, "agency": agency})
         else:
-            data.update({'observer': "", 'agency': ""})
+            data.update({"observer": "", "agency": ""})
 
         if "REC # / TYPE / VERS" in header:
             rec_num, rec_type, rec_version = Rnxv3Header._get_receiver_num_type_version(
                 header)
             data.update({
-                'receiver_number': rec_num,
-                'receiver_type': rec_type,
-                'receiver_version': rec_version
+                "receiver_number": rec_num,
+                "receiver_type": rec_type,
+                "receiver_version": rec_version
             })
         else:
             data.update({
-                'receiver_number': "",
-                'receiver_type': "",
-                'receiver_version': ""
+                "receiver_number": "",
+                "receiver_type": "",
+                "receiver_version": ""
             })
 
         if "ANT # / TYPE" in header:
             ant_num, ant_type = Rnxv3Header._get_antenna_num_type(header)
-            data.update({'antenna_number': ant_num, 'antenna_type': ant_type})
+            data.update({"antenna_number": ant_num, "antenna_type": ant_type})
         else:
-            data.update({'antenna_number': "", 'antenna_type': ""})
+            data.update({"antenna_number": "", "antenna_type": ""})
 
         # Parse positions with safe fallbacks
         pos_parts = header.get("APPROX POSITION XYZ", "0 0 0").split()
@@ -235,14 +229,14 @@ class Rnxv3Header(BaseModel):
                 return default
 
         data.update({
-            'approx_position': [
+            "approx_position": [
                 safe_float(pos_parts[0]) * UREG.meters,
                 safe_float(pos_parts[1]) *
                 UREG.meters if len(pos_parts) > 1 else 0.0 * UREG.meters,
                 safe_float(pos_parts[2]) *
                 UREG.meters if len(pos_parts) > 2 else 0.0 * UREG.meters,
             ],
-            'antenna_position': [
+            "antenna_position": [
                 safe_float(delta_parts[0]) * UREG.meters,
                 safe_float(delta_parts[1]) *
                 UREG.meters if len(delta_parts) > 1 else 0.0 * UREG.meters,
@@ -252,62 +246,61 @@ class Rnxv3Header(BaseModel):
         })
 
         if "TIME OF FIRST OBS" in header:
-            data['t0'] = Rnxv3Header._get_time_of_first_obs(header)
+            data["t0"] = Rnxv3Header._get_time_of_first_obs(header)
         else:
             now = datetime.now()
-            data['t0'] = {
+            data["t0"] = {
                 "UTC":
                 now.replace(tzinfo=pytz.UTC) if now.tzinfo is None else now,
                 "GPS": now
             }
 
         # Signal strength unit
-        data['signal_strength_unit'] = Rnxv3Header._get_signal_strength_unit(
+        data["signal_strength_unit"] = Rnxv3Header._get_signal_strength_unit(
             header)
 
         # Basic fields
         data.update({
-            'comment': header.get("COMMENT"),
-            'marker_name': header.get("MARKER NAME", "").strip(),
-            'marker_number': header.get("MARKER NUMBER"),
-            'marker_type': header.get("MARKER TYPE"),
-            'obs_codes_per_system': header.get("fields", {}),
+            "comment": header.get("COMMENT"),
+            "marker_name": header.get("MARKER NAME", "").strip(),
+            "marker_number": header.get("MARKER NUMBER"),
+            "marker_type": header.get("MARKER TYPE"),
+            "obs_codes_per_system": header.get("fields", {}),
         })
 
         # Optional GLONASS fields using original methods
         if "GLONASS COD/PHS/BIS" in header:
             cod, phs, bis = Rnxv3Header._get_glonass_cod_phs_bis(header)
             data.update({
-                'glonass_cod': cod,
-                'glonass_phs': phs,
-                'glonass_bis': bis
+                "glonass_cod": cod,
+                "glonass_phs": phs,
+                "glonass_bis": bis
             })
 
         if "GLONASS SLOT / FRQ #" in header:
             data[
-                'glonass_slot_freq_dict'] = Rnxv3Header._get_glonass_slot_freq_num(
+                "glonass_slot_freq_dict"] = Rnxv3Header._get_glonass_slot_freq_num(
                     header)
 
         # Leap seconds
         if "LEAP SECONDS" in header:
             leap_parts = header["LEAP SECONDS"].split()
-            if leap_parts and leap_parts[0].lstrip('-').isdigit():
-                data['leap_seconds'] = int(leap_parts[0]) * UREG.seconds
+            if leap_parts and leap_parts[0].lstrip("-").isdigit():
+                data["leap_seconds"] = int(leap_parts[0]) * UREG.seconds
 
         # System phase shift using original method
         if "SYS / PHASE SHIFT" in header:
-            data['system_phase_shift'] = Rnxv3Header._get_sys_phase_shift(
+            data["system_phase_shift"] = Rnxv3Header._get_sys_phase_shift(
                 header)
         else:
-            data['system_phase_shift'] = {}
+            data["system_phase_shift"] = {}
 
         return data
 
     @staticmethod
     def _get_pgm_runby_date(
             header_dict: dict[str, Any]) -> tuple[str, str, datetime]:
-        """
-        Original logic for parsing PGM / RUN BY / DATE that returns datetime.
+        """Original logic for parsing PGM / RUN BY / DATE that returns datetime.
 
         Based on the original __get_pgm_runby_date method.
         """
@@ -356,12 +349,11 @@ class Rnxv3Header(BaseModel):
 
         if not components:
             return "", "", ""
-        elif len(components) == 1:
+        if len(components) == 1:
             return components[0], "", ""
-        elif len(components) == 2:
+        if len(components) == 2:
             return components[0], components[1], ""
-        else:
-            return components[0], " ".join(components[1:-1]), components[-1]
+        return components[0], " ".join(components[1:-1]), components[-1]
 
     @staticmethod
     def _get_antenna_num_type(header_dict: dict[str, Any]) -> tuple[str, str]:
@@ -371,10 +363,9 @@ class Rnxv3Header(BaseModel):
 
         if not components:
             return "", ""
-        elif len(components) == 1:
+        if len(components) == 1:
             return components[0], ""
-        else:
-            return components[0], " ".join(components[1:])
+        return components[0], " ".join(components[1:])
 
     @staticmethod
     def _get_time_of_first_obs(
@@ -424,8 +415,7 @@ class Rnxv3Header(BaseModel):
             c2c = f"{components[2]} {components[3]}"
             c2p = f"{components[4]} {components[5]}"
             return c1c, c2c, c2p
-        else:
-            return "", "", ""
+        return "", "", ""
 
     @staticmethod
     def _get_glonass_slot_freq_num(
@@ -500,7 +490,7 @@ class Rnxv3Header(BaseModel):
     @property
     def is_mixed_systems(self) -> bool:
         """Check if the RINEX file contains mixed GNSS systems."""
-        return self.systems == 'M'
+        return self.systems == "M"
 
     def __repr__(self) -> str:
         return (f"Rnxv3Header(file='{self.fpath.name}', "
@@ -508,7 +498,7 @@ class Rnxv3Header(BaseModel):
                 f"systems='{self.systems}')")
 
     def __str__(self) -> str:
-        systems_str = "Mixed" if self.systems == 'M' else self.systems
+        systems_str = "Mixed" if self.systems == "M" else self.systems
         return (f"RINEX v{self.version} Header\n"
                 f"  File: {self.fpath.name}\n"
                 f"  Marker: {self.marker_name}\n"
@@ -618,7 +608,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     @property
     def systems(self) -> list[str]:
         """Return list of GNSS systems in file."""
-        if self.header.systems == 'M':
+        if self.header.systems == "M":
             return list(self.header.obs_codes_per_system.keys())
         return [self.header.systems]
 
@@ -641,7 +631,6 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         epoch_record_indicator: str = EPOCH_RECORD_INDICATOR
     ) -> list[tuple[int, int]]:
         """Get the start and end line numbers for each epoch in the file."""
-
         starts = [
             i for i, line in enumerate(self._load_file())
             if line.startswith(epoch_record_indicator)
@@ -663,8 +652,8 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             # Method 1: Standard RINEX format with decimal at position -6
             if len(slice) >= 6 and len(slice) <= 16 and slice[-6] == ".":
                 slice_chars = list(slice)
-                ssi = slice_chars.pop(-1) if len(slice_chars) > 0 else ''
-                lli = slice_chars.pop(-1) if len(slice_chars) > 0 else ''
+                ssi = slice_chars.pop(-1) if len(slice_chars) > 0 else ""
+                lli = slice_chars.pop(-1) if len(slice_chars) > 0 else ""
 
                 # Convert LLI and SSI
                 lli = int(lli) if lli.strip() and lli.isdigit() else None
@@ -686,12 +675,12 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                 return None, None, None
 
             # Look for a decimal point to identify the numeric value
-            if '.' in slice_trimmed:
+            if "." in slice_trimmed:
                 # Find the main numeric value (supports negative numbers)
                 import re
 
                 # Match patterns like: -1234.567, 1234.567, etc.
-                number_match = re.search(r'(-?\d+\.\d+)', slice_trimmed)
+                number_match = re.search(r"(-?\d+\.\d+)", slice_trimmed)
 
                 if number_match:
                     value = float(number_match.group(1))
@@ -756,7 +745,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             if start_idx >= len(data_part):
                 # No more data available - create empty observation
                 observation = Observation(observation_freq_tag=band,
-                                          obs_type=band.split('|')[1][0],
+                                          obs_type=band.split("|")[1][0],
                                           value=None,
                                           lli=None,
                                           ssi=None)
@@ -776,7 +765,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             value, lli, ssi = self.parse_observation_slice(slice_data)
 
             observation = Observation(observation_freq_tag=band,
-                                      obs_type=band.split('|')[1][0],
+                                      obs_type=band.split("|")[1][0],
                                       value=value,
                                       lli=lli,
                                       ssi=ssi)
@@ -801,7 +790,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                           for line in data)  # generator here too
                 )
                 yield epoch
-            except (InvalidEpochError, IncompleteEpochError) as e:
+            except (InvalidEpochError, IncompleteEpochError):
                 # Skip unexpected errors silently
                 pass
 
@@ -835,7 +824,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                       hour=int(epch.info.hour),
                       minute=int(epch.info.minute),
                       second=int(epch.info.seconds))
-        return np.datetime64(dt, 'ns')
+        return np.datetime64(dt, "ns")
 
     def _epoch_datetimes(self) -> list[datetime]:
         """Extract epoch datetimes from the file (using the same epoch parsing you already have)."""
@@ -855,8 +844,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         return dts
 
     def infer_sampling_interval(self) -> pint.Quantity | None:
-        """
-        Infer sampling interval from consecutive epoch deltas.
+        """Infer sampling interval from consecutive epoch deltas.
         Returns a pint quantity in seconds, or None if it can't be inferred.
         """
         dts = self._epoch_datetimes()
@@ -880,8 +868,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         self,
         sampling_interval: pint.Quantity | None = None
     ) -> pint.Quantity | None:
-        """
-        Infer the intended 'dump interval' for the RINEX file.
+        """Infer the intended 'dump interval' for the RINEX file.
         If sampling_interval is provided, returns (#epochs * sampling_interval).
         Otherwise, tries to derive from time coverage + last step.
         """
@@ -915,8 +902,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         dump_interval: str | pint.Quantity | None = None,
         sampling_interval: str | pint.Quantity | None = None,
     ) -> None:
-        """
-        Validate that the number of epochs matches the expected dump interval
+        """Validate that the number of epochs matches the expected dump interval
         and that the sampling interval is one of the allowed values.
 
         - If sampling_interval is None, it is inferred from the data.
@@ -930,11 +916,10 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                 msg = "Could not infer sampling interval from epochs"
                 raise ValueError(msg)
             sampling_interval = inferred
-        else:
-            # normalize to pint
-            if not isinstance(sampling_interval, pint.Quantity):
-                sampling_interval = UREG.Quantity(sampling_interval).to(
-                    UREG.seconds)
+        # normalize to pint
+        elif not isinstance(sampling_interval, pint.Quantity):
+            sampling_interval = UREG.Quantity(sampling_interval).to(
+                UREG.seconds)
 
         # Normalize/Infer dump interval
         if dump_interval is None:
@@ -944,10 +929,9 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                 msg = "Could not infer dump interval from file"
                 raise ValueError(msg)
             dump_interval = inferred_dump
-        else:
-            if not isinstance(dump_interval, pint.Quantity):
-                # Accept '15 min', '1h', etc.
-                dump_interval = UREG.Quantity(dump_interval).to(UREG.seconds)
+        elif not isinstance(dump_interval, pint.Quantity):
+            # Accept '15 min', '1h', etc.
+            dump_interval = UREG.Quantity(dump_interval).to(UREG.seconds)
 
         # Build inputs for the validator model
         epoch_indices = self.get_epoch_record_batches()
@@ -988,8 +972,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         start: datetime | None = None,
         end: datetime | None = None,
     ) -> xr.Dataset:
-        """
-        Create a NetCDF dataset with signal IDs.
+        """Create a NetCDF dataset with signal IDs.
         Can optionally restrict to epochs within a datetime range.
         """
         if analyze_conflicts:
@@ -1040,9 +1023,9 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                                 bandwidth, list) else bandwidth
 
                             # Ensure both are pint quantities
-                            if not hasattr(center_frequency, 'm_as'):
+                            if not hasattr(center_frequency, "m_as"):
                                 center_frequency = center_frequency * UREG.MHz
-                            if not hasattr(bw, 'm_as'):
+                            if not hasattr(bw, "m_as"):
                                 bw = bw * UREG.MHz
 
                             # Calculate frequency range
@@ -1077,11 +1060,11 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                         }
 
         # inconsequent integration of the Septentrio X1 obs. code, filtering out here again
-        signal_ids = {sid for sid in signal_ids if '|X1|' not in sid}
+        signal_ids = {sid for sid in signal_ids if "|X1|" not in sid}
         signal_id_to_properties = {
             sid: props
             for sid, props in signal_id_to_properties.items()
-            if '|X1|' not in sid
+            if "|X1|" not in sid
         }
 
         sorted_signal_ids = sorted(signal_ids)
@@ -1152,7 +1135,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         # coords & metadata (unchanged)
         signal_id_coord = xr.DataArray(sorted_signal_ids,
                                        dims=["sid"],
-                                       attrs=COORDS_METADATA['sid'])
+                                       attrs=COORDS_METADATA["sid"])
         sv_list = [
             signal_id_to_properties[sid]["sv"] for sid in sorted_signal_ids
         ]
@@ -1259,7 +1242,6 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             # ds = IcechunkPreprocessor.strip_fillvalue(ds=ds)
 
         if add_future_datavars:
-            pass
             # TODO: Move to canvod-store
             # ds = IcechunkPreprocessor.add_future_datavars(ds=ds, var_config=DATAVARS_TO_BE_FILLED)
             pass
@@ -1316,6 +1298,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         >>> # Or validate a specific dataset
         >>> ds = reader.to_ds()
         >>> results = reader.validate_rinex_304_compliance(ds=ds)
+
         """
         from canvod.readers.gnss_specs.validators import RINEX304Validator
 
@@ -1324,19 +1307,19 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
         # Prepare header dict for validators
         header_dict = {
-            'obs_codes_per_system': self.header.obs_codes_per_system,
+            "obs_codes_per_system": self.header.obs_codes_per_system,
         }
 
         # Add GLONASS-specific headers if available
-        if hasattr(self.header, 'glonass_slot_frq'):
-            header_dict['GLONASS SLOT / FRQ #'] = self.header.glonass_slot_frq
+        if hasattr(self.header, "glonass_slot_frq"):
+            header_dict["GLONASS SLOT / FRQ #"] = self.header.glonass_slot_frq
 
-        if hasattr(self.header, 'glonass_cod_phs_bis'):
+        if hasattr(self.header, "glonass_cod_phs_bis"):
             header_dict[
-                'GLONASS COD/PHS/BIS'] = self.header.glonass_cod_phs_bis
+                "GLONASS COD/PHS/BIS"] = self.header.glonass_cod_phs_bis
 
-        if hasattr(self.header, 'phase_shift'):
-            header_dict['SYS / PHASE SHIFT'] = self.header.phase_shift
+        if hasattr(self.header, "phase_shift"):
+            header_dict["SYS / PHASE SHIFT"] = self.header.phase_shift
 
         # Run validation
         results = RINEX304Validator.validate_all(ds=ds,
@@ -1419,19 +1402,18 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
 
 def adapt_existing_rnxv3obs_class(original_class_path: str = None) -> str:
-    """
-    Function to help integrate the enhanced sid functionality
+    """Function to help integrate the enhanced sid functionality
     into the existing Rnxv3Obs class.
 
     This function provides guidance on how to modify the existing class
     to support the new sid structure alongside the current OFT structure.
 
-    Returns:
-    --------
+    Returns
+    -------
     str
         Integration instructions
-    """
 
+    """
     integration_guide = """
     INTEGRATION GUIDE: Adapting Rnxv3Obs for sid Structure
     ============================================================
@@ -1530,7 +1512,7 @@ def _register_with_factory():
     """Register Rnxv3Obs with ReaderFactory on module import."""
     try:
         from canvod.readers.base import ReaderFactory
-        ReaderFactory.register('rinex_v3', Rnxv3Obs)
+        ReaderFactory.register("rinex_v3", Rnxv3Obs)
     except ImportError:
         pass  # ReaderFactory not yet available
 
@@ -1540,7 +1522,7 @@ _register_with_factory()
 if __name__ == "__main__":
 
     filepath = Path(
-        '/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/05_data/01_Rosalia/02_canopy/01_GNSS/01_raw/25036/ract036b30.25o'
+        "/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/05_data/01_Rosalia/02_canopy/01_GNSS/01_raw/25036/ract036b30.25o"
     )
     # Example of how to use it
 
@@ -1570,16 +1552,16 @@ if __name__ == "__main__":
     # Example filtering operations:
 
     # Filter by system
-    gps_data = ds_signal_id.where(ds_signal_id.system == 'G', drop=True)
+    gps_data = ds_signal_id.where(ds_signal_id.system == "G", drop=True)
 
     # Filter by specific band
-    l1_data = ds_signal_id.where(ds_signal_id.band == 'L1', drop=True)
+    l1_data = ds_signal_id.where(ds_signal_id.band == "L1", drop=True)
 
     # Filter by code type
-    ca_code_data = ds_signal_id.where(ds_signal_id.code == 'C', drop=True)
+    ca_code_data = ds_signal_id.where(ds_signal_id.code == "C", drop=True)
 
     # Complex filtering - GPS L1 C/A code signals only
     gps_l1_ca = ds_signal_id.where(
-        (ds_signal_id.system == 'G') & (ds_signal_id.band == 'L1') &
-        (ds_signal_id.code == 'C'),
+        (ds_signal_id.system == "G") & (ds_signal_id.band == "L1") &
+        (ds_signal_id.code == "C"),
         drop=True)

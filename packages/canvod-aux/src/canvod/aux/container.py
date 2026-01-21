@@ -3,9 +3,9 @@
 from pathlib import Path
 
 import pandas as pd
+import xarray as xr
 from pydantic import ConfigDict
 from pydantic.dataclasses import dataclass
-import xarray as xr
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))

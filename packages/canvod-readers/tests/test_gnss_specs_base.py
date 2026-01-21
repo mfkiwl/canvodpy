@@ -1,8 +1,7 @@
 """Test core gnss_specs modules: constants, exceptions, models, utils, metadata."""
 
-import pytest
-from pathlib import Path
 
+import pytest
 from canvod.readers.gnss_specs import constants, exceptions, models, utils
 
 
@@ -36,7 +35,7 @@ class TestConstants:
 
     def test_ureg_exists(self):
         """Test unit registry is available."""
-        assert hasattr(constants, 'UREG')
+        assert hasattr(constants, "UREG")
         assert constants.UREG is not None
 
     def test_custom_units(self):
@@ -44,7 +43,7 @@ class TestConstants:
         # dBHz unit
         dbhz = constants.UREG.dBHz
         assert dbhz is not None
-        
+
         # dB unit
         db = constants.UREG.dB
         assert db is not None
@@ -53,11 +52,11 @@ class TestConstants:
         """Test speed of light constant."""
         c = constants.SPEEDOFLIGHT
         assert c.magnitude == pytest.approx(299792458.0)
-        assert str(c.units) == 'meter / second'
+        assert str(c.units) == "meter / second"
 
     def test_epoch_record_indicator(self):
         """Test epoch record indicator."""
-        assert constants.EPOCH_RECORD_INDICATOR == '>'
+        assert constants.EPOCH_RECORD_INDICATOR == ">"
 
     def test_sampling_intervals(self):
         """Test sampling interval constants."""
@@ -77,7 +76,7 @@ class TestModels:
             lli=None,
             ssi=5
         )
-        
+
         assert obs.observation_freq_tag == "G01|L1C"
         assert obs.value == 45.0
         assert obs.ssi == 5
@@ -114,19 +113,19 @@ class TestModels:
             lli=None,
             ssi=5
         )
-        
+
         sat.add_observation(obs)
         assert len(sat.observations) == 1
 
     def test_epoch_creation(self):
         """Test Epoch model."""
         from datetime import datetime
-        
+
         epoch = models.Epoch(
             timestamp=datetime(2025, 1, 1, 0, 0, 0),
             num_satellites=1
         )
-        
+
         assert epoch.num_satellites == 1
         assert len(epoch.satellites) == 0
 
@@ -150,10 +149,10 @@ class TestUtils:
         # Create test file
         test_file = tmp_path / "test.txt"
         test_file.write_text("test content")
-        
+
         hash1 = utils.rinex_file_hash(test_file)
         hash2 = utils.rinex_file_hash(test_file)
-        
+
         # Hash should be consistent
         assert hash1 == hash2
         assert len(hash1) == 16  # Short hash
@@ -175,30 +174,30 @@ class TestMetadata:
     def test_coords_metadata_exists(self):
         """Test coordinate metadata is defined."""
         from canvod.readers.gnss_specs import metadata
-        
-        assert hasattr(metadata, 'COORDS_METADATA')
+
+        assert hasattr(metadata, "COORDS_METADATA")
         assert isinstance(metadata.COORDS_METADATA, dict)
-        
+
         # Check required coordinates
-        required = ['epoch', 'sid', 'sv', 'system', 'band', 'code']
+        required = ["epoch", "sid", "sv", "system", "band", "code"]
         for coord in required:
             assert coord in metadata.COORDS_METADATA
 
     def test_observables_metadata_exists(self):
         """Test observables metadata is defined."""
         from canvod.readers.gnss_specs import metadata
-        
-        assert hasattr(metadata, 'OBSERVABLES_METADATA')
+
+        assert hasattr(metadata, "OBSERVABLES_METADATA")
         assert isinstance(metadata.OBSERVABLES_METADATA, dict)
-        
+
         # Check common observables
-        observables = ['Pseudorange', 'Phase', 'Doppler']
+        observables = ["Pseudorange", "Phase", "Doppler"]
         for obs in observables:
             assert obs in metadata.OBSERVABLES_METADATA
 
     def test_dtypes_exists(self):
         """Test data types are defined."""
         from canvod.readers.gnss_specs import metadata
-        
-        assert hasattr(metadata, 'DTYPES')
+
+        assert hasattr(metadata, "DTYPES")
         assert isinstance(metadata.DTYPES, dict)

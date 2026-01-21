@@ -269,7 +269,6 @@ def _(clk_file):
 
 @app.cell
 def _(sp3_dataset):
-    import pandas as pd
 
     df = sp3_dataset.to_dataframe().reset_index()
     print(df)

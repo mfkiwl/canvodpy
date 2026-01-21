@@ -2,7 +2,20 @@
 name = "canvod-viz"
 version = "0.1.0"
 description = "Visualization and plotting utilities"
+authors = [
+    {name = "Nicolas F. Bader", email = "nicolas.bader@geo.tuwien.ac.at"},
+]
+maintainers = [
+    {name = "Climate and Environmental Remote Sensing (CLIMERS)", email = "climers@geo.tuwien.ac.at"},
+]
 requires-python = ">=3.13"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+]
 dependencies = []
 
 [build-system]

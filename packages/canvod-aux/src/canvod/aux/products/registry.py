@@ -1,7 +1,6 @@
 """Product registry for IGS analysis centers and their specifications."""
 
 from dataclasses import dataclass
-from typing import Literal
 
 
 @dataclass

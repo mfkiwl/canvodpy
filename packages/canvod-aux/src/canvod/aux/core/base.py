@@ -1,17 +1,17 @@
 """Abstract base class for auxiliary GNSS files."""
 
-from abc import ABC, abstractmethod
 import datetime
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
+import xarray as xr
 from pydantic import ConfigDict, Field
 from pydantic.dataclasses import dataclass
-import xarray as xr
 
+from canvod.aux._internal import YYYYDOY
 from canvod.aux.core.downloader import FileDownloader, FtpDownloader
 from canvod.aux.interpolation import Interpolator
-from canvod.aux._internal import YYYYDOY
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
@@ -40,7 +40,7 @@ class AuxFile(ABC):
     local_dir: Path
     file_type: list[str] = Field(default_factory=list)
     fpath: Path | None = None
-    user_email: Optional[str] = None
+    user_email: str | None = None
     downloader: FileDownloader | None = None
     _data: xr.Dataset | None = Field(default=None, init=False)
 

@@ -9,19 +9,19 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # -- Project information -----------------------------------------------------
-project = 'canvod-readers'
-copyright = '2025, Nicolas François Bader, TU Wien'
-author = 'Nicolas François Bader'
-release = '0.1.0'
+project = "canvod-readers"
+copyright = "2025, Nicolas François Bader, TU Wien"
+author = "Nicolas François Bader"
+release = "0.1.0"
 
 # -- General configuration ---------------------------------------------------
 extensions = [
-    'myst_parser',  # MyST Markdown parser
-    'sphinx.ext.autodoc',  # Auto-generate docs from docstrings
-    'sphinx.ext.napoleon',  # Support NumPy/Google docstrings
-    'sphinx.ext.viewcode',  # Add links to source code
-    'sphinx.ext.intersphinx',  # Link to other docs
-    'sphinx_design',  # Cards, grids, tabs
+    "myst_parser",  # MyST Markdown parser
+    "sphinx.ext.autodoc",  # Auto-generate docs from docstrings
+    "sphinx.ext.napoleon",  # Support NumPy/Google docstrings
+    "sphinx.ext.viewcode",  # Add links to source code
+    "sphinx.ext.intersphinx",  # Link to other docs
+    "sphinx_design",  # Cards, grids, tabs
 ]
 
 # MyST configuration
@@ -47,36 +47,36 @@ napoleon_use_rtype = True
 
 # Autodoc configuration
 autodoc_default_options = {
-    'members': True,
-    'undoc-members': True,
-    'show-inheritance': True,
-    'member-order': 'bysource',
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+    "member-order": "bysource",
 }
 
 # Intersphinx configuration
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'numpy': ('https://numpy.org/doc/stable/', None),
-    'xarray': ('https://docs.xarray.dev/en/stable/', None),
-    'pydantic': ('https://docs.pydantic.dev/latest/', None),
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "xarray": ("https://docs.xarray.dev/en/stable/", None),
+    "pydantic": ("https://docs.pydantic.dev/latest/", None),
 }
 
 # Templates and static files
-templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # Source file suffix
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
 
 # Master document
-master_doc = 'index'
+master_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
-html_theme = 'furo'
-html_title = 'canvod-readers'
+html_theme = "furo"
+html_title = "canvod-readers"
 
 html_theme_options = {
     "sidebar_hide_name": False,
@@ -102,4 +102,4 @@ html_show_sourcelink = False
 html_show_sphinx = True
 
 # Output file base name for HTML help builder
-htmlhelp_basename = 'canvod-readersdoc'
+htmlhelp_basename = "canvod-readersdoc"

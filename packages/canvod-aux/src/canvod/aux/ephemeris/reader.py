@@ -1,6 +1,5 @@
 """SP3 orbit file reader with multi-product support."""
 
-import warnings
 from pathlib import Path
 
 import numpy as np

@@ -21,6 +21,7 @@ from canvod.readers.gnss_specs.constants import UREG as ureg
 from canvod.readers.gnss_specs.exceptions import IncompleteEpochError, MissingEpochError
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic.dataclasses import dataclass
+from pydantic_core import core_schema
 
 
 @dataclass(kw_only=True, config=ConfigDict(arbitrary_types_allowed=True))
@@ -43,6 +44,7 @@ class Observation:
             'R02|C1P'  (GLONASS C1P observation)
             'E01|S5Q'  (Galileo S5Q observation)
             'I06|X1'   (IRNSS observation)
+
         """
         try:
             sv, obs_type = v.split("|")
@@ -153,17 +155,28 @@ class Quantity(pint.Quantity):
     """Pydantic-compatible pint Quantity wrapper."""
 
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        """Pydantic V2 schema for validation."""
+        def validate_from_str(value: str | pint.Quantity) -> pint.Quantity:
+            if isinstance(value, pint.Quantity):
+                return value
+            try:
+                return ureg.Quantity(value)
+            except pint.errors.UndefinedUnitError:
+                raise ValueError(f"Invalid unit for {value}")
 
-    @classmethod
-    def validate(cls, value, field=None, config=None):
-        if isinstance(value, pint.Quantity):
-            return value
-        try:
-            return ureg.Quantity(value)
-        except pint.errors.UndefinedUnitError:
-            raise ValueError(f"Invalid unit for {value}")
+        python_schema = core_schema.union_schema([
+            core_schema.is_instance_schema(pint.Quantity),
+            core_schema.no_info_plain_validator_function(validate_from_str),
+        ])
+
+        return core_schema.json_or_python_schema(
+            json_schema=core_schema.str_schema(),
+            python_schema=python_schema,
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda instance: str(instance)
+            ),
+        )
 
 
 class RnxObsFileModel(BaseModel):

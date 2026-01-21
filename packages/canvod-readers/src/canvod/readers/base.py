@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import xarray as xr
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class DatasetStructureValidator(BaseModel):
@@ -72,6 +72,7 @@ class DatasetStructureValidator(BaseModel):
         ----------
         required_vars : list of str, optional
             List of required variables. If None, uses default minimum set.
+
         """
         if required_vars is None:
             # Minimum required for VOD calculation
@@ -136,6 +137,7 @@ class GNSSDataReader(ABC):
     >>> reader = Rnxv3Obs(fpath="station.24o")
     >>> ds = reader.to_ds()
     >>> reader.validate_output(ds)  # Automatic validation
+
     """
 
     # Note: fpath is not @abstractmethod because Pydantic models define it as a field
@@ -154,8 +156,8 @@ class GNSSDataReader(ABC):
         -------
         str
             Short hash (16 chars) or full hash of file content
+
         """
-        pass
 
     @abstractmethod
     def to_ds(self,
@@ -180,8 +182,8 @@ class GNSSDataReader(ABC):
         -------
         xr.Dataset
             Dataset that passes DatasetStructureValidator
+
         """
-        pass
 
     @abstractmethod
     def iter_epochs(self):
@@ -191,8 +193,8 @@ class GNSSDataReader(ABC):
         ------
         Epoch
             Parsed epoch with satellites and observations
+
         """
-        pass
 
     def validate_output(self,
                         dataset: xr.Dataset,
@@ -213,6 +215,7 @@ class GNSSDataReader(ABC):
         ------
         ValueError
             If Dataset doesn't meet requirements
+
         """
         validator = DatasetStructureValidator(dataset=dataset)
         validator.validate_all(required_vars=required_vars)
@@ -221,13 +224,11 @@ class GNSSDataReader(ABC):
     @abstractmethod
     def start_time(self) -> datetime:
         """Return start time of observations."""
-        pass
 
     @property
     @abstractmethod
     def end_time(self) -> datetime:
         """Return end time of observations."""
-        pass
 
     @property
     @abstractmethod
@@ -238,20 +239,18 @@ class GNSSDataReader(ABC):
         -------
         list of str
             System identifiers: 'G', 'R', 'E', 'C', 'J', 'S', 'I'
+
         """
-        pass
 
     @property
     @abstractmethod
     def num_epochs(self) -> int:
         """Return number of epochs in file."""
-        pass
 
     @property
     @abstractmethod
     def num_satellites(self) -> int:
         """Return total number of unique satellites observed."""
-        pass
 
     def __repr__(self) -> str:
         """String representation."""
@@ -275,6 +274,7 @@ class ReaderFactory:
     >>> reader = ReaderFactory.create("station.10o")
     >>> isinstance(reader, Rnxv2Obs)
     True
+
     """
 
     _readers: dict[str, type] = {}
@@ -289,6 +289,7 @@ class ReaderFactory:
             Format identifier (e.g., 'rinex_v3', 'rinex_v2')
         reader_class : type
             Reader class (must inherit from GNSSDataReader)
+
         """
         if not issubclass(reader_class, GNSSDataReader):
             raise TypeError(f"{reader_class} must inherit from GNSSDataReader")
@@ -314,6 +315,7 @@ class ReaderFactory:
         ------
         ValueError
             If file format cannot be determined
+
         """
         fpath = Path(fpath)
 
@@ -344,9 +346,10 @@ class ReaderFactory:
         -------
         str
             Format name
+
         """
         # Check RINEX version from first line
-        with open(fpath, 'r') as f:
+        with open(fpath) as f:
             first_line = f.readline()
 
         # RINEX version is in columns 1-9
@@ -355,11 +358,10 @@ class ReaderFactory:
             version = float(version_str)
 
             if 3.0 <= version < 4.0:
-                return 'rinex_v3'
-            elif 2.0 <= version < 3.0:
-                return 'rinex_v2'
-            else:
-                raise ValueError(f"Unsupported RINEX version: {version}")
+                return "rinex_v3"
+            if 2.0 <= version < 3.0:
+                return "rinex_v2"
+            raise ValueError(f"Unsupported RINEX version: {version}")
         except (ValueError, IndexError) as e:
             raise ValueError(f"Cannot determine file format: {e}")
 
@@ -374,10 +376,10 @@ GNSSReader = GNSSDataReader
 RinexReader = GNSSDataReader
 
 __all__ = [
-    'GNSSDataReader',
-    'DatasetStructureValidator',
-    'ReaderFactory',
+    "GNSSDataReader",
+    "DatasetStructureValidator",
+    "ReaderFactory",
     # Backwards compatibility
-    'GNSSReader',
-    'RinexReader',
+    "GNSSReader",
+    "RinexReader",
 ]

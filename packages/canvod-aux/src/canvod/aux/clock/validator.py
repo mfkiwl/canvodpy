@@ -78,8 +78,8 @@ def check_clk_data_quality(ds: xr.Dataset, min_coverage: float = 80.0) -> bool:
     results = validate_clk_dataset(ds)
 
     # Must have all required components
-    if not (results['has_clock_offset'] and 
-            results['has_epoch'] and 
+    if not (results['has_clock_offset'] and
+            results['has_epoch'] and
             results['has_sv']):
         return False
 

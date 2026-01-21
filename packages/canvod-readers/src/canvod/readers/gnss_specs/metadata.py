@@ -29,15 +29,14 @@ to ensure interoperability with standard tools and libraries.
 See Also
 --------
 canvod.readers.base.DatasetStructureValidator : Validates dataset structure
+
 """
 
 from typing import Any
 
 import numpy as np
-
 from canvod.readers.gnss_specs.constants import (
     AUTHOR,
-    COMPRESSION,
     DEPARTMENT,
     EMAIL,
     FREQ_UNIT,

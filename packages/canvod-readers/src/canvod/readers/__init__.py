@@ -26,25 +26,34 @@ reader = ReaderFactory.create("station.24o")
 dataset = reader.to_ds()
 ```
 
-Or use the abstract base for type hints:
+Directory Matching:
 ```python
-from canvod.readers import GNSSDataReader
+from canvod.readers import DataDirMatcher
 
-def process_data(reader: GNSSDataReader):
-    # Works with any GNSS reader
-    dataset = reader.to_ds()
+# Find dates with RINEX files in both receivers
+matcher = DataDirMatcher(root=Path("/data/01_Rosalia"))
+for matched_dirs in matcher:
+    print(matched_dirs.yyyydoy)
+    # Load RINEX files from matched_dirs.canopy_data_dir
 ```
 """
 
 from canvod.readers.base import (
-    GNSSDataReader,
     DatasetStructureValidator,
-    ReaderFactory,
+    GNSSDataReader,
     # Backwards compatibility aliases
     GNSSReader,
+    ReaderFactory,
     RinexReader,
 )
+from canvod.readers.matching import (
+    DataDirMatcher,
+    MatchedDirs,
+    PairDataDirMatcher,
+    PairMatchedDirs,
+)
 from canvod.readers.rinex.v3_04 import Rnxv3Obs
+from canvod.readers.utils import YYYYDOY
 
 __version__ = "0.1.0"
 
@@ -58,4 +67,11 @@ __all__ = [
     "RinexReader",
     # Concrete implementations
     "Rnxv3Obs",
+    # Directory matching
+    "DataDirMatcher",
+    "PairDataDirMatcher",
+    "MatchedDirs",
+    "PairMatchedDirs",
+    # Utilities
+    "YYYYDOY",
 ]

@@ -3,7 +3,6 @@ Interpolation strategies for auxiliary data.
 
 Extracted from gnssvodpy.processor.interpolator
 """
-import warnings
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
@@ -13,7 +12,7 @@ import numpy as np
 import xarray as xr
 from pydantic import ConfigDict
 from pydantic.dataclasses import dataclass
-from scipy.interpolate import BarycentricInterpolator, CubicHermiteSpline, interp1d
+from scipy.interpolate import CubicHermiteSpline, interp1d
 
 
 class InterpolatorConfig:

@@ -1,18 +1,18 @@
 """Product registry and specifications for IGS analysis centers."""
 
+from canvod.aux.products.models import (
+    ClkHeader,
+    FileValidationResult,
+    ProductRequest,
+    Sp3Header,
+)
 from canvod.aux.products.registry import (
     PRODUCT_REGISTRY,
     ProductSpec,
     get_product_spec,
-    list_available_products,
-    list_agencies,
     get_products_for_agency,
-)
-from canvod.aux.products.models import (
-    Sp3Header,
-    ClkHeader,
-    ProductRequest,
-    FileValidationResult,
+    list_agencies,
+    list_available_products,
 )
 
 __all__ = [

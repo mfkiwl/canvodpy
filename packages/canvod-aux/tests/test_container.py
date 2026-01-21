@@ -1,149 +1,194 @@
 """
 Tests for container module.
 
-Tests GnssData dataclass and FileDownloader protocol.
+Tests GnssData dataclass and FileMetadata.
 """
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
 import pytest
-from datetime import datetime
-from canvod.aux.container import GnssData, FileMetadata, FtpDownloader
+import xarray as xr
+
+from canvod.aux.container import FileMetadata, GnssData
 
 
 class TestFileMetadata:
     """Tests for FileMetadata dataclass."""
-    
+
     def test_create_metadata(self):
         """Test creating FileMetadata instance."""
         metadata = FileMetadata(
-            filename="test.sp3",
+            date="2024015",
             agency="COD",
-            product_type="final"
+            product_type="final",
+            local_dir=Path("/tmp/data"),
+            ftp_server="ftp.example.com"
         )
-        
-        assert metadata.filename == "test.sp3"
+
+        assert metadata.date == "2024015"
         assert metadata.agency == "COD"
         assert metadata.product_type == "final"
+        assert metadata.local_dir == Path("/tmp/data")
+        assert metadata.ftp_server == "ftp.example.com"
 
 
 class TestGnssData:
     """Tests for GnssData dataclass."""
-    
+
     def test_create_gnss_data_minimal(self):
         """Test creating GnssData with minimal fields."""
-        data = GnssData(
-            timestamp=datetime(2024, 1, 15, 12, 0, 0),
-            satellite_id="G01"
+        ds = xr.Dataset(
+            {
+                "x": (["epoch", "sid"], [[1.0, 2.0]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
         )
-        
-        assert data.timestamp == datetime(2024, 1, 15, 12, 0, 0)
-        assert data.satellite_id == "G01"
-    
+        data = GnssData(dataset=ds)
+
+        assert data.dataset is not None
+        assert data.dataframe is None
+        assert "x" in data.dataset.data_vars
+
     def test_create_gnss_data_with_position(self):
         """Test creating GnssData with position data."""
-        data = GnssData(
-            timestamp=datetime(2024, 1, 15, 12, 0, 0),
-            satellite_id="G01",
-            x=1234567.89,
-            y=9876543.21,
-            z=5555555.55
+        ds = xr.Dataset(
+            {
+                "x": (["epoch", "sid"], [[1234567.89, 1000000.0]]),
+                "y": (["epoch", "sid"], [[9876543.21, 2000000.0]]),
+                "z": (["epoch", "sid"], [[5555555.55, 3000000.0]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
         )
-        
-        assert data.x == 1234567.89
-        assert data.y == 9876543.21
-        assert data.z == 5555555.55
-    
+        data = GnssData(dataset=ds)
+
+        assert data.dataset["x"].values[0, 0] == 1234567.89
+        assert data.dataset["y"].values[0, 0] == 9876543.21
+        assert data.dataset["z"].values[0, 0] == 5555555.55
+
     def test_create_gnss_data_with_velocity(self):
         """Test creating GnssData with velocity data."""
-        data = GnssData(
-            timestamp=datetime(2024, 1, 15, 12, 0, 0),
-            satellite_id="G01",
-            vx=100.0,
-            vy=200.0,
-            vz=300.0
+        ds = xr.Dataset(
+            {
+                "vx": (["epoch", "sid"], [[100.0, 110.0]]),
+                "vy": (["epoch", "sid"], [[200.0, 210.0]]),
+                "vz": (["epoch", "sid"], [[300.0, 310.0]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
         )
-        
-        assert data.vx == 100.0
-        assert data.vy == 200.0
-        assert data.vz == 300.0
-    
+        data = GnssData(dataset=ds)
+
+        assert data.dataset["vx"].values[0, 0] == 100.0
+        assert data.dataset["vy"].values[0, 0] == 200.0
+        assert data.dataset["vz"].values[0, 0] == 300.0
+
     def test_create_gnss_data_with_clock(self):
         """Test creating GnssData with clock correction."""
-        data = GnssData(
-            timestamp=datetime(2024, 1, 15, 12, 0, 0),
-            satellite_id="G01",
-            clock_offset=1.23e-6
+        ds = xr.Dataset(
+            {
+                "clock_offset": (["epoch", "sid"], [[1.23e-6, 2.34e-6]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
         )
-        
-        assert data.clock_offset == 1.23e-6
+        data = GnssData(dataset=ds)
 
+        assert data.dataset["clock_offset"].values[0, 0] == 1.23e-6
 
-class TestFtpDownloader:
-    """Tests for FtpDownloader class."""
-    
-    def test_create_ftp_downloader(self):
-        """Test creating FtpDownloader instance."""
-        downloader = FtpDownloader()
-        assert downloader is not None
-    
-    def test_create_ftp_downloader_with_email(self):
-        """Test creating FtpDownloader with user email."""
-        downloader = FtpDownloader(user_email="test@example.com")
-        assert downloader.user_email == "test@example.com"
-    
-    def test_ftp_downloader_implements_protocol(self):
-        """Test that FtpDownloader implements FileDownloader protocol."""
-        downloader = FtpDownloader()
-        
-        # Should have download method
-        assert hasattr(downloader, 'download')
-        assert callable(getattr(downloader, 'download'))
-    
-    @pytest.mark.skip(reason="Requires network access and FTP server")
-    def test_download_file(self):
-        """Test downloading a file (skipped by default)."""
-        # This test would require actual FTP server access
-        # and would be slow, so we skip it by default
-        pass
+    def test_create_gnss_data_with_dataframe(self):
+        """Test creating GnssData with both dataset and dataframe."""
+        ds = xr.Dataset(
+            {
+                "x": (["epoch", "sid"], [[1.0, 2.0]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
+        )
+        df = pd.DataFrame({"sid": ["G01", "G02"], "value": [1.0, 2.0]})
+        data = GnssData(dataset=ds, dataframe=df)
+
+        assert data.dataset is not None
+        assert data.dataframe is not None
+        assert len(data.dataframe) == 2
 
 
 class TestDataclassFeatures:
     """Tests for dataclass-specific features."""
-    
+
     def test_gnss_data_equality(self):
         """Test GnssData equality comparison."""
-        data1 = GnssData(
-            timestamp=datetime(2024, 1, 15, 12, 0, 0),
-            satellite_id="G01",
-            x=1000.0
+        ds1 = xr.Dataset(
+            {
+                "x": (["epoch", "sid"], [[1000.0, 2000.0]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
         )
-        data2 = GnssData(
-            timestamp=datetime(2024, 1, 15, 12, 0, 0),
-            satellite_id="G01",
-            x=1000.0
+        ds2 = xr.Dataset(
+            {
+                "x": (["epoch", "sid"], [[1000.0, 2000.0]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
         )
-        
-        assert data1 == data2
-    
+        data1 = GnssData(dataset=ds1)
+        data2 = GnssData(dataset=ds2)
+
+        # Note: xarray equality needs explicit comparison
+        assert data1.dataset.equals(data2.dataset)
+
     def test_gnss_data_inequality(self):
         """Test GnssData inequality."""
-        data1 = GnssData(
-            timestamp=datetime(2024, 1, 15, 12, 0, 0),
-            satellite_id="G01"
+        ds1 = xr.Dataset(
+            {
+                "x": (["epoch", "sid"], [[1000.0, 2000.0]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
         )
-        data2 = GnssData(
-            timestamp=datetime(2024, 1, 15, 12, 0, 0),
-            satellite_id="G02"
+        ds2 = xr.Dataset(
+            {
+                "x": (["epoch", "sid"], [[3000.0, 4000.0]]),
+            },
+            coords={
+                "epoch": [np.datetime64("2024-01-15T12:00:00")],
+                "sid": ["G01", "G02"],
+            }
         )
-        
-        assert data1 != data2
-    
+        data1 = GnssData(dataset=ds1)
+        data2 = GnssData(dataset=ds2)
+
+        assert not data1.dataset.equals(data2.dataset)
+
     def test_file_metadata_repr(self):
         """Test FileMetadata string representation."""
         metadata = FileMetadata(
-            filename="test.sp3",
+            date="2024015",
             agency="COD",
-            product_type="final"
+            product_type="final",
+            local_dir=Path("/tmp/data"),
+            ftp_server="ftp.example.com"
         )
-        
+
         repr_str = repr(metadata)
         assert "FileMetadata" in repr_str
-        assert "test.sp3" in repr_str
+        assert "2024015" in repr_str

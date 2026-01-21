@@ -1,46 +1,76 @@
 """Pytest configuration for canvodpy workspace."""
 
 from pathlib import Path
+
 import pytest
 
-
-# Test data location (submodule)
-TEST_DATA_ROOT = Path(__file__).parent / "test-data"
-
-# Example data location (submodule)
-EXAMPLES_ROOT = Path(__file__).parent / "examples"
+# Existing submodule paths
+TEST_DATA_ROOT = Path(__file__).parent / "packages/canvod-readers/tests/test_data"
+DEMO_ROOT = Path(__file__).parent / "demo"
 
 
 # ============================================================================
-# Test Data Fixtures (for validation testing with falsified data)
+# Test Data Fixtures (canvodpy-test-data submodule)
 # ============================================================================
 
 @pytest.fixture(scope="session")
 def test_data_dir() -> Path:
-    """
-    Root directory for test data.
+    """Root directory for test data.
     
-    Returns test-data submodule path. Verifies it exists and is initialized.
-    This contains falsified/corrupted files for testing error handling.
+    Location: packages/canvod-readers/tests/test_data
+    Repository: https://github.com/nfb2021/canvodpy-test-data.git
+    Purpose: Validation testing with falsified/corrupted files
     """
     if not TEST_DATA_ROOT.exists():
         pytest.skip(
             "Test data submodule not initialized. Run: "
-            "git submodule update --init test-data"
+            "git submodule update --init packages/canvod-readers/tests/test_data"
         )
     return TEST_DATA_ROOT
 
 
 @pytest.fixture(scope="session")
-def valid_rinex_dir(test_data_dir: Path) -> Path:
-    """Directory containing valid RINEX test files."""
-    return test_data_dir / "valid" / "rinex"
+def valid_test_data_dir(test_data_dir: Path) -> Path:
+    """Valid test data directory."""
+    return test_data_dir / "valid"
 
 
 @pytest.fixture(scope="session")
-def valid_aux_dir(test_data_dir: Path) -> Path:
+def valid_rinex_dir(valid_test_data_dir: Path) -> Path:
+    """Directory containing valid RINEX test files (Rosalia site)."""
+    return valid_test_data_dir / "rinex_v3_04/01_Rosalia"
+
+
+@pytest.fixture(scope="session")
+def valid_aux_dir(valid_test_data_dir: Path) -> Path:
     """Directory containing valid auxiliary test files."""
-    return test_data_dir / "valid" / "aux"
+    return valid_test_data_dir / "aux/00_aux_files"
+
+
+@pytest.fixture
+def rosalia_reference_test_rinex(valid_rinex_dir: Path) -> Path:
+    """Rosalia reference RINEX file from test data."""
+    rinex_dir = valid_rinex_dir / "01_reference/01_GNSS/01_raw"
+    if not rinex_dir.exists():
+        pytest.skip(f"RINEX directory not found: {rinex_dir}")
+    # Find any RINEX file (*.rnx, *.RNX, *.o, *.[0-9][0-9]o, etc.)
+    files = list(rinex_dir.rglob("*.[0-9][0-9]o")) + list(rinex_dir.glob("*.rnx")) + list(rinex_dir.glob("*.RNX"))
+    if not files:
+        pytest.skip(f"No RINEX files in {rinex_dir}")
+    return files[0]
+
+
+@pytest.fixture
+def rosalia_canopy_test_rinex(valid_rinex_dir: Path) -> Path:
+    """Rosalia canopy RINEX file from test data."""
+    rinex_dir = valid_rinex_dir / "02_canopy/01_GNSS/01_raw"
+    if not rinex_dir.exists():
+        pytest.skip(f"RINEX directory not found: {rinex_dir}")
+    # Find any RINEX file
+    files = list(rinex_dir.rglob("*.[0-9][0-9]o")) + list(rinex_dir.glob("*.rnx")) + list(rinex_dir.glob("*.RNX"))
+    if not files:
+        pytest.skip(f"No RINEX files in {rinex_dir}")
+    return files[0]
 
 
 @pytest.fixture(scope="session")
@@ -62,30 +92,27 @@ def edge_case_dir(test_data_dir: Path) -> Path:
 
 
 @pytest.fixture
-def sample_rinex_file(valid_rinex_dir: Path) -> Path:
-    """Path to a standard valid RINEX file."""
-    sample = valid_rinex_dir / "2023_001_canopy.rnx"
-    if not sample.exists():
-        pytest.skip(f"Sample RINEX file not found: {sample}")
-    return sample
-
-
-@pytest.fixture
 def sample_sp3_file(valid_aux_dir: Path) -> Path:
     """Path to a standard valid SP3 file."""
-    sample = valid_aux_dir / "COD0MGXFIN_20230010000_01D_05M_ORB.SP3"
-    if not sample.exists():
-        pytest.skip(f"Sample SP3 file not found: {sample}")
-    return sample
+    sp3_dir = valid_aux_dir / "01_SP3"
+    if not sp3_dir.exists():
+        pytest.skip(f"SP3 directory not found: {sp3_dir}")
+    files = list(sp3_dir.glob("*.SP3")) + list(sp3_dir.glob("*.sp3"))
+    if not files:
+        pytest.skip(f"No SP3 files in {sp3_dir}")
+    return files[0]
 
 
 @pytest.fixture
 def sample_clk_file(valid_aux_dir: Path) -> Path:
     """Path to a standard valid CLK file."""
-    sample = valid_aux_dir / "COD0MGXFIN_20230010000_01D_30S_CLK.CLK"
-    if not sample.exists():
-        pytest.skip(f"Sample CLK file not found: {sample}")
-    return sample
+    clk_dir = valid_aux_dir / "02_CLK"
+    if not clk_dir.exists():
+        pytest.skip(f"CLK directory not found: {clk_dir}")
+    files = list(clk_dir.glob("*.CLK")) + list(clk_dir.glob("*.clk"))
+    if not files:
+        pytest.skip(f"No CLK files in {clk_dir}")
+    return files[0]
 
 
 # Mark for tests that require test data
@@ -96,57 +123,89 @@ requires_test_data = pytest.mark.skipif(
 
 
 # ============================================================================
-# Example Data Fixtures (for demos/documentation with real data)
+# Demo Data Fixtures (canvodpy-demo submodule)
 # ============================================================================
 
 @pytest.fixture(scope="session")
-def examples_dir() -> Path:
-    """
-    Root directory for example data.
+def demo_dir() -> Path:
+    """Root directory for demo data.
     
-    Returns examples submodule path. Verifies it exists and is initialized.
-    This contains clean real-world data for demos and documentation.
+    Location: demo
+    Repository: https://github.com/nfb2021/canvodpy-demo.git
+    Purpose: Clean real-world data for demos and documentation
     """
-    if not EXAMPLES_ROOT.exists():
+    if not DEMO_ROOT.exists():
         pytest.skip(
-            "Examples submodule not initialized. Run: "
-            "git submodule update --init examples"
+            "Demo submodule not initialized. Run: "
+            "git submodule update --init demo"
         )
-    return EXAMPLES_ROOT
+    return DEMO_ROOT
 
 
 @pytest.fixture(scope="session")
-def rosalia_rinex_dir(examples_dir: Path) -> Path:
-    """Directory containing Rosalia site RINEX files."""
-    return examples_dir / "rosalia/2023/001/rinex"
+def demo_data_dir(demo_dir: Path) -> Path:
+    """Demo data directory."""
+    return demo_dir / "data"
 
 
 @pytest.fixture(scope="session")
-def rosalia_aux_dir(examples_dir: Path) -> Path:
-    """Directory containing Rosalia site auxiliary files."""
-    return examples_dir / "rosalia/2023/001/aux"
+def demo_rosalia_dir(demo_data_dir: Path) -> Path:
+    """Rosalia demo data directory."""
+    return demo_data_dir / "01_Rosalia"
+
+
+@pytest.fixture(scope="session")
+def demo_aux_dir(demo_data_dir: Path) -> Path:
+    """Demo auxiliary files directory."""
+    return demo_data_dir / "00_aux_files"
 
 
 @pytest.fixture
-def rosalia_canopy_rinex(rosalia_rinex_dir: Path) -> Path:
-    """Path to Rosalia canopy RINEX file."""
-    sample = rosalia_rinex_dir / "canopy_20230010000.rnx"
-    if not sample.exists():
-        pytest.skip(f"Rosalia canopy RINEX not found: {sample}")
-    return sample
+def demo_rosalia_reference(demo_rosalia_dir: Path) -> Path:
+    """Demo Rosalia reference RINEX file (first available)."""
+    rinex_dir = demo_rosalia_dir / "01_reference/01_GNSS/01_raw"
+    if not rinex_dir.exists():
+        pytest.skip(f"RINEX directory not found: {rinex_dir}")
+    # Find any RINEX file in any subdirectory (25001, 25002, etc.)
+    files = list(rinex_dir.rglob("*.[0-9][0-9]o")) + list(rinex_dir.rglob("*.rnx")) + list(rinex_dir.rglob("*.RNX"))
+    if not files:
+        pytest.skip(f"No RINEX files in {rinex_dir}")
+    return files[0]
 
 
 @pytest.fixture
-def rosalia_reference_rinex(rosalia_rinex_dir: Path) -> Path:
-    """Path to Rosalia reference RINEX file."""
-    sample = rosalia_rinex_dir / "reference_20230010000.rnx"
-    if not sample.exists():
-        pytest.skip(f"Rosalia reference RINEX not found: {sample}")
-    return sample
+def demo_rosalia_canopy(demo_rosalia_dir: Path) -> Path:
+    """Demo Rosalia canopy RINEX file (first available)."""
+    rinex_dir = demo_rosalia_dir / "02_canopy/01_GNSS/01_raw"
+    if not rinex_dir.exists():
+        pytest.skip(f"RINEX directory not found: {rinex_dir}")
+    # Find any RINEX file in any subdirectory
+    files = list(rinex_dir.rglob("*.[0-9][0-9]o")) + list(rinex_dir.rglob("*.rnx")) + list(rinex_dir.rglob("*.RNX"))
+    if not files:
+        pytest.skip(f"No RINEX files in {rinex_dir}")
+    return files[0]
 
 
-# Mark for tests that require example data
-requires_examples = pytest.mark.skipif(
-    not EXAMPLES_ROOT.exists(),
-    reason="Examples submodule not initialized"
+@pytest.fixture
+def demo_rosalia_reference_day(demo_rosalia_dir: Path) -> Path:
+    """Demo Rosalia reference directory for day 001 (2025-001)."""
+    day_dir = demo_rosalia_dir / "01_reference/01_GNSS/01_raw/25001"
+    if not day_dir.exists():
+        pytest.skip(f"Day directory not found: {day_dir}")
+    return day_dir
+
+
+@pytest.fixture
+def demo_rosalia_canopy_day(demo_rosalia_dir: Path) -> Path:
+    """Demo Rosalia canopy directory for day 001 (2025-001)."""
+    day_dir = demo_rosalia_dir / "02_canopy/01_GNSS/01_raw/25001"
+    if not day_dir.exists():
+        pytest.skip(f"Day directory not found: {day_dir}")
+    return day_dir
+
+
+# Mark for tests that require demo data
+requires_demo = pytest.mark.skipif(
+    not DEMO_ROOT.exists(),
+    reason="Demo submodule not initialized"
 )

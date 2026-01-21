@@ -1,210 +1,334 @@
-"""
-Tests for interpolation strategies.
+"""Tests for interpolation strategies."""
 
-Tests the interpolation configuration and strategy classes.
-"""
 import numpy as np
-import pytest
 import xarray as xr
+
 from canvod.aux.interpolation import (
-    Sp3Config,
     ClockConfig,
-    Sp3InterpolationStrategy,
     ClockInterpolationStrategy,
-    create_interpolator_from_attrs,
+    Sp3Config,
+    Sp3InterpolationStrategy,
 )
 
 
-class TestInterpolatorConfigs:
-    """Tests for interpolator configuration classes."""
-    
-    def test_sp3_config_defaults(self):
-        """Test Sp3Config default values."""
+class TestSp3Config:
+    """Test Sp3Config dataclass."""
+
+    def test_default_config(self):
+        """Test default configuration."""
         config = Sp3Config()
+
         assert config.use_velocities is True
         assert config.fallback_method == 'linear'
-    
-    def test_sp3_config_custom(self):
-        """Test Sp3Config with custom values."""
+
+    def test_custom_config(self):
+        """Test custom configuration."""
         config = Sp3Config(use_velocities=False, fallback_method='cubic')
+
         assert config.use_velocities is False
         assert config.fallback_method == 'cubic'
-    
-    def test_clock_config_defaults(self):
-        """Test ClockConfig default values."""
+
+    def test_config_fields_accessible(self):
+        """Test config fields are accessible."""
+        config = Sp3Config(use_velocities=True, fallback_method='nearest')
+
+        assert hasattr(config, 'use_velocities')
+        assert hasattr(config, 'fallback_method')
+
+
+class TestClockConfig:
+    """Test ClockConfig dataclass."""
+
+    def test_default_config(self):
+        """Test default configuration."""
         config = ClockConfig()
+
         assert config.window_size == 9
         assert config.jump_threshold == 1e-6
-    
-    def test_clock_config_custom(self):
-        """Test ClockConfig with custom values."""
-        config = ClockConfig(window_size=15, jump_threshold=1e-5)
-        assert config.window_size == 15
-        assert config.jump_threshold == 1e-5
-    
-    def test_config_to_dict(self):
-        """Test converting config to dictionary."""
-        config = Sp3Config(use_velocities=False)
-        config_dict = config.to_dict()
-        
-        assert isinstance(config_dict, dict)
-        assert 'use_velocities' in config_dict
-        assert config_dict['use_velocities'] is False
+
+    def test_custom_config(self):
+        """Test custom configuration."""
+        config = ClockConfig(window_size=5, jump_threshold=1e-7)
+
+        assert config.window_size == 5
+        assert config.jump_threshold == 1e-7
 
 
 class TestSp3InterpolationStrategy:
-    """Tests for SP3 interpolation strategy."""
-    
-    def test_create_strategy(self):
-        """Test creating SP3 interpolation strategy."""
+    """Test Sp3InterpolationStrategy class."""
+
+    def test_initialization(self):
+        """Test strategy can be initialized."""
         config = Sp3Config()
         strategy = Sp3InterpolationStrategy(config=config)
-        
+
+        assert strategy is not None
         assert strategy.config == config
-    
-    def test_to_attrs(self):
-        """Test converting strategy to attrs dictionary."""
-        config = Sp3Config()
+
+    def test_interpolate_increases_epochs(self, sample_preprocessed_sp3):
+        """Test interpolation increases number of epochs."""
+        config = Sp3Config(use_velocities=False)  # Simpler test
         strategy = Sp3InterpolationStrategy(config=config)
-        
-        attrs = strategy.to_attrs()
-        
-        assert 'interpolator_type' in attrs
-        assert attrs['interpolator_type'] == 'Sp3InterpolationStrategy'
-        assert 'config' in attrs
-        assert attrs['config']['use_velocities'] is True
-    
-    def test_interpolate_requires_dataset(self):
-        """Test that interpolate handles datasets without position data."""
-        config = Sp3Config()
+
+        # Create target epochs (more than input)
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = base_time + np.arange(288) * np.timedelta64(5, 'm')
+
+        result = strategy.interpolate(sample_preprocessed_sp3, target_epochs)
+
+        assert result.sizes['epoch'] == 288
+        assert result.sizes['epoch'] > sample_preprocessed_sp3.sizes['epoch']
+
+    def test_interpolate_preserves_sid(self, sample_preprocessed_sp3):
+        """Test interpolation preserves sid dimension."""
+        config = Sp3Config(use_velocities=False)
         strategy = Sp3InterpolationStrategy(config=config)
-        
-        # Create minimal test dataset without position data
-        epochs = np.array([np.datetime64('2024-01-01T00:00:00'),
-                          np.datetime64('2024-01-01T00:15:00')])
-        sids = ['G01']
-        
-        # Add position data (required for interpolation)
+
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = base_time + np.arange(288) * np.timedelta64(5, 'm')
+        result = strategy.interpolate(sample_preprocessed_sp3, target_epochs)
+
+        assert result.sizes['sid'] == sample_preprocessed_sp3.sizes['sid']
+
+    def test_interpolate_all_variables(self, sample_preprocessed_sp3):
+        """Test all position variables are interpolated."""
+        config = Sp3Config(use_velocities=False)
+        strategy = Sp3InterpolationStrategy(config=config)
+
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = base_time + np.arange(288) * np.timedelta64(5, 'm')
+        result = strategy.interpolate(sample_preprocessed_sp3, target_epochs)
+
+        assert 'X' in result.data_vars
+        assert 'Y' in result.data_vars
+        assert 'Z' in result.data_vars
+
+    def test_interpolated_values_reasonable(self, sample_preprocessed_sp3):
+        """Test interpolated values are within reasonable range."""
+        config = Sp3Config(use_velocities=False)
+        strategy = Sp3InterpolationStrategy(config=config)
+
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = base_time + np.arange(288) * np.timedelta64(5, 'm')
+        result = strategy.interpolate(sample_preprocessed_sp3, target_epochs)
+
+        # Position values should be similar to input range
+        assert result['X'].min() > 1e7
+        assert result['X'].max() < 4e7
+
+    def test_with_velocities(self):
+        """Test interpolation using velocities."""
+        # Create dataset with velocities
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        epochs = base_time + np.arange(10) * np.timedelta64(15, 'm')
+        sids = ['G01|L1|C', 'G02|L2|W']
+
         ds = xr.Dataset(
-            data_vars={
-                'X': (('epoch', 'sid'), np.array([[1000.0], [2000.0]])),
-                'Y': (('epoch', 'sid'), np.array([[3000.0], [4000.0]])),
-                'Z': (('epoch', 'sid'), np.array([[5000.0], [6000.0]])),
+            {
+                'X': (['epoch', 'sid'], np.random.uniform(2e7, 3e7, (10, 2))),
+                'Y': (['epoch', 'sid'], np.random.uniform(1e6, 5e6, (10, 2))),
+                'Z': (['epoch', 'sid'], np.random.uniform(1e7, 2e7, (10, 2))),
+                'VX':
+                (['epoch', 'sid'], np.random.uniform(-3000, 3000, (10, 2))),
+                'VY':
+                (['epoch', 'sid'], np.random.uniform(-3000, 3000, (10, 2))),
+                'VZ':
+                (['epoch', 'sid'], np.random.uniform(-3000, 3000, (10, 2))),
             },
-            coords={'epoch': epochs, 'sid': sids}
-        )
-        
-        target_epochs = np.array([np.datetime64('2024-01-01T00:07:30')])
-        
-        # Should interpolate successfully with position data
+            coords={
+                'epoch': epochs,
+                'sid': sids
+            })
+
+        config = Sp3Config(use_velocities=True)
+        strategy = Sp3InterpolationStrategy(config=config)
+
+        target_base = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = target_base + np.arange(30) * np.timedelta64(5, 'm')
         result = strategy.interpolate(ds, target_epochs)
-        assert 'X' in result
-        assert 'Y' in result
-        assert 'Z' in result
+
+        assert result.sizes['epoch'] == 30
 
 
 class TestClockInterpolationStrategy:
-    """Tests for Clock interpolation strategy."""
-    
-    def test_create_strategy(self):
-        """Test creating Clock interpolation strategy."""
+    """Test ClockInterpolationStrategy class."""
+
+    def test_initialization(self):
+        """Test strategy can be initialized."""
         config = ClockConfig()
         strategy = ClockInterpolationStrategy(config=config)
-        
+
+        assert strategy is not None
         assert strategy.config == config
-    
-    def test_to_attrs(self):
-        """Test converting strategy to attrs dictionary."""
-        config = ClockConfig(window_size=15)
+
+    def test_interpolate_clock_data(self, sample_clk_data):
+        """Test interpolation of clock data."""
+        # Preprocess first
+        from canvod.aux import preprocess_aux_for_interpolation
+        clk_preprocessed = preprocess_aux_for_interpolation(sample_clk_data)
+
+        config = ClockConfig()
         strategy = ClockInterpolationStrategy(config=config)
-        
-        attrs = strategy.to_attrs()
-        
-        assert 'interpolator_type' in attrs
-        assert attrs['interpolator_type'] == 'ClockInterpolationStrategy'
-        assert 'config' in attrs
-        assert attrs['config']['window_size'] == 15
 
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = base_time + np.arange(2880) * np.timedelta64(30, 's')
+        result = strategy.interpolate(clk_preprocessed, target_epochs)
 
-class TestCreateInterpolatorFromAttrs:
-    """Tests for recreating interpolator from attributes."""
-    
-    def test_recreate_sp3_interpolator(self):
-        """Test recreating Sp3InterpolationStrategy from attrs."""
-        # Create original strategy
-        config = Sp3Config(use_velocities=False)
-        original = Sp3InterpolationStrategy(config=config)
-        
-        # Get attrs
-        attrs = {'interpolator_config': original.to_attrs()}
-        
-        # Recreate
-        recreated = create_interpolator_from_attrs(attrs)
-        
-        assert isinstance(recreated, Sp3InterpolationStrategy)
-        assert recreated.config.use_velocities is False
-    
-    def test_recreate_clock_interpolator(self):
-        """Test recreating ClockInterpolationStrategy from attrs."""
-        # Create original strategy
-        config = ClockConfig(window_size=15)
-        original = ClockInterpolationStrategy(config=config)
-        
-        # Get attrs
-        attrs = {'interpolator_config': original.to_attrs()}
-        
-        # Recreate
-        recreated = create_interpolator_from_attrs(attrs)
-        
-        assert isinstance(recreated, ClockInterpolationStrategy)
-        assert recreated.config.window_size == 15
-    
-    def test_invalid_interpolator_type(self):
-        """Test that invalid interpolator type raises error."""
-        attrs = {
-            'interpolator_config': {
-                'interpolator_type': 'InvalidStrategy',
-                'config': {}
-            }
-        }
-        
-        with pytest.raises(ValueError, match="Unknown interpolator type"):
-            create_interpolator_from_attrs(attrs)
+        assert result.sizes['epoch'] == 2880
+        assert 'clock_bias' in result.data_vars
+
+    def test_handles_discontinuities(self):
+        """Test handling of clock discontinuities."""
+        # Create data with intentional jump
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        epochs = base_time + np.arange(20) * np.timedelta64(5, 'm')
+        sids = ['G01|L1|C']
+
+        clock_bias = np.zeros(20)
+        clock_bias[10:] = 1e-6  # Jump at epoch 10
+
+        ds = xr.Dataset(
+            {'clock_bias': (['epoch', 'sid'], clock_bias.reshape(-1, 1))},
+            coords={
+                'epoch': epochs,
+                'sid': sids
+            })
+
+        config = ClockConfig(jump_threshold=5e-7)
+        strategy = ClockInterpolationStrategy(config=config)
+
+        target_base = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = target_base + np.arange(60) * np.timedelta64(2, 'm')
+        result = strategy.interpolate(ds, target_epochs)
+
+        # Should handle discontinuity without crashing
+        assert result.sizes['epoch'] == 60
+
+    def test_interpolated_values_bounded(self):
+        """Test interpolated clock values stay within reasonable bounds."""
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        epochs = base_time + np.arange(10) * np.timedelta64(5, 'm')
+        sids = ['G01|L1|C']
+
+        clock_bias = np.random.uniform(-1e-6, 1e-6, (10, 1))
+
+        ds = xr.Dataset({'clock_bias': (['epoch', 'sid'], clock_bias)},
+                        coords={
+                            'epoch': epochs,
+                            'sid': sids
+                        })
+
+        config = ClockConfig()
+        strategy = ClockInterpolationStrategy(config=config)
+
+        target_base = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = target_base + np.arange(30) * np.timedelta64(2, 'm')
+        result = strategy.interpolate(ds, target_epochs)
+
+        # Interpolated values shouldn't exceed input range significantly
+        assert result['clock_bias'].min() >= -2e-6
+        assert result['clock_bias'].max() <= 2e-6
 
 
 class TestInterpolationIntegration:
-    """Integration tests for interpolation workflow."""
-    
-    def test_sp3_strategy_roundtrip(self):
-        """Test complete SP3 strategy creation, serialization, and recreation."""
-        # Create strategy
-        config = Sp3Config(use_velocities=False, fallback_method='cubic')
+    """Integration tests for complete interpolation workflow."""
+
+    def test_sp3_to_rinex_alignment(self, sample_preprocessed_sp3,
+                                    sample_rinex_data):
+        """Test SP3 can be interpolated to RINEX epochs."""
+        config = Sp3Config(use_velocities=False)
         strategy = Sp3InterpolationStrategy(config=config)
-        
-        # Convert to attrs
-        attrs_dict = {'interpolator_config': strategy.to_attrs()}
-        
-        # Recreate
-        recreated = create_interpolator_from_attrs(attrs_dict)
-        
-        # Verify recreation
-        assert isinstance(recreated, Sp3InterpolationStrategy)
-        assert recreated.config.use_velocities is False
-        assert recreated.config.fallback_method == 'cubic'
-    
-    def test_clock_strategy_roundtrip(self):
-        """Test complete Clock strategy creation, serialization, and recreation."""
-        # Create strategy
-        config = ClockConfig(window_size=15, jump_threshold=1e-5)
-        strategy = ClockInterpolationStrategy(config=config)
-        
-        # Convert to attrs
-        attrs_dict = {'interpolator_config': strategy.to_attrs()}
-        
-        # Recreate
-        recreated = create_interpolator_from_attrs(attrs_dict)
-        
-        # Verify recreation
-        assert isinstance(recreated, ClockInterpolationStrategy)
-        assert recreated.config.window_size == 15
-        assert recreated.config.jump_threshold == 1e-5
+
+        # Use RINEX epochs as target
+        target_epochs = sample_rinex_data.epoch.values
+
+        result = strategy.interpolate(sample_preprocessed_sp3, target_epochs)
+
+        # Should match RINEX epoch count
+        assert result.sizes['epoch'] == sample_rinex_data.sizes['epoch']
+
+    def test_preprocessing_then_interpolation(self, sample_sp3_data):
+        """Test complete workflow: preprocess → interpolate."""
+        # Step 1: Preprocess
+        from canvod.aux import preprocess_aux_for_interpolation
+        preprocessed = preprocess_aux_for_interpolation(sample_sp3_data)
+
+        # Step 2: Interpolate
+        config = Sp3Config(use_velocities=False)
+        strategy = Sp3InterpolationStrategy(config=config)
+
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = base_time + np.arange(288) * np.timedelta64(5, 'm')
+        interpolated = strategy.interpolate(preprocessed, target_epochs)
+
+        # Should work without errors
+        assert interpolated.sizes['epoch'] == 288
+        assert 'sid' in interpolated.sizes
+
+    def test_both_sp3_and_clock(self, sample_sp3_data, sample_clk_data):
+        """Test interpolating both SP3 and CLK data."""
+        from canvod.aux import preprocess_aux_for_interpolation
+
+        # Preprocess both
+        sp3_prep = preprocess_aux_for_interpolation(sample_sp3_data)
+        clk_prep = preprocess_aux_for_interpolation(sample_clk_data)
+
+        # Interpolate both to same target epochs
+        base_time = np.datetime64('2024-01-01T00:00:00')
+        target_epochs = base_time + np.arange(2880) * np.timedelta64(30, 's')
+
+        sp3_config = Sp3Config(use_velocities=False)
+        sp3_strategy = Sp3InterpolationStrategy(config=sp3_config)
+        sp3_interp = sp3_strategy.interpolate(sp3_prep, target_epochs)
+
+        clk_config = ClockConfig()
+        clk_strategy = ClockInterpolationStrategy(config=clk_config)
+        clk_interp = clk_strategy.interpolate(clk_prep, target_epochs)
+
+        # Both should have same epoch count
+        assert sp3_interp.sizes['epoch'] == clk_interp.sizes['epoch']
+
+
+class TestInterpolationEdgeCases:
+    """Test edge cases and error handling."""
+
+    def test_extrapolation_before_first_epoch(self, sample_preprocessed_sp3):
+        """Test extrapolation before first epoch."""
+        config = Sp3Config(use_velocities=False, fallback_method='nearest')
+        strategy = Sp3InterpolationStrategy(config=config)
+
+        # Target epochs before input data
+        first_epoch = sample_preprocessed_sp3.epoch.values[0]
+        target_epochs = first_epoch - np.arange(10, 0, -1) * np.timedelta64(
+            15, 'm')
+
+        # Should handle without crashing
+        result = strategy.interpolate(sample_preprocessed_sp3, target_epochs)
+        assert result.sizes['epoch'] == 10
+
+    def test_extrapolation_after_last_epoch(self, sample_preprocessed_sp3):
+        """Test extrapolation after last epoch."""
+        config = Sp3Config(use_velocities=False, fallback_method='nearest')
+        strategy = Sp3InterpolationStrategy(config=config)
+
+        # Target epochs after input data
+        last_epoch = sample_preprocessed_sp3.epoch.values[-1]
+        target_epochs = last_epoch + np.arange(1, 11) * np.timedelta64(15, 'm')
+
+        # Should handle without crashing
+        result = strategy.interpolate(sample_preprocessed_sp3, target_epochs)
+        assert result.sizes['epoch'] == 10
+
+    def test_single_target_epoch(self, sample_preprocessed_sp3):
+        """Test interpolation to single epoch."""
+        config = Sp3Config(use_velocities=False)
+        strategy = Sp3InterpolationStrategy(config=config)
+
+        # Use middle epoch from input
+        mid_epoch = sample_preprocessed_sp3.epoch.values[len(
+            sample_preprocessed_sp3.epoch) // 2]
+        target_epochs = np.array([mid_epoch])
+
+        result = strategy.interpolate(sample_preprocessed_sp3, target_epochs)
+
+        assert result.sizes['epoch'] == 1
