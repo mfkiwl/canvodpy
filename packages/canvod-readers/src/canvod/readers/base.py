@@ -28,14 +28,34 @@ class DatasetStructureValidator(BaseModel):
     dataset: xr.Dataset
 
     def validate_dimensions(self) -> None:
-        """Validate required dimensions exist."""
+        """Validate required dimensions exist.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If required dimensions (epoch, sid) are missing
+        """
         required_dims = {"epoch", "sid"}
         missing_dims = required_dims - set(self.dataset.dims)
         if missing_dims:
             raise ValueError(f"Missing required dimensions: {missing_dims}")
 
     def validate_coordinates(self) -> None:
-        """Validate required coordinates exist and have correct types."""
+        """Validate required coordinates exist and have correct types.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If required coordinates are missing or have incorrect dtypes
+        """
         required_coords = {
             "epoch": "datetime64[ns]",
             "sid": "object",  # string
@@ -73,6 +93,14 @@ class DatasetStructureValidator(BaseModel):
         required_vars : list of str, optional
             List of required variables. If None, uses default minimum set.
 
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If required variables are missing or have incorrect dimensions
         """
         if required_vars is None:
             # Minimum required for VOD calculation
@@ -93,7 +121,17 @@ class DatasetStructureValidator(BaseModel):
                     f"expected {expected_dims}, got {actual_dims}")
 
     def validate_attributes(self) -> None:
-        """Validate required global attributes for storage."""
+        """Validate required global attributes for storage.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If required attributes (Created, Software, Institution, RINEX File Hash) are missing
+        """
         required_attrs = {
             "Created",
             "Software",
@@ -106,7 +144,22 @@ class DatasetStructureValidator(BaseModel):
             raise ValueError(f"Missing required attributes: {missing_attrs}")
 
     def validate_all(self, required_vars: list[str] = None) -> None:
-        """Run all validations."""
+        """Run all validations.
+        
+        Parameters
+        ----------
+        required_vars : list of str, optional
+            List of required data variables. If None, uses default minimum set.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If any validation fails
+        """
         self.validate_dimensions()
         self.validate_coordinates()
         self.validate_data_variables(required_vars)
@@ -189,6 +242,11 @@ class GNSSDataReader(ABC):
     def iter_epochs(self):
         """Iterate over epochs in the file.
 
+        Returns
+        -------
+        Generator
+            Generator yielding Epoch objects
+
         Yields
         ------
         Epoch
@@ -211,6 +269,10 @@ class GNSSDataReader(ABC):
         required_vars : list of str, optional
             Required data variables. If None, uses minimum set.
 
+        Returns
+        -------
+        None
+
         Raises
         ------
         ValueError
@@ -223,12 +285,24 @@ class GNSSDataReader(ABC):
     @property
     @abstractmethod
     def start_time(self) -> datetime:
-        """Return start time of observations."""
+        """Return start time of observations.
+        
+        Returns
+        -------
+        datetime
+            First observation timestamp in the file
+        """
 
     @property
     @abstractmethod
     def end_time(self) -> datetime:
-        """Return end time of observations."""
+        """Return end time of observations.
+        
+        Returns
+        -------
+        datetime
+            Last observation timestamp in the file
+        """
 
     @property
     @abstractmethod
@@ -245,12 +319,24 @@ class GNSSDataReader(ABC):
     @property
     @abstractmethod
     def num_epochs(self) -> int:
-        """Return number of epochs in file."""
+        """Return number of epochs in file.
+        
+        Returns
+        -------
+        int
+            Total number of observation epochs
+        """
 
     @property
     @abstractmethod
     def num_satellites(self) -> int:
-        """Return total number of unique satellites observed."""
+        """Return total number of unique satellites observed.
+        
+        Returns
+        -------
+        int
+            Count of unique satellite vehicles across all systems
+        """
 
     def __repr__(self) -> str:
         """String representation."""
@@ -290,6 +376,14 @@ class ReaderFactory:
         reader_class : type
             Reader class (must inherit from GNSSDataReader)
 
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        TypeError
+            If reader_class does not inherit from GNSSDataReader
         """
         if not issubclass(reader_class, GNSSDataReader):
             raise TypeError(f"{reader_class} must inherit from GNSSDataReader")
@@ -367,7 +461,13 @@ class ReaderFactory:
 
     @classmethod
     def list_formats(cls) -> list[str]:
-        """List available formats."""
+        """List available formats.
+        
+        Returns
+        -------
+        list of str
+            Registered format identifiers
+        """
         return list(cls._readers.keys())
 
 

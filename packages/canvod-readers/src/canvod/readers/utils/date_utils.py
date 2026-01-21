@@ -61,8 +61,13 @@ class YYYYDOY:
     yydoy: str = None
     date: datetime.date = None
 
-    def __post_init__(self):
-        """Calculate derived fields after initialization."""
+    def __post_init__(self) -> None:
+        """Calculate derived fields after initialization.
+        
+        Returns
+        -------
+        None
+        """
         self.date = self._calculate_date()
         self.doy = f"{self.doy:03}"
         self.yydoy = f"{str(self.year)[-2:]}{self.doy}"
@@ -215,10 +220,22 @@ class YYYYDOY:
 
     @property
     def gps_week(self) -> int:
-        """GPS week number."""
+        """GPS week number.
+        
+        Returns
+        -------
+        int
+            GPS week number since GPS epoch (1980-01-06)
+        """
         return self._gpsweekday()[0]
 
     @property
     def gps_day_of_week(self) -> int:
-        """GPS day of week (0=Sunday, 6=Saturday)."""
+        """GPS day of week (0=Sunday, 6=Saturday).
+        
+        Returns
+        -------
+        int
+            Day of week where 0=Sunday, 6=Saturday
+        """
         return self._gpsweekday()[1]

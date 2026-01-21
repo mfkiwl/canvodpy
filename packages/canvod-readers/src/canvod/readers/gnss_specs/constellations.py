@@ -380,6 +380,14 @@ class GALILEO(ConstellationBase):
     }
 
     def __init__(self) -> None:
+        """Initialize Galileo constellation.
+        
+        Automatically fetches current satellite list from Wikipedia.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(
             constellation="GALILEO",
             url="https://en.wikipedia.org/wiki/List_of_Galileo_satellites",
@@ -390,7 +398,13 @@ class GALILEO(ConstellationBase):
 
     @property
     def freqs_lut(self) -> dict[str, pint.Quantity]:
-        """See base class."""
+        """Build mapping of SV|obs_code to frequency.
+        
+        Returns
+        -------
+        dict
+            Keys of format "SV|*1C" mapped to frequencies
+        """
         out = {
             f"{sv}|{obs}": freq
             for obs, freq in self.bands_freqs.items()
@@ -444,6 +458,17 @@ class GPS(ConstellationBase):
     }
 
     def __init__(self, use_wiki: bool = False) -> None:
+        """Initialize GPS constellation.
+        
+        Parameters
+        ----------
+        use_wiki : bool, default False
+            If False, uses static list G01-G32. If True, fetches from Wikipedia.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(
             constellation="GPS",
             url="https://en.wikipedia.org/wiki/List_of_GPS_satellites",
@@ -552,6 +577,14 @@ class BEIDOU(ConstellationBase):
     }
 
     def __init__(self) -> None:
+        """Initialize BeiDou constellation.
+        
+        Automatically fetches current satellite list from Wikipedia.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(
             constellation="BEIDOU",
             url="https://en.wikipedia.org/wiki/List_of_BeiDou_satellites",
@@ -663,6 +696,25 @@ class GLONASS(ConstellationBase):
         "GLONASS_channels.txt",
         aggregate_fdma: bool = True,
     ) -> None:
+        """Initialize GLONASS constellation with FDMA channel assignments.
+        
+        Parameters
+        ----------
+        glonass_channel_pth : Path, optional
+            Path to GLONASS channel assignment file
+        aggregate_fdma : bool, default True
+            If True, aggregate FDMA sub-bands into single G1/G2 bands.
+            If False, maintain individual FDMA channel frequencies.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        FileNotFoundError
+            If GLONASS channel file does not exist
+        """
         if not glonass_channel_pth.exists():
             raise FileNotFoundError(f"{glonass_channel_pth} does not exist")
         self.pth = glonass_channel_pth
@@ -746,7 +798,13 @@ class GLONASS(ConstellationBase):
 
     @property
     def freqs_lut(self) -> dict[str, pint.Quantity]:
-        """See base class + GLONASS-specific FDMA."""
+        """Build mapping of SV|obs_code to frequency including FDMA channels.
+        
+        Returns
+        -------
+        dict
+            Keys of format "SV|*1C" mapped to frequencies, including FDMA-dependent L1/L2
+        """
         out = {
             f"{sv}|{obs}": freq
             for obs, freq in self.bands_freqs.items()
@@ -795,6 +853,14 @@ class SBAS(ConstellationBase):
     }
 
     def __init__(self) -> None:
+        """Initialize SBAS constellation.
+        
+        Uses static list S01-S36 as PRNs are region-specific.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(
             constellation="SBAS",
             url="https://en.wikipedia.org/wiki/List_of_SBAS_satellites",
@@ -850,6 +916,14 @@ class IRNSS(ConstellationBase):
     }
 
     def __init__(self) -> None:
+        """Initialize IRNSS (NavIC) constellation.
+        
+        Automatically fetches current satellite list from Wikipedia.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(
             constellation="IRNSS",
             url=
@@ -924,6 +998,14 @@ class QZSS(ConstellationBase):
     }
 
     def __init__(self) -> None:
+        """Initialize QZSS constellation.
+        
+        Uses static list J01-J10.
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(
             constellation="QZSS",
             url="https://en.wikipedia.org/wiki/Quasi-Zenith_Satellite_System",

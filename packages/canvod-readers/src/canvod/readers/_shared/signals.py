@@ -22,6 +22,17 @@ class SignalIDMapper:
     """
 
     def __init__(self, aggregate_glonass_fdma: bool = True) -> None:
+        """Initialize signal ID mapper.
+        
+        Parameters
+        ----------
+        aggregate_glonass_fdma : bool, default True
+            Whether to aggregate GLONASS FDMA signals
+        
+        Returns
+        -------
+        None
+        """
         self.aggregate_glonass_fdma = aggregate_glonass_fdma
 
         # Simplified band mapping - expand with full migration
@@ -105,11 +116,16 @@ class SignalIDMapper:
         Format: "sv|band|code"
         Example: "G01|L1|C" for GPS sv 01, L1 band, C/A code
 
-        Args:
-            sv: Satellite identifier (e.g., "G01", "E05")
-            obs_code: RINEX observation code (e.g., "G01|S1C")
+        Parameters
+        ----------
+        sv : str
+            Satellite identifier (e.g., "G01", "E05")
+        obs_code : str
+            RINEX observation code (e.g., "G01|S1C")
 
-        Returns:
+        Returns
+        -------
+        str
             Formatted signal ID
 
         """
@@ -141,10 +157,14 @@ class SignalIDMapper:
     def parse_signal_id(self, signal_id: str) -> tuple[str, str, str]:
         """Parse Signal ID into components.
 
-        Args:
-            signal_id: Signal ID in format "sv|band|code"
+        Parameters
+        ----------
+        signal_id : str
+            Signal ID in format "sv|band|code"
 
-        Returns:
+        Returns
+        -------
+        tuple of str
             Tuple of (sv, band, code)
 
         """
@@ -154,10 +174,32 @@ class SignalIDMapper:
         return parts[0], parts[1], parts[2]
 
     def get_band_frequency(self, band_name: str) -> float | None:
-        """Get central frequency for a band name in MHz."""
+        """Get central frequency for a band name in MHz.
+        
+        Parameters
+        ----------
+        band_name : str
+            Band name (e.g., "L1", "E5a")
+        
+        Returns
+        -------
+        float or None
+            Central frequency in MHz, or None if band not found
+        """
         return self.BAND_PROPERTIES.get(band_name, {}).get("freq")
 
     def is_auxiliary_observation(self, signal_id: str) -> bool:
-        """Check if signal ID represents auxiliary data (like X1)."""
+        """Check if signal ID represents auxiliary data (like X1).
+        
+        Parameters
+        ----------
+        signal_id : str
+            Signal ID to check
+        
+        Returns
+        -------
+        bool
+            True if signal ID represents auxiliary observation
+        """
         _, band, _ = self.parse_signal_id(signal_id)
         return band == "X1"

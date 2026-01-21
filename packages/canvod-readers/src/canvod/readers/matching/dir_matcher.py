@@ -57,7 +57,15 @@ class DataDirMatcher:
         root: Path,
         reference_pattern: Path = Path("01_reference/01_GNSS/01_raw"),
         canopy_pattern: Path = Path("02_canopy/01_GNSS/01_raw"),
-    ):
+    ) -> None:
+        """Initialize matcher with directory structure.
+        
+        Parameters documented in class docstring.
+        
+        Returns
+        -------
+        None
+        """
         self.root = Path(root)
         self.reference_dir = self.root / reference_pattern
         self.canopy_dir = self.root / canopy_pattern
@@ -236,7 +244,15 @@ class PairDataDirMatcher:
         receivers: dict[str, dict],
         analysis_pairs: dict[str, dict],
         receiver_subpath_template: str = "{receiver_dir}/01_GNSS/01_raw",
-    ):
+    ) -> None:
+        """Initialize pair matcher with receiver configuration.
+        
+        Parameters documented in class docstring.
+        
+        Returns
+        -------
+        None
+        """
         self.base_dir = Path(base_dir)
         self.receivers = receivers
         self.analysis_pairs = analysis_pairs

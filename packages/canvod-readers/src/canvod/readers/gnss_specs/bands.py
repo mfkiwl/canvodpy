@@ -35,7 +35,20 @@ class Bands(BaseModel):
 
     model_config = dict(arbitrary_types_allowed=True, frozen=True)
 
-    def __init__(self, aggregate_glonass_fdma: bool = True, **kwargs):
+    def __init__(self, aggregate_glonass_fdma: bool = True, **kwargs) -> None:
+        """Initialize bands registry.
+        
+        Parameters
+        ----------
+        aggregate_glonass_fdma : bool, default True
+            Whether to aggregate GLONASS FDMA channels into single bands
+        **kwargs
+            Additional keyword arguments passed to BaseModel
+        
+        Returns
+        -------
+        None
+        """
         # Combine all BAND_PROPERTIES from constellations
         combined_band_properties = {
             **BEIDOU.BAND_PROPERTIES,
@@ -72,7 +85,18 @@ class Bands(BaseModel):
     def strip_units(
         band_properties: dict[str, dict[str, Quantity | str | bool]]
     ) -> dict[str, dict[str, float | str | bool]]:
-        """Convert a BAND_PROPERTIES dict to use only magnitudes (floats)."""
+        """Convert a BAND_PROPERTIES dict to use only magnitudes (floats).
+        
+        Parameters
+        ----------
+        band_properties : dict
+            Dictionary with Quantity values for frequencies
+        
+        Returns
+        -------
+        dict
+            Dictionary with float values (magnitudes only)
+        """
         result = {}
         for band, props in band_properties.items():
             clean_props = {}
@@ -113,24 +137,31 @@ class Bands(BaseModel):
             "group_aux": ["X1"],
         }
 
-    def plot_bands(self,
-                   available_combinations=None,
-                   figsize=(16, 8),
-                   savepath: str = None,
-                   exclude_systems=None):
+    def plot_bands(
+        self,
+        available_combinations: list[str] | None = None,
+        figsize: tuple[int, int] = (16, 8),
+        savepath: str | None = None,
+        exclude_systems: list[str] | None = None
+    ) -> tuple:
         """Draw GNSS frequency plan with proper frequency ordering and x-axis break.
         Mimics the uploaded image layout exactly.
 
         Parameters
         ----------
-        available_combinations : list
+        available_combinations : list of str, optional
             List of available system-band-code combinations
-        figsize : tuple
-            Figure size (default: (16, 8)).
+        figsize : tuple of int, default (16, 8)
+            Figure size (width, height) in inches
         savepath : str, optional
-            If provided, saves the figure to this path.
-        exclude_systems : list, optional
-            List of system-band-code combinations to exclude.
+            If provided, saves the figure to this path
+        exclude_systems : list of str, optional
+            List of system-band-code combinations to exclude
+
+        Returns
+        -------
+        tuple
+            Tuple of (figure, (ax1, ax2)) containing the matplotlib figure and axes
 
         """
         import matplotlib.pyplot as plt
@@ -215,7 +246,22 @@ class Bands(BaseModel):
             ax.set_facecolor("black")
 
         # Plot function for each panel
-        def plot_panel(ax, combinations, panel_name):
+        def plot_panel(ax, combinations: list[str], panel_name: str) -> None:
+            """Plot frequency bands on a panel.
+            
+            Parameters
+            ----------
+            ax : matplotlib.axes.Axes
+                Axes to plot on
+            combinations : list of str
+                System-band combinations to plot
+            panel_name : str
+                Panel identifier ('left' or 'right')
+            
+            Returns
+            -------
+            None
+            """
             if not combinations:
                 return
 
