@@ -4,6 +4,11 @@
 # These are package defaults. Users should create config/processing.yaml
 # with their own settings by running: canvodpy config init
 
+metadata:
+  author: Unknown
+  email: user@example.com
+  institution: Unknown Institution
+
 credentials:
   cddis_mail: null  # Set this to enable NASA CDDIS (optional)
   gnss_root_dir: /path/to/gnss/data  # MUST be set by user!

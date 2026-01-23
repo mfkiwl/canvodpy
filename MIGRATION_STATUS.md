@@ -1,200 +1,140 @@
-# Migration Status: Phase 4 & 5 Complete
+# Migration Status - Configuration System
 
-## ✅ Completed Migrations
+## ✅ Completed
 
-### Phase 5: canvod-store (Icechunk Storage)
-**Location:** `/Users/work/Developer/GNSS/canvodpy/packages/canvod-store/`
+### 1. Configuration System Implementation
+- ✅ Pydantic models with validation
+- ✅ YAML-based configuration files  
+- ✅ CLI tools (canvodpy config init/validate/show/edit)
+- ✅ MetadataConfig for author/email/institution
+- ✅ StorageConfig with stores_root_dir
+- ✅ Software metadata in `canvod.utils._meta`
 
-**Migrated Files:**
-- `store.py` - Core MyIcechunkStore class with compression, chunking, sessions
-- `manager.py` - GnssResearchSite coordinator for RINEX + VOD stores
-- `viewer.py` - Rich display decorator for store visualization
-- `reader.py` - IcechunkDataReader for batch processing
-- `metadata.py` - Metadata management utilities
-- `preprocessing.py` - Dataset preprocessing (commented out, future work)
-- `grid_adapters/` - Grid storage integration (for Phase 3)
+### 2. Constants Cleanup
+- ✅ Removed user settings from `canvod/readers/gnss_specs/constants.py`
+- ✅ Kept only true constants (UREG, SPEEDOFLIGHT, FREQ_UNIT, etc.)
+- ✅ Created cleaned version with proper documentation
 
-**Dependencies:**
-- canvod-grids (workspace, for future grid integration)
-- icechunk>=1.1.5
-- zarr>=3.1.2
-- xarray>=2023.12.0
-- polars>=1.0.0
-- numpy>=1.24.0
+### 3. Preprocessing Module Updates
+- ✅ Updated `canvod-aux/preprocessing.py` to accept `aggregate_glonass_fdma` parameter
+- ✅ Updated all preprocessing functions (map_aux_sv_to_sid, pad_to_global_sid, prep_aux_ds, preprocess_aux_for_interpolation)
+- ✅ Updated `canvod-store/preprocessing.py` IcechunkPreprocessor to delegate to canvod-aux functions
+- ✅ Removed gnssvodpy.globals imports from IcechunkPreprocessor
 
-**Import Updates:**
-- `gnssvodpy.icechunk_manager.*` → `canvod.store.*`
-- `gnssvodpy.globals` → `canvodpy.globals` (shared utilities)
-- `gnssvodpy.logging` → `canvodpy.logging` (shared utilities)
-- Optional import of `canvod.vod` to avoid circular dependency
+## 🔄 Pending Migration
 
----
+### Files Still Importing from gnssvodpy.globals
 
-### Phase 4: canvod-vod (VOD Calculation)
-**Location:** `/Users/work/Developer/GNSS/canvodpy/packages/canvod-vod/`
+**packages/canvod-aux/src/canvod/aux/pipeline.py**
+- Imports: AGENCY, CLK_FILE_PATH, FTP_SERVER, PRODUCT_TYPE, SP3_FILE_PATH
+- These are used as default values in the pipeline
+- **Action needed:** Update AuxDataPipeline to accept config parameter
+  ```python
+  class AuxDataPipeline:
+      def __init__(self, matched_dirs: MatchedDirs, config: CanvodConfig):
+          self.config = config
+          # Use config.processing.aux_data.agency instead of AGENCY
+          # etc.
+  ```
 
-**Migrated Files:**
-- `calculator.py` (from `vod_new.py`) - Abstract VODCalculator + TauOmegaZerothOrder implementation
+### Migration Strategy for Remaining Files
 
-**Key Classes:**
-- `VODCalculator` - Abstract base class with Pydantic validation
-- `TauOmegaZerothOrder` - Zeroth-order Tau-Omega approximation
-- `.from_datasets()` - Calculate VOD from canopy/sky xarray datasets
-- `.from_icechunkstore()` - Optional convenience method (requires canvod-store)
+1. **Update function signatures to accept config:**
+   ```python
+   # Before
+   def some_function():
+       from gnssvodpy.globals import SETTING
+       use_setting(SETTING)
+   
+   # After
+   def some_function(config: CanvodConfig):
+       use_setting(config.processing.setting_name)
+   ```
 
-**Dependencies:**
-- numpy>=1.24.0
-- xarray>=2023.12.0
-- pydantic>=2.0.0
-- Optional: canvod-store (for `.from_icechunkstore()`)
+2. **Load config at entry points:**
+   ```python
+   from canvod.utils.config import load_config
+   
+   config = load_config()
+   pipeline = AuxDataPipeline(matched_dirs, config)
+   ```
 
-**Circular Dependency Resolution:**
-- `canvod-vod` does NOT import `canvod-store` at module level
-- `from_icechunkstore()` uses try/except for optional import
-- `canvod-store.GnssResearchSite.calculate_vod()` uses optional import
-- Both packages can be installed independently
+3. **For backward compatibility, make config optional:**
+   ```python
+   def some_function(config: CanvodConfig | None = None):
+       if config is None:
+           config = load_config()
+       # use config...
+   ```
 
----
+## 📋 Migration Checklist
 
-### Umbrella Package: canvodpy
-**Shared Utilities Moved:**
-- `canvodpy/globals.py` - Global configuration constants
-- `canvodpy/settings.py` - Settings management
-- `canvodpy/research_sites_config.py` - Site configuration
-- `canvodpy/logging/` - Logging infrastructure (structlog-based)
-- `canvodpy/utils/` - Common utilities (tools, date_time)
+### Configuration Values Moved
 
-**New Dependencies Added:**
-- tomli>=2.0.0 (for pyproject.toml parsing)
-- python-dotenv>=1.0.0 (for .env file loading)
-
----
-
-## 🔧 Required Action: Install Dependencies
-
-The workspace dependencies have been updated but need to be installed:
-
-```bash
-cd /Users/work/Developer/GNSS/canvodpy
-uv sync
-```
-
-This will install:
-- All workspace packages (canvod-readers, canvod-aux, canvod-store, canvod-vod)
-- New shared dependencies (tomli, python-dotenv)
-- All package-specific dependencies
-
----
-
-## 🧪 Testing Plan
-
-### 1. Basic Import Tests
-```bash
-cd /Users/work/Developer/GNSS/canvodpy
-
-# Test canvod-vod
-.venv/bin/python -c "from canvod.vod import VODCalculator, TauOmegaZerothOrder; print('✓ canvod-vod')"
-
-# Test canvod-store
-.venv/bin/python -c "from canvod.store import MyIcechunkStore, GnssResearchSite; print('✓ canvod-store')"
-
-# Test umbrella
-.venv/bin/python -c "import canvodpy.globals; import canvodpy.logging; print('✓ canvodpy')"
-```
-
-### 2. Package Test Suites
-```bash
-# Test canvod-vod
-cd packages/canvod-vod
-just test
-
-# Test canvod-store
-cd ../canvod-store
-just test
-```
-
-### 3. Integration Test: Full Pipeline
-Test the complete workflow:
-1. Read RINEX data (canvod-readers)
-2. Augment with auxiliary data (canvod-aux)
-3. Store in RINEX store (canvod-store)
-4. Calculate VOD (canvod-vod)
-5. Store VOD results (canvod-store)
-
-Compare results with original gnssvodpy implementation.
-
----
-
-## 📦 Package Architecture
-
-```
-canvodpy/
-├── canvodpy/                    # Umbrella package
-│   ├── globals.py               # Shared configuration
-│   ├── settings.py              # Settings management
-│   ├── research_sites_config.py # Site definitions
-│   ├── logging/                 # Logging infrastructure
-│   └── utils/                   # Common utilities
-│
-├── packages/
-│   ├── canvod-readers/          # Phase 1 ✅
-│   ├── canvod-aux/              # Phase 2 ✅
-│   ├── canvod-store/            # Phase 5 ✅ (just completed)
-│   ├── canvod-vod/              # Phase 4 ✅ (just completed)
-│   ├── canvod-grids/            # Phase 3 ⏳ (skeleton only)
-│   └── canvod-viz/              # Phase 6 ⏳ (skeleton only)
-```
-
-**Dependency Graph:**
-```
-canvodpy (umbrella)
-├── canvod-readers (standalone)
-├── canvod-aux (→ readers)
-├── canvod-store (optional: → vod)
-└── canvod-vod (optional: → store)
-```
-
----
+| Old Location (gnssvodpy.globals) | New Location (config) | Status |
+|----------------------------------|----------------------|--------|
+| `AUTHOR` | `metadata.author` | ✅ Done |
+| `EMAIL` | `metadata.email` | ✅ Done |
+| `INSTITUTION` | `metadata.institution` | ✅ Done |
+| `DEPARTMENT` | `metadata.department` | ✅ Done |
+| `RESEARCH_GROUP` | `metadata.research_group` | ✅ Done |
+| `WEBSITE` | `metadata.website` | ✅ Done |
+| `SOFTWARE` | `canvod.utils._meta.SOFTWARE_ATTRS` | ✅ Done |
+| `KEEP_RNX_VARS` | `processing.keep_rnx_vars` | ✅ Done |
+| `COMPRESSION` | `compression.{zlib, complevel}` | ✅ Done |
+| `TIME_AGGR` | `processing.time_aggregation_seconds` | ✅ Done |
+| `AGGREGATE_GLONASS_FDMA` | `processing.aggregate_glonass_fdma` | ✅ Done |
+| `AGENCY` | `aux_data.agency` | ⚠️  Pending (pipeline.py) |
+| `PRODUCT_TYPE` | `aux_data.product_type` | ⚠️  Pending (pipeline.py) |
+| `FTP_SERVER` | Auto-detected from `cddis_mail` | ⚠️  Pending (pipeline.py) |
+| `CLK_FILE_PATH` | ? | ⚠️  Pending (needs investigation) |
+| `SP3_FILE_PATH` | ? | ⚠️  Pending (needs investigation) |
+| `GNSS_ROOT_DIR` | `credentials.gnss_root_dir` | ✅ Done |
+| `CDDIS_MAIL` | `credentials.cddis_mail` | ✅ Done |
+| `KEEP_SIDS` | `sids.get_sids()` | ✅ Done |
 
 ## 🎯 Next Steps
 
-### Immediate (After uv sync)
-1. Run tests to verify imports work
-2. Fix any remaining import issues
-3. Test basic store operations (create, read, write)
-4. Test VOD calculation with sample data
+### Immediate (Required for Clean Migration)
+1. Update `canvod-aux/pipeline.py` to use config instead of gnssvodpy.globals
+2. Search for and update any remaining gnssvodpy.globals imports in the monorepo
+3. Test that all preprocessing functions work with config parameters
 
-### Short Term
-1. Migrate canvod-grids (Phase 3)
-2. Test full pipeline with real data
-3. Compare outputs with gnssvodpy
-4. Refactor: Consider moving `GnssResearchSite.calculate_vod()` to canvod-vod
+### Future (When Ready to Remove gnssvodpy Dependency)
+1. Update all entry points to load config and pass it through
+2. Remove gnssvodpy from dependencies entirely
+3. Ensure all tests pass with new config system
 
-### Long Term
-1. Complete documentation (MyST markdown)
-2. Add integration tests
-3. Create example notebooks
-4. Performance optimization
+## 🧪 Testing
 
----
+```bash
+# Verify config system works
+canvodpy config validate
+
+# Test preprocessing with config
+python -c "
+from canvod.utils.config import load_config
+from canvod.aux.preprocessing import prep_aux_ds
+
+config = load_config()
+aggregate = config.processing.processing.aggregate_glonass_fdma
+print(f'GLONASS FDMA aggregation: {aggregate}')
+"
+
+# Test metadata
+python -c "
+from canvod.utils.config import load_config
+from canvod.utils._meta import SOFTWARE_ATTRS
+
+config = load_config()
+print('Metadata:', config.processing.metadata.to_attrs_dict())
+print('Software:', SOFTWARE_ATTRS)
+"
+```
 
 ## 📝 Notes
 
-### Circular Dependency Resolution
-The original gnssvodpy had a circular dependency:
-- `icechunk_manager.store` imported from `vod.vod_new`
-- `vod.vod_new` imported from `icechunk_manager.store`
-
-**Solution:**
-- Both packages use optional imports with try/except
-- `VODCalculator.from_icechunkstore()` → optional `canvod.store` import
-- `GnssResearchSite.calculate_vod()` → optional `canvod.vod` import
-- Allows independent installation and testing
-
-### Shared Utilities Strategy
-Rather than duplicating code, shared utilities live in the umbrella package:
-- Configuration (globals, settings, site config)
-- Logging infrastructure
-- Common utilities (date/time, file operations)
-
-This follows Python best practices for monorepo organization.
+- All preprocessing functions now accept `aggregate_glonass_fdma` parameter with default=True
+- IcechunkPreprocessor delegates to canvod-aux functions (no duplicate code)
+- Configuration is backward compatible (defaults match old constants)
+- Software version is centralized in `canvod.utils._meta.__version__`

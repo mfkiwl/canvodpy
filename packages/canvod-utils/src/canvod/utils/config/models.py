@@ -19,6 +19,32 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 # ============================================================================
 
 
+class MetadataConfig(BaseModel):
+    """Metadata to be written to processed files."""
+
+    author: str = Field(..., description="Author name")
+    email: EmailStr = Field(..., description="Author email")
+    institution: str = Field(..., description="Institution name")
+    department: Optional[str] = Field(None, description="Department name")
+    research_group: Optional[str] = Field(None, description="Research group name")
+    website: Optional[str] = Field(None, description="Institution/group website")
+
+    def to_attrs_dict(self) -> dict[str, str]:
+        """Convert to dictionary for xarray attributes."""
+        attrs = {
+            "author": self.author,
+            "email": self.email,
+            "institution": self.institution,
+        }
+        if self.department:
+            attrs["department"] = self.department
+        if self.research_group:
+            attrs["research_group"] = self.research_group
+        if self.website:
+            attrs["website"] = self.website
+        return attrs
+
+
 class CredentialsConfig(BaseModel):
     """Credentials and paths."""
 
@@ -34,9 +60,16 @@ class CredentialsConfig(BaseModel):
     @field_validator("gnss_root_dir")
     @classmethod
     def validate_root_dir_exists(cls, v: Path) -> Path:
-        """Ensure root directory exists."""
+        """Validate GNSS root directory."""
+        # Only validate if it looks like a real path (not a placeholder)
+        path_str = str(v)
+        if path_str.startswith("/path/"):
+            # This is a placeholder path from defaults - skip validation
+            return v
+        
+        # For real paths, check it exists
         if not v.exists():
-            msg = f"GNSS root directory does not exist: {v}"
+            msg = f"GNSS root directory does not exist: {v}. Please create it or update the path."
             raise ValueError(msg)
         return v
 
@@ -144,8 +177,25 @@ class StorageConfig(BaseModel):
     @field_validator("stores_root_dir")
     @classmethod
     def validate_stores_dir(cls, v: Path) -> Path:
-        """Create stores directory if it doesn't exist."""
-        v.mkdir(parents=True, exist_ok=True)
+        """Validate stores directory path."""
+        # Only validate if it looks like a real path (not a placeholder)
+        path_str = str(v)
+        if path_str.startswith("/path/"):
+            # This is a placeholder path from defaults - skip validation
+            return v
+        
+        # For real paths, create if it doesn't exist
+        if not v.exists():
+            try:
+                v.mkdir(parents=True, exist_ok=True)
+            except (OSError, PermissionError) as e:
+                # Warn but don't fail - let user create it manually
+                import warnings
+                warnings.warn(
+                    f"Could not create stores directory {v}: {e}. "
+                    "Please create it manually.",
+                    UserWarning,
+                )
         return v
 
     def get_rinex_store_path(self, site_name: str) -> Path:
@@ -160,6 +210,7 @@ class StorageConfig(BaseModel):
 class ProcessingConfig(BaseModel):
     """Complete processing configuration."""
 
+    metadata: MetadataConfig
     credentials: CredentialsConfig
     aux_data: AuxDataConfig = Field(default_factory=AuxDataConfig)
     processing: ProcessingParams = Field(default_factory=ProcessingParams)

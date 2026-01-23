@@ -15,11 +15,19 @@ Example:
 """
 
 from .loader import load_config
-from .models import CanvodConfig, ProcessingConfig, SiteConfig, SitesConfig, SidsConfig
+from .models import (
+    CanvodConfig,
+    MetadataConfig,
+    ProcessingConfig,
+    SiteConfig,
+    SitesConfig,
+    SidsConfig,
+)
 
 __all__ = [
     "load_config",
     "CanvodConfig",
+    "MetadataConfig",
     "ProcessingConfig",
     "SiteConfig",
     "SitesConfig",

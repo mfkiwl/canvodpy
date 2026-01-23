@@ -13,16 +13,33 @@ site:
     folders: true
 
 project:
-  title: canvod-grids
+  title: canvod-store
+  subtitle: IceChunk Storage Management for GNSS VOD Data
   authors:
     - name: Nicolas Bader
+      email: nicolas.bader@geo.tuwien.ac.at
+      affiliation: TU Wien, Department of Geodesy and Geoinformation
   github: https://github.com/nfb2021/canvodpy
   open_access: true
+  license: Apache-2.0
+  
   toc:
     - file: README.md
-    - title: "API"
+      title: Package Overview
+    
+    - title: Documentation
       children:
-        - file: docs/index.ipynb
+        - file: docs/source/index.md
+          title: Documentation Home
+        - file: docs/source/overview.md
+          title: Overview
+        - file: docs/source/storage_strategies.md
+          title: Storage Strategies
+        - file: docs/source/icechunk.md
+          title: IceChunk Integration
+        - file: docs/source/api_reference.md
+          title: API Reference
+  
   error_rules:
     - rule: image-downloads
       severity: ignore

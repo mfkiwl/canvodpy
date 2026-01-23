@@ -5,6 +5,18 @@
 # Run: canvodpy config init
 
 # =============================================================================
+# Metadata (Written to Processed Files)
+# =============================================================================
+
+metadata:
+  author: Your Name
+  email: your.email@example.com
+  institution: Your Institution
+  department: Your Department  # Optional
+  research_group: Your Research Group  # Optional
+  website: https://your-institution.edu  # Optional
+
+# =============================================================================
 # Credentials & Paths
 # =============================================================================
 

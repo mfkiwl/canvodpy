@@ -11,7 +11,6 @@ from typing import Any
 
 import numpy as np
 import xarray as xr
-from canvod.readers.gnss_specs.constants import AGGREGATE_GLONASS_FDMA
 from canvod.readers.gnss_specs.constellations import (
     BEIDOU,
     GALILEO,
@@ -24,7 +23,9 @@ from canvod.readers.gnss_specs.constellations import (
 from canvod.readers.gnss_specs.signals import SignalIDMapper
 
 
-def create_sv_to_sid_mapping(svs: list[str]) -> dict[str, list[str]]:
+def create_sv_to_sid_mapping(
+    svs: list[str], aggregate_glonass_fdma: bool = True
+) -> dict[str, list[str]]:
     """
     Build mapping from each sv to its possible SIDs.
     Adds `X1|X` placeholder SIDs as well.
@@ -33,17 +34,19 @@ def create_sv_to_sid_mapping(svs: list[str]) -> dict[str, list[str]]:
     ----------
     svs : list[str]
         List of space vehicles (e.g., ["G01", "E02"])
+    aggregate_glonass_fdma : bool, default True
+        Whether to aggregate GLONASS FDMA bands
 
     Returns
     -------
     dict[str, list[str]]
         Mapping from sv → list of SIDs
     """
-    mapper = SignalIDMapper(aggregate_glonass_fdma=AGGREGATE_GLONASS_FDMA)
+    mapper = SignalIDMapper(aggregate_glonass_fdma=aggregate_glonass_fdma)
     systems = {
         "G": GPS(),
         "E": GALILEO(),
-        "R": GLONASS(aggregate_fdma=AGGREGATE_GLONASS_FDMA),
+        "R": GLONASS(aggregate_fdma=aggregate_glonass_fdma),
         "C": BEIDOU(),
         "I": IRNSS(),
         "S": SBAS(),
@@ -69,8 +72,11 @@ def create_sv_to_sid_mapping(svs: list[str]) -> dict[str, list[str]]:
     return sv_to_sids
 
 
-def map_aux_sv_to_sid(aux_ds: xr.Dataset,
-                      fill_value: float = np.nan) -> xr.Dataset:
+def map_aux_sv_to_sid(
+    aux_ds: xr.Dataset,
+    fill_value: float = np.nan,
+    aggregate_glonass_fdma: bool = True,
+) -> xr.Dataset:
     """
     Transform auxiliary dataset from sv → sid dimension.
 
@@ -83,6 +89,8 @@ def map_aux_sv_to_sid(aux_ds: xr.Dataset,
         Dataset with 'sv' dimension
     fill_value : float, default np.nan
         Fill value for missing entries
+    aggregate_glonass_fdma : bool, default True
+        Whether to aggregate GLONASS FDMA bands
 
     Returns
     -------
@@ -90,7 +98,7 @@ def map_aux_sv_to_sid(aux_ds: xr.Dataset,
         Dataset with 'sid' dimension replacing 'sv'
     """
     svs = aux_ds["sv"].values.tolist()
-    sv_to_sids = create_sv_to_sid_mapping(svs)
+    sv_to_sids = create_sv_to_sid_mapping(svs, aggregate_glonass_fdma)
     all_sids = sorted({sid for sv in svs for sid in sv_to_sids.get(sv, [])})
 
     new_data_vars = {}
@@ -136,8 +144,11 @@ def map_aux_sv_to_sid(aux_ds: xr.Dataset,
                       attrs=aux_ds.attrs.copy())
 
 
-def pad_to_global_sid(ds: xr.Dataset,
-                      keep_sids: list[str] | None = None) -> xr.Dataset:
+def pad_to_global_sid(
+    ds: xr.Dataset,
+    keep_sids: list[str] | None = None,
+    aggregate_glonass_fdma: bool = True,
+) -> xr.Dataset:
     """
     Pad dataset so it has all possible SIDs across all constellations.
     Ensures consistent sid dimension for appending to Icechunk.
@@ -148,17 +159,19 @@ def pad_to_global_sid(ds: xr.Dataset,
         Dataset with 'sid' dimension
     keep_sids : list[str] | None
         Optional list of specific SIDs to keep. If None, keeps all.
+    aggregate_glonass_fdma : bool, default True
+        Whether to aggregate GLONASS FDMA bands
 
     Returns
     -------
     xr.Dataset
         Dataset padded with NaN for missing SIDs
     """
-    mapper = SignalIDMapper(aggregate_glonass_fdma=AGGREGATE_GLONASS_FDMA)
+    mapper = SignalIDMapper(aggregate_glonass_fdma=aggregate_glonass_fdma)
     systems = {
         "G": GPS(),
         "E": GALILEO(),
-        "R": GLONASS(aggregate_fdma=AGGREGATE_GLONASS_FDMA),
+        "R": GLONASS(aggregate_fdma=aggregate_glonass_fdma),
         "C": BEIDOU(),
         "I": IRNSS(),
         "S": SBAS(),
@@ -259,7 +272,11 @@ def add_future_datavars(ds: xr.Dataset,
     return ds
 
 
-def prep_aux_ds(aux_ds: xr.Dataset, fill_value: float = np.nan) -> xr.Dataset:
+def prep_aux_ds(
+    aux_ds: xr.Dataset,
+    fill_value: float = np.nan,
+    aggregate_glonass_fdma: bool = True,
+) -> xr.Dataset:
     """
     Preprocess auxiliary dataset before writing to Icechunk.
 
@@ -277,23 +294,27 @@ def prep_aux_ds(aux_ds: xr.Dataset, fill_value: float = np.nan) -> xr.Dataset:
         Dataset with 'sv' dimension
     fill_value : float, default np.nan
         Fill value for missing entries
+    aggregate_glonass_fdma : bool, default True
+        Whether to aggregate GLONASS FDMA bands
 
     Returns
     -------
     xr.Dataset
         Fully preprocessed dataset ready for Icechunk or interpolation
     """
-    ds = map_aux_sv_to_sid(aux_ds, fill_value)
-    ds = pad_to_global_sid(ds)
+    ds = map_aux_sv_to_sid(aux_ds, fill_value, aggregate_glonass_fdma)
+    ds = pad_to_global_sid(ds, aggregate_glonass_fdma=aggregate_glonass_fdma)
     ds = normalize_sid_dtype(ds)
     ds = strip_fillvalue(ds)
     return ds
 
 
 def preprocess_aux_for_interpolation(
-        aux_ds: xr.Dataset,
-        fill_value: float = np.nan,
-        full_preprocessing: bool = False) -> xr.Dataset:
+    aux_ds: xr.Dataset,
+    fill_value: float = np.nan,
+    full_preprocessing: bool = False,
+    aggregate_glonass_fdma: bool = True,
+) -> xr.Dataset:
     """
     Preprocess auxiliary dataset before interpolation.
 
@@ -309,6 +330,8 @@ def preprocess_aux_for_interpolation(
     full_preprocessing : bool, default False
         If True, applies full 4-step preprocessing (pad_to_global_sid, normalize_sid_dtype, strip_fillvalue).
         If False, only converts sv → sid (sufficient for interpolation).
+    aggregate_glonass_fdma : bool, default True
+        Whether to aggregate GLONASS FDMA bands
 
     Returns
     -------
@@ -347,6 +370,6 @@ def preprocess_aux_for_interpolation(
     >>> sp3_interp = interpolator.interpolate(sp3_preprocessed, target_epochs)
     """
     if full_preprocessing:
-        return prep_aux_ds(aux_ds, fill_value)
+        return prep_aux_ds(aux_ds, fill_value, aggregate_glonass_fdma)
     else:
-        return map_aux_sv_to_sid(aux_ds, fill_value)
+        return map_aux_sv_to_sid(aux_ds, fill_value, aggregate_glonass_fdma)

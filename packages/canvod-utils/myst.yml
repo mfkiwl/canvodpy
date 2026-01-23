@@ -13,16 +13,33 @@ site:
     folders: true
 
 project:
-  title: canvod-grids
+  title: canvod-utils
+  subtitle: Configuration and Utilities for canVODpy
   authors:
     - name: Nicolas Bader
+      email: nicolas.bader@geo.tuwien.ac.at
+      affiliation: TU Wien, Department of Geodesy and Geoinformation
   github: https://github.com/nfb2021/canvodpy
   open_access: true
+  license: Apache-2.0
+  
   toc:
     - file: README.md
-    - title: "API"
+      title: Package Overview
+    
+    - title: Documentation
       children:
-        - file: docs/index.ipynb
+        - file: docs/source/index.md
+          title: Documentation Home
+        - file: docs/source/configuration.md
+          title: Configuration System
+        - file: docs/source/cli.md
+          title: CLI Tools
+        - file: docs/source/metadata.md
+          title: Metadata Management
+        - file: docs/source/api_reference.md
+          title: API Reference
+  
   error_rules:
     - rule: image-downloads
       severity: ignore
