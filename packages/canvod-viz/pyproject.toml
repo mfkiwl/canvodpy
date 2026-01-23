@@ -16,7 +16,15 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
 ]
-dependencies = []
+dependencies = [
+    "matplotlib>=3.8.0",
+    "plotly>=5.18.0",
+    "numpy>=1.26.0",
+    "canvod-grids>=0.1.0",
+]
+
+[tool.uv.sources]
+canvod-grids = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.9.17,<0.10.0"]

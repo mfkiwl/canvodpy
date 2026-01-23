@@ -560,7 +560,13 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
     @property
     def header(self) -> Rnxv3Header:
-        """Expose validated header (read-only)."""
+        """Expose validated header (read-only).
+        
+        Returns
+        -------
+        Rnxv3Header
+            Parsed and validated RINEX header
+        """
         return self._header
 
     def __str__(self) -> str:
@@ -587,17 +593,35 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
     @property
     def file_hash(self) -> str:
-        """Return cached SHA256 short hash of the file content."""
+        """Return cached SHA256 short hash of the file content.
+        
+        Returns
+        -------
+        str
+            16-character short hash for deduplication
+        """
         return self._file_hash
 
     @property
     def start_time(self) -> datetime:
-        """Return start time of observations from header."""
+        """Return start time of observations from header.
+        
+        Returns
+        -------
+        datetime
+            First observation timestamp
+        """
         return min(self.header.t0.values())
 
     @property
     def end_time(self) -> datetime:
-        """Return end time of observations from last epoch."""
+        """Return end time of observations from last epoch.
+        
+        Returns
+        -------
+        datetime
+            Last observation timestamp
+        """
         last_epoch = None
         for epoch in self.iter_epochs():
             last_epoch = epoch
@@ -607,19 +631,37 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
     @property
     def systems(self) -> list[str]:
-        """Return list of GNSS systems in file."""
+        """Return list of GNSS systems in file.
+        
+        Returns
+        -------
+        list of str
+            System identifiers (G, R, E, C, J, S, I)
+        """
         if self.header.systems == "M":
             return list(self.header.obs_codes_per_system.keys())
         return [self.header.systems]
 
     @property
     def num_epochs(self) -> int:
-        """Return number of epochs in file."""
+        """Return number of epochs in file.
+        
+        Returns
+        -------
+        int
+            Total epoch count
+        """
         return len(list(self.get_epoch_record_batches()))
 
     @property
     def num_satellites(self) -> int:
-        """Return total number of unique satellites observed."""
+        """Return total number of unique satellites observed.
+        
+        Returns
+        -------
+        int
+            Count of unique satellite vehicles across all systems
+        """
         satellites = set()
         for epoch in self.iter_epochs():
             for sat in epoch.data:
@@ -630,7 +672,18 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         self,
         epoch_record_indicator: str = EPOCH_RECORD_INDICATOR
     ) -> list[tuple[int, int]]:
-        """Get the start and end line numbers for each epoch in the file."""
+        """Get the start and end line numbers for each epoch in the file.
+        
+        Parameters
+        ----------
+        epoch_record_indicator : str, default '>'
+            Character marking epoch record lines
+        
+        Returns
+        -------
+        list of tuple of int
+            List of (start_line, end_line) pairs for each epoch
+        """
         starts = [
             i for i, line in enumerate(self._load_file())
             if line.startswith(epoch_record_indicator)
@@ -775,11 +828,28 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
     @property
     def epochs(self) -> list[Rnxv3ObsEpochRecord]:
-        """Materialize all epochs (legacy compatibility)."""
+        """Materialize all epochs (legacy compatibility).
+        
+        Returns
+        -------
+        list of Rnxv3ObsEpochRecord
+            All epochs in memory (use iter_epochs for efficiency)
+        """
         return list(self.iter_epochs())
 
     def iter_epochs(self) -> Iterable[Rnxv3ObsEpochRecord]:
-        """Yield epochs one by one instead of materializing the whole list."""
+        """Yield epochs one by one instead of materializing the whole list.
+        
+        Returns
+        -------
+        Generator
+            Generator yielding Rnxv3ObsEpochRecord objects
+        
+        Yields
+        ------
+        Rnxv3ObsEpochRecord
+            Each epoch with timestamp and satellite observations
+        """
         for start, end in self.get_epoch_record_batches():
             try:
                 info = Rnxv3ObsEpochRecordLineModel(epoch=self._lines[start])
@@ -796,7 +866,25 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
     def iter_epochs_in_range(self, start: datetime,
                              end: datetime) -> Iterable[Rnxv3ObsEpochRecord]:
-        """Yield epochs lazily that fall into the given datetime range."""
+        """Yield epochs lazily that fall into the given datetime range.
+        
+        Parameters
+        ----------
+        start : datetime
+            Start of time range (inclusive)
+        end : datetime
+            End of time range (inclusive)
+        
+        Returns
+        -------
+        Generator
+            Generator yielding epochs in the specified range
+        
+        Yields
+        ------
+        Rnxv3ObsEpochRecord
+            Epochs within the time range
+        """
         for epoch in self.iter_epochs():
             dt = self.get_datetime_from_epoch_record_info(epoch.info)
             if start <= dt <= end:
@@ -804,7 +892,18 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
     def get_datetime_from_epoch_record_info(
             self, epoch_record_info: Rnxv3ObsEpochRecordLineModel) -> datetime:
-        """Convert epoch record info to datetime object."""
+        """Convert epoch record info to datetime object.
+        
+        Parameters
+        ----------
+        epoch_record_info : Rnxv3ObsEpochRecordLineModel
+            Parsed epoch record line
+        
+        Returns
+        -------
+        datetime
+            Timestamp from epoch record
+        """
         return datetime(
             year=int(epoch_record_info.year),
             month=int(epoch_record_info.month),
@@ -817,7 +916,18 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     @staticmethod
     def epochrecordinfo_dt_to_numpy_dt(
             epch: Rnxv3ObsEpochRecord) -> np.datetime64:
-        """Convert Python datetime to numpy datetime64[ns]."""
+        """Convert Python datetime to numpy datetime64[ns].
+        
+        Parameters
+        ----------
+        epch : Rnxv3ObsEpochRecord
+            Epoch record containing timestamp info
+        
+        Returns
+        -------
+        np.datetime64
+            Numpy datetime64 with nanosecond precision
+        """
         dt = datetime(year=int(epch.info.year),
                       month=int(epch.info.month),
                       day=int(epch.info.day),
@@ -845,7 +955,11 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
     def infer_sampling_interval(self) -> pint.Quantity | None:
         """Infer sampling interval from consecutive epoch deltas.
-        Returns a pint quantity in seconds, or None if it can't be inferred.
+        
+        Returns
+        -------
+        pint.Quantity or None
+            Sampling interval in seconds, or None if cannot be inferred
         """
         dts = self._epoch_datetimes()
         if len(dts) < 2:
@@ -868,9 +982,17 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         self,
         sampling_interval: pint.Quantity | None = None
     ) -> pint.Quantity | None:
-        """Infer the intended 'dump interval' for the RINEX file.
-        If sampling_interval is provided, returns (#epochs * sampling_interval).
-        Otherwise, tries to derive from time coverage + last step.
+        """Infer the intended dump interval for the RINEX file.
+        
+        Parameters
+        ----------
+        sampling_interval : pint.Quantity, optional
+            Known sampling interval. If provided, returns (#epochs * sampling_interval)
+        
+        Returns
+        -------
+        pint.Quantity or None
+            Dump interval in seconds, or None if cannot be inferred
         """
         idx = self.get_epoch_record_batches()
         n_epochs = len(idx)
@@ -902,12 +1024,25 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         dump_interval: str | pint.Quantity | None = None,
         sampling_interval: str | pint.Quantity | None = None,
     ) -> None:
-        """Validate that the number of epochs matches the expected dump interval
-        and that the sampling interval is one of the allowed values.
-
-        - If sampling_interval is None, it is inferred from the data.
-        - If dump_interval is None, it is computed as (#epochs * sampling_interval).
-        Raises MissingEpochError (or ValueError) when validation fails.
+        """Validate that the number of epochs matches the expected dump interval.
+        
+        Parameters
+        ----------
+        dump_interval : str or pint.Quantity, optional
+            Expected file dump interval. If None, inferred from epochs.
+        sampling_interval : str or pint.Quantity, optional
+            Expected sampling interval. If None, inferred from epochs.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        MissingEpochError
+            If total sampling time doesn't match dump interval
+        ValueError
+            If intervals cannot be inferred
         """
         # Normalize/Infer sampling interval
         if sampling_interval is None:
@@ -1224,6 +1359,28 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         strip_fillval: bool = True,
         add_future_datavars: bool = True,
     ) -> xr.Dataset:
+        """Convert RINEX observations to xarray.Dataset with signal ID structure.
+        
+        Parameters
+        ----------
+        outname : Path or str, optional
+            If provided, saves dataset to this file path
+        keep_rnx_data_vars : list of str, default KEEP_RNX_VARS
+            Data variables to include in dataset
+        write_global_attrs : bool, default False
+            If True, adds comprehensive global attributes
+        pad_global_sid : bool, default True
+            If True, pads to global signal ID space
+        strip_fillval : bool, default True
+            If True, removes fill values
+        add_future_datavars : bool, default True
+            If True, adds placeholder variables for future data
+        
+        Returns
+        -------
+        xr.Dataset
+            Dataset with dimensions (epoch, sid) and requested data variables
+        """
         ds = self.create_rinex_netcdf_with_signal_id()
 
         # drop unwanted vars

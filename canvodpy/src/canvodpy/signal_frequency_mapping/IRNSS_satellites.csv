@@ -1,0 +1,4 @@
+Satellite,SVN,PRN,Int. Sat. ID,NORAD ID,Launch Date,Launch Vehicle,Orbit,Status,Remarks
+IRNSS-1B,I002,I02,2014-017A,39635.0,4 April 2014,PSLV-XL-C24,"Geosynchronous (IGSO) / 55°E, 29° inclined orbit",Operational,
+IRNSS-1F,I006,I06,2016-015A,41384.0,10 March 2016,PSLV-XL-C32,"Geostationary (GEO) / 32.5°E, 5° inclined orbit",Operational,
+IRNSS-1I,I009,I09,2018-035A,43286.0,12 April 2018,PSLV-XL-C41,"Geosynchronous (IGSO) / 55°E, 29° inclined orbit",Operational,[41]

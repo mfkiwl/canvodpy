@@ -1,0 +1,14 @@
+# ============================================================================
+# Default SIDs Configuration
+# ============================================================================
+# Package default: keep all SIDs
+
+mode: all
+
+# When mode: preset
+# preset: gps_galileo
+
+# When mode: custom
+# custom_sids:
+#   - G01|L1|C
+#   - G01|L2|W

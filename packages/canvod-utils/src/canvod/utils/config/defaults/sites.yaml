@@ -1,0 +1,7 @@
+# ============================================================================
+# Default Sites Configuration
+# ============================================================================
+# This is a package default - users MUST create their own config/sites.yaml
+# Run: canvodpy config init
+
+sites: {}

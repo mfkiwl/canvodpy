@@ -1,0 +1,88 @@
+# =============================================================================
+# Processing Configuration Template
+# =============================================================================
+# Copy this file to config/processing.yaml and customize for your setup
+# Run: canvodpy config init
+
+# =============================================================================
+# Credentials & Paths
+# =============================================================================
+
+credentials:
+  # NASA CDDIS authentication (optional)
+  # If set: Tries NASA first, falls back to ESA
+  # If not set: Uses ESA only (no authentication needed)
+  # Register at: https://urs.earthdata.nasa.gov/users/new
+  cddis_mail: your.email@example.com  # or null to disable
+  
+  # Root directory for all GNSS data
+  gnss_root_dir: /path/to/your/gnss/data
+
+# =============================================================================
+# Auxiliary Data
+# =============================================================================
+
+aux_data:
+  agency: COD              # Analysis center: COD, GFZ, IGS, ESA, etc.
+  product_type: final      # final, rapid, ultra-rapid
+  
+  # FTP server selection:
+  # - If cddis_mail is set: NASA primary, ESA fallback
+  # - If cddis_mail is null: ESA only
+  # ESA server: ftp://gssc.esa.int/gnss (no auth, always available)
+  # NASA server: ftp://gdc.cddis.eosdis.nasa.gov (requires cddis_mail)
+
+# =============================================================================
+# Processing Parameters
+# =============================================================================
+
+processing:
+  time_aggregation_seconds: 15
+  n_max_threads: 20
+  keep_rnx_vars:
+    - SNR
+  
+  # GLONASS FDMA band aggregation
+  # true: Treat all GLONASS FDMA bands as one band
+  # false: Treat each GLONASS FDMA band individually
+  aggregate_glonass_fdma: true
+
+# =============================================================================
+# Compression
+# =============================================================================
+
+compression:
+  zlib: true
+  complevel: 5
+
+# =============================================================================
+# Icechunk Storage
+# =============================================================================
+
+icechunk:
+  compression_level: 5
+  compression_algorithm: zstd  # zstd, lz4, gzip
+  inline_threshold: 512
+  get_concurrency: 1
+  
+  chunk_strategies:
+    rinex_store:
+      epoch: 34560  # 2 days of 5s data
+      sid: -1       # Don't chunk along sid
+    vod_store:
+      epoch: 34560
+      sid: -1
+
+# =============================================================================
+# Storage Strategies
+# =============================================================================
+
+storage:
+  # Root directory for all IceChunk stores
+  # Stores will be organized as: {stores_root_dir}/{site_name}/rinex/
+  #                              {stores_root_dir}/{site_name}/vod/
+  stores_root_dir: /path/to/your/gnss/stores
+  
+  rinex_store_strategy: skip      # skip, overwrite, append
+  rinex_store_expire_days: 2
+  vod_store_strategy: overwrite

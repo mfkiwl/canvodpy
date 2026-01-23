@@ -1,1 +1,52 @@
-"""Visualization and plotting utilities."""
+"""Visualization and plotting utilities for GNSS VOD data.
+
+This package provides 2D and 3D visualization capabilities for hemispherical
+GNSS grids and VOD data, with both publication-quality (matplotlib) and
+interactive (plotly) rendering options.
+
+Examples
+--------
+2D polar visualization::
+
+    from canvod.viz import HemisphereVisualizer2D
+    from canvod.grids import create_hemigrid
+    
+    grid = create_hemigrid(grid_type='equal_area', angular_resolution=10.0)
+    viz = HemisphereVisualizer2D(grid)
+    fig, ax = viz.plot_grid_patches(data=vod_data, title="VOD Distribution")
+
+3D interactive visualization::
+
+    from canvod.viz import HemisphereVisualizer3D
+    
+    viz3d = HemisphereVisualizer3D(grid)
+    fig = viz3d.plot_hemisphere_surface(data=vod_data, title="Interactive VOD")
+    fig.show()
+
+Unified API::
+
+    from canvod.viz import HemisphereVisualizer
+    
+    viz = HemisphereVisualizer(grid)
+    fig_2d, ax_2d = viz.plot_2d(data=vod_data)
+    fig_3d = viz.plot_3d(data=vod_data)
+"""
+
+from canvod.viz.hemisphere_2d import HemisphereVisualizer2D, PolarPlotStyle
+from canvod.viz.hemisphere_3d import HemisphereVisualizer3D
+from canvod.viz.styles import PlotStyle, create_publication_style, create_interactive_style
+from canvod.viz.visualizer import HemisphereVisualizer
+
+__version__ = "0.1.0"
+
+__all__ = [
+    # Main visualizers
+    "HemisphereVisualizer",
+    "HemisphereVisualizer2D",
+    "HemisphereVisualizer3D",
+    # Styling
+    "PolarPlotStyle",
+    "PlotStyle",
+    "create_publication_style",
+    "create_interactive_style",
+]

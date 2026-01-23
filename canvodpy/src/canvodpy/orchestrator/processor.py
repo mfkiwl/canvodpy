@@ -1,0 +1,2384 @@
+from collections.abc import Generator
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from datetime import date, datetime, time
+from genericpath import exists
+import os
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+from warnings import deprecated
+
+import dask
+from dask.diagnostics import ProgressBar
+import dotenv
+from natsort import natsorted
+import numpy as np
+import pint
+import polars as pl
+from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic.dataclasses import dataclass
+import pydantic_core
+import pymap3d as pm
+from tqdm import tqdm
+import xarray as xr
+
+from canvodpy.aux_data.augmentation import AuxDataAugmenter
+from canvodpy.aux_data.clk import ClkFile
+from canvodpy.aux_data.pipeline import AuxDataPipeline
+from canvodpy.aux_data.sp3 import Sp3File
+from canvodpy.data_handler.data_handler import DataDirMatcher, MatchedDirs
+from canvodpy.data_handler.rnx_parser import RinexFilesParser
+from canvodpy.globals import (
+    AGENCY,
+    CLK_FILE_PATH,
+    COMPRESSION,
+    FTP_SERVER,
+    KEEP_RNX_VARS,
+    LOCATION_NAME,
+    OUT_DIR,
+    PRODUCT_TYPE,
+    RINEX_STORE_STRATEGY,
+    SP3_FILE_PATH,
+    UREG,
+)
+from canvod.store import GnssResearchSite
+from canvod.store import IcechunkPreprocessor
+from canvod.store import IcechunkDataReader
+from canvod.store import (
+    MyIcechunkStore,
+    create_rinex_store,
+    create_vod_store,
+)
+from canvodpy.settings import get_settings
+from canvodpy.logging.context import get_logger, reset_context, set_file_context
+from canvodpy.position.position import ECEFPosition
+from canvodpy.position.spherical_coords import (
+    add_spherical_coords_to_dataset,
+    compute_spherical_coordinates,
+)
+from canvodpy.orchestrator.matcher import DatasetMatcher
+from canvodpy.rinexreader.rinex_reader import Rnxv3Obs
+from canvodpy.utils.tools import get_version_from_pyproject
+from canvod.vod import TauOmegaZerothOrder, VODCalculator
+
+dotenv.load_dotenv()
+
+from collections.abc import Generator
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
+import json
+from pathlib import Path
+
+from icechunk import Repository
+from icechunk.xarray import to_icechunk
+import numpy as np
+import xarray as xr
+
+from canvodpy.data_handler.data_handler import MatchedDirs
+from canvodpy.position.position import ECEFPosition
+
+# ============================================================================
+# MODULE-LEVEL FUNCTIONS (Required for ProcessPoolExecutor)
+# ============================================================================
+
+
+def preprocess_with_hermite_aux(
+    rnx_file: Path,
+    keep_vars: list[str] | None,
+    aux_zarr_path: Path,
+    receiver_position: ECEFPosition,
+    receiver_type: str,
+) -> tuple[Path, xr.Dataset]:
+    """
+    Read RINEX and compute coordinates using Hermite-interpolated aux data from Zarr.
+
+    This function runs in separate processes, so it must be at module level.
+    The aux data has already been interpolated using proper Hermite splines.
+
+    Parameters
+    ----------
+    rnx_file : Path
+        RINEX file path
+    keep_vars : List[str]
+        Variables to keep
+    aux_zarr_path : Path
+        Path to preprocessed aux data Zarr store (with Hermite interpolation)
+    receiver_position : ECEFPosition
+        Receiver position (computed once)
+    receiver_type : str
+        Receiver type
+
+    Returns
+    -------
+    tuple[Path, xr.Dataset]
+        File path and augmented dataset with phi, theta, r
+    """
+    import xarray as xr
+
+    from canvodpy.logging.context import get_logger, reset_context, set_file_context
+    from canvodpy.rinexreader.rinex_reader import Rnxv3Obs
+
+    token = set_file_context(rnx_file)
+    try:
+        log = get_logger()
+        log.info("Processing RINEX with Hermite-interpolated aux data")
+
+        # 1. Read RINEX file
+        rnx = Rnxv3Obs(fpath=rnx_file, include_auxiliary=False)
+        ds = rnx.to_ds(write_global_attrs=True)
+        ds.attrs["RINEX File Hash"] = rnx.file_hash
+
+        # Filter variables
+        if keep_vars:
+            available_vars = [var for var in keep_vars if var in ds.data_vars]
+            if available_vars:
+                ds = ds[available_vars]
+
+        # 2. Open preprocessed aux data (lazy - doesn't load everything into memory)
+        aux_store = xr.open_zarr(aux_zarr_path, decode_timedelta=True)
+
+        # 3. Select only the epochs matching this RINEX file (fast slice operation)
+        # The aux data is already properly interpolated with Hermite splines
+        aux_slice = aux_store.sel(epoch=ds.epoch, method="nearest")
+
+        # 4. Compute spherical coordinates (φ, θ, r) from ephemerides
+        ds_augmented = _compute_spherical_coords_fast(ds, aux_slice,
+                                                      receiver_position)
+
+        log.info(f"Processing complete: {dict(ds_augmented.sizes)}")
+        return rnx_file, ds_augmented
+
+    except Exception as e:
+        log = get_logger()
+        log.exception("Processing failed", error=str(e))
+        raise
+    finally:
+        reset_context(token)
+
+
+def _compute_spherical_coords_fast(
+    rinex_ds: xr.Dataset,
+    aux_ds: xr.Dataset,
+    rx_pos: ECEFPosition,
+) -> xr.Dataset:
+    """
+    Compute spherical coordinates using shared utility function.
+
+    This function is used by the parallel processor and must remain
+    at module level for ProcessPoolExecutor serialization.
+    """
+
+    # Get satellite positions (already interpolated with Hermite splines)
+    sat_x = aux_ds["X"].values
+    sat_y = aux_ds["Y"].values
+    sat_z = aux_ds["Z"].values
+
+    # Compute using shared function
+    r, theta, phi = compute_spherical_coordinates(sat_x, sat_y, sat_z, rx_pos)
+
+    # Add to dataset using shared function
+    rinex_ds = add_spherical_coords_to_dataset(rinex_ds, r, theta, phi)
+
+    # Optionally add clock corrections if available
+    if "clock" in aux_ds.data_vars:
+        rinex_ds = rinex_ds.assign({"clock": aux_ds["clock"]})
+
+    # ds = ds = rinex_ds.assign({
+    #     "X":
+    #     xr.DataArray(
+    #         sat_x,
+    #         coords=[rinex_ds["epoch"], rinex_ds["sid"]],
+    #         dims=["epoch", "sid"],
+    #         attrs={},
+    #     ),
+    #     "Y":
+    #     xr.DataArray(
+    #         sat_y,
+    #         coords=[rinex_ds["epoch"], rinex_ds["sid"]],
+    #         dims=["epoch", "sid"],
+    #         attrs={},
+    #     ),
+    #     "Z":
+    #     xr.DataArray(
+    #         sat_z,
+    #         coords=[rinex_ds["epoch"], rinex_ds["sid"]],
+    #         dims=["epoch", "sid"],
+    #         attrs={},
+    #     ),
+    # })
+
+    return rinex_ds
+
+
+# ============================================================================
+# Coordinated Parallel Writing to Icechunk
+# ============================================================================
+
+from icechunk import Session
+from icechunk.session import ForkSession
+
+
+def _sanitize_ds_for_write(ds: xr.Dataset) -> xr.Dataset:
+    # Make a shallow copy and strip obviously non-serializable attrs
+    ds = ds.copy()
+    # Keep only simple types in .attrs
+    clean_attrs = {}
+    for k, v in list(ds.attrs.items()):
+        if isinstance(v, (str, int, float, bool, type(None), np.generic)):
+            clean_attrs[k] = v
+        # allow numpy scalars
+        elif isinstance(v, (np.integer, np.floating, np.bool_)):
+            clean_attrs[k] = v.item()
+        # else drop it silently
+    ds.attrs = clean_attrs
+
+    # Normalize encodings to be conservative (avoid dtype surprises)
+    for vname in ds.data_vars:
+        var = ds[vname]
+        enc = var.encoding or {}
+        # ensure dtype is a concrete numpy dtype if present
+        if "dtype" in enc:
+            enc["dtype"] = np.dtype(var.dtype)
+        # drop object encodings we don't control
+        for bad in ("compressor", "filters", "chunks", "preferred_chunks"):
+            enc.pop(bad, None)
+        var.encoding = enc
+    return ds
+
+
+def write_initial_rinex_ds_to_store(*, ds: xr.Dataset, fork: ForkSession,
+                                    group: str) -> ForkSession:
+    ds = _sanitize_ds_for_write(ds)
+    ds.to_zarr(
+        fork.store,
+        group=group,
+        consolidated=False,
+        mode="w",  # create group
+    )
+    return fork
+
+
+def append_rinex_ds_to_store(*, ds: xr.Dataset, fork: ForkSession,
+                             group: str) -> ForkSession:
+    ds = _sanitize_ds_for_write(ds)
+    ds.to_zarr(
+        fork.store,
+        region="auto",
+        group=group,
+        consolidated=False,
+        mode="a",
+        # append_dim="epoch",
+    )
+    return fork
+
+
+def worker_task(
+    rinex_file: Path,
+    keep_vars: list[str],
+    aux_zarr_path: Path,
+    receiver_position: ECEFPosition,
+    receiver_type: str,
+    receiver_name: str,
+    fork: ForkSession,
+    is_first: bool,
+) -> tuple[Path, ForkSession]:
+    # 1) build augmented dataset
+    fname, ds_augmented = preprocess_with_hermite_aux(rinex_file, keep_vars,
+                                                      aux_zarr_path,
+                                                      receiver_position,
+                                                      receiver_type)
+
+    # 2) write to this fork (initial or append)
+    if is_first:
+        write_initial_rinex_ds_to_store(ds=ds_augmented,
+                                        fork=fork,
+                                        group=receiver_name)
+    else:
+        append_rinex_ds_to_store(ds=ds_augmented,
+                                 fork=fork,
+                                 group=receiver_name)
+
+    # 3) return ONLY pickleable things (Path + ForkSession)
+    return fname, fork
+
+
+def worker_task_append_only(
+    rinex_file: Path,
+    keep_vars: list[str],
+    aux_zarr_path: Path,
+    receiver_position: ECEFPosition,
+    receiver_type: str,
+    receiver_name: str,
+    fork: ForkSession,
+) -> tuple[Path, ForkSession]:
+    """Worker that only appends (group already exists)."""
+    fname, ds_augmented = preprocess_with_hermite_aux(rinex_file, keep_vars,
+                                                      aux_zarr_path,
+                                                      receiver_position,
+                                                      receiver_type)
+
+    ds_clean = _sanitize_ds_for_write(ds_augmented)
+    ds_clean.to_zarr(
+        fork.store,
+        group=receiver_name,
+        mode="a",
+        append_dim="epoch",
+    )
+
+    return fname, fork
+
+
+def worker_task_with_region_auto(rinex_file, keep_vars, aux_zarr_path,
+                                 receiver_position, receiver_type,
+                                 receiver_name, fork):
+    """Worker uses region='auto' to write to correct position."""
+    fname, ds = preprocess_with_hermite_aux(rinex_file, keep_vars,
+                                            aux_zarr_path, receiver_position,
+                                            receiver_type)
+
+    ds_clean = _sanitize_ds_for_write(ds)
+    ds_clean.to_zarr(
+        fork.store,
+        group=receiver_name,
+        mode="a",
+        region="auto",  # ✅ Let xarray infer the region
+        consolidated=False,
+    )
+
+    return fork  # Return the modified fork
+
+
+# ============================================================================
+# MAIN (HALF-PARALLEL) PROCESSOR CLASS
+# ============================================================================
+
+
+class RinexDataProcessor:
+    """
+    Orchestrates RINEX data processing with optimized parallelization.
+
+    Pipeline:
+    1. Initialize auxiliary data (ephemerides, clock) - ONCE
+    2. Preprocess aux data with Hermite splines to disk - ONCE per day
+    3. Parallel process RINEX files using ProcessPoolExecutor
+    4. Each worker reads its time slice from preprocessed Zarr
+    5. Compute spherical coordinates and append to Icechunk store
+    6. Yield final daily datasets
+
+    Parameters
+    ----------
+    matched_data_dirs : MatchedDirs
+        Matched directories for canopy and reference data
+    site : GnssResearchSite
+        Research site with Icechunk stores
+    aux_file_path : Path, optional
+        Root path for auxiliary files
+    n_max_workers : int, default 12
+        Maximum parallel workers (CPUs) for RINEX processing
+    """
+
+    def __init__(
+        self,
+        matched_data_dirs: MatchedDirs,
+        site: GnssResearchSite,
+        aux_file_path: Path | None = None,
+        n_max_workers: int = 12,
+    ):
+        self.matched_data_dirs = matched_data_dirs
+        self.site = site
+        self.aux_file_path = aux_file_path
+        self.n_max_workers = min(n_max_workers, os.cpu_count() or 12)
+        self._logger = get_logger()
+
+        # Initialize auxiliary data pipeline (loads SP3 and CLK files)
+        self.aux_pipeline = self._initialize_aux_pipeline()
+
+        self._logger.info(
+            f"Initialized RinexDataProcessor with {self.n_max_workers} workers"
+        )
+
+    def _initialize_aux_pipeline(self) -> AuxDataPipeline:
+        """
+        Initialize and load auxiliary data pipeline.
+
+        Returns
+        -------
+        AuxDataPipeline
+            Loaded pipeline with ephemerides and clock data
+        """
+        self._logger.info("Initializing auxiliary data pipeline")
+
+        # Get settings for email configuration
+        settings = get_settings()
+
+        pipeline = AuxDataPipeline.create_standard(
+            matched_dirs=self.matched_data_dirs,
+            aux_file_path=self.aux_file_path,
+            agency=AGENCY,
+            product_type=PRODUCT_TYPE,
+            ftp_server=FTP_SERVER,
+            user_email=settings.get_user_email(),
+        )
+
+        # Load all auxiliary files into memory
+        pipeline.load_all()
+
+        self._logger.info(f"Auxiliary data pipeline ready: {pipeline}")
+        return pipeline
+
+    def _preprocess_aux_data_with_hermite(
+        self,
+        rinex_files: list[Path],
+        output_path: Path,
+    ) -> float:
+        """
+        Preprocess auxiliary data using proper interpolation strategies.
+        """
+        from canvodpy.orchestrator.interpolator import (
+            ClockConfig,
+            ClockInterpolationStrategy,
+            Sp3Config,
+            Sp3InterpolationStrategy,
+        )
+
+        self._logger.info(
+            "Preprocessing auxiliary data with Hermite splines (one-time operation)"
+        )
+
+        # 1. Read first RINEX file to infer temporal properties
+        self._logger.info(
+            f"Reading first RINEX to detect sampling rate: {rinex_files[0].name}"
+        )
+        first_rnx = Rnxv3Obs(fpath=rinex_files[0], include_auxiliary=False)
+        first_ds = first_rnx.to_ds(write_global_attrs=True)
+
+        # 2. Detect sampling interval
+        time_diff = (first_ds.epoch[1] - first_ds.epoch[0]).values
+        sampling_interval = float(time_diff / np.timedelta64(1, 's'))
+        self._logger.info(
+            f"Detected RINEX sampling interval: {sampling_interval}s")
+
+        # 3. ✅ FIX: Generate complete 24-hour epoch grid instead of just first file
+        # Get the day boundaries
+        first_epoch = first_ds.epoch.values[0]
+        day_start = np.datetime64(first_epoch.astype('datetime64[D]'))
+        day_end = day_start + np.timedelta64(1, 'D')
+
+        # Create uniform epoch grid for entire day
+        n_epochs = int(24 * 3600 / sampling_interval)
+        target_epochs = day_start + np.arange(n_epochs) * np.timedelta64(
+            int(sampling_interval), 's')
+
+        self._logger.info(
+            f"Generated {len(target_epochs)} target epochs covering full 24 hours "
+            f"from {target_epochs[0]} to {target_epochs[-1]}")
+
+        # 4. Get auxiliary datasets from pipeline
+        ephem_ds = self.aux_pipeline.get("ephemerides")
+        clock_ds = self.aux_pipeline.get("clock")
+
+        # 5. Interpolate ephemerides using Hermite splines
+        self._logger.info(
+            "Interpolating ephemerides using Hermite cubic splines with velocities"
+        )
+        sp3_config = Sp3Config(use_velocities=True, fallback_method='linear')
+        sp3_interpolator = Sp3InterpolationStrategy(config=sp3_config)
+        ephem_interp = sp3_interpolator.interpolate(ephem_ds, target_epochs)
+
+        # Store interpolation metadata
+        ephem_interp.attrs['interpolator_config'] = sp3_interpolator.to_attrs()
+
+        # 6. Interpolate clock corrections using piecewise linear
+        self._logger.info(
+            "Interpolating clock corrections using piecewise linear (discontinuity-aware)"
+        )
+        clock_config = ClockConfig(window_size=9, jump_threshold=1e-6)
+        clock_interpolator = ClockInterpolationStrategy(config=clock_config)
+        clock_interp = clock_interpolator.interpolate(clock_ds, target_epochs)
+
+        # Store interpolation metadata
+        clock_interp.attrs[
+            'interpolator_config'] = clock_interpolator.to_attrs()
+
+        # 7. Merge ephemerides and clock into single dataset
+        aux_processed = xr.merge([ephem_interp, clock_interp])
+
+        # 8. Write to Zarr
+        self._logger.info(f"Writing preprocessed aux data to {output_path}")
+        aux_processed.to_zarr(output_path, mode="w")
+
+        self._logger.info(
+            f"Preprocessing complete: {dict(aux_processed.sizes)} written to Zarr"
+        )
+
+        return sampling_interval
+
+    def _get_rinex_files(self, rinex_dir: Path) -> list[Path]:
+        """Get sorted list of RINEX files from directory."""
+        if not rinex_dir.exists():
+            self._logger.warning(f"Directory does not exist: {rinex_dir}")
+            return []
+
+        patterns = ["*.??o", "*.??O", "*.rnx", "*.RNX"]
+        rinex_files = []
+
+        for pattern in patterns:
+            files = list(rinex_dir.glob(pattern))
+            rinex_files.extend(files)
+
+        return natsorted(rinex_files)
+
+    def _parallel_process_with_processpool(
+        self,
+        rinex_files: list[Path],
+        keep_vars: list[str],
+        aux_zarr_path: Path,
+        receiver_position: ECEFPosition,
+        receiver_type: str,
+    ) -> list[tuple[Path, xr.Dataset]]:
+        """
+        Parallel process RINEX files using ProcessPoolExecutor.
+
+        Uses TRUE parallelism (no GIL) with separate processes.
+        Each worker reads only its time slice from the Zarr store.
+
+        Parameters
+        ----------
+        rinex_files : List[Path]
+            List of RINEX files to process
+        keep_vars : List[str]
+            Variables to keep
+        aux_zarr_path : Path
+            Path to preprocessed aux Zarr store (with Hermite interpolation)
+        receiver_position : ECEFPosition
+            Receiver position (computed once)
+        receiver_type : str
+            Receiver type
+
+        Returns
+        -------
+        List[tuple[Path, xr.Dataset]]
+            List of (filename, augmented_dataset) tuples, sorted chronologically
+        """
+        self._logger.info(
+            f"Starting ProcessPoolExecutor with {self.n_max_workers} workers "
+            f"for {len(rinex_files)} files")
+
+        results = []
+
+        with ProcessPoolExecutor(max_workers=self.n_max_workers) as executor:
+            # Submit all tasks
+            futures = {
+                executor.submit(
+                    preprocess_with_hermite_aux,
+                    rinex_file,
+                    keep_vars,
+                    aux_zarr_path,
+                    receiver_position,
+                    receiver_type,
+                ):
+                rinex_file
+                for rinex_file in rinex_files
+            }
+
+            # Collect results with progress bar
+            for fut in tqdm(
+                    as_completed(futures),
+                    total=len(futures),
+                    desc=f"Processing {receiver_type}",
+                    unit="file",
+            ):
+                try:
+                    fname, ds_augmented = fut.result()
+                    results.append((fname, ds_augmented))
+                except Exception as e:
+                    self._logger.error(
+                        f"Failed to process {futures[fut].name}: {e}")
+
+        # Sort chronologically by filename
+        results.sort(key=lambda x: x[0].name)
+
+        self._logger.info(
+            f"Parallel processing complete: {len(results)}/{len(rinex_files)} files"
+        )
+        return results
+
+    def _append_to_icechunk_slow(
+        self,
+        augmented_datasets: list[tuple[Path, xr.Dataset]],
+        receiver_name: str,
+        rinex_files: list[Path],
+    ) -> None:
+        """
+        Sequentially append augmented datasets to Icechunk store.
+
+        Uses the IcechunkDataReader pattern for proper deduplication
+        and metadata tracking.
+
+        Parameters
+        ----------
+        augmented_datasets : List[tuple[Path, xr.Dataset]]
+            List of (filename, dataset) tuples
+        receiver_name : str
+            Receiver name (e.g., 'canopy', 'reference')
+        rinex_files : List[Path]
+            Original list of RINEX files (for context)
+        """
+        self._logger.info(
+            f"Appending {len(augmented_datasets)} datasets to Icechunk for '{receiver_name}'"
+        )
+
+        groups = self.site.rinex_store.list_groups() or []
+        version = get_version_from_pyproject()
+
+        for idx, (fname, ds) in enumerate(
+                tqdm(augmented_datasets, desc=f"Appending {receiver_name}")):
+            token = set_file_context(fname)
+            try:
+                log = get_logger()
+                rel_path = self.site.rinex_store.rel_path_for_commit(fname)
+
+                # Get file metadata
+                rinex_hash = ds.attrs.get("RINEX File Hash")
+                if not rinex_hash:
+                    log.warning(f"No RINEX hash found for {fname}, skipping")
+                    continue
+
+                start_epoch = np.datetime64(ds.epoch.min().values)
+                end_epoch = np.datetime64(ds.epoch.max().values)
+
+                # Check if file already exists
+                exists, matches = self.site.rinex_store.metadata_row_exists(
+                    receiver_name, rinex_hash, start_epoch, end_epoch)
+
+                # Cleanse dataset attributes
+                ds = self.site.rinex_store._cleanse_dataset_attrs(ds)
+
+                # Handle different strategies based on RINEX_STORE_STRATEGY
+                match (exists, RINEX_STORE_STRATEGY):
+                    case (False,
+                          _) if receiver_name not in groups and idx == 0:
+                        # Initial commit
+                        msg = f"[v{version}] Initial commit: {rel_path}"
+                        self.site.rinex_store.write_initial_group(
+                            dataset=ds,
+                            group_name=receiver_name,
+                            commit_message=msg)
+                        groups.append(receiver_name)
+                        log.info(msg)
+
+                    case (True, "skip"):
+                        log.info(f"Skipping existing file: {rel_path}")
+                        self.site.rinex_store.append_metadata(
+                            group_name=receiver_name,
+                            rinex_hash=rinex_hash,
+                            start=start_epoch,
+                            end=end_epoch,
+                            snapshot_id="none",
+                            action="skip",
+                            commit_msg=f"Skipped {rel_path}",
+                            dataset_attrs=ds.attrs,
+                        )
+
+                    case (True, "append"):
+                        msg = f"[v{version}] Appended {rel_path}"
+                        self.site.rinex_store.append_to_group(
+                            dataset=ds,
+                            group_name=receiver_name,
+                            append_dim="epoch",
+                            action="append",
+                            commit_message=msg,
+                        )
+                        log.info(msg)
+
+                    case (False, _):
+                        msg = f"[v{version}] Wrote {rel_path}"
+                        self.site.rinex_store.append_to_group(
+                            dataset=ds,
+                            group_name=receiver_name,
+                            append_dim="epoch",
+                            action="write",
+                            commit_message=msg,
+                        )
+                        log.info(msg)
+
+            except Exception as e:
+                log = get_logger()
+                log.exception(f"Failed to append {fname.name}: {e}")
+            finally:
+                reset_context(token)
+
+        self._logger.info(f"Append to Icechunk complete for '{receiver_name}'")
+
+    def _append_to_icechunk_incrementally(
+        self,
+        augmented_datasets: list[tuple[Path, xr.Dataset]],
+        receiver_name: str,
+        rinex_files: list[Path],
+    ) -> None:
+        """
+        Batch append with single commit.
+
+        This method:
+        1. Opens ONE session for all data writes
+        2. Uses only to_icechunk() within the session (no nested sessions)
+        3. Makes ONE commit for all data
+        4. Writes metadata separately after commit succeeds
+        """
+        import time
+
+        from icechunk.xarray import to_icechunk
+
+        log = self._logger
+        version = get_version_from_pyproject()
+
+        t_start = time.time()
+
+        # STEP 1: Batch check which files exist
+        log.info(f"Batch checking {len(augmented_datasets)} files...")
+        t1 = time.time()
+
+        file_hash_map = {
+            fname: ds.attrs.get("RINEX File Hash")
+            for fname, ds in augmented_datasets
+        }
+
+        valid_hashes = [h for h in file_hash_map.values() if h]
+        existing_hashes = self.site.rinex_store.batch_check_existing(
+            receiver_name, valid_hashes)
+
+        t2 = time.time()
+        log.info(f"Batch check complete in {t2-t1:.2f}s: "
+                 f"{len(existing_hashes)}/{len(augmented_datasets)} existing")
+
+        # STEP 2: Open session ONCE
+        log.info("Opening Icechunk session...")
+        t3 = time.time()
+        with self.site.rinex_store.writable_session() as session:
+            groups = self.site.rinex_store.list_groups() or []
+            t4 = time.time()
+            log.info(f"Session opened in {t4-t3:.2f}s")
+
+            actions = {"initial": 0, "skipped": 0, "appended": 0, "written": 0}
+            metadata_records = []  # Collect metadata to write after commit
+
+            try:
+                # STEP 3: Process all datasets using ONLY to_icechunk()
+                log.info(f"Processing {len(augmented_datasets)} datasets...")
+                t5 = time.time()
+
+                for idx, (fname, ds) in enumerate(augmented_datasets):
+                    # Progress logging
+                    if idx % 20 == 0 and idx > 0:
+                        elapsed = time.time() - t5
+                        rate = idx / elapsed if elapsed > 0 else 0
+                        log.info(
+                            f"  Progress: {idx}/{len(augmented_datasets)} ({rate:.1f} files/s)"
+                        )
+
+                    token = set_file_context(fname)
+                    try:
+                        rel_path = self.site.rinex_store.rel_path_for_commit(
+                            fname)
+                        rinex_hash = file_hash_map[fname]
+
+                        if not rinex_hash:
+                            log.debug(f"No hash for {fname}, skipping")
+                            continue
+
+                        # Get time range for metadata
+                        start_epoch = np.datetime64(ds.epoch.min().values)
+                        end_epoch = np.datetime64(ds.epoch.max().values)
+
+                        # Fast hash check
+                        exists = rinex_hash in existing_hashes
+
+                        # Cleanse dataset
+                        ds_clean = self.site.rinex_store._cleanse_dataset_attrs(
+                            ds)
+
+                        # Collect metadata for ALL files (write later)
+                        metadata_records.append({
+                            "fname":
+                            fname,
+                            "rinex_hash":
+                            rinex_hash,
+                            "start":
+                            start_epoch,
+                            "end":
+                            end_epoch,
+                            "dataset_attrs":
+                            ds.attrs.copy(),
+                            "exists":
+                            exists,
+                            "rel_path":
+                            rel_path,
+                        })
+
+                        # Handle data writes using ONLY to_icechunk() with our session
+                        match (exists, RINEX_STORE_STRATEGY):
+                            case (
+                                False,
+                                _) if receiver_name not in groups and idx == 0:
+                                # Initial group creation
+                                to_icechunk(ds_clean,
+                                            session,
+                                            group=receiver_name)
+                                groups.append(receiver_name)
+                                actions["initial"] += 1
+                                log.debug(f"Initial: {rel_path}")
+
+                            case (True, "skip"):
+                                # File exists, skip writing data
+                                actions["skipped"] += 1
+                                log.debug(f"Skipped: {rel_path}")
+
+                            case (True, "append"):
+                                # File exists but append anyway
+                                to_icechunk(ds_clean,
+                                            session,
+                                            group=receiver_name,
+                                            append_dim="epoch")
+                                actions["appended"] += 1
+                                log.debug(f"Appended: {rel_path}")
+
+                            case (False, _):
+                                # New file, write it
+                                to_icechunk(ds_clean,
+                                            session,
+                                            group=receiver_name,
+                                            append_dim="epoch")
+                                actions["written"] += 1
+                                log.debug(f"Wrote: {rel_path}")
+
+                    except Exception as e:
+                        log.error(f"Failed to process {fname.name}: {e}")
+                    finally:
+                        reset_context(token)
+
+                t6 = time.time()
+                log.info(f"Dataset processing complete in {t6-t5:.2f}s")
+
+                # STEP 4: Single commit for all data
+                summary = ", ".join(f"{k}={v}" for k, v in actions.items()
+                                    if v > 0)
+                commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}: {summary}"
+
+                log.info(f"Committing: {summary}")
+                t7 = time.time()
+                snapshot_id = session.commit(commit_msg)
+                t8 = time.time()
+                log.info(
+                    f"Commit complete in {t8-t7:.2f}s (snapshot: {snapshot_id[:8]}...)"
+                )
+
+                # STEP 5: Write metadata (separate transactions after data commit)
+                log.info(
+                    f"Writing metadata for {len(metadata_records)} files...")
+                t9 = time.time()
+
+                for record in metadata_records:
+                    action = "skip" if record["exists"] else "write"
+                    try:
+                        self.site.rinex_store.append_metadata(
+                            group_name=receiver_name,
+                            rinex_hash=record["rinex_hash"],
+                            start=record["start"],
+                            end=record["end"],
+                            snapshot_id=snapshot_id,
+                            action=action,
+                            commit_msg=f"{action}: {record['rel_path']}",
+                            dataset_attrs=record["dataset_attrs"],
+                        )
+                    except Exception as e:
+                        log.warning(
+                            f"Failed to write metadata for {record['fname'].name}: {e}"
+                        )
+
+                    t10 = time.time()
+                    log.info(f"Metadata written in {t10-t9:.2f}s")
+
+                    # Timing summary
+                    t_end = time.time()
+                    log.info(f"\nTIMING BREAKDOWN:")
+                    log.info(f"  Batch check:    {t2-t1:.2f}s")
+                    log.info(f"  Open session:   {t4-t3:.2f}s")
+                    log.info(f"  Process data:   {t6-t5:.2f}s")
+                    log.info(f"  Commit:         {t8-t7:.2f}s")
+                    log.info(f"  Metadata:       {t10-t9:.2f}s")
+                    log.info(f"  TOTAL:          {t_end-t_start:.2f}s")
+
+                    log.info(
+                        f"Successfully processed {len(augmented_datasets)} files for '{receiver_name}'"
+                    )
+
+            except Exception as e:
+                log.error(f"Batch append failed: {e}")
+                raise
+
+    def _append_to_icechunk(
+        self,
+        augmented_datasets: list[tuple[Path, xr.Dataset]],
+        receiver_name: str,
+        rinex_files: list[Path],
+    ) -> None:
+        """
+        Batch append with single commit.
+
+        This method:
+        1. Opens ONE session for all data writes
+        2. Uses only to_icechunk() within the session (no nested sessions)
+        3. Makes ONE commit for all data
+        4. Writes metadata separately after commit succeeds
+        """
+        import time
+
+        from icechunk.xarray import to_icechunk
+
+        log = self._logger
+        version = get_version_from_pyproject()
+
+        t_start = time.time()
+
+        # STEP 1: Batch check which files exist
+        log.info(f"Batch checking {len(augmented_datasets)} files...")
+        t1 = time.time()
+
+        file_hash_map = {
+            fname: ds.attrs.get("RINEX File Hash")
+            for fname, ds in augmented_datasets
+        }
+
+        valid_hashes = [h for h in file_hash_map.values() if h]
+        existing_hashes = self.site.rinex_store.batch_check_existing(
+            receiver_name, valid_hashes)
+
+        t2 = time.time()
+        log.info(f"Batch check complete in {t2-t1:.2f}s: "
+                 f"{len(existing_hashes)}/{len(augmented_datasets)} existing")
+
+        # STEP 2: Open session ONCE
+        log.info("Opening Icechunk session...")
+        t3 = time.time()
+        session = self.site.rinex_store.repo.writable_session(branch="main")
+        groups = self.site.rinex_store.list_groups() or []
+        t4 = time.time()
+        log.info(f"Session opened in {t4-t3:.2f}s")
+
+        actions = {"initial": 0, "skipped": 0, "appended": 0, "written": 0}
+        metadata_records = []  # Collect metadata to write after commit
+
+        try:
+            # STEP 3: Process all datasets using ONLY to_icechunk()
+            log.info(f"Processing {len(augmented_datasets)} datasets...")
+            t5 = time.time()
+
+            for idx, (fname, ds) in enumerate(augmented_datasets):
+                # Progress logging
+                if idx % 20 == 0 and idx > 0:
+                    elapsed = time.time() - t5
+                    rate = idx / elapsed if elapsed > 0 else 0
+                    log.info(
+                        f"  Progress: {idx}/{len(augmented_datasets)} ({rate:.1f} files/s)"
+                    )
+
+                token = set_file_context(fname)
+                try:
+                    rel_path = self.site.rinex_store.rel_path_for_commit(fname)
+                    rinex_hash = file_hash_map[fname]
+
+                    if not rinex_hash:
+                        log.debug(f"No hash for {fname}, skipping")
+                        continue
+
+                    # Get time range for metadata
+                    start_epoch = np.datetime64(ds.epoch.min().values)
+                    end_epoch = np.datetime64(ds.epoch.max().values)
+
+                    # Fast hash check
+                    exists = rinex_hash in existing_hashes
+
+                    # Cleanse dataset
+                    ds_clean = self.site.rinex_store._cleanse_dataset_attrs(ds)
+
+                    # Collect metadata for ALL files (write later)
+                    metadata_records.append({
+                        "fname": fname,
+                        "rinex_hash": rinex_hash,
+                        "start": start_epoch,
+                        "end": end_epoch,
+                        "dataset_attrs": ds.attrs.copy(),
+                        "exists": exists,
+                        "rel_path": rel_path,
+                    })
+
+                    # Handle data writes using ONLY to_icechunk() with our session
+                    match (exists, RINEX_STORE_STRATEGY):
+                        case (False,
+                              _) if receiver_name not in groups and idx == 0:
+                            # Initial group creation
+                            to_icechunk(ds_clean, session, group=receiver_name)
+                            groups.append(receiver_name)
+                            actions["initial"] += 1
+                            log.debug(f"Initial: {rel_path}")
+
+                        case (True, "skip"):
+                            # File exists, skip writing data
+                            actions["skipped"] += 1
+                            log.debug(f"Skipped: {rel_path}")
+
+                        case (True, "append"):
+                            # File exists but append anyway
+                            to_icechunk(ds_clean,
+                                        session,
+                                        group=receiver_name,
+                                        append_dim="epoch")
+                            actions["appended"] += 1
+                            log.debug(f"Appended: {rel_path}")
+
+                        case (False, _):
+                            # New file, write it
+                            to_icechunk(ds_clean,
+                                        session,
+                                        group=receiver_name,
+                                        append_dim="epoch")
+                            actions["written"] += 1
+                            log.debug(f"Wrote: {rel_path}")
+
+                except Exception as e:
+                    log.error(f"Failed to process {fname.name}: {e}")
+                finally:
+                    reset_context(token)
+
+            t6 = time.time()
+            log.info(f"Dataset processing complete in {t6-t5:.2f}s")
+
+            # STEP 4: Single commit for all data
+            summary = ", ".join(f"{k}={v}" for k, v in actions.items()
+                                if v > 0)
+            commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}: {summary}"
+
+            log.info(f"Committing data: {summary}")
+            t7 = time.time()
+            # snapshot_id = session.commit(commit_msg)
+            t8 = time.time()
+
+            # STEP 5: Metadata in a separate commit
+            log.info(f"Writing metadata for {len(metadata_records)} files...")
+            t9 = time.time()
+            try:
+                self.site.rinex_store.append_metadata_bulk(
+                    group_name=receiver_name,
+                    rows=metadata_records,
+                    session=session,  # link metadata to the data commit
+                )
+            except Exception as e:
+                log.warning(f"Metadata commit failed: {e}")
+            t10 = time.time()
+            log.info(f"Metadata commit complete in {t10-t9:.2f}s")
+
+            log.info(f"Committing: {summary}")
+            t7 = time.time()
+            snapshot_id = session.commit(commit_msg)
+            t8 = time.time()
+            log.info(
+                f"Commit complete in {t8-t7:.2f}s (snapshot: {snapshot_id[:8]}...)"
+            )
+
+            expired = self.site.rinex_store.expire_old_snapshots(days=7)
+
+            if expired:
+                print(f"Expired {len(expired)} snapshots for cleanup.")
+
+            # Timing summary
+            t_end = time.time()
+            log.info(f"\nTIMING BREAKDOWN:")
+            log.info(f"  Batch check:    {t2-t1:.2f}s")
+            log.info(f"  Open session:   {t4-t3:.2f}s")
+            log.info(f"  Process data:   {t6-t5:.2f}s")
+            log.info(f"  Commit:         {t8-t7:.2f}s")
+            log.info(f"  Metadata:       {t10-t9:.2f}s")
+            log.info(f"  TOTAL:          {t_end-t_start:.2f}s")
+
+            log.info(
+                f"Successfully processed {len(augmented_datasets)} files for '{receiver_name}'"
+            )
+
+        except Exception as e:
+            log.error(f"Batch append failed: {e}")
+            raise
+
+    def _append_to_icechunk_parallel(
+        self,
+        augmented_datasets: list[tuple[Path, xr.Dataset]],
+        receiver_name: str,
+        rinex_files: list[Path],
+    ) -> None:
+        """
+        Batch append with parallel writes and a single commit.
+
+        May be slower than sequential writes due to locking overhead.
+
+        Strategy:
+        - One writable session
+        - ThreadPoolExecutor for dataset writes (safe: GIL release in zarr/numcodecs IO)
+        - One commit for data
+        - One commit for metadata
+        """
+        import time
+
+        from icechunk.xarray import to_icechunk
+
+        log = self._logger
+        version = get_version_from_pyproject()
+
+        t_start = time.time()
+
+        # STEP 1: Batch check which files exist
+        log.info(f"Batch checking {len(augmented_datasets)} files...")
+        t1 = time.time()
+        file_hash_map = {
+            fname: ds.attrs.get("RINEX File Hash")
+            for fname, ds in augmented_datasets
+        }
+        valid_hashes = [h for h in file_hash_map.values() if h]
+        existing_hashes = self.site.rinex_store.batch_check_existing(
+            receiver_name, valid_hashes)
+        t2 = time.time()
+        log.info(f"Batch check complete in {t2-t1:.2f}s: "
+                 f"{len(existing_hashes)}/{len(augmented_datasets)} existing")
+
+        # STEP 2: Open session ONCE
+        log.info("Opening Icechunk session...")
+        t3 = time.time()
+        session = self.site.rinex_store.repo.writable_session(branch="main")
+        groups = self.site.rinex_store.list_groups() or []
+        t4 = time.time()
+        log.info(f"Session opened in {t4-t3:.2f}s")
+
+        actions = {"initial": 0, "skipped": 0, "appended": 0, "written": 0}
+        metadata_records = []  # Collect metadata to write after commit
+
+        try:
+            log.info(f"Processing {len(augmented_datasets)} datasets...")
+            t5 = time.time()
+
+            def write_one(fname, ds, exists, idx):
+                ds_clean = self.site.rinex_store._cleanse_dataset_attrs(ds)
+                rel_path = self.site.rinex_store.rel_path_for_commit(fname)
+
+                # Collect metadata
+                start_epoch = np.datetime64(ds.epoch.min().values)
+                end_epoch = np.datetime64(ds.epoch.max().values)
+                metadata_records.append({
+                    "fname": fname,
+                    "rinex_hash": file_hash_map[fname],
+                    "start": start_epoch,
+                    "end": end_epoch,
+                    "dataset_attrs": ds.attrs.copy(),
+                    "exists": exists,
+                    "rel_path": rel_path,
+                })
+
+                # Decide write strategy
+                match (exists, RINEX_STORE_STRATEGY):
+                    case (False,
+                          _) if receiver_name not in groups and idx == 0:
+                        to_icechunk(ds_clean, session, group=receiver_name)
+                        groups.append(receiver_name)
+                        return "initial"
+                    case (True, "skip"):
+                        return "skipped"
+                    case (True, "append"):
+                        to_icechunk(ds_clean,
+                                    session,
+                                    group=receiver_name,
+                                    append_dim="epoch")
+                        return "appended"
+                    case (False, _):
+                        to_icechunk(ds_clean,
+                                    session,
+                                    group=receiver_name,
+                                    append_dim="epoch")
+                        return "written"
+
+            # --- THREADPOOL EXECUTION ---
+            futures = []
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                for idx, (fname, ds) in enumerate(augmented_datasets):
+                    rinex_hash = file_hash_map[fname]
+                    if not rinex_hash:
+                        continue
+                    exists = rinex_hash in existing_hashes
+                    if exists and RINEX_STORE_STRATEGY == "skip":
+                        actions["skipped"] += 1
+                        continue
+                    futures.append(
+                        pool.submit(write_one, fname, ds, exists, idx))
+
+                for fut in as_completed(futures):
+                    result = fut.result()
+                    actions[result] += 1
+
+            t6 = time.time()
+            log.info(f"Dataset processing complete in {t6-t5:.2f}s")
+
+            # STEP 4: Single commit for all data
+            summary = ", ".join(f"{k}={v}" for k, v in actions.items()
+                                if v > 0)
+            commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}: {summary}"
+            log.info(f"Committing data: {summary}")
+            t7 = time.time()
+            snapshot_id = session.commit(commit_msg)
+            t8 = time.time()
+            log.info(
+                f"Commit complete in {t8-t7:.2f}s (snapshot: {snapshot_id[:8]}...)"
+            )
+
+            # STEP 5: Metadata in a separate commit
+            log.info(f"Writing metadata for {len(metadata_records)} files...")
+            t9 = time.time()
+            try:
+                meta_session = self.site.rinex_store.repo.writable_session(
+                    branch="main")
+                self.site.rinex_store.append_metadata_bulk(
+                    group_name=receiver_name,
+                    rows=metadata_records,
+                    session=meta_session,
+                    snapshot_id=snapshot_id,
+                )
+                meta_commit_msg = f"[v{version}] metadata for {receiver_name} {self.matched_data_dirs.yyyydoy}"
+                meta_session.commit(meta_commit_msg)
+            except Exception as e:
+                log.warning(f"Metadata commit failed: {e}")
+            t10 = time.time()
+            log.info(f"Metadata commit complete in {t10-t9:.2f}s")
+
+            # Timing summary
+            t_end = time.time()
+            log.info(f"\nTIMING BREAKDOWN:")
+            log.info(f"  Batch check:    {t2-t1:.2f}s")
+            log.info(f"  Open session:   {t4-t3:.2f}s")
+            log.info(f"  Process data:   {t6-t5:.2f}s")
+            log.info(f"  Commit:         {t8-t7:.2f}s")
+            log.info(f"  Metadata:       {t10-t9:.2f}s")
+            log.info(f"  TOTAL:          {t_end-t_start:.2f}s")
+            log.info(
+                f"Successfully processed {len(augmented_datasets)} files for '{receiver_name}'"
+            )
+
+        except Exception as e:
+            log.error(f"Batch append failed: {e}")
+            raise
+
+    def _resolve_receiver_paths(self,
+                                receiver_type: str) -> tuple[Path, str | None]:
+        """
+        Resolve paths and receiver name for receiver type.
+
+        Parameters
+        ----------
+        receiver_type : str
+            Type of receiver ('canopy' or 'reference')
+
+        Returns
+        -------
+        tuple[Path, Optional[str]]
+            (rinex_dir, receiver_name)
+        """
+        if receiver_type == "canopy":
+            rinex_dir = self.matched_data_dirs.canopy_data_dir
+        elif receiver_type == "reference":
+            rinex_dir = self.matched_data_dirs.sky_data_dir
+        else:
+            raise ValueError(f"Unknown receiver type: {receiver_type}")
+
+        # Get receiver name from site configuration
+        receiver_name = None
+        for name, config in self.site.active_receivers.items():
+            if config.get('type') == receiver_type:
+                receiver_name = name
+                break
+
+        return rinex_dir, receiver_name
+
+    def parsed_rinex_data_gen_2_receivers(
+        self,
+        keep_vars: list[str] | None = None,
+        receiver_types: list[str] | None = None,
+    ) -> Generator[xr.Dataset]:
+        """
+        Generator that processes RINEX files and appends to Icechunk stores.
+
+        Pipeline:
+        1. Preprocess aux data ONCE per day with Hermite splines → Zarr
+        2. Compute receiver position ONCE (shared for all receivers)
+        3. For each receiver type (canopy, reference):
+           a. Get list of RINEX files
+           b. Parallel process with ProcessPoolExecutor
+           c. Each worker: read RINEX + slice Zarr + compute φ, θ, r
+           d. Sequential append to Icechunk store
+           e. Yield final daily dataset
+
+        Parameters
+        ----------
+        keep_vars : List[str], optional
+            Variables to keep in datasets (default: from globals)
+        receiver_types : List[str], optional
+            Receiver types to process (default: ['canopy', 'reference'])
+
+        Yields
+        ------
+        xr.Dataset
+            Processed and augmented daily dataset for each receiver type
+        """
+        if receiver_types is None:
+            receiver_types = ["canopy", "reference"]
+
+        if keep_vars is None:
+            keep_vars = KEEP_RNX_VARS
+
+        self._logger.info(
+            f"Starting RINEX processing pipeline for: {receiver_types}")
+
+        # Pre-flight: Get canopy files to infer sampling and compute position
+        canopy_dir = self.matched_data_dirs.canopy_data_dir
+        canopy_files = self._get_rinex_files(canopy_dir)
+        if not canopy_files:
+            raise ValueError(
+                "No canopy RINEX files found - cannot infer sampling rate")
+
+        # ====================================================================
+        # STEP 1: Preprocess aux data ONCE per day with Hermite splines
+        # ====================================================================
+        aux_zarr_path = Path(
+            f"/tmp/aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr")
+
+        if not aux_zarr_path.exists():
+            self._logger.info(
+                "Preprocessing aux data with Hermite splines (once per day)")
+            sampling_interval = self._preprocess_aux_data_with_hermite(
+                canopy_files, aux_zarr_path)
+        else:
+            self._logger.info(
+                f"Using existing preprocessed aux data: {aux_zarr_path}")
+
+        # ====================================================================
+        # STEP 2: Compute receiver position ONCE (same for all receivers)
+        # ====================================================================
+        first_rnx = Rnxv3Obs(fpath=canopy_files[0], include_auxiliary=False)
+        first_ds = first_rnx.to_ds(write_global_attrs=True)
+        receiver_position = ECEFPosition.from_ds_metadata(first_ds)
+        self._logger.info(
+            f"Computed receiver position (shared): {receiver_position}")
+
+        # ====================================================================
+        # STEP 3: Process each receiver type
+        # ====================================================================
+        for receiver_type in receiver_types:
+            self._logger.info(f"Processing receiver type: {receiver_type}")
+
+            # 3a. Resolve directories and receiver name
+            rinex_dir, receiver_name = self._resolve_receiver_paths(
+                receiver_type)
+
+            if not receiver_name:
+                self._logger.warning(
+                    f"No configured receiver for {receiver_type}, skipping")
+                continue
+
+            # 3b. Get RINEX files for this receiver type
+            rinex_files = self._get_rinex_files(rinex_dir)
+            if not rinex_files:
+                self._logger.warning(f"No RINEX files found in {rinex_dir}")
+                continue
+
+            self._logger.info(
+                f"Found {len(rinex_files)} RINEX files to process")
+
+            # 3c. Parallel process with ProcessPoolExecutor
+            augmented_datasets = self._parallel_process_with_processpool(
+                rinex_files=rinex_files,
+                keep_vars=keep_vars,
+                aux_zarr_path=aux_zarr_path,
+                receiver_position=receiver_position,
+                receiver_type=receiver_name,
+            )
+
+            # 3d. Sequential append to Icechunk store
+            self._append_to_icechunk(
+                augmented_datasets=augmented_datasets,
+                receiver_name=receiver_name,
+                rinex_files=rinex_files,
+            )
+
+            # 3e. Yield final daily dataset
+            # Read back from store to get complete daily dataset
+            date_obj = self.matched_data_dirs.yyyydoy.date
+            start_time = datetime.combine(date_obj, datetime.min.time())
+            end_time = datetime.combine(date_obj, datetime.max.time())
+            time_range = (start_time, end_time)
+
+            daily_dataset = self.site.read_receiver_data(
+                receiver_name=receiver_name, time_range=time_range)
+
+            self._logger.info(
+                f"Yielding daily dataset for {receiver_type} ('{receiver_name}'): "
+                f"{dict(daily_dataset.sizes)}")
+
+            yield daily_dataset
+
+    def parsed_rinex_data_gen(
+        self,
+        keep_vars: list[str] | None = None,
+        receiver_configs: list[tuple[str, str, Path]] | None = None,
+    ) -> Generator[xr.Dataset]:
+        """
+        Generator that processes RINEX files and appends to Icechunk stores.
+
+        Pipeline:
+        1. Preprocess aux data ONCE per day with Hermite splines → Zarr
+        2. For each receiver:
+        a. Compute receiver position from its first file
+        b. Parallel process RINEX files with ProcessPoolExecutor
+        c. Append to Icechunk store with receiver_name as group
+        d. Yield final daily dataset
+
+        Parameters
+        ----------
+        keep_vars : list[str], optional
+            Variables to keep in datasets (default: from globals)
+        receiver_configs : list[tuple[str, str, Path]], optional
+            List of (receiver_name, receiver_type, data_dir) tuples.
+            If None, uses default behavior with matched_data_dirs
+
+        Yields
+        ------
+        xr.Dataset
+            Processed and augmented daily dataset for each receiver
+        """
+        import time
+        if receiver_configs is None:
+            receiver_configs = self._get_default_receiver_configs()
+
+        if keep_vars is None:
+            keep_vars = KEEP_RNX_VARS
+
+        self._logger.info(
+            f"Starting RINEX processing pipeline for {len(receiver_configs)} receivers"
+        )
+
+        # ====================================================================
+        # STEP 1: Preprocess aux data ONCE per day with Hermite splines
+        # ====================================================================
+        # Get first receiver files to infer sampling rate
+        first_receiver_name, first_receiver_type, first_data_dir = receiver_configs[
+            0]
+        first_files = self._get_rinex_files(first_data_dir)
+
+        if not first_files:
+            raise ValueError(
+                f"No RINEX files found for {first_receiver_name} - cannot infer sampling rate"
+            )
+
+        aux_zarr_path = Path(
+            f"/tmp/aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr")
+
+        if not aux_zarr_path.exists():
+            self._logger.info(
+                "Preprocessing aux data with Hermite splines (once per day)")
+            sampling_interval = self._preprocess_aux_data_with_hermite(
+                first_files, aux_zarr_path)
+        else:
+            self._logger.info(
+                f"Using existing preprocessed aux data: {aux_zarr_path}")
+
+        # ====================================================================
+        # STEP 2: Process each receiver independently
+        # ====================================================================
+        for receiver_name, receiver_type, data_dir in receiver_configs:
+            receiver_start = time.time()
+
+            self._logger.info(
+                f"Processing receiver: {receiver_name} ({receiver_type})")
+
+            # Get RINEX files for this receiver
+            rinex_files = self._get_rinex_files(data_dir)
+            if not rinex_files:
+                self._logger.warning(f"No RINEX files found in {data_dir}")
+                continue
+
+            self._logger.info(
+                f"Found {len(rinex_files)} RINEX files to process")
+
+            # Compute receiver position from THIS receiver's first file
+            first_rnx = None
+            for f, ff in enumerate(rinex_files):
+                try:
+                    first_rnx = Rnxv3Obs(fpath=ff, include_auxiliary=False)
+                    break
+                except ValidationError as e:
+                    # Handle Pydantic validation errors
+                    self._logger.warning(
+                        f"Validation error for {ff.name}: {e}")
+                    # You can access specific error details:
+                    for error in e.errors():
+                        self._logger.debug(f"Field: {error['loc']}")
+                        self._logger.debug(f"Message: {error['msg']}")
+                        self._logger.debug(f"Type: {error['type']}")
+                except pydantic_core.ValidationError as e:
+                    # Handle lower-level pydantic_core validation errors
+                    self._logger.warning(
+                        f"Core validation error for {ff.name}: {e}")
+                except Exception as e:
+                    # Handle any other unexpected errors
+                    self._logger.warning(
+                        f"Unexpected error for {ff.name}: {e}")
+
+            if first_rnx is None:
+                self._logger.error(
+                    f"No valid RINEX files found for {receiver_name}")
+                continue
+
+            first_ds = first_rnx.to_ds(write_global_attrs=True)
+            receiver_position = ECEFPosition.from_ds_metadata(first_ds)
+            self._logger.info(
+                f"Computed receiver position for {receiver_name}: {receiver_position}"
+            )
+
+            # Parallel process with ProcessPoolExecutor
+            augmented_datasets = self._parallel_process_with_processpool(
+                rinex_files=rinex_files,
+                keep_vars=keep_vars,
+                aux_zarr_path=aux_zarr_path,
+                receiver_position=receiver_position,
+                receiver_type=receiver_name,
+            )
+
+            # Append to Icechunk with receiver_name as group
+            self._append_to_icechunk(
+                augmented_datasets=augmented_datasets,
+                receiver_name=receiver_name,  # Use actual receiver name as group
+                rinex_files=rinex_files,
+            )
+
+            # Yield final daily dataset
+            date_obj = self.matched_data_dirs.yyyydoy.date
+            start_time = datetime.combine(date_obj, datetime.min.time())
+            end_time = datetime.combine(date_obj, datetime.max.time())
+            time_range = (start_time, end_time)
+
+            daily_dataset = self.site.read_receiver_data(
+                receiver_name=receiver_name, time_range=time_range)
+
+            self._logger.info(
+                f"Yielding daily dataset for '{receiver_name}': {dict(daily_dataset.sizes)}"
+            )
+
+            receiver_end = time.time()
+            processing_time = receiver_end - receiver_start
+
+            self._logger.info(
+                f"Completed {receiver_name} in {processing_time:.2f}s")
+
+            yield receiver_name, daily_dataset, processing_time
+
+    def _get_default_receiver_configs(self) -> list[tuple[str, str, Path]]:
+        """Get default receiver configs from matched_data_dirs."""
+        configs = []
+
+        # Get canopy receiver
+        for name, config in self.site.active_receivers.items():
+            if config.get('type') == 'canopy':
+                configs.append(
+                    (name, 'canopy', self.matched_data_dirs.canopy_data_dir))
+                break
+
+        # Get reference receiver
+        for name, config in self.site.active_receivers.items():
+            if config.get('type') == 'reference':
+                configs.append(
+                    (name, 'reference', self.matched_data_dirs.sky_data_dir))
+                break
+
+        return configs
+
+    def should_skip_day(
+            self,
+            receiver_types: list[str] | None = None,
+            completeness_threshold: float = 1) -> tuple[bool, dict]:
+        """
+        Check if this day should be skipped based on existing data coverage.
+
+        Parameters
+        ----------
+        receiver_types : List[str], optional
+            Receiver types to check. Defaults to ['canopy', 'reference']
+        completeness_threshold : float
+            Fraction of expected epochs (default 0.95 = 95%)
+
+        Returns
+        -------
+        tuple[bool, dict]
+            (should_skip, coverage_info) where coverage_info contains details per receiver
+        """
+        if receiver_types is None:
+            receiver_types = ['canopy', 'reference']
+
+        # Expected epochs for 24h at 30s sampling
+        expected_epochs = int(24 * 3600 / 30)  # 2880
+        required_epochs = int(expected_epochs * completeness_threshold)
+
+        # Get datetime objects from YYYYDOY.date
+        yyyydoy_date = self.matched_data_dirs.yyyydoy.date
+        day_start = np.datetime64(datetime.combine(yyyydoy_date, time.min),
+                                  "ns")
+        day_end = np.datetime64(datetime.combine(yyyydoy_date, time.max), "ns")
+
+        coverage_info = {}
+
+        for receiver_type in receiver_types:
+            # Get receiver name
+            receiver_name = None
+            for name, config in self.site.active_receivers.items():
+                if config.get('type') == receiver_type:
+                    receiver_name = name
+                    break
+
+            if not receiver_name:
+                coverage_info[receiver_type] = {
+                    "exists": False,
+                    "reason": "No receiver configured"
+                }
+                return False, coverage_info
+
+            try:
+                # Read metadata table
+                with self.site.rinex_store.readonly_session("main") as session:
+                    zmeta = zarr.open_group(
+                        session.store,
+                        mode="r")[f"{receiver_name}/metadata/table"]
+                    data = {col: zmeta[col][:] for col in zmeta.array_keys()}
+                    df = pl.DataFrame(data)
+
+                # Cast datetime columns
+                df = df.with_columns([
+                    pl.col("start").cast(pl.Datetime("ns")),
+                    pl.col("end").cast(pl.Datetime("ns")),
+                ])
+
+                # Filter to this day
+                day_rows = df.filter((pl.col("start") >= day_start)
+                                     & (pl.col("end") <= day_end))
+
+                if day_rows.is_empty():
+                    coverage_info[receiver_type] = {
+                        "exists": False,
+                        "epochs": 0,
+                        "expected": expected_epochs,
+                        "percent": 0.0
+                    }
+                    return False, coverage_info
+
+                # Calculate total epochs
+                day_rows = day_rows.with_columns([
+                    ((pl.col("end") - pl.col("start")).dt.total_seconds() /
+                     30).alias("n_epochs")
+                ])
+
+                total_epochs = int(day_rows["n_epochs"].sum())
+                percent = total_epochs / expected_epochs * 100
+
+                coverage_info[receiver_type] = {
+                    "exists": True,
+                    "epochs": total_epochs,
+                    "expected": expected_epochs,
+                    "percent": percent,
+                    "complete": total_epochs >= required_epochs
+                }
+
+                if total_epochs < required_epochs:
+                    return False, coverage_info
+
+            except (KeyError, Exception) as e:
+                coverage_info[receiver_type] = {
+                    "exists": False,
+                    "reason": str(e),
+                    "epochs": 0,
+                    "expected": expected_epochs,
+                    "percent": 0.0
+                }
+                return False, coverage_info
+
+        # All receivers are complete
+        return True, coverage_info
+
+    def __repr__(self) -> str:
+        return (f"RinexDataProcessor("
+                f"date={self.matched_data_dirs.yyyydoy.to_str()}, "
+                f"site={self.site.site_name}, "
+                f"aux_pipeline={self.aux_pipeline})")
+
+
+class DistributedRinexDataProcessor(RinexDataProcessor):
+    """
+
+    Under development. Use with caution. In `MyIcechunkStore`, attrs `MyIcechunkStore.compression_algorithm` \
+        and `MyIcechunkStore.config` must be disabled, so that any instance becomes serializable.
+
+    Subclass of RinexDataProcessor that uses cooperative distributed writing, following: \
+        https://icechunk.io/en/latest/parallel/#cooperative-distributed-writes
+
+    """
+
+    def __init__(self,
+                 matched_data_dirs: MatchedDirs,
+                 site: GnssResearchSite,
+                 aux_file_path: Path | None = None,
+                 n_max_workers: int = 12):
+        super().__init__(matched_data_dirs, site, aux_file_path, n_max_workers)
+
+    def __repr__(self) -> str:
+        return (f"DistributedRinexDataProcessor("
+                f"date={self.matched_data_dirs.yyyydoy.to_str()}, "
+                f"site={self.site.site_name}, "
+                f"aux_pipeline={self.aux_pipeline})")
+
+    def _cooperative_distributed_writing(
+        self,
+        rinex_files: list[Path],
+        keep_vars: list[str],
+        aux_zarr_path: Path,
+        receiver_position: ECEFPosition,
+        receiver_type: str,
+        receiver_name: str,
+    ) -> list[Path]:
+        repo = self.site.rinex_store.repo
+        rinex_files_sorted = sorted(rinex_files, key=lambda p: p.name)
+
+        # STEP 1: Initialize dataset structure with ALL files' time coordinates
+        # This creates the full epoch dimension upfront
+        session = repo.writable_session("main")
+
+        # Collect all epochs from all files (or create empty structure)
+        # Option A: Process all files first to get full time range
+        all_epochs = []
+        for rinex_file in rinex_files_sorted:
+            fname, ds = preprocess_with_hermite_aux(rinex_file, keep_vars,
+                                                    aux_zarr_path,
+                                                    receiver_position,
+                                                    receiver_type)
+            all_epochs.extend(ds.epoch.values)
+
+        # Create empty dataset with full structure
+        first_fname, first_ds = preprocess_with_hermite_aux(
+            rinex_files_sorted[0], keep_vars, aux_zarr_path, receiver_position,
+            receiver_type)
+
+        # Initialize with full epoch dimension
+        empty_ds = first_ds.isel(epoch=[]).expand_dims(
+            {"epoch": len(all_epochs)})
+        empty_ds = empty_ds.assign_coords({"epoch": np.sort(all_epochs)})
+
+        from icechunk.xarray import to_icechunk
+        to_icechunk(empty_ds, session, group=receiver_name, mode="w")
+        session.commit(f"Initialize {receiver_name} structure")
+
+        # STEP 2: Now do cooperative distributed writes
+        session = repo.writable_session("main")
+        fork = session.fork()  # ONE fork
+
+        remote_sessions = []
+
+        with ProcessPoolExecutor(max_workers=self.n_max_workers) as ex:
+            futures = [
+                ex.submit(
+                    worker_task_with_region_auto,
+                    rinex_file,
+                    keep_vars,
+                    aux_zarr_path,
+                    receiver_position,
+                    receiver_type,
+                    receiver_name,
+                    fork,  # SAME fork to all workers
+                ) for rinex_file in rinex_files_sorted
+            ]
+
+            for fut in tqdm(as_completed(futures),
+                            total=len(futures),
+                            desc=f"Writing {receiver_name}",
+                            unit="file"):
+                returned_fork = fut.result()
+                remote_sessions.append(returned_fork)
+
+        # Merge all remote sessions
+        session.merge(*remote_sessions)
+        snapshot_id = session.commit(
+            f"[v{version}] Cooperative write for {receiver_name}")
+
+        return [f.name for f in rinex_files_sorted]
+
+    def _append_to_icechunk_native_context_manager(
+        self,
+        augmented_datasets: list[tuple[Path, xr.Dataset]],
+        receiver_name: str,
+        rinex_files: list[Path],
+    ) -> None:
+        log = self._logger
+        version = get_version_from_pyproject()
+
+        # 1) Pre-check which hashes already exist
+        file_hash_map = {
+            fname: ds.attrs.get("RINEX File Hash")
+            for fname, ds in augmented_datasets
+        }
+        valid_hashes = [h for h in file_hash_map.values() if h]
+        existing_hashes = self.site.rinex_store.batch_check_existing(
+            receiver_name, valid_hashes)
+
+        actions = {"initial": 0, "skipped": 0, "appended": 0, "written": 0}
+        metadata_records: list[dict] = []
+
+        # 2) Open native Icechunk transaction (auto-commit)
+        commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}"
+
+        with self.site.rinex_store.repo.transaction(
+                branch="main", message=commit_msg) as store:
+            groups = self.site.rinex_store.list_groups() or []
+
+            # 2a) Synchronous initial write if group does not exist (avoid race)
+            if receiver_name not in groups:
+                for fname, ds in augmented_datasets:
+                    rinex_hash = file_hash_map.get(fname)
+                    if rinex_hash and rinex_hash not in existing_hashes:
+                        ds_init = self.site.rinex_store._cleanse_dataset_attrs(
+                            ds)
+                        ds_init.to_zarr(store, group=receiver_name, mode="a")
+
+                        actions["initial"] += 1
+                        groups.append(receiver_name)
+                        break
+
+            # 3) Prepare metadata rows and thread tasks
+            def write_one(fname, ds, exists, rel_path, receiver_name, store):
+                ds_clean = self.site.rinex_store._cleanse_dataset_attrs(ds)
+
+                if not exists and receiver_name not in groups:
+                    ds_clean.to_zarr(store, group=receiver_name, mode="w")
+                    return "initial"
+                elif exists and RINEX_STORE_STRATEGY == "skip":
+                    return "skipped"
+                elif exists and RINEX_STORE_STRATEGY == "append":
+                    ds_clean.to_zarr(store,
+                                     group=receiver_name,
+                                     mode="a",
+                                     append_dim="epoch")
+                    return "appended"
+                else:
+                    ds_clean.to_zarr(store,
+                                     group=receiver_name,
+                                     mode="a",
+                                     append_dim="epoch")
+                    return "written"
+
+            with ThreadPoolExecutor(max_workers=12) as pool:
+                futures = []
+                for fname, ds in augmented_datasets:
+                    rinex_hash = file_hash_map.get(fname)
+                    if not rinex_hash:
+                        continue
+
+                    exists = rinex_hash in existing_hashes
+                    start_epoch = np.datetime64(ds.epoch.min().values)
+                    end_epoch = np.datetime64(ds.epoch.max().values)
+                    rel_path = self.site.rinex_store.rel_path_for_commit(fname)
+
+                    # full-schema metadata row (snapshot_id can stay None)
+                    metadata_records.append({
+                        "hash":
+                        rinex_hash,
+                        "start":
+                        start_epoch,
+                        "end":
+                        end_epoch,
+                        "action":
+                        "skip" if exists else "write",
+                        "commit_msg":
+                        f"{'skip' if exists else 'write'}: {rel_path}",
+                        "written_at":
+                        datetime.now(timezone.utc).isoformat(),
+                        "attrs":
+                        json.dumps(ds.attrs),
+                        "snapshot_id":
+                        None,
+                        "write_strategy":
+                        "skip" if exists else "append",
+                    })
+
+                    # skip writing if exists & skip strategy
+                    if exists and RINEX_STORE_STRATEGY == "skip":
+                        actions["skipped"] += 1
+                        continue
+
+                    # IMPORTANT: pass store explicitly; do NOT close over outer name
+                    futures.append(
+                        pool.submit(write_one, fname, ds, exists, rel_path,
+                                    receiver_name, store))
+
+                for fut in as_completed(futures):
+                    result = fut.result()
+                    actions[result] += 1
+
+            # 4) Bulk metadata into SAME transaction
+            self.site.rinex_store.append_metadata_bulk_store(
+                receiver_name, metadata_records, store)
+
+        # 5) committed on exit
+        log.info(f"Committed: {actions}")
+
+    def _append_to_icechunk_coord_distrbtd(
+        self,
+        augmented_datasets: list[tuple[Path, xr.Dataset]],
+        receiver_name: str,
+        rinex_files: list[Path],
+    ) -> None:
+        """
+        Cooperative distributed append with Icechunk.
+        - Uses cooperative_transaction so multiple workers can contribute.
+        - True parallel writes with ProcessPoolExecutor.
+        - Produces a single commit at the end.
+        """
+
+        log = self._logger
+        version = get_version_from_pyproject()
+
+        t_start = time.time()
+
+        # STEP 1: Batch check which files exist
+        log.info(f"Batch checking {len(augmented_datasets)} files...")
+        t1 = time.time()
+
+        file_hash_map = {
+            fname: ds.attrs.get("RINEX File Hash")
+            for fname, ds in augmented_datasets
+        }
+
+        valid_hashes = [h for h in file_hash_map.values() if h]
+        existing_hashes = self.site.rinex_store.batch_check_existing(
+            receiver_name, valid_hashes)
+
+        t2 = time.time()
+        log.info(f"Batch check complete in {t2-t1:.2f}s: "
+                 f"{len(existing_hashes)}/{len(augmented_datasets)} existing")
+
+        # STEP 2: Open session ONCE
+        log.info("Opening Icechunk session...")
+        t3 = time.time()
+        session = self.site.rinex_store.repo.writable_session(branch="main")
+        groups = self.site.rinex_store.list_groups() or []
+        t4 = time.time()
+        log.info(f"Session opened in {t4-t3:.2f}s")
+
+        actions = {"initial": 0, "skipped": 0, "appended": 0, "written": 0}
+        metadata_records = []  # Collect metadata to write after commit
+
+        try:
+            # STEP 3: Process all datasets using ONLY to_icechunk()
+            log.info(f"Processing {len(augmented_datasets)} datasets...")
+            t5 = time.time()
+
+            for idx, (fname, ds) in enumerate(augmented_datasets):
+                # Progress logging
+                if idx % 20 == 0 and idx > 0:
+                    elapsed = time.time() - t5
+                    rate = idx / elapsed if elapsed > 0 else 0
+                    log.info(
+                        f"  Progress: {idx}/{len(augmented_datasets)} ({rate:.1f} files/s)"
+                    )
+
+                token = set_file_context(fname)
+                try:
+                    rel_path = self.site.rinex_store.rel_path_for_commit(fname)
+                    rinex_hash = file_hash_map[fname]
+
+                    if not rinex_hash:
+                        log.debug(f"No hash for {fname}, skipping")
+                        continue
+
+                    # Get time range for metadata
+                    start_epoch = np.datetime64(ds.epoch.min().values)
+                    end_epoch = np.datetime64(ds.epoch.max().values)
+
+                    # Fast hash check
+                    exists = rinex_hash in existing_hashes
+
+                    # Cleanse dataset
+                    ds_clean = self.site.rinex_store._cleanse_dataset_attrs(ds)
+
+                    # Collect metadata for ALL files (write later)
+                    metadata_records.append({
+                        "fname": fname,
+                        "rinex_hash": rinex_hash,
+                        "start": start_epoch,
+                        "end": end_epoch,
+                        "dataset_attrs": ds.attrs.copy(),
+                        "exists": exists,
+                        "rel_path": rel_path,
+                    })
+
+                    # Handle data writes using ONLY to_icechunk() with our session
+                    match (exists, RINEX_STORE_STRATEGY):
+                        case (False,
+                              _) if receiver_name not in groups and idx == 0:
+                            # Initial group creation
+                            to_icechunk(ds_clean, session, group=receiver_name)
+                            groups.append(receiver_name)
+                            actions["initial"] += 1
+                            log.debug(f"Initial: {rel_path}")
+
+                        case (True, "skip"):
+                            # File exists, skip writing data
+                            actions["skipped"] += 1
+                            log.debug(f"Skipped: {rel_path}")
+
+                        case (True, "append"):
+                            # File exists but append anyway
+                            to_icechunk(ds_clean,
+                                        session,
+                                        group=receiver_name,
+                                        append_dim="epoch")
+                            actions["appended"] += 1
+                            log.debug(f"Appended: {rel_path}")
+
+                        case (False, _):
+                            # New file, write it
+                            to_icechunk(ds_clean,
+                                        session,
+                                        group=receiver_name,
+                                        append_dim="epoch")
+                            actions["written"] += 1
+                            log.debug(f"Wrote: {rel_path}")
+
+                except Exception as e:
+                    log.error(f"Failed to process {fname.name}: {e}")
+                finally:
+                    reset_context(token)
+
+            t6 = time.time()
+            log.info(f"Dataset processing complete in {t6-t5:.2f}s")
+
+            # STEP 4: Single commit for all data
+            summary = ", ".join(f"{k}={v}" for k, v in actions.items()
+                                if v > 0)
+            commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}: {summary}"
+
+            # STEP 5: Write metadata (separate transactions after data commit)
+            log.info(f"Writing metadata for {len(metadata_records)} files...")
+            t9 = time.time()
+
+            # for record in metadata_records:
+            #     action = "skip" if record["exists"] else "write"
+            #     try:
+            #         self.site.rinex_store.append_metadata(
+            #             group_name=receiver_name,
+            #             rinex_hash=record["rinex_hash"],
+            #             start=record["start"],
+            #             end=record["end"],
+            #             snapshot_id=snapshot_id,
+            #             action=action,
+            #             commit_msg=f"{action}: {record['rel_path']}",
+            #             dataset_attrs=record["dataset_attrs"],
+            #         )
+            #     except Exception as e:
+            #         log.warning(
+            #             f"Failed to write metadata for {record['fname'].name}: {e}"
+            #         )
+
+            self.site.rinex_store.append_metadata_bulk(
+                group_name=receiver_name,
+                rows=metadata_records,
+                session=session,
+            )
+
+            t10 = time.time()
+            log.info(f"Metadata written in {t10-t9:.2f}s")
+
+            log.info(f"Committing: {summary}")
+            t7 = time.time()
+            snapshot_id = session.commit(commit_msg)
+            t8 = time.time()
+            log.info(
+                f"Commit complete in {t8-t7:.2f}s (snapshot: {snapshot_id[:8]}...)"
+            )
+
+            # Timing summary
+            t_end = time.time()
+            log.info(f"\nTIMING BREAKDOWN:")
+            log.info(f"  Batch check:    {t2-t1:.2f}s")
+            log.info(f"  Open session:   {t4-t3:.2f}s")
+            log.info(f"  Process data:   {t6-t5:.2f}s")
+            log.info(f"  Commit:         {t8-t7:.2f}s")
+            log.info(f"  Metadata:       {t10-t9:.2f}s")
+            log.info(f"  TOTAL:          {t_end-t_start:.2f}s")
+
+            log.info(
+                f"Successfully processed {len(augmented_datasets)} files for '{receiver_name}'"
+            )
+
+        except Exception as e:
+            log.error(f"Batch append failed: {e}")
+            raise
+
+    def parsed_rinex_data_gen_parallel(
+        self,
+        keep_vars: list[str] | None = None,
+        receiver_types: list[str] | None = None,
+    ) -> Generator[xr.Dataset]:
+        """
+        Generator that processes RINEX files and appends to Icechunk stores.
+
+        Pipeline:
+        1. Preprocess aux data ONCE per day with Hermite splines → Zarr
+        2. Compute receiver position ONCE (shared for all receivers)
+        3. For each receiver type (canopy, reference):
+           a. Get list of RINEX files
+           b. Parallel process with ProcessPoolExecutor
+           c. Each worker: read RINEX + slice Zarr + compute φ, θ, r
+           d. Sequential append to Icechunk store
+           e. Yield final daily dataset
+
+        Parameters
+        ----------
+        keep_vars : List[str], optional
+            Variables to keep in datasets (default: from globals)
+        receiver_types : List[str], optional
+            Receiver types to process (default: ['canopy', 'reference'])
+
+        Yields
+        ------
+        xr.Dataset
+            Processed and augmented daily dataset for each receiver type
+        """
+        if receiver_types is None:
+            receiver_types = ["canopy", "reference"]
+
+        if keep_vars is None:
+            keep_vars = KEEP_RNX_VARS
+
+        self._logger.info(
+            f"Starting RINEX processing pipeline for: {receiver_types}")
+
+        # Pre-flight: Get canopy files to infer sampling and compute position
+        canopy_dir = self.matched_data_dirs.canopy_data_dir
+        canopy_files = self._get_rinex_files(canopy_dir)
+        if not canopy_files:
+            raise ValueError(
+                "No canopy RINEX files found - cannot infer sampling rate")
+
+        # ====================================================================
+        # STEP 1: Preprocess aux data ONCE per day with Hermite splines
+        # ====================================================================
+        aux_zarr_path = Path(
+            f"/tmp/aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr")
+
+        if not aux_zarr_path.exists():
+            self._logger.info(
+                "Preprocessing aux data with Hermite splines (once per day)")
+            sampling_interval = self._preprocess_aux_data_with_hermite(
+                canopy_files, aux_zarr_path)
+        else:
+            self._logger.info(
+                f"Using existing preprocessed aux data: {aux_zarr_path}")
+
+        # ====================================================================
+        # STEP 2: Compute receiver position ONCE (same for all receivers)
+        # ====================================================================
+        first_rnx = Rnxv3Obs(fpath=canopy_files[0], include_auxiliary=False)
+        first_ds = first_rnx.to_ds(write_global_attrs=True)
+        receiver_position = ECEFPosition.from_ds_metadata(first_ds)
+        self._logger.info(
+            f"Computed receiver position (shared): {receiver_position}")
+
+        # ====================================================================
+        # STEP 3: Process each receiver type
+        # ====================================================================
+        for receiver_type in receiver_types:
+            self._logger.info(f"Processing receiver type: {receiver_type}")
+
+            # 3a. Resolve directories and receiver name
+            rinex_dir, receiver_name = self._resolve_receiver_paths(
+                receiver_type)
+
+            if not receiver_name:
+                self._logger.warning(
+                    f"No configured receiver for {receiver_type}, skipping")
+                continue
+
+            # 3b. Get RINEX files for this receiver type
+            rinex_files = self._get_rinex_files(rinex_dir)
+            if not rinex_files:
+                self._logger.warning(f"No RINEX files found in {rinex_dir}")
+                continue
+
+            self._logger.info(
+                f"Found {len(rinex_files)} RINEX files to process")
+
+            # 3c. Parallel process with ProcessPoolExecutor
+            augmented_datasets = self._cooperative_distributed_writing(
+                rinex_files=rinex_files,
+                keep_vars=keep_vars,
+                aux_zarr_path=aux_zarr_path,
+                receiver_position=receiver_position,
+                receiver_type=receiver_type,
+                receiver_name=receiver_name,
+            )
+
+            # 3e. Yield final daily dataset
+            # Read back from store to get complete daily dataset
+            date_obj = self.matched_data_dirs.yyyydoy.date
+            start_time = datetime.combine(date_obj, datetime.min.time())
+            end_time = datetime.combine(date_obj, datetime.max.time())
+            time_range = (start_time, end_time)
+
+            daily_dataset = self.site.read_receiver_data(
+                receiver_name=receiver_name, time_range=time_range)
+
+            self._logger.info(
+                f"Yielding daily dataset for {receiver_type} ('{receiver_name}'): "
+                f"{dict(daily_dataset.sizes)}")
+
+            yield daily_dataset
+
+
+if __name__ == "__main__":
+    # from canvodpy.data_handler.data_handler import DataDirMatcher
+    # from canvodpy.utils.date_time import YYYYDOY
+
+    # # Example usage
+    # matcher = DataDirMatcher.from_root(Path("/home/nbader/Music/testdir/"))
+
+    # for md in matcher:
+    #     reader = IcechunkDataReader(
+    #         matched_dirs=md,
+    #         site_name="Rosalia",
+    #         n_max_workers=12,  # Configurable threading
+    #         enable_gc=False,  # Manually force garbage collection
+    #         gc_delay=0,  # Delay after GC
+    #     )
+    #     # Initial setup and data loading
+    #     processor = RinexDataProcessor(matched_data_dirs=md,
+    #                                    icechunk_reader=reader)
+    #     data_generator = processor.parsed_rinex_data_gen()
+
+    #     canopy_ds = next(data_generator)
+
+    #     approx_pos = processor.get_approx_position(ds=canopy_ds)
+
+    #     ephem_ds = processor.get_ephemeride_ds()
+    #     ephem_ds = IcechunkPreprocessor.prep_aux_ds(aux_ds=ephem_ds)
+
+    #     clk_ds = processor.get_clk_ds()
+    #     clk_ds = IcechunkPreprocessor.prep_aux_ds(aux_ds=clk_ds)
+
+    #     aux_ds_dict = {"ephem": ephem_ds, "clk": clk_ds}
+
+    #     matched = processor.match_datasets(canopy_ds, **aux_ds_dict)
+
+    #     ephem_ds = matched["ephem"]
+    #     clk_ds = matched["clk"]
+
+    #     canopy_ds = processor.add_azi_ele(
+    #         rnx_obs_ds=canopy_ds,
+    #         ephem_ds=ephem_ds,
+    #         rx_x=approx_pos.x,
+    #         rx_y=approx_pos.y,
+    #         rx_z=approx_pos.z,
+    #     )
+
+    #     print(canopy_ds.info())
+
+    #     sky_ds = next(data_generator)
+
+    from canvodpy.data_handler.data_handler import MatchedDirs
+    from canvod.store import GnssResearchSite
+    from canvodpy.orchestrator.processor import RinexDataProcessor
+    from canvodpy.utils.date_time import YYYYDOY
+
+    print(f"stared main block at {datetime.now()}")
+
+    # md = MatchedDirs(
+    #     canopy_data_dir=Path(
+    #         "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302"),
+    #     sky_data_dir=Path(
+    #         "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302"),
+    #     yyyydoy=YYYYDOY.from_str("2024302"),
+    # )
+
+    # md = MatchedDirs(
+    #     canopy_data_dir=Path(
+    #         "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/25105"),
+    #     sky_data_dir=Path(
+    #         "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/25105"),
+    #     yyyydoy=YYYYDOY.from_str("2025105"),
+    # )
+
+    matcher = DataDirMatcher(
+        sky_dir_pattern=Path("01_reference/01_GNSS/01_raw"),
+        canopy_dir_pattern=Path("02_canopy/01_GNSS/01_raw"),
+    )
+
+    site = GnssResearchSite(site_name="Rosalia")
+
+    stats = {"processed": 0, "skipped": 0, "failed": 0}
+
+    for md in matcher:
+        yyyydoy_str = md.yyyydoy.to_str()
+
+        if yyyydoy_str != '2024258':
+            continue
+
+        try:
+            print(
+                f'instantiating processor for {yyyydoy_str}: {datetime.now()}')
+            # Create processor first to check completeness
+            processor = RinexDataProcessor(matched_data_dirs=md,
+                                           site=site,
+                                           n_max_workers=12)
+
+            # Check if should skip
+            if RINEX_STORE_STRATEGY in ["skip", "append"]:
+                should_skip, coverage = processor.should_skip_day()
+
+                if should_skip:
+                    print(f"✓ Skipping {yyyydoy_str} - already complete:")
+                    for receiver_type, info in coverage.items():
+                        print(
+                            f"  {receiver_type}: {info['epochs']}/{info['expected']} "
+                            f"({info['percent']:.1f}%)")
+                    stats["skipped"] += 1
+                    continue
+                else:
+                    print(f"⚠ Processing {yyyydoy_str} - incomplete coverage:")
+                    for receiver_type, info in coverage.items():
+                        if info['exists']:
+                            print(
+                                f"  {receiver_type}: {info['epochs']}/{info['expected']} "
+                                f"({info['percent']:.1f}%)")
+                        else:
+                            print(f"  {receiver_type}: No data")
+
+            # Process data
+            print(
+                f'about to call parsed_rinex_data_gen for {yyyydoy_str}: {datetime.now()}'
+            )
+            data_generator = processor.parsed_rinex_data_gen()
+            print(f'calling next for canopy: {datetime.now()}')
+            canopy_ds = next(data_generator)
+            print(f'calling next for reference: {datetime.now()}')
+            reference_ds = next(data_generator)
+
+            stats["processed"] += 1
+            print(f"✓ Processed {yyyydoy_str}")
+
+        except Exception as e:
+            print(f"✗ Failed {yyyydoy_str}: {e}")
+            stats["failed"] += 1

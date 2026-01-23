@@ -38,12 +38,28 @@ class Observation:
     @field_validator("observation_freq_tag")
     def validate_observation_code(cls, v: str) -> str:
         """Validate RINEX v3 observation code format.
+        
+        Parameters
+        ----------
+        v : str
+            Observation code to validate
+        
+        Returns
+        -------
+        str
+            Validated observation code
+        
+        Raises
+        ------
+        ValueError
+            If format is invalid
 
-        Examples:
-            'G01|L1C'  (GPS L1C observation)
-            'R02|C1P'  (GLONASS C1P observation)
-            'E01|S5Q'  (Galileo S5Q observation)
-            'I06|X1'   (IRNSS observation)
+        Examples
+        --------
+        'G01|L1C'  (GPS L1C observation)
+        'R02|C1P'  (GLONASS C1P observation)
+        'E01|S5Q'  (Galileo S5Q observation)
+        'I06|X1'   (IRNSS observation)
 
         """
         try:
@@ -68,7 +84,23 @@ class Observation:
     @field_validator("frequency")
     def validate_frequency(cls,
                            v: pint.Quantity | None) -> pint.Quantity | None:
-        """Validate that frequency is a proper pint.Quantity with frequency units."""
+        """Validate that frequency is a proper pint.Quantity with frequency units.
+        
+        Parameters
+        ----------
+        v : pint.Quantity or None
+            Frequency to validate
+        
+        Returns
+        -------
+        pint.Quantity or None
+            Validated frequency
+        
+        Raises
+        ------
+        ValueError
+            If not a Quantity or doesn't have frequency units
+        """
         if v is not None and not isinstance(v, pint.Quantity):
             raise ValueError("Frequency must be a pint.Quantity")
         if v is not None and not v.check("[frequency]"):
@@ -77,7 +109,23 @@ class Observation:
 
     @field_validator("lli", "ssi")
     def validate_indicators(cls, v: int | None) -> int | None:
-        """Validate LLI and SSI values."""
+        """Validate LLI and SSI values.
+        
+        Parameters
+        ----------
+        v : int or None
+            Indicator value to validate
+        
+        Returns
+        -------
+        int or None
+            Validated indicator value
+        
+        Raises
+        ------
+        ValueError
+            If value not in range 0-9
+        """
         if v is not None and not (0 <= v <= 9):
             raise ValueError("Indicator values must be between 0 and 9")
         return v
@@ -96,6 +144,21 @@ class Satellite:
     @field_validator("sv")
     def validate_sv(cls, v: str) -> str:
         """Validate satellite vehicle identifier format.
+        
+        Parameters
+        ----------
+        v : str
+            Satellite identifier to validate
+        
+        Returns
+        -------
+        str
+            Validated satellite identifier
+        
+        Raises
+        ------
+        ValueError
+            If format is invalid
 
         Supports:
         - G: GPS
@@ -111,11 +174,32 @@ class Satellite:
         return v
 
     def add_observation(self, observation: Observation) -> None:
-        """Add an observation to the satellite."""
+        """Add an observation to the satellite.
+        
+        Parameters
+        ----------
+        observation : Observation
+            Observation to add
+        
+        Returns
+        -------
+        None
+        """
         self.observations.append(observation)
 
     def get_observation(self, observation_freq_tag: str) -> Observation | None:
-        """Get an observation by its code."""
+        """Get an observation by its code.
+        
+        Parameters
+        ----------
+        observation_freq_tag : str
+            Observation frequency tag to search for
+        
+        Returns
+        -------
+        Observation or None
+            Found observation or None if not found
+        """
         return next(
             (obs for obs in self.observations
              if obs.observation_freq_tag == observation_freq_tag),
@@ -123,7 +207,18 @@ class Satellite:
         )
 
     def get_observation_values(self, obs_code: str) -> list[float]:
-        """Get all values for a specific observation code."""
+        """Get all values for a specific observation code.
+        
+        Parameters
+        ----------
+        obs_code : str
+            Observation code to filter by
+        
+        Returns
+        -------
+        list of float
+            List of observation values
+        """
         return [
             obs.value for obs in self.observations
             if obs.observation_freq_tag == obs_code and obs.value is not None
@@ -139,15 +234,47 @@ class Epoch:
     satellites: list[Satellite] = Field(default_factory=list)
 
     def add_satellite(self, satellite: Satellite) -> None:
-        """Add a satellite to the epoch."""
+        """Add a satellite to the epoch.
+        
+        Parameters
+        ----------
+        satellite : Satellite
+            Satellite to add
+        
+        Returns
+        -------
+        None
+        """
         self.satellites.append(satellite)
 
     def get_satellite(self, sv: str) -> Satellite | None:
-        """Get a satellite by its identifier."""
+        """Get a satellite by its identifier.
+        
+        Parameters
+        ----------
+        sv : str
+            Satellite identifier
+        
+        Returns
+        -------
+        Satellite or None
+            Found satellite or None if not found
+        """
         return next((sat for sat in self.satellites if sat.sv == sv), None)
 
     def get_satellites_by_system(self, system: str) -> list[Satellite]:
-        """Get all satellites for a specific system."""
+        """Get all satellites for a specific system.
+        
+        Parameters
+        ----------
+        system : str
+            System identifier (G, R, E, C, J, S, I)
+        
+        Returns
+        -------
+        list of Satellite
+            Satellites matching the system
+        """
         return [sat for sat in self.satellites if sat.sv.startswith(system)]
 
 
@@ -185,13 +312,47 @@ class RnxObsFileModel(BaseModel):
     fpath: Path
 
     @field_validator("fpath")
-    def file_must_exist(cls, v):
+    def file_must_exist(cls, v: Path) -> Path:
+        """Validate that file exists.
+        
+        Parameters
+        ----------
+        v : Path
+            File path to check
+        
+        Returns
+        -------
+        Path
+            Validated path
+        
+        Raises
+        ------
+        ValueError
+            If file does not exist
+        """
         if not v.exists():
             raise ValueError(f"File {v} does not exist.")
         return v
 
     @field_validator("fpath")
-    def file_must_have_correct_suffix(cls, v):
+    def file_must_have_correct_suffix(cls, v: Path) -> Path:
+        """Validate RINEX observation file suffix.
+        
+        Parameters
+        ----------
+        v : Path
+            File path to check
+        
+        Returns
+        -------
+        Path
+            Validated path
+        
+        Raises
+        ------
+        ValueError
+            If suffix doesn't match RINEX observation pattern
+        """
         rinex_suffix_pattern = re.compile(
             r"\.2\d[o]$")  # Ensures the format ".2Xo"
 
@@ -209,7 +370,24 @@ class RnxVersion3Model(BaseModel):
     version: float
 
     @field_validator("version")
-    def version_must_be_3(cls, v):
+    def version_must_be_3(cls, v: float) -> float:
+        """Validate RINEX version is 3.0x.
+        
+        Parameters
+        ----------
+        v : float
+            Version number to check
+        
+        Returns
+        -------
+        float
+            Validated version
+        
+        Raises
+        ------
+        ValueError
+            If version is not 3.0x
+        """
         if not 3 <= v < 4:
             raise ValueError("Rinex version must be 3.0x")
         return v
@@ -223,7 +401,24 @@ class Rnxv3ObsEpochRecordCompletenessModel(BaseModel):
     sampling_interval: str | Quantity
 
     @field_validator("rnx_file_dump_interval")
-    def rnx_file_dump_interval(cls, value):
+    def rnx_file_dump_interval(cls, value: str | Quantity) -> Quantity:
+        """Validate and convert dump interval to Quantity.
+        
+        Parameters
+        ----------
+        value : str or Quantity
+            Dump interval to validate
+        
+        Returns
+        -------
+        Quantity
+            Dump interval in minutes
+        
+        Warns
+        -----
+        UserWarning
+            If interval is not a standard IGS interval
+        """
         if not isinstance(value, pint.Quantity):
             value = ureg.Quantity(value).to(ureg.minutes)
         if value not in IGS_RNX_DUMP_INTERVALS:
@@ -233,7 +428,24 @@ class Rnxv3ObsEpochRecordCompletenessModel(BaseModel):
         return value
 
     @field_validator("sampling_interval")
-    def check_sampling_interval_units(cls, value):
+    def check_sampling_interval_units(cls, value: str | Quantity) -> Quantity:
+        """Validate sampling interval units and value.
+        
+        Parameters
+        ----------
+        value : str or Quantity
+            Sampling interval to validate
+        
+        Returns
+        -------
+        Quantity
+            Sampling interval in seconds
+        
+        Raises
+        ------
+        ValueError
+            If not a standard Septentrio sampling interval
+        """
         if not isinstance(value, pint.Quantity):
             value = ureg.Quantity(value).to(ureg.seconds)
         if value not in SEPTENTRIO_SAMPLING_INTERVALS:
@@ -244,8 +456,24 @@ class Rnxv3ObsEpochRecordCompletenessModel(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def check_intervals(self):
-        """Validate epoch intervals consistency."""
+    def check_intervals(self) -> "Rnxv3ObsEpochRecordCompletenessModel":
+        """Validate epoch intervals consistency.
+        
+        Returns
+        -------
+        Rnxv3ObsEpochRecordCompletenessModel
+            Self for method chaining
+        
+        Raises
+        ------
+        MissingEpochError
+            If total sampling time doesn't match dump interval
+        
+        Warns
+        -----
+        UserWarning
+            If there's a mismatch in expected intervals
+        """
         epoch_records_indeces = self.epoch_records_indeces
         rnx_file_dump_interval = self.rnx_file_dump_interval
         sampling_interval = self.sampling_interval
@@ -283,7 +511,24 @@ class Rnxv3ObsEpochRecordLineModel(BaseModel):
     receiver_clock_offset: float | None = None
 
     @model_validator(mode="before")
-    def parse_epoch(cls, values):
+    def parse_epoch(cls, values: dict) -> dict:
+        """Parse RINEX v3 epoch record line.
+        
+        Parameters
+        ----------
+        values : dict
+            Dictionary containing 'epoch' string to parse
+        
+        Returns
+        -------
+        dict
+            Parsed values with individual date/time components
+        
+        Raises
+        ------
+        ValueError
+            If epoch format is invalid
+        """
         epoch = values["epoch"]
         pattern = r"^(?P<epoch_record_indicator>>)\s*(?P<year>\d{4})\s+(?P<month>\d{2})\s+(?P<day>\d{2})\s+(?P<hour>\d{2})\s+(?P<minute>\d{2})\s+(?P<seconds>\d+\.\d+)\s+(?P<epoch_flag>\d+)\s+(?P<num_satellites>\d+)\s*(?P<reserved>\d*)\s*(?P<receiver_clock_offset>-?\d*\.\d*)?\s*$"
         match = re.match(pattern, epoch)
@@ -321,7 +566,18 @@ class Rnxv3ObsEpochRecord:
 
     @model_validator(mode="after")
     def check_num_satellites_matches_data(self) -> "Rnxv3ObsEpochRecord":
-        """Validate that the number of satellites matches the data."""
+        """Validate that the number of satellites matches the data.
+        
+        Returns
+        -------
+        Rnxv3ObsEpochRecord
+            Self for method chaining
+        
+        Raises
+        ------
+        IncompleteEpochError
+            If satellite count doesn't match actual data
+        """
         if not self.info.num_satellites:
             raise IncompleteEpochError(
                 "Number of satellites is automatically specified in the epoch record. "
@@ -338,7 +594,18 @@ class Rnxv3ObsEpochRecord:
         return self
 
     def get_satellites_by_system(self, system: str) -> list[Satellite]:
-        """Get all satellites for a specific system (G, R, E, etc.)."""
+        """Get all satellites for a specific system (G, R, E, etc.).
+        
+        Parameters
+        ----------
+        system : str
+            System identifier
+        
+        Returns
+        -------
+        list of Satellite
+            Satellites matching the system
+        """
         return [sat for sat in self.data if sat.sv.startswith(system)]
 
 
@@ -350,8 +617,24 @@ class VodDataValidator(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @field_validator("vod_data", mode="before")
-    def validate_vod_data(cls, value: xr.Dataset):
-        """Validate the VOD data."""
+    def validate_vod_data(cls, value: xr.Dataset) -> xr.Dataset:
+        """Validate the VOD data structure.
+        
+        Parameters
+        ----------
+        value : xr.Dataset
+            VOD dataset to validate
+        
+        Returns
+        -------
+        xr.Dataset
+            Validated dataset
+        
+        Raises
+        ------
+        ValueError
+            If dataset is None, wrong type, or missing required variables/coordinates
+        """
         if value is None:
             raise ValueError(
                 "vod_data has not been calculated yet. "

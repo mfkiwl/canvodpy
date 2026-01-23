@@ -16,7 +16,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
 ]
-dependencies = []
+dependencies = [
+    "numpy>=1.26.0",
+]
 
 [build-system]
 requires = ["uv_build>=0.9.17,<0.10.0"]

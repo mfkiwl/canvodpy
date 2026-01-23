@@ -308,3 +308,15 @@ celerybeat.pid
 # Spyder
 .spyderproject
 .spyproject
+
+# ============================================================================
+# Configuration Files (User-specific)
+# ============================================================================
+
+# User configuration files (NEVER commit!)
+config/processing.yaml
+config/sites.yaml
+config/sids.yaml
+
+# Templates (DO commit!)
+!config/*.example
