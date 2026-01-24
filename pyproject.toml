@@ -13,6 +13,7 @@ members = ["packages/*", "canvodpy"]
 dev = [
     "ipykernel>=7.1.0",
     "mystmd>=1.6.6",
+    "pydeps>=3.0.2",
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.12.0",

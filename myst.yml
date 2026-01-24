@@ -36,6 +36,8 @@ project:
           title: Documentation Home
         - file: docs/architecture.md
           title: Architecture Overview
+        - file: docs/dependencies.md
+          title: Package Dependencies
         - file: docs/tooling.md
           title: Development Tooling
         - file: docs/namespace-packages.md
