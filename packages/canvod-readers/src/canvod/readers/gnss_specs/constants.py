@@ -30,6 +30,25 @@ EPOCH_RECORD_INDICATOR: str = ">"
 # GNSS frequency unit
 FREQ_UNIT = UREG.MHz
 
+# Processing options (defaults - TODO: move to config system)
+AGGREGATE_GLONASS_FDMA: bool = False  # Whether to aggregate GLONASS FDMA channels
+COMPRESSION: str = "zlib"  # Compression algorithm for output
+KEEP_RNX_VARS: list[str] = [
+    "C",
+    "L",
+    "D",
+    "S",
+]  # RINEX observation types to keep
+
+# Metadata (defaults - TODO: move to config system)
+AUTHOR: str = "canVODpy"
+EMAIL: str = "climers@geo.tuwien.ac.at"
+INSTITUTION: str = "TU Wien"
+DEPARTMENT: str = "Department of Geodesy and Geoinformation"
+RESEARCH_GROUP: str = "Climate and Environmental Remote Sensing (CLIMERS)"
+WEBSITE: str = "https://climers.geo.tuwien.ac.at"
+SOFTWARE: str = "canVODpy"
+
 # Septentrio receiver sampling intervals (hardware capabilities)
 SEPTENTRIO_SAMPLING_INTERVALS: list[pint.Quantity] = [
     100 * UREG.millisecond,
