@@ -35,7 +35,8 @@ def test_package_imports():
 
 def test_internal_utilities_import():
     """Test that internal utilities can be imported."""
-    from canvod.aux._internal import UREG, YYYYDOY, get_logger
+    from canvod.aux._internal import UREG, get_logger
+    from canvod.utils.tools import YYYYDOY
     assert UREG is not None
     assert YYYYDOY is not None
     assert get_logger is not None

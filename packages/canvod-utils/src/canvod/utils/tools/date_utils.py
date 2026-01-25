@@ -25,7 +25,7 @@ def get_gps_week_from_filename(file_name: Path) -> str:
 
     Raises
     ------
-    Warning
+    ValueError
         If file type is not recognized
 
     Examples
@@ -48,7 +48,7 @@ def get_gps_week_from_filename(file_name: Path) -> str:
         "Invalid file type. The filename must end with "
         ".clk, clk_05s, .CLK, .SP3, .TRO, or .IONEX"
     )
-    raise Warning(msg)
+    raise ValueError(msg)
 
 
 def gpsweekday(
@@ -135,8 +135,15 @@ class YYYYDOY:
         The year (must be >= 1)
     doy : int
         Day of year (1-366)
-    yydoy : str, optional
+
+    Attributes
+    ----------
+    date : datetime.date
+        Calculated calendar date
+    yydoy : str
         Two-digit year + DOY string representation
+    doy : str
+        Day of year as zero-padded string (e.g., "001")
 
     Examples
     --------
@@ -144,17 +151,30 @@ class YYYYDOY:
     >>> date = YYYYDOY.from_str("2025001")
     >>> print(date.to_datetime())
     >>> print(date.to_str())  # "2025001"
+    >>> print(date.doy)  # "001"
+    >>> print(date.date)  # datetime.date(2025, 1, 1)
     """
 
     year: int = Field(..., ge=1)
     doy: int = Field(..., ge=1, le=366)
     yydoy: Optional[str] = None
+    date: Optional[datetime.date] = None
 
     def __post_init__(self):
-        """Set yydoy if not provided."""
+        """Calculate derived fields after initialization."""
+        # Store original doy as int for calculations
+        doy_int = self.doy
+        
+        # Convert doy to zero-padded string
+        self.doy = f"{doy_int:03d}"
+        
+        # Calculate date
+        self.date = datetime.date(self.year, 1, 1) + datetime.timedelta(days=doy_int - 1)
+        
+        # Set yydoy if not provided
         if self.yydoy is None:
             year_str = str(self.year)[2:]  # Last 2 digits
-            self.yydoy = f"{year_str}{self.doy:03d}"
+            self.yydoy = f"{year_str}{self.doy}"
 
     @classmethod
     def from_str(cls, yyyydoy: str) -> "YYYYDOY":
@@ -177,20 +197,58 @@ class YYYYDOY:
         >>> date.year
         2025
         >>> date.doy
-        1
+        '001'
         """
         if len(yyyydoy) != 7:
-            msg = f"YYYYDOY string must be 7 characters, got {len(yyyydoy)}"
+            msg = f"Invalid date format. Expected 'YYYYDDD', got '{yyyydoy}'"
             raise ValueError(msg)
 
         year = int(yyyydoy[:4])
         doy = int(yyyydoy[4:])
+        
+        # Validate doy range
+        if not 1 <= doy <= 366:
+            raise ValueError(
+                f"Day of year (DOY) must be in range [1, 366], got {doy}"
+            )
+        
+        return cls(year=year, doy=doy)
+
+    @classmethod
+    def from_date(cls, dt: datetime.datetime | datetime.date) -> "YYYYDOY":
+        """
+        Create YYYYDOY from date.
+
+        Parameters
+        ----------
+        dt : datetime.datetime or datetime.date
+            Date to convert
+
+        Returns
+        -------
+        YYYYDOY
+            Date object
+
+        Examples
+        --------
+        >>> from datetime import date
+        >>> date_obj = YYYYDOY.from_date(date(2025, 1, 24))
+        >>> date_obj.year
+        2025
+        >>> date_obj.doy
+        '024'
+        """
+        if isinstance(dt, datetime.datetime):
+            dt = dt.date()
+
+        year = dt.year
+        doy = dt.timetuple().tm_yday
         return cls(year=year, doy=doy)
 
     @classmethod
     def from_datetime(cls, dt: datetime.datetime | datetime.date) -> "YYYYDOY":
         """
-        Create YYYYDOY from datetime.
+        Create YYYYDOY from datetime (alias for from_date).
 
         Parameters
         ----------
@@ -207,12 +265,30 @@ class YYYYDOY:
         >>> from datetime import date
         >>> date_obj = YYYYDOY.from_datetime(date(2025, 1, 24))
         """
-        if isinstance(dt, datetime.datetime):
-            dt = dt.date()
+        return cls.from_date(dt)
 
-        year = dt.year
-        doy = dt.timetuple().tm_yday
-        return cls(year=year, doy=doy)
+    @classmethod
+    def from_int(cls, yyyydoy: int) -> "YYYYDOY":
+        """
+        Create YYYYDOY from integer.
+
+        Parameters
+        ----------
+        yyyydoy : int
+            Year + DOY as integer (e.g., 2025001)
+
+        Returns
+        -------
+        YYYYDOY
+            Date object
+
+        Examples
+        --------
+        >>> date = YYYYDOY.from_int(2025001)
+        >>> date.year
+        2025
+        """
+        return cls.from_str(str(yyyydoy))
 
     def to_str(self) -> str:
         """
@@ -229,7 +305,7 @@ class YYYYDOY:
         >>> date.to_str()
         '2025024'
         """
-        return f"{self.year}{self.doy:03d}"
+        return f"{self.year}{self.doy}"
 
     def to_datetime(self) -> datetime.datetime:
         """
@@ -245,7 +321,45 @@ class YYYYDOY:
         >>> date = YYYYDOY(year=2025, doy=1)
         >>> dt = date.to_datetime()
         """
-        return datetime.datetime.strptime(self.to_str(), "%Y%j")
+        return datetime.datetime.combine(self.date, datetime.time.min)
+
+    @property
+    def gps_week(self) -> int:
+        """
+        GPS week number since GPS epoch (1980-01-06).
+        
+        Returns
+        -------
+        int
+            GPS week number
+            
+        Examples
+        --------
+        >>> date = YYYYDOY.from_date(datetime.date(1980, 1, 6))
+        >>> date.gps_week
+        0
+        """
+        gps_start_date = datetime.date(1980, 1, 6)
+        return (self.date - gps_start_date).days // 7
+
+    @property
+    def gps_day_of_week(self) -> int:
+        """
+        GPS day of week (0=Sunday, 6=Saturday).
+        
+        Returns
+        -------
+        int
+            Day of week where 0=Sunday, 6=Saturday
+            
+        Examples
+        --------
+        >>> date = YYYYDOY.from_date(datetime.date(1980, 1, 6))  # Sunday
+        >>> date.gps_day_of_week
+        0
+        """
+        gps_start_date = datetime.date(1980, 1, 6)
+        return (self.date - gps_start_date).days % 7
 
     def __str__(self) -> str:
         """String representation."""
@@ -259,14 +373,14 @@ class YYYYDOY:
         """Equality comparison."""
         if not isinstance(other, YYYYDOY):
             return NotImplemented
-        return self.year == other.year and self.doy == other.doy
+        return self.to_str() == other.to_str()
 
     def __lt__(self, other: "YYYYDOY") -> bool:
         """Less than comparison."""
-        if self.year != other.year:
-            return self.year < other.year
-        return self.doy < other.doy
+        if not isinstance(other, YYYYDOY):
+            return NotImplemented
+        return self.date < other.date
 
     def __hash__(self) -> int:
         """Hash for use in sets/dicts."""
-        return hash((self.year, self.doy))
+        return hash(self.to_str())

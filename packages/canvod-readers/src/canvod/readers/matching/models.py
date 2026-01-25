@@ -6,7 +6,7 @@ Contains dataclasses for representing matched RINEX data directories.
 from dataclasses import dataclass
 from pathlib import Path
 
-from canvod.readers.utils import YYYYDOY
+from canvod.utils.tools import YYYYDOY
 
 
 @dataclass(frozen=True)
@@ -28,7 +28,7 @@ class MatchedDirs:
     Examples
     --------
     >>> from pathlib import Path
-    >>> from canvod.readers.utils import YYYYDOY
+    >>> from canvod.utils.tools import YYYYDOY
     >>> 
     >>> md = MatchedDirs(
     ...     canopy_data_dir=Path("/data/02_canopy/25001"),

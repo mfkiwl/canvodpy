@@ -392,8 +392,11 @@ version = "0.1.0"
 source = { editable = "canvodpy" }
 dependencies = [
     { name = "canvod-aux" },
+    { name = "canvod-grids" },
     { name = "canvod-readers" },
     { name = "canvod-store" },
+    { name = "canvod-utils" },
+    { name = "canvod-viz" },
     { name = "canvod-vod" },
     { name = "dask" },
     { name = "marimo" },
@@ -419,8 +422,11 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "canvod-aux", editable = "packages/canvod-aux" },
+    { name = "canvod-grids", editable = "packages/canvod-grids" },
     { name = "canvod-readers", editable = "packages/canvod-readers" },
     { name = "canvod-store", editable = "packages/canvod-store" },
+    { name = "canvod-utils", editable = "packages/canvod-utils" },
+    { name = "canvod-viz", editable = "packages/canvod-viz" },
     { name = "canvod-vod", editable = "packages/canvod-vod" },
     { name = "dask", specifier = ">=2026.1.1" },
     { name = "marimo", specifier = ">=0.9.0" },

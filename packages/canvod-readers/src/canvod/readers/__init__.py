@@ -53,7 +53,7 @@ from canvod.readers.matching import (
     PairMatchedDirs,
 )
 from canvod.readers.rinex.v3_04 import Rnxv3Obs
-from canvod.readers.utils import YYYYDOY
+from canvod.utils.tools import YYYYDOY
 
 __version__ = "0.1.0"
 

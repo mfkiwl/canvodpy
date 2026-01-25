@@ -13,13 +13,13 @@ import numpy as np
 from tqdm import tqdm
 import xarray as xr
 
-from canvodpy.data_handler.data_handler import MatchedDirs
+from canvod.readers import MatchedDirs
 from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY
 from canvod.store.manager import GnssResearchSite
 from canvodpy.logging.context import get_logger, reset_context, set_file_context
 from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE
 from canvod.readers import Rnxv3Obs
-from canvodpy.utils.tools import get_version_from_pyproject
+from canvod.utils.tools import get_version_from_pyproject
 
 
 # Module-level function for ProcessPoolExecutor (must be at module level to be pickleable)

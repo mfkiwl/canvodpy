@@ -689,8 +689,8 @@ if __name__ == '__main__':
     from pathlib import Path
 
     import xarray as xr
-    from gnssvodpy.data_handler.data_handler import MatchedDirs
-    from gnssvodpy.utils.date_time import YYYYDOY
+    from canvod.readers import MatchedDirs
+    from canvod.utils.tools import YYYYDOY
 
     from canvod.aux.pipeline import AuxDataPipeline
 

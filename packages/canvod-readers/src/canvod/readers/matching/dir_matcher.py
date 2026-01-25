@@ -8,7 +8,7 @@ from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from canvod.readers.utils import YYYYDOY
+from canvod.utils.tools import YYYYDOY
 from natsort import natsorted
 
 from .models import MatchedDirs, PairMatchedDirs

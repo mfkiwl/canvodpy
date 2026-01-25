@@ -9,7 +9,7 @@ import xarray as xr
 from pydantic import ConfigDict, Field
 from pydantic.dataclasses import dataclass
 
-from canvod.aux._internal import YYYYDOY
+from canvod.utils.tools import YYYYDOY
 from canvod.aux.core.downloader import FileDownloader, FtpDownloader
 from canvod.aux.interpolation import Interpolator
 

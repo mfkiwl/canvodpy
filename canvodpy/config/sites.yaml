@@ -1,0 +1,57 @@
+# =============================================================================
+# Research Sites Configuration Template
+# =============================================================================
+# Copy this file to config/sites.yaml and customize for your setup
+# Run: canvodpy config init
+
+sites:
+  # Example site configuration
+  rosalia:
+    # Absolute path to site data directory
+    base_dir: /path/to/your/gnss/data/01_Rosalia
+    
+    # Receiver definitions
+    receivers:
+      reference_01:
+        type: reference
+        directory: 01_reference
+        description: First reference receiver (open sky)
+      
+      canopy_01:
+        type: canopy
+        directory: 02_canopy
+        description: First canopy receiver (under vegetation)
+      
+      canopy_02:
+        type: canopy
+        directory: 03_canopy_ext1
+        description: Second canopy receiver (under vegetation)
+    
+    # VOD analysis pairs
+    vod_analyses:
+      canopy_01_vs_reference_01:
+        canopy_receiver: canopy_01
+        reference_receiver: reference_01
+        description: VOD analysis canopy_01 vs reference_01
+      
+      canopy_02_vs_reference_01:
+        canopy_receiver: canopy_02
+        reference_receiver: reference_01
+        description: VOD analysis canopy_02 vs reference_01
+
+  # Add more sites as needed
+  # tuw:
+  #   base_dir: /path/to/your/gnss/data/02_TUW
+  #   receivers:
+  #     reference_01:
+  #       type: reference
+  #       directory: 01_reference
+  #       description: TU Wien reference receiver
+  #     canopy_01:
+  #       type: canopy
+  #       directory: 02_canopy
+  #       description: TU Wien canopy receiver
+  #   vod_analyses:
+  #     canopy_01_vs_reference_01:
+  #       canopy_receiver: canopy_01
+  #       reference_receiver: reference_01

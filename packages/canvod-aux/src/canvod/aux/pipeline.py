@@ -11,17 +11,18 @@ from pathlib import Path
 
 import xarray as xr
 from canvod.readers.matching import MatchedDirs
-from gnssvodpy.globals import (
+from canvodpy.globals import (
     AGENCY,
     CLK_FILE_PATH,
     FTP_SERVER,
     PRODUCT_TYPE,
     SP3_FILE_PATH,
 )
-from gnssvodpy.icechunk_manager.preprocessing import IcechunkPreprocessor
-from gnssvodpy.settings import get_settings
+from canvod.store.preprocessing import IcechunkPreprocessor
+from canvodpy.settings import get_settings
 
-from canvod.aux._internal import YYYYDOY, get_logger
+from canvod.aux._internal import get_logger
+from canvod.utils.tools import YYYYDOY
 from canvod.aux.clock import ClkFile
 from canvod.aux.core.base import AuxFile
 from canvod.aux.ephemeris import Sp3File
@@ -357,10 +358,10 @@ class AuxDataPipeline:
         """
         import os
 
-        from gnssvodpy.globals import AGENCY as DEFAULT_AGENCY
-        from gnssvodpy.globals import CLK_FILE_PATH, SP3_FILE_PATH
-        from gnssvodpy.globals import FTP_SERVER as DEFAULT_FTP_SERVER
-        from gnssvodpy.globals import PRODUCT_TYPE as DEFAULT_PRODUCT_TYPE
+        from canvodpy.globals import AGENCY as DEFAULT_AGENCY
+        from canvodpy.globals import CLK_FILE_PATH, SP3_FILE_PATH
+        from canvodpy.globals import FTP_SERVER as DEFAULT_FTP_SERVER
+        from canvodpy.globals import PRODUCT_TYPE as DEFAULT_PRODUCT_TYPE
 
         from canvod.aux.clock import ClkFile
         from canvod.aux.ephemeris import Sp3File
@@ -606,7 +607,7 @@ The threading.Lock ensures safe concurrent access!
     pipeline2 = AuxDataPipeline(matched_dirs=md)
 
     # Manually register files for custom configuration
-    from gnssvodpy.globals import (
+    from canvodpy.globals import (
         AGENCY,
         CLK_FILE_PATH,
         FTP_SERVER,

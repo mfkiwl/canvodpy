@@ -31,7 +31,7 @@ from canvodpy.globals import (
 )
 from canvod.store.viewer import add_rich_display_to_store
 from canvodpy.logging.context import get_logger
-from canvodpy.utils.tools import get_version_from_pyproject
+from canvod.utils.tools import get_version_from_pyproject
 
 
 @add_rich_display_to_store
