@@ -17,7 +17,7 @@ Removed and moved to config:
 import pint
 
 # Initialize unit registry
-UREG = pint.UnitRegistry()
+UREG: pint.UnitRegistry = pint.UnitRegistry()
 UREG.define("dBHz = 10 * log10(hertz)")
 UREG.define("dB = 10 * log10(ratio)")
 
@@ -28,7 +28,7 @@ SPEEDOFLIGHT: pint.Quantity = 299792458 * UREG.meter / UREG.second
 EPOCH_RECORD_INDICATOR: str = ">"
 
 # GNSS frequency unit
-FREQ_UNIT = UREG.MHz
+FREQ_UNIT: pint.Unit = UREG.MHz
 
 # Septentrio receiver sampling intervals (hardware capabilities)
 SEPTENTRIO_SAMPLING_INTERVALS: list[pint.Quantity] = [

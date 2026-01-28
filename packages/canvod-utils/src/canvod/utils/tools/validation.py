@@ -10,12 +10,12 @@ def isfloat(value: Any) -> bool:
     Parameters
     ----------
     value : Any
-        Value to check
+        Value to check.
 
     Returns
     -------
     bool
-        True if value can be converted to float, False otherwise
+        True if value can be converted to float, False otherwise.
 
     Examples
     --------

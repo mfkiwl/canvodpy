@@ -21,21 +21,28 @@ class HemiGridStorageAdapter:
     """
     Composition-friendly adapter that knows how to persist a `HemiGrid`.
 
+    Parameters
+    ----------
+    grid : Any
+        Grid object providing the required HemiGrid interface.
+
     Examples
     --------
     >>> adapter = HemiGridStorageAdapter(grid)
     >>> grid_hash = adapter.to_icechunk(session, grid_name='htm_10deg')
     """
 
-    def __init__(self, grid):
+    def __init__(self, grid: Any) -> None:
         self._grid = grid
 
-    def to_icechunk(self,
-                    session,
-                    grid_name: Optional[str] = None,
-                    include_vertices: bool = True,
-                    include_neighbors: bool = True,
-                    overwrite: bool = False) -> str:
+    def to_icechunk(
+        self,
+        session: Any,
+        grid_name: Optional[str] = None,
+        include_vertices: bool = True,
+        include_neighbors: bool = True,
+        overwrite: bool = False,
+    ) -> str:
         """
         Write grid to an Icechunk store.
 
@@ -74,7 +81,9 @@ class HemiGridStorageAdapter:
         """
         # Generate grid name if not provided
         if grid_name is None:
-            grid_name = f"{self._grid.grid_type}_{int(self._grid.angular_resolution)}deg"
+            grid_name = (
+                f"{self._grid.grid_type}_{int(self._grid.angular_resolution)}deg"
+            )
 
         # Prepare cell data
         df_cells = self._prepare_cells_dataframe()
@@ -110,7 +119,7 @@ class HemiGridStorageAdapter:
     def from_icechunk(session,
                       grid_name: str,
                       load_vertices: bool = True,
-                      load_neighbors: bool = True) -> 'StoredHemiGrid':
+                      load_neighbors: bool = True) -> "StoredHemiGrid":
         """
         Load a persisted grid and return a lightweight wrapper.
         """
@@ -417,9 +426,14 @@ class HemiGridStorageAdapter:
 class StoredHemiGrid:
     """
     Lightweight wrapper around `LoadedGrid` providing a familiar interface.
+
+    Parameters
+    ----------
+    loaded_grid : LoadedGrid
+        Loaded grid data to wrap.
     """
 
-    def __init__(self, loaded_grid: LoadedGrid):
+    def __init__(self, loaded_grid: LoadedGrid) -> None:
         self._loaded = loaded_grid
 
     @property

@@ -1,15 +1,14 @@
 """Pydantic models for auxiliary file validation."""
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Self
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class Sp3Header(BaseModel):
-    """
-    Pydantic model for SP3 file header validation.
-    
+    """Pydantic model for SP3 file header validation.
+
     Validates the header section of SP3 (Standard Product #3) orbit files
     according to IGS format specifications.
     """
@@ -19,13 +18,32 @@ class Sp3Header(BaseModel):
     data_used: str = Field(..., description="Data used indicator")
     coordinate_system: str = Field(..., description="Coordinate system")
     orbit_type: str = Field(..., description="Orbit type")
-    agency: str = Field(..., min_length=3, max_length=4, description="Agency code")
+    agency: str = Field(
+        ...,
+        min_length=3,
+        max_length=4,
+        description="Agency code",
+    )
     gps_week: int = Field(..., ge=0, description="GPS week")
-    seconds_of_week: float = Field(..., ge=0, lt=604800, description="Seconds of week")
-    epoch_interval: float = Field(..., gt=0, description="Epoch interval in seconds")
+    seconds_of_week: float = Field(
+        ...,
+        ge=0,
+        lt=604800,
+        description="Seconds of week",
+    )
+    epoch_interval: float = Field(
+        ...,
+        gt=0,
+        description="Epoch interval in seconds",
+    )
     mjd_start: int = Field(..., description="Modified Julian Day start")
     fractional_day: float = Field(..., ge=0, lt=1, description="Fractional day")
-    num_satellites: int = Field(..., gt=0, le=200, description="Number of satellites")
+    num_satellites: int = Field(
+        ...,
+        gt=0,
+        le=200,
+        description="Number of satellites",
+    )
 
     @field_validator("version")
     @classmethod
@@ -46,23 +64,42 @@ class Sp3Header(BaseModel):
 
 
 class ClkHeader(BaseModel):
-    """
-    Pydantic model for RINEX CLK file header validation.
-    
+    """Pydantic model for RINEX CLK file header validation.
+
     Validates the header section of RINEX clock correction files
     according to RINEX 3.04 specifications.
     """
 
     version: str = Field(..., pattern=r"^3\.04", description="RINEX version")
     file_type: Literal["C"] = Field(..., description="Clock file type")
-    time_system: str = Field(..., description="Time system (GPS, GLO, GAL, BDS, QZSS)")
+    time_system: str = Field(
+        ...,
+        description="Time system (GPS, GLO, GAL, BDS, QZSS)",
+    )
     leap_seconds: int = Field(..., ge=0, description="Leap seconds")
     agency: str = Field(..., description="Analysis center")
-    num_solution_stations: int = Field(..., ge=0, description="Number of solution stations")
-    num_solution_satellites: int = Field(..., gt=0, description="Number of solution satellites")
-    analysis_center: str = Field(..., description="Analysis center name")
-    pcvs_applied: dict[str, str] = Field(default_factory=dict, description="PCV models applied")
-    dcbs_applied: dict[str, str] = Field(default_factory=dict, description="DCB sources applied")
+    num_solution_stations: int = Field(
+        ...,
+        ge=0,
+        description="Number of solution stations",
+    )
+    num_solution_satellites: int = Field(
+        ...,
+        gt=0,
+        description="Number of solution satellites",
+    )
+    analysis_center: str = Field(
+        ...,
+        description="Analysis center name",
+    )
+    pcvs_applied: dict[str, str] = Field(
+        default_factory=dict,
+        description="PCV models applied",
+    )
+    dcbs_applied: dict[str, str] = Field(
+        default_factory=dict,
+        description="DCB sources applied",
+    )
 
     @field_validator("file_type")
     @classmethod
@@ -83,15 +120,24 @@ class ClkHeader(BaseModel):
 
 
 class ProductRequest(BaseModel):
-    """
-    Request model for downloading auxiliary products.
-    
+    """Request model for downloading auxiliary products.
+
     Validates all parameters required to download an auxiliary file,
-    including date format, agency/product availability, and file format compatibility.
+    including date format, agency/product availability, and file format
+    compatibility.
     """
 
-    date: str = Field(..., pattern=r"^\d{7}$", description="Date in YYYYDOY format")
-    agency: str = Field(..., min_length=3, max_length=3, description="Agency code (3 letters)")
+    date: str = Field(
+        ...,
+        pattern=r"^\d{7}$",
+        description="Date in YYYYDOY format",
+    )
+    agency: str = Field(
+        ...,
+        min_length=3,
+        max_length=3,
+        description="Agency code (3 letters)",
+    )
     product_type: Literal["final", "rapid", "ultrarapid", "predicted"] = Field(
         ..., description="Product type"
     )
@@ -101,17 +147,22 @@ class ProductRequest(BaseModel):
     @field_validator("date")
     @classmethod
     def validate_date(cls, v: str) -> str:
-        """
-        Validate YYYYDOY format.
-        
-        Args:
-            v: Date string in YYYYDOY format
-            
-        Returns:
-            Validated date string
-            
-        Raises:
-            ValueError: If format is invalid
+        """Validate YYYYDOY format.
+
+        Parameters
+        ----------
+        v : str
+            Date string in YYYYDOY format.
+
+        Returns
+        -------
+        str
+            Validated date string.
+
+        Raises
+        ------
+        ValueError
+            If format is invalid.
         """
         try:
             year = int(v[:4])
@@ -125,15 +176,18 @@ class ProductRequest(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def validate_product_exists(self) -> "ProductRequest":
-        """
-        Check if product is available in registry.
-        
-        Returns:
-            Validated ProductRequest
-            
-        Raises:
-            ValueError: If product not available in registry or format not supported
+    def validate_product_exists(self) -> Self:
+        """Check if product is available in registry.
+
+        Returns
+        -------
+        ProductRequest
+            Validated ProductRequest.
+
+        Raises
+        ------
+        ValueError
+            If product not available in registry or format not supported.
         """
         from canvod.aux.products.registry import get_product_spec
 
@@ -144,17 +198,17 @@ class ProductRequest(BaseModel):
 
         if self.file_format not in spec.available_formats:
             raise ValueError(
-                f"{self.file_format} not available for {self.agency}/{self.product_type}. "
-                f"Available formats: {spec.available_formats}"
+                f"{self.file_format} not available for {self.agency}/"
+                f"{self.product_type}. Available formats: "
+                f"{spec.available_formats}"
             )
 
         return self
 
 
 class FileValidationResult(BaseModel):
-    """
-    Result of file format validation.
-    
+    """Result of file format validation.
+
     Stores validation results including success status, errors, and warnings.
     """
 

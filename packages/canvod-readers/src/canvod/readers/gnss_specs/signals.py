@@ -58,19 +58,16 @@ class SignalIDMapper:
     """
 
     def __init__(self, aggregate_glonass_fdma: bool = True) -> None:
-        """Initialize SignalIDMapper.
-
-        Parameters
-        ----------
-        aggregate_glonass_fdma : bool, optional
-            If True, aggregate GLONASS FDMA channels. Default is True.
-
-        """
+        """Initialize SignalIDMapper."""
         self.aggregate_glonass_fdma = aggregate_glonass_fdma
         self._bands = Bands(aggregate_glonass_fdma=self.aggregate_glonass_fdma)
-        self.SYSTEM_BANDS = self._bands.SYSTEM_BANDS
-        self.BAND_PROPERTIES = self._bands.BAND_PROPERTIES
-        self.OVERLAPPING_GROUPS = self._bands.OVERLAPPING_GROUPS
+        self.SYSTEM_BANDS: dict[str, dict[str, str]] = self._bands.SYSTEM_BANDS
+        self.BAND_PROPERTIES: dict[str, dict[str, float | str | bool]] = (
+            self._bands.BAND_PROPERTIES
+        )
+        self.OVERLAPPING_GROUPS: dict[str, list[str]] = (
+            self._bands.OVERLAPPING_GROUPS
+        )
 
     def create_signal_id(self, sv: str, obs_code: str) -> str:
         """Create standardized signal ID from satellite and observation code.

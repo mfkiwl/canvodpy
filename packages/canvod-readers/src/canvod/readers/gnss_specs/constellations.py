@@ -16,22 +16,24 @@ from natsort import natsorted
 
 # Register SQLite adapters for datetime (Python 3.12+ compatibility)
 sqlite3.register_adapter(datetime, lambda dt: dt.isoformat())
-sqlite3.register_converter("DATETIME", lambda s: datetime.fromisoformat(s.decode()))
+sqlite3.register_converter("DATETIME",
+                           lambda s: datetime.fromisoformat(s.decode()))
 
 
 # ================================================================
 # -------------------- Shared Wikipedia Cache --------------------
 # ================================================================
 class WikipediaCache:
-    """Shared cache for all GNSS constellation satellite lists."""
+    """Shared cache for all GNSS constellation satellite lists.
+
+    Parameters
+    ----------
+    cache_hours : int, optional
+        How long cache entries are considered valid. Default is 6.
+    """
 
     def __init__(self, cache_hours: int = 6) -> None:
-        """Parameters
-        ----------
-        cache_hours : int, optional
-            How long cache entries are considered valid (default: 6).
-
-        """
+        """Initialize the shared Wikipedia cache."""
         self.cache_file: str = "gnss_satellites_cache.db"
         self.cache_hours: int = cache_hours
         self.headers: dict[str, str] = {
@@ -42,7 +44,8 @@ class WikipediaCache:
 
     def _init_db(self) -> None:
         """Initialize SQLite database if it does not exist."""
-        conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
+        conn = sqlite3.connect(self.cache_file,
+                               detect_types=sqlite3.PARSE_DECLTYPES)
         conn.execute("""
             CREATE TABLE IF NOT EXISTS satellite_cache (
                 constellation TEXT PRIMARY KEY,
@@ -85,7 +88,8 @@ class WikipediaCache:
             List of SV PRNs if cache is valid, else None.
 
         """
-        conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
+        conn = sqlite3.connect(self.cache_file,
+                               detect_types=sqlite3.PARSE_DECLTYPES)
         cutoff = datetime.now() - timedelta(hours=self.cache_hours)
         cursor = conn.execute(
             "SELECT svs_data FROM satellite_cache WHERE constellation = ? AND fetched_at > ?",
@@ -109,7 +113,8 @@ class WikipediaCache:
             List of SV PRNs if present in cache, else None.
 
         """
-        conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
+        conn = sqlite3.connect(self.cache_file,
+                               detect_types=sqlite3.PARSE_DECLTYPES)
         cursor = conn.execute(
             "SELECT svs_data FROM satellite_cache WHERE constellation = ? ORDER BY fetched_at DESC LIMIT 1",
             (constellation, ),
@@ -190,7 +195,8 @@ class WikipediaCache:
                 if not clean_list:
                     raise ValueError("No valid PRN data found after cleaning")
 
-                conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
+                conn = sqlite3.connect(self.cache_file,
+                                       detect_types=sqlite3.PARSE_DECLTYPES)
                 conn.execute(
                     """
                     INSERT OR REPLACE INTO satellite_cache
@@ -214,12 +220,47 @@ class WikipediaCache:
 # Shared instance
 _wikipedia_cache = WikipediaCache()
 
+# ================================================================
+# ------------ Pre-Compiled Regex for Data Validation ------------
+# ================================================================
+
+# Pre-compiled regex patterns used for better perfromance in data validation
+SV_PATTERN = re.compile(r"^[GRECJSI]\d{2}$")  # e.g., G01, R12, E25
+OBS_TYPE_PATTERN = re.compile(
+    r"^[A-Z0-9][A-Z0-9\d]?[A-Z0-9]?$")  # e.g., *1C, *5X
+
 
 # ================================================================
 # -------------------- Base Class --------------------
 # ================================================================
 class ConstellationBase(ABC):
-    """Abstract base class for GNSS constellations."""
+    """Abstract base class for GNSS constellations.
+
+    Notes
+    -----
+    This class uses ``ABC`` and defines the abstract ``freqs_lut`` property.
+
+    Parameters
+    ----------
+    constellation : str
+        Name of the constellation (e.g., "GPS", "GALILEO").
+    url : str, optional
+        Wikipedia URL to fetch SV list from.
+    re_pattern : str, optional
+        Regex pattern to extract PRNs (default ``r"\\b[A-Z]\\d{2}\\b"``).
+    table_index : int, optional
+        Index of the HTML table to parse for PRNs (default 0).
+    prn_column : str, optional
+        Column name containing PRNs (default "PRN").
+    status_filter : dict, optional
+        Filter definition with keys ``{"column": ..., "value": ...}``.
+    use_wiki : bool, optional
+        If True, fetch SVs from Wikipedia (default True).
+    static_svs : list of str, optional
+        Provide a static list of SVs if not using Wikipedia.
+    aggregate_fdma : bool, optional
+        If True, aggregate FDMA bands when supported (default True).
+    """
 
     BANDS: dict[str, str] = {}
     BAND_CODES: dict[str, list[str]] = {}
@@ -238,26 +279,7 @@ class ConstellationBase(ABC):
         static_svs: list[str] | None = None,
         aggregate_fdma: bool = True,
     ) -> None:
-        """Parameters
-        ----------
-        constellation : str
-            Name of the constellation (e.g., "GPS", "GALILEO").
-        url : str, optional
-            Wikipedia URL to fetch SV list from.
-        re_pattern : str, optional
-            Regex pattern to extract PRNs (default ``r"\\b[A-Z]\\d{2}\\b"``).
-        table_index : int, optional
-            Index of the HTML table to parse for PRNs (default 0).
-        prn_column : str, optional
-            Column name containing PRNs (default "PRN").
-        status_filter : dict, optional
-            Filter definition with keys ``{"column": ..., "value": ...}``.
-        use_wiki : bool, optional
-            If True, fetch SVs from Wikipedia (default True).
-        static_svs : list of str, optional
-            Provide a static list of SVs if not using Wikipedia.
-
-        """
+        """Initialize the constellation base."""
         self.constellation: str = constellation
         self.url: str | None = url
         self.re_pattern: str = re_pattern
@@ -341,6 +363,10 @@ class GALILEO(ConstellationBase):
     Note 2:
     -------
     Bandwidths specified here refer to the Receiver Reference Bandwidths.
+
+    Notes
+    -----
+    This class fetches the current satellite list from Wikipedia.
     """
 
     BANDS = {"1": "E1", "5": "E5a", "7": "E5b", "6": "E6", "8": "E5"}
@@ -380,14 +406,7 @@ class GALILEO(ConstellationBase):
     }
 
     def __init__(self) -> None:
-        """Initialize Galileo constellation.
-        
-        Automatically fetches current satellite list from Wikipedia.
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize Galileo constellation."""
         super().__init__(
             constellation="GALILEO",
             url="https://en.wikipedia.org/wiki/List_of_Galileo_satellites",
@@ -399,7 +418,7 @@ class GALILEO(ConstellationBase):
     @property
     def freqs_lut(self) -> dict[str, pint.Quantity]:
         """Build mapping of SV|obs_code to frequency.
-        
+
         Returns
         -------
         dict
@@ -431,6 +450,10 @@ class GPS(ConstellationBase):
     L1/L2 bandwidth technically depends on the GPS Block. Blocks IIR, IIR-M and IIF have a bandwidth of 20.46 MHz, \
         while Block III and IIIF has a bandwidth of 30.69 MHz. We assume the larger bandwidth here.
 
+    Parameters
+    ----------
+    use_wiki : bool, default False
+        If False, uses static list G01-G32. If True, fetches from Wikipedia.
     """
 
     BANDS = {"1": "L1", "2": "L2", "5": "L5"}
@@ -458,17 +481,7 @@ class GPS(ConstellationBase):
     }
 
     def __init__(self, use_wiki: bool = False) -> None:
-        """Initialize GPS constellation.
-        
-        Parameters
-        ----------
-        use_wiki : bool, default False
-            If False, uses static list G01-G32. If True, fetches from Wikipedia.
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize GPS constellation."""
         super().__init__(
             constellation="GPS",
             url="https://en.wikipedia.org/wiki/List_of_GPS_satellites",
@@ -525,6 +538,9 @@ class BEIDOU(ConstellationBase):
     No ICD for the combined B2 band was found. The center frequency is taken from the Rinex v3.04 Guide, perfectly centered \
         between B2a and B2b. The bandwidth is speculative, assumed to cover both B2a and B2b signals and their bandwidths.
 
+    Notes
+    -----
+    This class fetches the current satellite list from Wikipedia.
     """
 
     BANDS = {
@@ -577,14 +593,7 @@ class BEIDOU(ConstellationBase):
     }
 
     def __init__(self) -> None:
-        """Initialize BeiDou constellation.
-        
-        Automatically fetches current satellite list from Wikipedia.
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize BeiDou constellation."""
         super().__init__(
             constellation="BEIDOU",
             url="https://en.wikipedia.org/wiki/List_of_BeiDou_satellites",
@@ -637,6 +646,18 @@ class GLONASS(ConstellationBase):
         stretching across all sub-band including their sub-band bandwidths. Therefore the\
         center frequency slightly differs from the one given in the FDMA base frequency.
 
+    Parameters
+    ----------
+    glonass_channel_pth : Path, optional
+        Path to GLONASS channel assignment file.
+    aggregate_fdma : bool, default True
+        If True, aggregate FDMA sub-bands into single G1/G2 bands.
+        If False, maintain individual FDMA channel frequencies.
+
+    Raises
+    ------
+    FileNotFoundError
+        If GLONASS channel file does not exist.
     """
 
     BANDS = {"3": "G3", "4": "G1a", "6": "G2a"}
@@ -696,25 +717,7 @@ class GLONASS(ConstellationBase):
         "GLONASS_channels.txt",
         aggregate_fdma: bool = True,
     ) -> None:
-        """Initialize GLONASS constellation with FDMA channel assignments.
-        
-        Parameters
-        ----------
-        glonass_channel_pth : Path, optional
-            Path to GLONASS channel assignment file
-        aggregate_fdma : bool, default True
-            If True, aggregate FDMA sub-bands into single G1/G2 bands.
-            If False, maintain individual FDMA channel frequencies.
-        
-        Returns
-        -------
-        None
-        
-        Raises
-        ------
-        FileNotFoundError
-            If GLONASS channel file does not exist
-        """
+        """Initialize GLONASS constellation with FDMA channel assignments."""
         if not glonass_channel_pth.exists():
             raise FileNotFoundError(f"{glonass_channel_pth} does not exist")
         self.pth = glonass_channel_pth
@@ -733,14 +736,9 @@ class GLONASS(ConstellationBase):
         else:
             # Non-aggregate mode: Map 1/2 to FDMA bands
             # Note: Frequencies will be computed per-SV in freqs_lut
-            self.BANDS = {
-                **self.BANDS,
-                "1": "G1_FDMA",
-                "2": "G2_FDMA"
-            }
+            self.BANDS = {**self.BANDS, "1": "G1_FDMA", "2": "G2_FDMA"}
             self.BAND_CODES = {
-                **self.BAND_CODES,
-                "G1_FDMA": ["C", "P"],
+                **self.BAND_CODES, "G1_FDMA": ["C", "P"],
                 "G2_FDMA": ["C", "P"]
             }
             # Add placeholder properties (actual freqs are SV-dependent)
@@ -829,7 +827,7 @@ class GLONASS(ConstellationBase):
     @property
     def freqs_lut(self) -> dict[str, pint.Quantity]:
         """Build mapping of SV|obs_code to frequency including FDMA channels.
-        
+
         Returns
         -------
         dict
@@ -865,6 +863,9 @@ class SBAS(ConstellationBase):
     - L1 frequency and bandwidth from GPS L1/L2 ICD: \
         https://www.gps.gov/technical/icwg/IS-GPS-200N.pdf , 3.3.1.1 Frequency Plan
 
+    Notes
+    -----
+    Uses a static list S01-S36 as PRNs are region-specific.
     """
 
     BANDS = {"1": "L1", "5": "L5"}
@@ -883,14 +884,7 @@ class SBAS(ConstellationBase):
     }
 
     def __init__(self) -> None:
-        """Initialize SBAS constellation.
-        
-        Uses static list S01-S36 as PRNs are region-specific.
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize SBAS constellation."""
         super().__init__(
             constellation="SBAS",
             url="https://en.wikipedia.org/wiki/List_of_SBAS_satellites",
@@ -928,6 +922,10 @@ class IRNSS(ConstellationBase):
 
     - S band frequency and bandwidth from Navipedia:\
         https://gssc.esa.int/navipedia/index.php/IRNSS_Signal_Plan#cite_note-IRNSS_ICD-2
+
+    Notes
+    -----
+    This class fetches the current satellite list from Wikipedia.
     """
 
     BANDS = {"5": "L5", "9": "S"}
@@ -946,14 +944,7 @@ class IRNSS(ConstellationBase):
     }
 
     def __init__(self) -> None:
-        """Initialize IRNSS (NavIC) constellation.
-        
-        Automatically fetches current satellite list from Wikipedia.
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize IRNSS (NavIC) constellation."""
         super().__init__(
             constellation="IRNSS",
             url=
@@ -995,6 +986,9 @@ class QZSS(ConstellationBase):
     ----
     Bandwidth technically depends on the GPS Block. Like with `GPS`, we assume the larger bandwidth here.
 
+    Notes
+    -----
+    Uses a static list J01-J10.
     """
 
     BANDS = {"1": "L1", "2": "L2", "5": "L5", "6": "L6"}
@@ -1028,14 +1022,7 @@ class QZSS(ConstellationBase):
     }
 
     def __init__(self) -> None:
-        """Initialize QZSS constellation.
-        
-        Uses static list J01-J10.
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize QZSS constellation."""
         super().__init__(
             constellation="QZSS",
             url="https://en.wikipedia.org/wiki/Quasi-Zenith_Satellite_System",

@@ -1,35 +1,47 @@
+"""Icechunk-backed readers for RINEX datasets."""
+
+import gc
+import os
+import time
 from collections.abc import Generator
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
-import gc
-import os
 from pathlib import Path
-import time
 from turtle import st
 from typing import Dict, List, Optional, Tuple
 
-from natsort import natsorted
 import numpy as np
-from tqdm import tqdm
 import xarray as xr
-
-from canvod.readers import MatchedDirs
+from canvod.readers import MatchedDirs, Rnxv3Obs
+from canvod.utils.tools import get_version_from_pyproject
 from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY
-from canvod.store.manager import GnssResearchSite
 from canvodpy.logging.context import get_logger, reset_context, set_file_context
 from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE
-from canvod.readers import Rnxv3Obs
-from canvod.utils.tools import get_version_from_pyproject
+from natsort import natsorted
+from tqdm import tqdm
+
+from canvod.store.manager import GnssResearchSite
 
 
-# Module-level function for ProcessPoolExecutor (must be at module level to be pickleable)
+# Module-level function for ProcessPoolExecutor (must be pickleable).
 def _process_single_rinex(
-        rnx_file: Path,
-        keep_vars: list[str] | None = None) -> tuple[Path, 'xr.Dataset']:
+    rnx_file: Path,
+    keep_vars: list[str] | None = None,
+) -> tuple[Path, xr.Dataset]:
     """
-    Process a single RINEX file with logging context.
+    Process a single RINEX file with a file-scoped logging context.
 
-    This function must be at module level to work with ProcessPoolExecutor.
+    Parameters
+    ----------
+    rnx_file : Path
+        RINEX file to process.
+    keep_vars : list[str] | None, optional
+        Variables to retain in the dataset.
+
+    Returns
+    -------
+    tuple[Path, xr.Dataset]
+        The input file path and the processed dataset.
     """
 
     token = set_file_context(rnx_file)
@@ -57,10 +69,26 @@ def _process_single_rinex(
         reset_context(token)
 
 
-# Module-level function for ProcessPoolExecutor (must be at module level to be pickleable)
+# Module-level function for ProcessPoolExecutor (must be pickleable).
 def preprocess_rnx(
-        rnx_file: Path,
-        keep_vars: list[str] | None = None) -> tuple[Path, 'xr.Dataset']:
+    rnx_file: Path,
+    keep_vars: list[str] | None = None,
+) -> tuple[Path, xr.Dataset]:
+    """
+    Preprocess a single RINEX file and attach file hash metadata.
+
+    Parameters
+    ----------
+    rnx_file : Path
+        RINEX file to preprocess.
+    keep_vars : list[str] | None, optional
+        Variables to retain in the dataset.
+
+    Returns
+    -------
+    tuple[Path, xr.Dataset]
+        The input file path and the processed dataset.
+    """
     token = set_file_context(rnx_file)
     try:
         log = get_logger()
@@ -137,7 +165,7 @@ class IcechunkDataReader:
             f"Initialized Icechunk data reader for {matched_dirs.yyyydoy.to_str()}"
         )
 
-    def __del__(self):
+    def __del__(self) -> None:
         # ✅ make sure the pool is shut down when reader is deleted
         try:
             self._pool.shutdown(wait=True)
@@ -162,7 +190,7 @@ class IcechunkDataReader:
 
         Returns
         -------
-        List[str]
+        list[str]
             List of receiver names of the specified type
         """
         return [
@@ -187,7 +215,7 @@ class IcechunkDataReader:
     def parsed_rinex_data_gen_v2(
         self,
         keep_vars: list[str] | None = None,
-        receiver_types: list[str] | None = None
+        receiver_types: list[str] | None = None,
     ) -> Generator[xr.Dataset]:
         """
         Generator that processes RINEX files, augments them (φ, θ, r),
@@ -221,7 +249,7 @@ class IcechunkDataReader:
                 receiver_name = self._get_receiver_name_for_type('canopy')
                 store_group = "canopy"
             elif receiver_type == 'reference':
-                rinex_dir = self.matched_dirs.sky_data_dir
+                rinex_dir = self.matched_dirs.reference_data_dir
                 receiver_name = self._get_receiver_name_for_type('reference')
                 store_group = "reference"
             else:
@@ -296,8 +324,8 @@ class IcechunkDataReader:
                                                rx_z=approx_pos.z)
 
                     # --- 4) Store to Icechunk ---
-                    if not exists and store_group not in self._site.rinex_store.list_groups(
-                    ) and idx == 0:
+                    existing_groups = self._site.rinex_store.list_groups()
+                    if not exists and store_group not in existing_groups and idx == 0:
                         msg = (
                             f"[v{version}] Initial commit {rel_path} "
                             f"(hash={rinex_hash}, epoch={start_epoch}→{end_epoch})"
@@ -370,16 +398,16 @@ class IcechunkDataReader:
     def parsed_rinex_data_gen(
         self,
         keep_vars: list[str] | None = None,
-        receiver_types: list[str] | None = None
+        receiver_types: list[str] | None = None,
     ) -> Generator[xr.Dataset]:
         """
         Generator that processes RINEX files and appends to Icechunk stores on-the-fly.
 
         Parameters
         ----------
-        keep_vars : List[str], optional
+        keep_vars : list[str], optional
             List of variables to keep in datasets
-        receiver_types : List[str], optional
+        receiver_types : list[str], optional
             List of receiver types to process ('canopy', 'reference').
             If None, defaults to ['canopy', 'reference']
 
@@ -403,7 +431,7 @@ class IcechunkDataReader:
                 receiver_name = self._get_receiver_name_for_type('canopy')
                 store_group = "canopy"
             elif receiver_type == 'reference':
-                rinex_dir = self.matched_dirs.sky_data_dir
+                rinex_dir = self.matched_dirs.reference_data_dir
                 receiver_name = self._get_receiver_name_for_type('reference')
                 store_group = "reference"
             else:
@@ -587,9 +615,12 @@ class IcechunkDataReader:
 
         return natsorted(rinex_files)
 
-    def _append_to_icechunk_store(self, dataset: xr.Dataset,
-                                  receiver_name: str,
-                                  receiver_type: str) -> None:
+    def _append_to_icechunk_store(
+        self,
+        dataset: xr.Dataset,
+        receiver_name: str,
+        receiver_type: str,
+    ) -> None:
         """Append dataset to the appropriate Icechunk store."""
         from gnssvodpy.utils.tools import get_version_from_pyproject
 
@@ -597,15 +628,17 @@ class IcechunkDataReader:
             version = get_version_from_pyproject()
             date_str = self.matched_dirs.yyyydoy.to_str()
 
-            commit_message = f"[v{version}] Processed and ingested {receiver_type} data for {date_str}"
+            commit_message = (
+                f"[v{version}] Processed and ingested {receiver_type} data "
+                f"for {date_str}")
 
             # Use site's ingestion method
             self._site.ingest_rinex_data(dataset, receiver_name,
                                          commit_message)
 
             self._logger.info(
-                f"Successfully appended {receiver_type} data to store as '{receiver_name}'"
-            )
+                f"Successfully appended {receiver_type} data to store as "
+                f"'{receiver_name}'")
 
         except Exception as e:
             self._logger.exception(
@@ -619,8 +652,8 @@ class IcechunkDataReader:
 
         Returns
         -------
-        Dict[str, List[str]]
-            Dictionary mapping receiver types to lists of receiver names
+        dict[str, list[str]]
+            Dictionary mapping receiver types to lists of receiver names.
         """
         available = {}
         for receiver_type in ['canopy', 'reference']:
@@ -649,14 +682,13 @@ if __name__ == "__main__":
 
     # Example usage
     matcher = DataDirMatcher.from_root(
-        Path(
-            '/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/05_data/01_Rosalia'
-        ))
+        Path('/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/'
+             '05_data/01_Rosalia'))
 
     md = MatchedDirs(
         canopy_data_dir=Path(
             '/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302'),
-        sky_data_dir=Path(
+        reference_data_dir=Path(
             '/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302'),
         yyyydoy=YYYYDOY.from_str('2024302'))
 
@@ -692,13 +724,12 @@ if __name__ == "__main__":
     print("and all again, to test skipping of existing data...")
 
     matcher = DataDirMatcher.from_root(
-        Path(
-            '/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/05_data/01_Rosalia'
-        ))
+        Path('/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/'
+             '05_data/01_Rosalia'))
     md = MatchedDirs(
         canopy_data_dir=Path(
             '/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302'),
-        sky_data_dir=Path(
+        reference_data_dir=Path(
             '/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302'),
         yyyydoy=YYYYDOY.from_str('2024302'))
 

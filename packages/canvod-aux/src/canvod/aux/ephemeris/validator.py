@@ -8,20 +8,20 @@ from canvod.aux.products.models import FileValidationResult
 
 
 class Sp3Validator:
-    """
-    Validator for SP3 orbit files.
+    """Validator for SP3 orbit files.
 
     Performs format and data quality checks on parsed SP3 datasets.
+
+    Parameters
+    ----------
+    dataset : xr.Dataset
+        Parsed SP3 dataset.
+    fpath : Path
+        Path to the original file.
     """
 
-    def __init__(self, dataset: xr.Dataset, fpath: Path):
-        """
-        Initialize validator.
-
-        Args:
-            dataset: Parsed SP3 dataset
-            fpath: Path to original file
-        """
+    def __init__(self, dataset: xr.Dataset, fpath: Path) -> None:
+        """Initialize validator."""
         self.dataset = dataset
         self.fpath = Path(fpath)
         self.result = FileValidationResult(
@@ -33,11 +33,12 @@ class Sp3Validator:
         )
 
     def validate(self) -> FileValidationResult:
-        """
-        Run all validation checks.
+        """Run all validation checks.
 
-        Returns:
-            Validation result with errors/warnings
+        Returns
+        -------
+        FileValidationResult
+            Validation result with errors and warnings.
         """
         self._check_required_variables()
         self._check_required_coordinates()
@@ -78,7 +79,8 @@ class Sp3Validator:
 
             if nan_percentage > 50:
                 self.result.add_error(
-                    f"Variable {var} has {nan_percentage:.1f}% NaN values (>50% threshold)"
+                    f"Variable {var} has {nan_percentage:.1f}% NaN values "
+                    f"(>50% threshold)"
                 )
             elif nan_percentage > 10:
                 self.result.add_warning(

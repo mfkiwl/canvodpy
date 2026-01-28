@@ -20,14 +20,19 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class MetadataConfig(BaseModel):
-    """Metadata to be written to processed files."""
+    """Metadata to be written to processed files.
+
+    Notes
+    -----
+    This is a Pydantic model for configuration validation.
+    """
 
     author: str = Field(..., description="Author name")
     email: EmailStr = Field(..., description="Author email")
     institution: str = Field(..., description="Institution name")
-    department: Optional[str] = Field(None, description="Department name")
-    research_group: Optional[str] = Field(None, description="Research group name")
-    website: Optional[str] = Field(None, description="Institution/group website")
+    department: str | None = Field(None, description="Department name")
+    research_group: str | None = Field(None, description="Research group name")
+    website: str | None = Field(None, description="Institution/group website")
 
     def to_attrs_dict(self) -> dict[str, str]:
         """Convert to dictionary for xarray attributes."""
@@ -46,9 +51,14 @@ class MetadataConfig(BaseModel):
 
 
 class CredentialsConfig(BaseModel):
-    """Credentials and paths."""
+    """Credentials and paths.
 
-    cddis_mail: Optional[EmailStr] = Field(
+    Notes
+    -----
+    This is a Pydantic model for configuration validation.
+    """
+
+    cddis_mail: EmailStr | None = Field(
         None,
         description="NASA CDDIS email for authentication (optional)",
     )
@@ -69,13 +79,21 @@ class CredentialsConfig(BaseModel):
         
         # For real paths, check it exists
         if not v.exists():
-            msg = f"GNSS root directory does not exist: {v}. Please create it or update the path."
+            msg = (
+                f"GNSS root directory does not exist: {v}. "
+                "Please create it or update the path."
+            )
             raise ValueError(msg)
         return v
 
 
 class AuxDataConfig(BaseModel):
-    """Auxiliary data source configuration."""
+    """Auxiliary data source configuration.
+
+    Notes
+    -----
+    This is a Pydantic model for configuration validation.
+    """
 
     agency: str = Field("COD", description="Analysis center code")
     product_type: Literal["final", "rapid", "ultra-rapid"] = Field(
@@ -85,19 +103,23 @@ class AuxDataConfig(BaseModel):
 
     def get_ftp_servers(
         self,
-        cddis_mail: Optional[str],
-    ) -> list[tuple[str, Optional[str]]]:
+        cddis_mail: str | None,
+    ) -> list[tuple[str, str | None]]:
         """
         Get FTP servers in priority order.
 
-        If cddis_mail is set: NASA first (with auth), ESA fallback (no auth)
-        If cddis_mail is None: ESA only (no auth)
+        If cddis_mail is set: NASA first (with auth), ESA fallback (no auth).
+        If cddis_mail is None: ESA only (no auth).
 
-        Args:
-            cddis_mail: Optional CDDIS email for NASA authentication
+        Parameters
+        ----------
+        cddis_mail : str | None
+            Optional CDDIS email for NASA authentication.
 
-        Returns:
-            List of (server_url, auth_email) tuples in priority order
+        Returns
+        -------
+        list[tuple[str, str | None]]
+            Server URL and optional auth email pairs in priority order.
         """
         if cddis_mail:
             # NASA first (requires auth), ESA fallback (no auth)
@@ -110,7 +132,12 @@ class AuxDataConfig(BaseModel):
 
 
 class ProcessingParams(BaseModel):
-    """Processing parameters."""
+    """Processing parameters.
+
+    Notes
+    -----
+    This is a Pydantic model for configuration validation.
+    """
 
     time_aggregation_seconds: int = Field(
         15,
@@ -135,21 +162,36 @@ class ProcessingParams(BaseModel):
 
 
 class CompressionConfig(BaseModel):
-    """Compression settings."""
+    """Compression settings.
+
+    Notes
+    -----
+    This is a Pydantic model for configuration validation.
+    """
 
     zlib: bool = Field(True, description="Use zlib compression")
     complevel: int = Field(5, ge=0, le=9, description="Compression level")
 
 
 class ChunkStrategy(BaseModel):
-    """Chunking strategy for a dimension."""
+    """Chunking strategy for a dimension.
+
+    Notes
+    -----
+    This is a Pydantic model for configuration validation.
+    """
 
     epoch: int = Field(34560, ge=1, description="Chunk size for epoch dimension")
     sid: int = Field(-1, ge=-1, description="Chunk size for sid (-1 = don't chunk)")
 
 
 class IcechunkConfig(BaseModel):
-    """Icechunk storage configuration."""
+    """Icechunk storage configuration.
+
+    Notes
+    -----
+    This is a Pydantic model for configuration validation.
+    """
 
     compression_level: int = Field(5, ge=0, le=22)
     compression_algorithm: Literal["zstd", "lz4", "gzip"] = "zstd"
@@ -164,7 +206,12 @@ class IcechunkConfig(BaseModel):
 
 
 class StorageConfig(BaseModel):
-    """Storage strategy configuration."""
+    """Storage strategy configuration.
+
+    Notes
+    -----
+    This is a Pydantic model for configuration validation.
+    """
 
     stores_root_dir: Path = Field(
         ...,
@@ -208,10 +255,17 @@ class StorageConfig(BaseModel):
 
 
 class ProcessingConfig(BaseModel):
-    """Complete processing configuration."""
+    """Complete processing configuration.
+    
+    Note: Credentials (CDDIS_MAIL, GNSS_ROOT_DIR) are configured via .env file,
+    not in processing.yaml. The credentials field is optional and deprecated.
+    """
 
     metadata: MetadataConfig
-    credentials: CredentialsConfig
+    credentials: Optional[CredentialsConfig] = Field(
+        None,
+        description="[DEPRECATED] Use .env file for credentials instead",
+    )
     aux_data: AuxDataConfig = Field(default_factory=AuxDataConfig)
     processing: ProcessingParams = Field(default_factory=ProcessingParams)
     compression: CompressionConfig = Field(default_factory=CompressionConfig)

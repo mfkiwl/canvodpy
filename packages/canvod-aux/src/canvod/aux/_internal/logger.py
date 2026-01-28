@@ -42,18 +42,17 @@ def _configure_base_logger() -> logging.Logger:
 
 
 def get_logger(name: str | None = None) -> logging.Logger:
-    """
-    Get the logger for the current context.
-    
+    """Get the logger for the current context.
+
     Parameters
     ----------
     name : str, optional
         Logger name. If None, uses context-bound logger or base logger.
-        
+
     Returns
     -------
     logging.Logger
-        Logger instance
+        Logger instance.
     """
     global _BASE_LOGGER
 
@@ -74,19 +73,18 @@ def get_logger(name: str | None = None) -> logging.Logger:
 
 
 def set_file_context(filename: str | Path) -> contextvars.Token:
-    """
-    Set logging context to include file information.
-    
+    """Set logging context to include file information.
+
     Parameters
     ----------
     filename : str or Path
-        File being processed
-        
+        File being processed.
+
     Returns
     -------
     contextvars.Token
-        Token for later reset
-        
+        Token for later reset.
+
     Examples
     --------
     >>> token = set_file_context("data.sp3")
@@ -111,12 +109,11 @@ def set_file_context(filename: str | Path) -> contextvars.Token:
 
 
 def reset_context(token: contextvars.Token) -> None:
-    """
-    Reset logging context to previous state.
-    
+    """Reset logging context to previous state.
+
     Parameters
     ----------
     token : contextvars.Token
-        Token returned by set_file_context()
+        Token returned by set_file_context().
     """
     CURRENT_LOGGER.reset(token)

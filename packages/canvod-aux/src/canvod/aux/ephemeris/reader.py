@@ -11,26 +11,43 @@ from canvod.aux._internal import UREG, get_gps_week_from_filename
 from canvod.aux.core.base import AuxFile
 from canvod.aux.ephemeris.parser import Sp3Parser
 from canvod.aux.ephemeris.validator import Sp3Validator
-from canvod.aux.interpolation import Interpolator, Sp3Config, Sp3InterpolationStrategy
+from canvod.aux.interpolation import (
+    Interpolator,
+    Sp3Config,
+    Sp3InterpolationStrategy,
+)
 from canvod.aux.products.registry import ProductSpec, get_product_spec
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Sp3File(AuxFile):
-    """
-    Handler for SP3 orbit files with multi-product support.
+    """Handler for SP3 orbit files with multi-product support.
 
     Now supports all IGS analysis centers via product registry:
     COD, GFZ, ESA, JPL, IGS, WHU, GRG, SHA
 
-    Attributes:
-        date: String in YYYYDOY format
-        agency: Agency code (e.g., 'COD', 'GFZ', 'ESA')
-        product_type: Product type ('final', 'rapid')
-        ftp_server: Base URL for downloads
-        local_dir: Local storage directory
-        add_velocities: Whether to compute velocities (default: True)
-        dimensionless: Whether to strip units (default: True)
+    Notes
+    -----
+    This is a Pydantic dataclass with `arbitrary_types_allowed=True`.
+
+    Parameters
+    ----------
+    date : str
+        String in YYYYDOY format.
+    agency : str
+        Agency code (e.g., "COD", "GFZ", "ESA").
+    product_type : str
+        Product type ("final", "rapid").
+    ftp_server : str
+        Base URL for downloads.
+    local_dir : Path
+        Local storage directory.
+    add_velocities : bool | None, default True
+        Whether to compute velocities.
+    dimensionless : bool | None, default True
+        Whether to strip units (store magnitudes only).
+    product_spec : ProductSpec | None, optional
+        Product specification resolved from the registry.
     """
 
     date: str
@@ -42,7 +59,7 @@ class Sp3File(AuxFile):
     dimensionless: bool | None = True
     product_spec: ProductSpec | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize with product validation."""
         self.file_type = ["orbit"]
         self.local_dir = Path(self.local_dir)
@@ -62,8 +79,7 @@ class Sp3File(AuxFile):
         return Sp3InterpolationStrategy(config=config)
 
     def generate_filename_based_on_type(self) -> Path:
-        """
-        Generate filename using product registry.
+        """Generate filename using product registry.
 
         Pattern: {PREFIX}_{YYYYDOY}0000_{DURATION}_{SAMPLING}_ORB.SP3
 
@@ -76,12 +92,14 @@ class Sp3File(AuxFile):
         return Path(f"{prefix}_{self.date}0000_{duration}_{sampling}_ORB.SP3")
 
     def download_aux_file(self) -> None:
-        """
-        Download using product-specific path pattern.
+        """Download using product-specific path pattern.
 
-        Raises:
-            RuntimeError: If download fails from all servers
-            ValueError: If GPS week calculation fails
+        Raises
+        ------
+        RuntimeError
+            If download fails from all servers.
+        ValueError
+            If GPS week calculation fails.
         """
         orbit_file = self.generate_filename_based_on_type()
         gps_week = get_gps_week_from_filename(orbit_file)
@@ -113,15 +131,19 @@ class Sp3File(AuxFile):
             )
 
     def read_file(self) -> xr.Dataset:
-        """
-        Read and validate SP3 file.
+        """Read and validate SP3 file.
 
-        Returns:
-            Dataset with satellite positions (X, Y, Z) in meters
+        Returns
+        -------
+        xr.Dataset
+            Dataset with satellite positions (X, Y, Z) in meters.
 
-        Raises:
-            FileNotFoundError: If file doesn't exist
-            ValueError: If validation fails
+        Raises
+        ------
+        FileNotFoundError
+            If file does not exist.
+        ValueError
+            If validation fails.
         """
         # Use dedicated parser
         parser = Sp3Parser(self.fpath, dimensionless=self.dimensionless)
@@ -158,17 +180,20 @@ class Sp3File(AuxFile):
         return ds
 
     def compute_velocity(self, ds: xr.Dataset) -> xr.Dataset:
-        """
-        Compute satellite velocities from position data.
+        """Compute satellite velocities from position data.
 
         Uses central differences for interior points, forward/backward
         differences for endpoints.
 
-        Args:
-            ds: Dataset with X, Y, Z coordinates
+        Parameters
+        ----------
+        ds : xr.Dataset
+            Dataset with X, Y, Z coordinates.
 
-        Returns:
-            Dataset augmented with Vx, Vy, Vz velocities
+        Returns
+        -------
+        xr.Dataset
+            Dataset augmented with Vx, Vy, Vz velocities.
         """
         # Calculate time step
         time_diffs = np.diff(ds['epoch'].values)
@@ -215,7 +240,9 @@ class Sp3File(AuxFile):
         return ds
 
     def _get_velocity_attributes(
-            self, dt: float) -> dict[str, dict[str, str | float]]:
+        self,
+        dt: float,
+    ) -> dict[str, dict[str, str | float]]:
         """Get standardized attributes for velocity variables."""
         base_attrs = {
             'units': 'm/s',

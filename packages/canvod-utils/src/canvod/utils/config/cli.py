@@ -47,7 +47,7 @@ def init(
         "-f",
         help="Overwrite existing files",
     ),
-):
+) -> None:
     """
     Initialize configuration files from templates.
 
@@ -64,7 +64,10 @@ def init(
     # Get template directory (from repository root)
     # Path: packages/canvod-utils/src/canvod/utils/config/cli.py
     # Go up 7 levels to repo root, then down to config/
-    template_dir = Path(__file__).parent.parent.parent.parent.parent.parent.parent / "config"
+    template_dir = (
+        Path(__file__).parent.parent.parent.parent.parent.parent.parent /
+        "config"
+    )
 
     if not template_dir.exists():
         console.print(
@@ -94,7 +97,9 @@ def init(
             shutil.copy(template_path, dest_path)
             files_created.append(dest_path)
         else:
-            console.print(f"[yellow]⚠️  Template not found: {template_path}[/yellow]")
+            console.print(
+                f"[yellow]⚠️  Template not found: {template_path}[/yellow]"
+            )
 
     # Show results
     if files_created:
@@ -125,8 +130,15 @@ def validate(
         "-c",
         help="Configuration directory",
     ),
-):
-    """Validate configuration files."""
+) -> None:
+    """
+    Validate configuration files.
+
+    Parameters
+    ----------
+    config_dir : Path
+        Directory containing config files.
+    """
     from .loader import load_config
 
     console.print("\n[bold]Validating configuration...[/bold]\n")
@@ -142,13 +154,20 @@ def validate(
 
         console.print(f"\n  SID mode: {config.sids.mode}")
         console.print(f"  Agency: {config.processing.aux_data.agency}")
-        console.print(f"  GNSS root: {config.gnss_root_dir}")
-
-        if config.cddis_mail:
-            console.print(f"  CDDIS mail: {config.cddis_mail}")
-            console.print("  [green]✓ NASA CDDIS enabled[/green]")
-        else:
-            console.print("  [yellow]⊘ NASA CDDIS disabled (ESA only)[/yellow]")
+        
+        # Get credentials from settings (not from config YAML)
+        try:
+            from canvodpy.settings import get_settings
+            settings = get_settings()
+            console.print(f"  GNSS root: {settings.gnss_root_path}")
+            
+            if settings.has_cddis_credentials:
+                console.print(f"  CDDIS mail: {settings.cddis_mail}")
+                console.print("  [green]✓ NASA CDDIS enabled[/green]")
+            else:
+                console.print("  [yellow]⊘ NASA CDDIS disabled (ESA only)[/yellow]")
+        except ImportError:
+            console.print("  [yellow]⊘ Settings not available (install canvodpy package)[/yellow]")
 
         console.print()
 
@@ -173,8 +192,17 @@ def show(
         "-s",
         help="Show specific section (processing, sites, sids)",
     ),
-):
-    """Display current configuration."""
+) -> None:
+    """
+    Display current configuration.
+
+    Parameters
+    ----------
+    config_dir : Path
+        Directory containing config files.
+    section : str
+        Optional section name (processing, sites, sids).
+    """
     from .loader import load_config
 
     try:
@@ -209,8 +237,17 @@ def edit(
         "-c",
         help="Configuration directory",
     ),
-):
-    """Open configuration file in editor."""
+) -> None:
+    """
+    Open configuration file in editor.
+
+    Parameters
+    ----------
+    file : str
+        Config file to edit (processing, sites, sids).
+    config_dir : Path
+        Directory containing config files.
+    """
     import os
 
     file_map = {
@@ -240,11 +277,26 @@ def _show_processing(config):
     """Display processing config."""
     console.print("[bold]Processing Configuration:[/bold]")
     table = Table(show_header=False)
-    table.add_row("GNSS Root", str(config.credentials.gnss_root_dir))
-    table.add_row(
-        "CDDIS Mail",
-        config.credentials.cddis_mail or "[yellow]Not set[/yellow]",
-    )
+    
+    # Credentials are now in .env file
+    if config.credentials:
+        # Legacy support if credentials still in processing.yaml
+        table.add_row("GNSS Root", str(config.credentials.gnss_root_dir))
+        table.add_row(
+            "CDDIS Mail",
+            config.credentials.cddis_mail or "[yellow]Not set[/yellow]",
+        )
+    else:
+        # New approach: credentials in .env
+        table.add_row(
+            "Credentials",
+            "[blue]Configured via .env file[/blue]",
+        )
+        table.add_row(
+            "",
+            "[dim](CDDIS_MAIL, GNSS_ROOT_DIR)[/dim]",
+        )
+    
     table.add_row("Agency", config.aux_data.agency)
     table.add_row("Product Type", config.aux_data.product_type)
     table.add_row("Max Threads", str(config.processing.n_max_threads))

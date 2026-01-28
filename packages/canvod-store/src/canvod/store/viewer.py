@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import sys
 import warnings
+from typing import Any
 
 import icechunk
 from IPython.display import HTML, display
@@ -13,23 +14,19 @@ import zarr
 
 class RinexStoreViewer:
     """
-    Rich HTML/CSS viewer specifically designed for RINEX IceChunk stores.
-    Provides detailed metadata display and enhanced visualization.
+    Rich HTML/CSS viewer for RINEX Icechunk stores.
+
+    Parameters
+    ----------
+    store : icechunk.Store
+        RINEX store to visualize.
     """
 
-    def __init__(self, store):
-        """
-        Initialize viewer with a RINEX IceChunk store.
-
-        Parameters
-        ----------
-        store : IceChunkStore
-            The RINEX store to visualize
-        """
+    def __init__(self, store) -> None:
         self.store = store
         self.css_styles = self._get_enhanced_css_styles()
 
-    def _get_enhanced_css_styles(self):
+    def _get_enhanced_css_styles(self) -> str:
         """Generate enhanced CSS styles for RINEX store preview."""
         return """
         <style>
@@ -293,8 +290,8 @@ class RinexStoreViewer:
         </style>
         """
 
-    def _identify_array_type(self, array_name):
-        """Identify the type of RINEX array and return appropriate badge."""
+    def _identify_array_type(self, array_name: str) -> str:
+        """Identify the RINEX array type and return its badge HTML."""
         coordinate_arrays = ['phi', 'theta', 'epoch']
         observation_arrays = ['SNR', 'code', 'pseudorange', 'carrier_phase']
         system_arrays = [
@@ -303,17 +300,28 @@ class RinexStoreViewer:
         ]
 
         if array_name in coordinate_arrays:
-            return '<span class="data-type-badge badge-coordinate">📍 Coordinate</span>'
-        elif array_name in observation_arrays:
-            return '<span class="data-type-badge badge-observation">📡 Observation</span>'
-        elif array_name in system_arrays:
-            return '<span class="data-type-badge badge-system">🛰️ System</span>'
-        elif array_name == 'metadata':
-            return '<span class="data-type-badge badge-metadata">📋 Metadata</span>'
-        else:
-            return '<span class="data-type-badge badge-system">📊 Data</span>'
+            return (
+                '<span class="data-type-badge badge-coordinate">'
+                "📍 Coordinate</span>"
+            )
+        if array_name in observation_arrays:
+            return (
+                '<span class="data-type-badge badge-observation">'
+                "📡 Observation</span>"
+            )
+        if array_name in system_arrays:
+            return (
+                '<span class="data-type-badge badge-system">'
+                "🛰️ System</span>"
+            )
+        if array_name == "metadata":
+            return (
+                '<span class="data-type-badge badge-metadata">'
+                "📋 Metadata</span>"
+            )
+        return '<span class="data-type-badge badge-system">📊 Data</span>'
 
-    def _format_array_info(self, arr, array_name):
+    def _format_array_info(self, arr, array_name: str) -> str:
         """Format array information with enhanced styling."""
         try:
             shape_str = str(arr.shape)
@@ -329,12 +337,16 @@ class RinexStoreViewer:
             else:
                 size_str = f"{total_elements} elements"
 
-            return f'<span class="array-shape">{shape_str}</span> <span class="array-dtype">{dtype_str}</span> • {size_str}{badge}'
+            return (
+                f'<span class="array-shape">{shape_str}</span> '
+                f'<span class="array-dtype">{dtype_str}</span> '
+                f"• {size_str}{badge}"
+            )
         except Exception as e:
             return f'<span class="error-message">Error reading array: {e}</span>'
 
-    def _try_read_metadata(self, group, site_name):
-        """Attempt to read and format metadata table."""
+    def _try_read_metadata(self, group, site_name: str) -> str:
+        """Attempt to read and format the metadata table."""
         try:
             if 'metadata' in group:
                 metadata = group['metadata']
@@ -351,23 +363,46 @@ class RinexStoreViewer:
                     if isinstance(data, (list, tuple, np.ndarray)):
                         # Try to interpret as key-value pairs
                         if len(data) > 0:
-                            return f'<div class="metadata-table"><div class="metadata-row"><div class="metadata-key">Metadata Records</div><div class="metadata-value">{len(data)} entries</div></div></div>'
+                            return (
+                                '<div class="metadata-table">'
+                                '<div class="metadata-row">'
+                                '<div class="metadata-key">'
+                                "Metadata Records</div>"
+                                '<div class="metadata-value">'
+                                f"{len(data)} entries</div>"
+                                "</div></div>"
+                            )
                 except Exception:
                     pass
 
-                return '<div class="metadata-table"><div class="metadata-row"><div class="metadata-key">Metadata</div><div class="metadata-value">Present (format unknown)</div></div></div>'
+                return (
+                    '<div class="metadata-table">'
+                    '<div class="metadata-row">'
+                    '<div class="metadata-key">Metadata</div>'
+                    '<div class="metadata-value">'
+                    "Present (format unknown)</div></div></div>"
+                )
         except Exception as e:
             return f'<div class="error-message">Could not read metadata: {e}</div>'
 
         return ""
 
-    def _format_metadata_table(self, metadata_dict, title="Metadata"):
+    def _format_metadata_table(
+        self,
+        metadata_dict: dict,
+        title: str = "Metadata",
+    ) -> str:
         """Format metadata as an HTML table."""
         if not metadata_dict:
             return ""
 
-        html = f'<div class="metadata-table">'
-        html += f'<div class="metadata-row" style="background: #1e40af; color: white; font-weight: 600;"><div class="metadata-key">{title}</div><div class="metadata-value">Value</div></div>'
+        html = '<div class="metadata-table">'
+        html += (
+            '<div class="metadata-row" style="background: #1e40af; '
+            'color: white; font-weight: 600;">'
+            '<div class="metadata-key">'
+            f"{title}</div><div class=\"metadata-value\">Value</div></div>"
+        )
 
         for key, value in metadata_dict.items():
             # Format different types of values
@@ -378,17 +413,24 @@ class RinexStoreViewer:
             else:
                 value_str = str(value)[:100]  # Truncate long values
 
-            html += f'<div class="metadata-row"><div class="metadata-key">{key}</div><div class="metadata-value">{value_str}</div></div>'
+            html += (
+                '<div class="metadata-row">'
+                f'<div class="metadata-key">{key}</div>'
+                f'<div class="metadata-value">{value_str}</div>'
+                "</div>"
+            )
 
         html += '</div>'
         return html
 
-    def _build_tree_html(self,
-                         group,
-                         prefix="",
-                         max_depth=None,
-                         current_depth=0,
-                         site_name=""):
+    def _build_tree_html(
+        self,
+        group,
+        prefix: str = "",
+        max_depth: int | None = None,
+        current_depth: int = 0,
+        site_name: str = "",
+    ) -> str:
         """Build enhanced HTML tree structure for RINEX data."""
         if max_depth is not None and current_depth >= max_depth:
             return ""
@@ -420,7 +462,13 @@ class RinexStoreViewer:
             ]
 
             # Organize arrays by category
-            organized_arrays = metadata_arrays + coordinate_arrays + observation_arrays + system_arrays + other_arrays
+            organized_arrays = (
+                metadata_arrays +
+                coordinate_arrays +
+                observation_arrays +
+                system_arrays +
+                other_arrays
+            )
             items = groups + organized_arrays
 
             # Add metadata display if present
@@ -448,12 +496,18 @@ class RinexStoreViewer:
                         subgroup = group[item_name]
                         new_prefix = prefix + ("    " if is_last else "│   ")
                         html_parts.append(
-                            self._build_tree_html(subgroup, new_prefix,
-                                                  max_depth, current_depth + 1,
-                                                  item_name))
+                            self._build_tree_html(
+                                subgroup,
+                                new_prefix,
+                                max_depth,
+                                current_depth + 1,
+                                item_name,
+                            )
+                        )
                     except Exception as e:
                         html_parts.append(
-                            f'<div class="error-message">Error accessing group {item_name}: {e}</div>'
+                            '<div class="error-message">Error accessing group '
+                            f"{item_name}: {e}</div>"
                         )
 
                 else:
@@ -462,7 +516,11 @@ class RinexStoreViewer:
                         arr = group[item_name]
                         array_info = self._format_array_info(arr, item_name)
 
-                        css_class = "tree-metadata" if item_name == "metadata" else "tree-item"
+                        css_class = (
+                            "tree-metadata"
+                            if item_name == "metadata"
+                            else "tree-item"
+                        )
 
                         html_parts.append(f'<div class="{css_class}">')
                         html_parts.append(
@@ -476,7 +534,8 @@ class RinexStoreViewer:
 
                     except Exception as e:
                         html_parts.append(
-                            f'<div class="error-message">Error accessing array {item_name}: {e}</div>'
+                            '<div class="error-message">Error accessing array '
+                            f"{item_name}: {e}</div>"
                         )
 
         except Exception as e:
@@ -485,7 +544,7 @@ class RinexStoreViewer:
 
         return ''.join(html_parts)
 
-    def _get_store_summary(self):
+    def _get_store_summary(self) -> dict[str, Any]:
         """Generate comprehensive summary statistics for RINEX store."""
         try:
             branches = self.store.get_branch_names()
@@ -514,8 +573,9 @@ class RinexStoreViewer:
                             try:
                                 epoch_arr = site_group['epoch']
                                 sid_arr = site_group['sid']
-                                total_observations += (epoch_arr.shape[0] *
-                                                       sid_arr.shape[0])
+                                total_observations += (
+                                    epoch_arr.shape[0] * sid_arr.shape[0]
+                                )
                             except Exception:
                                 pass
 
@@ -532,7 +592,7 @@ class RinexStoreViewer:
         except Exception as e:
             return {'error': str(e)}
 
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
         """Generate rich HTML representation for RINEX store."""
         html_parts = [self.css_styles]
 
@@ -554,7 +614,8 @@ class RinexStoreViewer:
             html_parts.append(
                 f'<div class="stat-item">📍 {summary["sites"]} sites</div>')
             html_parts.append(
-                f'<div class="stat-item">📡 {summary["observations"]:,} observations</div>'
+                '<div class="stat-item">📡 '
+                f'{summary["observations"]:,} observations</div>'
             )
             html_parts.append('</div>')
 
@@ -575,7 +636,8 @@ class RinexStoreViewer:
                     # Branch section
                     html_parts.append('<div class="branch-section">')
                     html_parts.append(
-                        f'<div class="branch-header">🌿 Branch: <span class="highlight">{branch}</span></div>'
+                        '<div class="branch-header">🌿 Branch: '
+                        f'<span class="highlight">{branch}</span></div>'
                     )
                     html_parts.append('<div class="branch-content">')
 
@@ -599,7 +661,9 @@ class RinexStoreViewer:
                                     obs_count = "Unknown"
                                     if 'epoch' in arrays:
                                         try:
-                                            obs_count = f"{site_group['epoch'].shape[0]:,}"
+                                            obs_count = (
+                                                f"{site_group['epoch'].shape[0]:,}"
+                                            )
                                         except Exception:
                                             pass
 
@@ -607,7 +671,9 @@ class RinexStoreViewer:
                                         f'<div class="site-header">')
                                     html_parts.append(f'<span>🏢 {site}</span>')
                                     html_parts.append(
-                                        f'<span class="site-info">{len(arrays)} arrays • {obs_count} observations</span>'
+                                        '<span class="site-info">'
+                                        f"{len(arrays)} arrays • "
+                                        f"{obs_count} observations</span>"
                                     )
                                     html_parts.append('</div>')
                                 except Exception:
@@ -629,7 +695,8 @@ class RinexStoreViewer:
 
                     except Exception as e:
                         html_parts.append(
-                            f'<div class="error-message">Error accessing branch {branch}: {e}</div>'
+                            '<div class="error-message">Error accessing '
+                            f"branch {branch}: {e}</div>"
                         )
 
                     html_parts.append('</div>')  # branch-content
@@ -650,16 +717,21 @@ class RinexStoreViewer:
             )
         else:
             html_parts.append(
-                f'<div class="summary-item">📊 <strong>{summary["branches"]}</strong> branches</div>'
+                '<div class="summary-item">📊 '
+                f'<strong>{summary["branches"]}</strong> branches</div>'
             )
             html_parts.append(
-                f'<div class="summary-item">📍 <strong>{summary["sites"]}</strong> observation sites</div>'
+                '<div class="summary-item">📍 '
+                f'<strong>{summary["sites"]}</strong> observation sites</div>'
             )
             html_parts.append(
-                f'<div class="summary-item">📊 <strong>{summary["arrays"]}</strong> data arrays</div>'
+                '<div class="summary-item">📊 '
+                f'<strong>{summary["arrays"]}</strong> data arrays</div>'
             )
             html_parts.append(
-                f'<div class="summary-item">📡 <strong>{summary["observations"]:,}</strong> total observations</div>'
+                '<div class="summary-item">📡 '
+                f'<strong>{summary["observations"]:,}</strong> '
+                "total observations</div>"
             )
         html_parts.append('</div>')
         html_parts.append('</div>')
@@ -670,10 +742,10 @@ class RinexStoreViewer:
 
 
 # Enhanced monkey patch for RINEX stores
-def add_rich_display_to_store(store_class):
-    """Add rich HTML display capabilities specifically for RINEX IceChunk stores."""
+def add_rich_display_to_store(store_class: type) -> type:
+    """Add rich HTML display capabilities for RINEX Icechunk stores."""
 
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
         """Rich HTML representation for RINEX stores."""
         viewer = RinexStoreViewer(self)
         return viewer._repr_html_()

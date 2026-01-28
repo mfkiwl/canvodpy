@@ -7,7 +7,7 @@ See /DUPLICATION_TRACKER.md for copy locations.
 import pint
 
 # Create unit registry
-UREG = pint.UnitRegistry()
+UREG: pint.UnitRegistry = pint.UnitRegistry()
 
 # Define custom units
 UREG.define("dBHz = 10 * log10(hertz)")

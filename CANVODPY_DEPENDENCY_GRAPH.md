@@ -1,6 +1,6 @@
 # canVODpy Package Dependency Graph
 
-**Date:** 2026-01-25  
+**Date:** 2026-01-25
 **Focus:** canvodpy packages and APIs (excluding external Python modules)
 
 ---
@@ -172,16 +172,16 @@ graph TB
 
 ## Package Dependency Matrix
 
-| Package | Depends On |
-|---------|------------|
-| **canvod.utils** | *(none)* |
-| **canvod.grids** | *(none)* |
-| **canvod.readers** | canvod.utils |
-| **canvod.aux** | canvod.readers, canvod.utils, canvod.store, canvodpy.globals, canvodpy.settings |
-| **canvod.store** | canvod.grids, canvod.readers, canvod.utils, canvod.aux, canvod.vod, canvodpy.globals, canvodpy.logging, canvodpy.research_sites_config |
-| **canvod.viz** | canvod.grids |
-| **canvod.vod** | canvod.store |
-| **canvodpy** | canvod.readers, canvod.aux, canvod.grids, canvod.store, canvod.utils, canvod.viz, canvod.vod |
+| Package            | Depends On                                                                                                                             |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **canvod.utils**   | *(none)*                                                                                                                               |
+| **canvod.grids**   | *(none)*                                                                                                                               |
+| **canvod.readers** | canvod.utils                                                                                                                           |
+| **canvod.aux**     | canvod.readers, canvod.utils, canvod.store, canvodpy.globals, canvodpy.settings                                                        |
+| **canvod.store**   | canvod.grids, canvod.readers, canvod.utils, canvod.aux, canvod.vod, canvodpy.globals, canvodpy.logging, canvodpy.research_sites_config |
+| **canvod.viz**     | canvod.grids                                                                                                                           |
+| **canvod.vod**     | canvod.store                                                                                                                           |
+| **canvodpy**       | canvod.readers, canvod.aux, canvod.grids, canvod.store, canvod.utils, canvod.viz, canvod.vod                                           |
 
 ---
 
@@ -364,7 +364,7 @@ CDDIS_MAIL=your.email@example.com
 GNSS_ROOT_DIR=/path/to/your/data
 ```
 
-**Location:** Project root  
+**Location:** Project root
 **Loaded by:** `canvodpy.settings.AppSettings`
 
 ---
@@ -386,7 +386,7 @@ aux_data:
   product_type: final      # final, rapid, ultra-rapid
 ```
 
-**Location:** `canvodpy/config/`  
+**Location:** `canvodpy/config/`
 **Used by:** `canvodpy.settings`, `canvod.aux.pipeline`
 
 ---
@@ -546,7 +546,7 @@ from canvod.utils.tools import YYYYDOY
 
 md = MatchedDirs(
     canopy_data_dir="path/canopy/25001",
-    sky_data_dir="path/sky/25001",
+    reference_data_dir="path/sky/25001",
     yyyydoy=YYYYDOY.from_str("2025001")
 )
 

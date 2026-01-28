@@ -7,7 +7,12 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class FtpServerConfig(BaseModel):
-    """FTP server configuration with validation."""
+    """FTP server configuration with validation.
+
+    Notes
+    -----
+    This is a Pydantic `BaseModel`.
+    """
 
     model_config = ConfigDict(extra='forbid')
 
@@ -33,15 +38,28 @@ class ProductSpec(BaseModel):
 
     Validates data structure only (fast).
     FTP availability validated during download (lazy, fail-fast).
+
+    Notes
+    -----
+    This is a Pydantic `BaseModel`.
     """
 
     model_config = ConfigDict(extra='forbid')
 
-    agency_code: str = Field(min_length=3, max_length=3, pattern=r'^[A-Z]{3}$')
+    agency_code: str = Field(
+        min_length=3,
+        max_length=3,
+        pattern=r'^[A-Z]{3}$',
+    )
     agency_name: str
     product_type: str = Field(
-        pattern=r'^(final|rapid|ultrarapid|real-time|near-real-time)$')
-    prefix: str = Field(min_length=9, max_length=10, pattern=r'^[A-Z0-9]+$')
+        pattern=r'^(final|rapid|ultrarapid|real-time|near-real-time)$',
+    )
+    prefix: str = Field(
+        min_length=9,
+        max_length=10,
+        pattern=r'^[A-Z0-9]+$',
+    )
     sampling_rate: str = Field(pattern=r'^\d{2}[SMHD]$')
     duration: str = Field(pattern=r'^\d{2}[DH]$')
     available_formats: list[str]
@@ -63,23 +81,22 @@ class ProductSpec(BaseModel):
 
 
 class ProductRegistry:
-    """
-    Product registry loaded from TOML configuration.
+    """Product registry loaded from TOML configuration.
 
     Allows users to:
     - Add custom products without editing code
     - Configure custom FTP servers
     - Override default products
     - Version control their configurations
+
+    Parameters
+    ----------
+    config_path : Path, optional
+        Path to products.toml (defaults to package location).
     """
 
     def __init__(self, config_path: Path | None = None):
-        """
-        Initialize registry from config file.
-
-        Args:
-            config_path: Path to products.toml (defaults to package location)
-        """
+        """Initialize registry from config file."""
         if config_path is None:
             # Default: package-provided config
             config_path = Path(__file__).parent / "products.toml"
@@ -132,18 +149,24 @@ class ProductRegistry:
             self._products[key] = spec
 
     def get_product_spec(self, agency: str, product_type: str) -> ProductSpec:
-        """
-        Get product specification.
+        """Get product specification.
 
-        Args:
-            agency: Agency code (e.g., 'COD', 'GFZ')
-            product_type: Product type (e.g., 'final', 'rapid', 'ultrarapid')
+        Parameters
+        ----------
+        agency : str
+            Agency code (e.g., "COD", "GFZ").
+        product_type : str
+            Product type (e.g., "final", "rapid", "ultrarapid").
 
-        Returns:
-            ProductSpec
+        Returns
+        -------
+        ProductSpec
+            Product specification.
 
-        Raises:
-            KeyError: If product not found
+        Raises
+        ------
+        KeyError
+            If product not found.
         """
         key = (agency.upper(), product_type.lower())
 
@@ -185,14 +208,17 @@ _registry: ProductRegistry | None = None
 
 
 def get_registry(config_path: Path | None = None) -> ProductRegistry:
-    """
-    Get global registry instance.
+    """Get global registry instance.
 
-    Args:
-        config_path: Optional custom config path
+    Parameters
+    ----------
+    config_path : Path, optional
+        Optional custom config path.
 
-    Returns:
-        ProductRegistry instance
+    Returns
+    -------
+    ProductRegistry
+        Global registry instance.
     """
     global _registry
 

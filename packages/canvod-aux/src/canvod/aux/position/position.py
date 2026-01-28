@@ -6,6 +6,7 @@ Migrated and simplified from gnssvodpy.position
 """
 
 from dataclasses import dataclass
+from typing import Self
 
 import pymap3d as pm
 import xarray as xr
@@ -13,8 +14,7 @@ import xarray as xr
 
 @dataclass(frozen=True)
 class ECEFPosition:
-    """
-    Earth-Centered, Earth-Fixed (ECEF) position in meters.
+    """Earth-Centered, Earth-Fixed (ECEF) position in meters.
 
     ECEF is a Cartesian coordinate system with:
     - Origin at Earth's center of mass
@@ -25,11 +25,11 @@ class ECEFPosition:
     Parameters
     ----------
     x : float
-        X coordinate in meters
+        X coordinate in meters.
     y : float
-        Y coordinate in meters
+        Y coordinate in meters.
     z : float
-        Z coordinate in meters
+        Z coordinate in meters.
 
     Examples
     --------
@@ -47,8 +47,7 @@ class ECEFPosition:
     z: float  # meters
 
     def to_geodetic(self) -> tuple[float, float, float]:
-        """
-        Convert ECEF to geodetic coordinates.
+        """Convert ECEF to geodetic coordinates.
 
         Returns
         -------
@@ -62,26 +61,25 @@ class ECEFPosition:
         return lat, lon, alt
 
     @classmethod
-    def from_ds_metadata(cls, ds: xr.Dataset) -> 'ECEFPosition':
-        """
-        Extract ECEF position from RINEX dataset metadata.
+    def from_ds_metadata(cls, ds: xr.Dataset) -> Self:
+        """Extract ECEF position from RINEX dataset metadata.
 
         Reads from standard RINEX header attributes.
 
         Parameters
         ----------
         ds : xr.Dataset
-            RINEX dataset with position in attributes
+            RINEX dataset with position in attributes.
 
         Returns
         -------
         ECEFPosition
-            Receiver position in ECEF
+            Receiver position in ECEF.
 
         Raises
         ------
         KeyError
-            If position attributes not found in dataset
+            If position attributes not found in dataset.
 
         Examples
         --------
@@ -121,17 +119,16 @@ class ECEFPosition:
 
 @dataclass(frozen=True)
 class GeodeticPosition:
-    """
-    Geodetic (WGS84) position.
+    """Geodetic (WGS84) position.
 
     Parameters
     ----------
     lat : float
-        Latitude in degrees [-90, 90]
+        Latitude in degrees [-90, 90].
     lon : float
-        Longitude in degrees [-180, 180]
+        Longitude in degrees [-180, 180].
     alt : float
-        Altitude in meters above WGS84 ellipsoid
+        Altitude in meters above WGS84 ellipsoid.
 
     Examples
     --------
@@ -144,16 +141,18 @@ class GeodeticPosition:
     alt: float  # meters
 
     def to_ecef(self) -> ECEFPosition:
-        """
-        Convert geodetic to ECEF coordinates.
+        """Convert geodetic to ECEF coordinates.
 
         Returns
         -------
         ECEFPosition
-            Position in ECEF frame
+            Position in ECEF frame.
         """
         x, y, z = pm.geodetic2ecef(self.lat, self.lon, self.alt)
         return ECEFPosition(x=x, y=y, z=z)
 
     def __repr__(self) -> str:
-        return f"GeodeticPosition(lat={self.lat:.6f}°, lon={self.lon:.6f}°, alt={self.alt:.1f}m)"
+        return (
+            f"GeodeticPosition(lat={self.lat:.6f}°, "
+            f"lon={self.lon:.6f}°, alt={self.alt:.1f}m)"
+        )

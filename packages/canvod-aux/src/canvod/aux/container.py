@@ -10,7 +10,19 @@ from pydantic.dataclasses import dataclass
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class GnssData:
-    """Container for GNSS data that may include both xarray Dataset and pandas DataFrame."""
+    """Container for GNSS data with optional tabular representation.
+
+    Notes
+    -----
+    This is a Pydantic dataclass with `arbitrary_types_allowed=True`.
+
+    Parameters
+    ----------
+    dataset : xr.Dataset
+        Primary dataset.
+    dataframe : pd.DataFrame, optional
+        Optional tabular representation of the dataset.
+    """
 
     dataset: xr.Dataset
     dataframe: pd.DataFrame | None = None
@@ -18,7 +30,25 @@ class GnssData:
 
 @dataclass
 class FileMetadata:
-    """Metadata required for GNSS auxiliary files."""
+    """Metadata required for GNSS auxiliary files.
+
+    Notes
+    -----
+    This is a standard dataclass.
+
+    Parameters
+    ----------
+    date : str
+        Date in YYYYDOY format.
+    agency : str
+        Agency identifier (e.g., "COD", "IGS").
+    product_type : str
+        Product type ("final", "rapid", "ultrarapid").
+    local_dir : Path
+        Local directory for storage.
+    ftp_server : str
+        FTP base URL.
+    """
 
     date: str  # Format: YYYYDOY
     agency: str  # e.g., 'COD', 'IGS'

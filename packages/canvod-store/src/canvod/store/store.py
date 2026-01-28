@@ -50,12 +50,29 @@ class MyIcechunkStore:
     - Integrated logging with file contexts
     - Configurable compression and chunking
 
-    Attributes:
-        store_path: Path to the Icechunk store directory
-        store_type: Type of store ("rinex_store" or "vod_store")
-        compression_level: Compression level (1-9)
-        compression_algorithm: Compression algorithm enum
-        repo: The Icechunk repository instance
+    Parameters
+    ----------
+    store_path : Path
+        Path to the Icechunk store directory.
+    store_type : str, default "rinex_store"
+        Type of store ("rinex_store" or "vod_store").
+    compression_level : int | None, optional
+        Override default compression level.
+    compression_algorithm : str | None, optional
+        Override default compression algorithm.
+
+    Attributes
+    ----------
+    store_path : Path
+        Path to the Icechunk store directory.
+    store_type : str
+        Type of store ("rinex_store" or "vod_store").
+    compression_level : int
+        Compression level (1-9).
+    compression_algorithm : icechunk.CompressionAlgorithm
+        Compression algorithm enum.
+    repo : icechunk.Repository
+        The Icechunk repository instance.
     """
 
     def __init__(self,
@@ -63,20 +80,6 @@ class MyIcechunkStore:
                  store_type: str = "rinex_store",
                  compression_level: int | None = None,
                  compression_algorithm: str | None = None):
-        """
-        Initialize the Icechunk store manager.
-
-        Parameters
-        ----------
-        store_path : Path
-            Path where the Icechunk store will be created/accessed
-        store_type : str
-            Type of store ("rinex_store" or "vod_store")
-        compression_level : Optional[int]
-            Override default compression level
-        compression_algorithm : Optional[str]
-            Override default compression algorithm
-        """
         self.store_path = Path(store_path)
         self.store_type = store_type
 
@@ -163,13 +166,14 @@ class MyIcechunkStore:
             self._logger.debug(
                 f"Closed writable session for branch '{branch}'")
 
-    def get_branch_names(self) -> List[str]:
+    def get_branch_names(self) -> list[str]:
         """
         List all branches in the store.
 
         Returns
         -------
-            List of branch names
+        list[str]
+            List of branch names.
         """
         try:
             storage_config = icechunk.local_filesystem_storage(self.store_path)
@@ -194,7 +198,8 @@ class MyIcechunkStore:
 
         Returns
         -------
-            Dictionary mapping branch names to lists of group names
+        dict[str, list[str]]
+            Dictionary mapping branch names to lists of group names.
 
         """
         try:
@@ -324,12 +329,17 @@ class MyIcechunkStore:
         """
         Check if a group exists.
 
-        Args:
-            group_name: Name of the group to check
-            branch: Repository branch to examine
+        Parameters
+        ----------
+        group_name : str
+            Name of the group to check.
+        branch : str, default "main"
+            Repository branch to examine.
 
-        Returns:
-            True if group exists, False otherwise
+        Returns
+        -------
+        bool
+            True if the group exists, False otherwise.
         """
         group_dict = self.get_group_names(branch)
 
@@ -351,14 +361,21 @@ class MyIcechunkStore:
         """
         Read data from a group.
 
-        Args:
-            group_name: Name of group to read
-            branch: Repository branch
-            time_slice: Optional time slice for filtering
-            chunks: Chunking specification (uses config defaults if None)
+        Parameters
+        ----------
+        group_name : str
+            Name of the group to read.
+        branch : str, default "main"
+            Repository branch.
+        time_slice : slice | None, optional
+            Optional time slice for filtering.
+        chunks : dict[str, Any] | None, optional
+            Chunking specification (uses config defaults if None).
 
-        Returns:
-            Dataset from the group
+        Returns
+        -------
+        xr.Dataset
+            Dataset from the group.
         """
         self._logger.info(
             f"Reading group '{group_name}' from branch '{branch}'")
@@ -398,14 +415,23 @@ class MyIcechunkStore:
         This method calls read_group() then removes duplicates using metadata table
         intelligence when available, falling back to simple epoch deduplication.
 
-        Args:
-            group_name: Name of group to read
-            branch: Repository branch
-            time_slice: Optional time slice for filtering
-            chunks: Chunking specification (uses config defaults if None)
+        Parameters
+        ----------
+        group_name : str
+            Name of the group to read.
+        branch : str, default "main"
+            Repository branch.
+        keep : str, default "last"
+            Deduplication strategy for duplicate epochs.
+        time_slice : slice | None, optional
+            Optional time slice for filtering.
+        chunks : dict[str, Any] | None, optional
+            Chunking specification (uses config defaults if None).
 
-        Returns:
-            Dataset from the group with duplicates removed (latest data only)
+        Returns
+        -------
+        xr.Dataset
+            Dataset with duplicates removed (latest data only).
         """
 
         if keep not in ['last']:
@@ -455,7 +481,8 @@ class MyIcechunkStore:
                         ds = ds.isel(epoch=combined_mask)
 
                         self._logger.info(
-                            f"Deduplicated using metadata table: kept {len(latest_entries)} time ranges"
+                            "Deduplicated using metadata table: kept "
+                            f"{len(latest_entries)} time ranges"
                         )
 
             except Exception as e:
@@ -589,7 +616,8 @@ class MyIcechunkStore:
             if "metadata" not in zroot[group_name] or "table" not in zroot[
                     group_name]["metadata"]:
                 self._logger.info(
-                    f"No metadata table found for group '{group_name}' - nothing to backup"
+                    "No metadata table found for group "
+                    f"'{group_name}' - nothing to backup"
                 )
                 return None
 
@@ -604,7 +632,8 @@ class MyIcechunkStore:
             df = pl.DataFrame(data)
 
             self._logger.info(
-                f"Backed up metadata table with {df.height} rows for group '{group_name}'"
+                "Backed up metadata table with "
+                f"{df.height} rows for group '{group_name}'"
             )
             return df
 
@@ -662,7 +691,8 @@ class MyIcechunkStore:
                 zmeta[col_name][:] = arr
 
             self._logger.info(
-                f"Restored metadata table with {df.height} rows for group '{group_name}'"
+                "Restored metadata table with "
+                f"{df.height} rows for group '{group_name}'"
             )
 
         except Exception as e:
@@ -701,7 +731,7 @@ class MyIcechunkStore:
             ds_from_store_cleansed = self._normalize_encodings(
                 ds_from_store_cleansed)
 
-            # check if there are any epochs left after cleansing, then write all leftover epochs
+            # Check if any epochs remain after cleansing, then write leftovers.
             if ds_from_store_cleansed.sizes.get("epoch", 0) > 0:
 
                 to_icechunk(ds_from_store_cleansed,
@@ -723,7 +753,10 @@ class MyIcechunkStore:
 
             if commit_message is None:
                 version = get_version_from_pyproject()
-                commit_message = f"[v{version}] Overwrote file {rinex_hash} in group '{group_name}'"
+                commit_message = (
+                    f"[v{version}] Overwrote file {rinex_hash} "
+                    f"in group '{group_name}'"
+                )
 
             snapshot_id = session.commit(commit_message)
 
@@ -744,15 +777,22 @@ class MyIcechunkStore:
         """
         Get metadata about a group.
 
-        Args:
-            group_name: Name of the group
-            branch: Repository branch to examine
+        Parameters
+        ----------
+        group_name : str
+            Name of the group.
+        branch : str, default "main"
+            Repository branch to examine.
 
-        Returns:
-            Dictionary with group metadata
+        Returns
+        -------
+        dict[str, Any]
+            Group metadata.
 
-        Raises:
-            ValueError: If group does not exist
+        Raises
+        ------
+        ValueError
+            If the group does not exist.
         """
         if not self.group_exists(group_name, branch):
             raise ValueError(f"Group '{group_name}' does not exist")
@@ -783,11 +823,15 @@ class MyIcechunkStore:
         """
         Generate relative path for commit messages.
 
-        Args:
-            file_path: Full file path
+        Parameters
+        ----------
+        file_path : Path
+            Full file path.
 
-        Returns:
-            Relative path string with LOG_PATH_DEPTH parts
+        Returns
+        -------
+        str
+            Relative path string with LOG_PATH_DEPTH parts.
         """
         return str(Path(*file_path.parts[-LOG_PATH_DEPTH:]))
 
@@ -795,8 +839,10 @@ class MyIcechunkStore:
         """
         Get statistics about the store.
 
-        Returns:
-            Dictionary with store statistics
+        Returns
+        -------
+        dict[str, Any]
+            Store statistics.
         """
         groups = self.get_group_names()
         stats = {
@@ -995,7 +1041,7 @@ class MyIcechunkStore:
     def append_metadata_bulk(
         self,
         group_name: str,
-        rows: list[dict],
+        rows: list[dict[str, Any]],
         session: Optional["icechunk.WritableSession"] = None,
     ) -> None:
         """
@@ -1005,8 +1051,9 @@ class MyIcechunkStore:
         ----------
         group_name : str
             Group name (e.g. "canopy", "reference")
-        rows : list[dict]
-            List of metadata records, each matching the schema used in append_metadata().
+        rows : list[dict[str, Any]]
+            List of metadata records matching the schema used in
+            append_metadata().
         session : icechunk.WritableSession, optional
             If provided, rows are written into this session (caller commits later).
             If None, this method opens its own writable session and commits once.
@@ -1129,29 +1176,35 @@ class MyIcechunkStore:
         branch: str = "main",
     ) -> tuple[bool, pl.DataFrame]:
         """
-        Check if a (start, end) interval already exists in metadata for a group.
+        Check whether a (start, end) interval exists in group metadata.
 
-        Steps:
-        1. Read metadata table into a Polars DataFrame.
-        2. Cast `start` and `end` columns to `Datetime("ns")` so they match np.datetime64.
-        3. Filter rows with matching (start, end).
-        4. If no matches → return (False, empty_df).
-        5. If matches exist:
-        - If all hashes match rinex_hash → return (True, matches).
-        - If any hash differs → raise ValueError (conflict).
+        Parameters
+        ----------
+        group_name : str
+            Icechunk group name.
+        rinex_hash : str
+            Hash of the current RINEX dataset.
+        start : np.datetime64
+            Start time for the interval.
+        end : np.datetime64
+            End time for the interval.
+        branch : str, default "main"
+            Branch name in the Icechunk repository.
 
-        Args:
-            group_name: Name of the Icechunk group.
-            rinex_hash: Hash of the current RINEX dataset.
-            start: Start time (np.datetime64[ns]).
-            end: End time (np.datetime64[ns]).
-            branch: Branch name in Icechunk repo.
+        Returns
+        -------
+        tuple[bool, pl.DataFrame]
+            Existence flag and the matching metadata rows.
 
-        Returns:
-            (exists: bool, matching_rows: pl.DataFrame)
+        Raises
+        ------
+        ValueError
+            If a conflicting hash is found for the same interval.
 
-        Raises:
-            ValueError: If hash mismatch is found for the same (start, end).
+        Notes
+        -----
+        The metadata table is cast to `Datetime("ns")` for `start` and `end`
+        before filtering.
         """
         with self.readonly_session(branch) as session:
             try:
@@ -1171,8 +1224,10 @@ class MyIcechunkStore:
             ])
 
             # Step 1: filter by start+end
-            matches = df.filter((pl.col("start") == np.datetime64(start, "ns"))
-                                & (pl.col("end") == np.datetime64(end, "ns")))
+            matches = df.filter(
+                (pl.col("start") == np.datetime64(start, "ns")) &
+                (pl.col("end") == np.datetime64(end, "ns"))
+            )
 
             if matches.is_empty():
                 return False, matches
@@ -1182,10 +1237,12 @@ class MyIcechunkStore:
 
             if unique_hashes.height > 1 or unique_hashes.item(
                     0, "hash") != rinex_hash:
+                existing_hashes = unique_hashes.to_series().to_list()
                 raise ValueError(
-                    f"Metadata conflict: rows with start={start}, end={end} exist "
-                    f"but hash differs (existing={unique_hashes.to_series().to_list()}, "
-                    f"new={rinex_hash})")
+                    "Metadata conflict: rows with start="
+                    f"{start}, end={end} exist but hash differs "
+                    f"(existing={existing_hashes}, new={rinex_hash})"
+                )
 
             return True, matches
 
@@ -1206,11 +1263,23 @@ class MyIcechunkStore:
             # Group or metadata doesn't exist yet
             return set()
 
-    def append_metadata_bulk_store(self, group_name: str, rows: list[dict],
-                                   store) -> None:
+    def append_metadata_bulk_store(
+        self,
+        group_name: str,
+        rows: list[dict[str, Any]],
+        store,
+    ) -> None:
         """
-        Append metadata rows directly into an open transaction `store`.
-        Commit is handled by the transaction context manager.
+        Append metadata rows into an open transaction store.
+
+        Parameters
+        ----------
+        group_name : str
+            Group name (e.g. "canopy", "reference").
+        rows : list[dict[str, Any]]
+            Metadata rows to append.
+        store : Any
+            Open Icechunk transaction store.
         """
         if not rows:
             return
@@ -1231,12 +1300,25 @@ class MyIcechunkStore:
         df = pl.DataFrame(rows)
 
         for col in df.columns:
-            values = df[col].to_numpy() if col not in ("attrs","commit_msg","action",
-                                                    "write_strategy","hash","snapshot_id") \
-                    else df[col].to_list()
+            list_only_cols = {
+                "attrs",
+                "commit_msg",
+                "action",
+                "write_strategy",
+                "hash",
+                "snapshot_id",
+            }
+            if col in list_only_cols:
+                values = df[col].to_list()
+            else:
+                values = df[col].to_numpy()
 
-            dtype = "i8" if col == "index" else \
-                    "M8[ns]" if col in ("start","end") else VariableLengthUTF8()
+            if col == "index":
+                dtype = "i8"
+            elif col in ("start", "end"):
+                dtype = "M8[ns]"
+            else:
+                dtype = VariableLengthUTF8()
 
             if col not in zmeta:
                 zmeta.create_array(name=col,
@@ -1264,14 +1346,21 @@ class MyIcechunkStore:
         """
         Expire and garbage-collect snapshots older than the given retention period.
 
-        Args:
-            days: Number of days to retain snapshots (default: `RINEX_STORE_EXPIRE_DAYS`)
-            branch: Branch to apply expiration on (default: 'main')
-            delete_expired_branches: Whether to delete branches pointing to expired snapshots
-            delete_expired_tags: Whether to delete tags pointing to expired snapshots
+        Parameters
+        ----------
+        days : int, default RINEX_STORE_EXPIRE_DAYS
+            Number of days to retain snapshots.
+        branch : str, default "main"
+            Branch to apply expiration on.
+        delete_expired_branches : bool, default True
+            Whether to delete branches pointing to expired snapshots.
+        delete_expired_tags : bool, default True
+            Whether to delete tags pointing to expired snapshots.
 
-        Returns:
-            Set of expired snapshot IDs.
+        Returns
+        -------
+        set[str]
+            Expired snapshot IDs.
         """
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
 
@@ -1312,12 +1401,17 @@ class MyIcechunkStore:
         """
         Return commit ancestry (history) for a branch.
 
-        Args:
-            branch: Branch name (default "main").
-            limit: If provided, return only the most recent N commits.
+        Parameters
+        ----------
+        branch : str, default "main"
+            Branch name.
+        limit : int | None, optional
+            Maximum number of commits to return.
 
-        Returns:
-            List of dicts with commit info: id, message, written_at, parent_ids.
+        Returns
+        -------
+        list[dict]
+            Commit info dictionaries (id, message, written_at, parent_ids).
         """
         self._logger.info(f"Fetching ancestry for branch '{branch}'")
 
@@ -1345,7 +1439,10 @@ class MyIcechunkStore:
             print(f"{ts} {entry['snapshot_id'][:8]} {entry['commit_msg']}")
 
     def __repr__(self) -> str:
-        return f"MyIcechunkStore(store_path={self.store_path}, store_type={self.store_type})"
+        return (
+            "MyIcechunkStore("
+            f"store_path={self.store_path}, store_type={self.store_type})"
+        )
 
     def __str__(self) -> str:
 
@@ -1386,11 +1483,13 @@ class MyIcechunkStore:
         source_branch : str
             Branch to read original data from (default: "main")
         temp_branch : str | None
-            Temporary branch name for rechunked data. If None, uses "{group_name}_rechunked"
+            Temporary branch name for rechunked data. If None, uses
+            "{group_name}_rechunked".
         promote_to_main : bool
             If True, reset main branch to rechunked snapshot after writing
         delete_temp_branch : bool
-            If True, delete temporary branch after promotion (only if promote_to_main=True)
+            If True, delete temporary branch after promotion (only if
+            promote_to_main=True).
 
         Returns
         -------
@@ -1444,7 +1543,8 @@ class MyIcechunkStore:
                 self.repo.ancestry(branch=temp_branch)).id
             self.repo.reset_branch(source_branch, rechunked_snapshot)
             self._logger.info(
-                f"Reset branch '{source_branch}' to rechunked snapshot {rechunked_snapshot}"
+                f"Reset branch '{source_branch}' to rechunked snapshot "
+                f"{rechunked_snapshot}"
             )
 
             # Delete temp branch if requested
@@ -1469,15 +1569,18 @@ class MyIcechunkStore:
         group_name : str
             Name of the group to rechunk
         chunks : dict[str, int] | None
-            Chunking specification, e.g. {'epoch': 34560, 'sid': -1}. Defaults to `gnnsvodpy.globals.ICECHUNK_CHUNK_STRATEGIES`
+            Chunking specification, e.g. {'epoch': 34560, 'sid': -1}. Defaults
+            to `gnnsvodpy.globals.ICECHUNK_CHUNK_STRATEGIES`.
         source_branch : str
             Branch to read original data from (default: "main")
         temp_branch : str | None
-            Temporary branch name for rechunked data. If None, uses "{group_name}_rechunked"
+            Temporary branch name for rechunked data. If None, uses
+            "{group_name}_rechunked".
         promote_to_main : bool
             If True, reset main branch to rechunked snapshot after writing
         delete_temp_branch : bool
-            If True, delete temporary branch after promotion (only if promote_to_main=True)
+            If True, delete temporary branch after promotion (only if
+            promote_to_main=True).
 
         Returns
         -------
@@ -1488,16 +1591,16 @@ class MyIcechunkStore:
             temp_branch = f"{group_name}_rechunked_temp"
 
         if chunks is None:
-            chunks = ICECHUNK_CHUNK_STRATEGIES.get(
-                'rinex_store', {
-                    "epoch": 34560,
-                    "sid": -1
-                }
-            ) if self.store_type == 'rinex_store' else ICECHUNK_CHUNK_STRATEGIES.get(
-                'vod_store', {
-                    "epoch": 34560,
-                    "sid": -1
-                })
+            if self.store_type == "rinex_store":
+                chunks = ICECHUNK_CHUNK_STRATEGIES.get(
+                    "rinex_store",
+                    {"epoch": 34560, "sid": -1},
+                )
+            else:
+                chunks = ICECHUNK_CHUNK_STRATEGIES.get(
+                    "vod_store",
+                    {"epoch": 34560, "sid": -1},
+                )
 
         print(f"\n{'='*60}")
         print(f"Starting rechunk of group '{group_name}'")
@@ -1618,7 +1721,8 @@ class MyIcechunkStore:
                 f"      ✓ Branch '{source_branch}' reset to {rechunked_snapshot[:12]}"
             )
             self._logger.info(
-                f"Reset branch '{source_branch}' to rechunked snapshot {rechunked_snapshot}"
+                f"Reset branch '{source_branch}' to rechunked snapshot "
+                f"{rechunked_snapshot}"
             )
 
             # Delete temp branch if requested
@@ -1914,26 +2018,26 @@ class MyIcechunkStore:
         delete_temp_branch: bool = True,
     ) -> str:
         """
-        Sanitize all groups in the store by removing NaN-only SIDs and cleaning coordinates.
+        Sanitize all groups by removing NaN-only SIDs and cleaning coordinates.
 
-        Creates a temporary branch, applies sanitization to all groups, then optionally
-        promotes to main and cleans up.
+        Creates a temporary branch, applies sanitization to all groups, then
+        optionally promotes to main and cleans up.
 
         Parameters
         ----------
-        source_branch : str
-            Branch to read original data from (default: "main")
-        temp_branch : str
-            Temporary branch name for sanitized data
-        promote_to_main : bool
-            If True, reset main branch to sanitized snapshot after writing
-        delete_temp_branch : bool
-            If True, delete temporary branch after promotion
+        source_branch : str, default "main"
+            Branch to read original data from.
+        temp_branch : str, default "sanitize_temp"
+            Temporary branch name for sanitized data.
+        promote_to_main : bool, default True
+            If True, reset main branch to sanitized snapshot after writing.
+        delete_temp_branch : bool, default True
+            If True, delete temporary branch after promotion.
 
         Returns
         -------
         str
-            Snapshot ID of the sanitized data
+            Snapshot ID of the sanitized data.
         """
         import time
 
@@ -1984,7 +2088,8 @@ class MyIcechunkStore:
                 removed_sids = original_sids - sanitized_sids
 
                 print(
-                    f"        • Sanitized: {sanitized_sids} SIDs (removed {removed_sids})"
+                    f"        • Sanitized: {sanitized_sids} SIDs "
+                    f"(removed {removed_sids})"
                 )
 
                 # Write sanitized data
@@ -2185,7 +2290,8 @@ class MyIcechunkStore:
                 f"Saved aggregated data to {target_group} at freq={freq}")
 
         print(
-            f"✅ Saved aggregated dataset to branch '{target_branch}' (group '{target_group}')"
+            f"✅ Saved aggregated dataset to branch '{target_branch}' "
+            f"(group '{target_group}')"
         )
         return ds_agg
 
@@ -2195,11 +2301,15 @@ def create_rinex_store(store_path: Path) -> MyIcechunkStore:
     """
     Create a RINEX Icechunk store with appropriate configuration.
 
-    Args:
-        store_path: Path to the store directory
+    Parameters
+    ----------
+    store_path : Path
+        Path to the store directory.
 
-    Returns:
-        Configured MyIcechunkStore for RINEX data
+    Returns
+    -------
+    MyIcechunkStore
+        Configured store for RINEX data.
     """
     return MyIcechunkStore(store_path=store_path, store_type="rinex_store")
 
@@ -2208,11 +2318,15 @@ def create_vod_store(store_path: Path) -> MyIcechunkStore:
     """
     Create a VOD Icechunk store with appropriate configuration.
 
-    Args:
-        store_path: Path to the store directory
+    Parameters
+    ----------
+    store_path : Path
+        Path to the store directory.
 
-    Returns:
-        Configured MyIcechunkStore for VOD analysis data
+    Returns
+    -------
+    MyIcechunkStore
+        Configured store for VOD analysis data.
     """
     return MyIcechunkStore(store_path=store_path, store_type="vod_store")
 

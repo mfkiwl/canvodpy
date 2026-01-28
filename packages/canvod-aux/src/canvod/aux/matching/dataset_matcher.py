@@ -14,8 +14,7 @@ from canvod.aux.interpolation import create_interpolator_from_attrs
 
 
 class DatasetMatcher:
-    """
-    Match auxiliary datasets to a reference RINEX dataset temporally.
+    """Match auxiliary datasets to a reference RINEX dataset temporally.
 
     Handles temporal alignment of datasets with different sampling rates
     using appropriate interpolation strategies. The reference dataset
@@ -59,8 +58,7 @@ class DatasetMatcher:
         reference_ds: xr.Dataset,
         **aux_datasets: xr.Dataset
     ) -> dict[str, xr.Dataset]:
-        """
-        Match auxiliary datasets to reference dataset epochs.
+        """Match auxiliary datasets to reference dataset epochs.
 
         Parameters
         ----------
@@ -108,10 +106,9 @@ class DatasetMatcher:
     def _validate_inputs(
         self,
         reference_ds: xr.Dataset,
-        aux_datasets: dict[str, xr.Dataset]
+        aux_datasets: dict[str, xr.Dataset],
     ) -> None:
-        """
-        Validate input datasets.
+        """Validate input datasets.
 
         Checks:
         1. At least one auxiliary dataset provided
@@ -121,14 +118,14 @@ class DatasetMatcher:
         Parameters
         ----------
         reference_ds : xr.Dataset
-            Reference dataset
+            Reference dataset.
         aux_datasets : dict[str, xr.Dataset]
-            Auxiliary datasets
+            Auxiliary datasets.
 
         Raises
         ------
         ValueError
-            If validation fails
+            If validation fails.
         """
         if not aux_datasets:
             raise ValueError("At least one auxiliary dataset required")
@@ -140,20 +137,19 @@ class DatasetMatcher:
             self._validate_interpolation_config(ds, name)
 
     def _validate_dimensions(self, ds: xr.Dataset, name: str) -> None:
-        """
-        Check dataset has required dimensions.
+        """Check dataset has required dimensions.
 
         Parameters
         ----------
         ds : xr.Dataset
-            Dataset to validate
+            Dataset to validate.
         name : str
-            Dataset name for error messages
+            Dataset name for error messages.
 
         Raises
         ------
         ValueError
-            If missing 'epoch' or 'sid' dimension
+            If missing 'epoch' or 'sid' dimension.
         """
         if 'epoch' not in ds.dims or 'sid' not in ds.dims:
             raise ValueError(
@@ -163,10 +159,9 @@ class DatasetMatcher:
     def _validate_interpolation_config(
         self,
         ds: xr.Dataset,
-        name: str
+        name: str,
     ) -> None:
-        """
-        Verify dataset has interpolation configuration.
+        """Verify dataset has interpolation configuration.
 
         Issues warning if missing - interpolation will still work
         via fallback to nearest neighbor.
@@ -174,9 +169,9 @@ class DatasetMatcher:
         Parameters
         ----------
         ds : xr.Dataset
-            Dataset to check
+            Dataset to check.
         name : str
-            Dataset name for warning message
+            Dataset name for warning message.
         """
         if 'interpolator_config' not in ds.attrs:
             warnings.warn(
@@ -186,18 +181,17 @@ class DatasetMatcher:
             )
 
     def _get_temporal_interval(self, ds: xr.Dataset) -> float:
-        """
-        Calculate temporal interval of dataset in seconds.
+        """Calculate temporal interval of dataset in seconds.
 
         Parameters
         ----------
         ds : xr.Dataset
-            Dataset with epoch dimension
+            Dataset with epoch dimension.
 
         Returns
         -------
         float
-            Interval between first two epochs in seconds
+            Interval between first two epochs in seconds.
         """
         time_diff = ds['epoch'][1] - ds['epoch'][0]
         return float(time_diff.values)
@@ -206,10 +200,9 @@ class DatasetMatcher:
         self,
         reference_ds: xr.Dataset,
         ref_interval: float,
-        aux_datasets: dict[str, xr.Dataset]
+        aux_datasets: dict[str, xr.Dataset],
     ) -> dict[str, xr.Dataset]:
-        """
-        Match temporal resolution of auxiliary datasets to reference.
+        """Match temporal resolution of auxiliary datasets to reference.
 
         Strategy depends on relative sampling rates:
         - Higher resolution aux (finer sampling) → nearest neighbor
@@ -218,16 +211,16 @@ class DatasetMatcher:
         Parameters
         ----------
         reference_ds : xr.Dataset
-            Reference dataset defining target epochs
+            Reference dataset defining target epochs.
         ref_interval : float
-            Reference dataset temporal interval in seconds
+            Reference dataset temporal interval in seconds.
         aux_datasets : dict[str, xr.Dataset]
-            Auxiliary datasets to interpolate
+            Auxiliary datasets to interpolate.
 
         Returns
         -------
         dict[str, xr.Dataset]
-            Matched datasets aligned to reference epochs
+            Matched datasets aligned to reference epochs.
         """
         matched_datasets = {}
 

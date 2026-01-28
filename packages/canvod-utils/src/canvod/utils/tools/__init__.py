@@ -16,14 +16,21 @@ Examples
 >>> date = YYYYDOY.from_str("2025024")
 >>> print(date.to_datetime())
 
+>>> from canvod.utils.tools import gpsweekday
+>>> week, day = gpsweekday("2025-01-15")
+
 >>> from canvod.utils.tools import isfloat
 >>> isfloat("3.14")  # True
 """
 
-from .date_utils import YYDOY, YYYYDOY, get_gps_week_from_filename, gpsweekday
+from .date_utils import YYDOY, YYYYDOY, get_gps_week_from_filename
 from .hashing import rinex_file_hash
 from .validation import isfloat
 from .version import get_version_from_pyproject
+
+# Backwards compatibility: gpsweekday is now a static method on YYYYDOY
+# Provide as standalone function for backwards compatibility
+gpsweekday = YYYYDOY.gpsweekday
 
 __all__ = [
     # Version
@@ -31,8 +38,8 @@ __all__ = [
     # Date/time
     "YYYYDOY",
     "YYDOY",
-    "gpsweekday",
     "get_gps_week_from_filename",
+    "gpsweekday",
     # Validation
     "isfloat",
     # Hashing

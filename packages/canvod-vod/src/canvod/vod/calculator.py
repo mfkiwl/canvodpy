@@ -1,5 +1,8 @@
+"""VOD calculators based on Tau-Omega model variants."""
+
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, field_validator
@@ -9,6 +12,10 @@ import xarray as xr
 class VODCalculator(ABC, BaseModel):
     """
     Abstract base class for VOD calculation from RINEX store data.
+
+    Notes
+    -----
+    This is an abstract base class (ABC) and a Pydantic model.
     """
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -27,7 +34,7 @@ class VODCalculator(ABC, BaseModel):
     @abstractmethod
     def calculate_vod(self) -> xr.Dataset:
         """Calculate VOD and return dataset with VOD, phi, theta."""
-        pass
+        raise NotImplementedError
 
     @classmethod
     def from_icechunkstore(
@@ -35,7 +42,7 @@ class VODCalculator(ABC, BaseModel):
         icechunk_store_pth: Path,
         canopy_group: str = "canopy_01",
         sky_group: str = "reference_01",
-        **open_kwargs,
+        **open_kwargs: Any,
     ) -> xr.Dataset:
         """
         Convenience method to calculate VOD directly from an IcechunkStore.
@@ -43,21 +50,22 @@ class VODCalculator(ABC, BaseModel):
         Parameters
         ----------
         icechunk_store_pth : Path
-            Path to Icechunk store
+            Path to Icechunk store.
         canopy_group : str
-            Canopy receiver group name
+            Canopy receiver group name.
         sky_group : str
-            Sky/reference receiver group name
-        open_kwargs : dict
-            Additional keyword arguments for IcechunkStore.open()
+            Sky/reference receiver group name.
+        open_kwargs : dict[str, Any]
+            Additional keyword arguments for IcechunkStore.open().
+            Currently unused.
 
         Returns
         -------
         xr.Dataset
             VOD dataset
-            
-        Note
-        ----
+
+        Notes
+        -----
         Requires canvod-store to be installed.
         """
         try:
@@ -91,16 +99,16 @@ class VODCalculator(ABC, BaseModel):
         Parameters
         ----------
         canopy_ds : xr.Dataset
-            Canopy receiver dataset
+            Canopy receiver dataset.
         sky_ds : xr.Dataset
-            Sky/reference receiver dataset
+            Sky/reference receiver dataset.
         align : bool
-            Whether to align datasets on common coordinates
+            Whether to align datasets on common coordinates.
 
         Returns
         -------
         xr.Dataset
-            VOD dataset
+            VOD dataset.
         """
         if align:
             canopy_ds, sky_ds = xr.align(canopy_ds, sky_ds, join='inner')
@@ -138,7 +146,8 @@ class TauOmegaZerothOrder(VODCalculator):
             n_invalid = (canopy_transmissivity <= 0).sum().item()
             total = canopy_transmissivity.size
             print(
-                f"Warning: {n_invalid}/{total} transmissivity values <= 0 (will produce NaN)"
+                f"Warning: {n_invalid}/{total} transmissivity values <= 0 "
+                "(will produce NaN)"
             )
 
         theta = self.canopy_ds["theta"]

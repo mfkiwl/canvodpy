@@ -7,11 +7,12 @@ This package provides:
 - CLI for configuration management
 - Validation and error reporting
 
-Example:
-    >>> from canvod.utils.config import load_config
-    >>> config = load_config()
-    >>> print(config.gnss_root_dir)
-    >>> print(config.processing.aux_data.agency)
+Examples
+--------
+>>> from canvod.utils.config import load_config
+>>> config = load_config()
+>>> print(config.gnss_root_dir)
+>>> print(config.processing.aux_data.agency)
 """
 
 from .loader import load_config

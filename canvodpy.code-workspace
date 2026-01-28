@@ -2,36 +2,40 @@
     "folders": [
         {
             "name": "🏠 Root",
-            "path": "."
+            "path": ".",
+        },
+        {
+            "name": "🛠️ canvod-utils",
+            "path": "packages/canvod-utils",
         },
         {
             "name": "📡 canvod-readers",
-            "path": "packages/canvod-readers"
+            "path": "packages/canvod-readers",
         },
         {
             "name": "🔗 canvod-aux",
-            "path": "packages/canvod-aux"
+            "path": "packages/canvod-aux",
         },
         {
             "name": "🌐 canvod-grids",
-            "path": "packages/canvod-grids"
+            "path": "packages/canvod-grids",
         },
         {
             "name": "🌳 canvod-vod",
-            "path": "packages/canvod-vod"
+            "path": "packages/canvod-vod",
         },
         {
             "name": "📦 canvod-store",
-            "path": "packages/canvod-store"
+            "path": "packages/canvod-store",
         },
         {
             "name": "📊 canvod-viz",
-            "path": "packages/canvod-viz"
+            "path": "packages/canvod-viz",
         },
         {
             "name": "🛰️ canvodpy",
-            "path": "canvodpy"
-        }
+            "path": "canvodpy",
+        },
     ],
     "settings": {
         // --- Python Environment ---
@@ -44,7 +48,7 @@
             "-v",
             "--tb=short",
             "--strict-markers",
-            "--strict-config"
+            "--strict-config",
         ],
         "python.testing.autoTestDiscoverOnSaveEnabled": true,
 
@@ -59,13 +63,13 @@
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.fixAll.ruff": "explicit",
-            "source.organizeImports.ruff": "explicit"
+            "source.organizeImports.ruff": "explicit",
         },
 
         // --- Type Checking ---
         "python.analysis.typeCheckingMode": "strict",
         "python.analysis.diagnosticSeverityOverrides": {
-            "reportMissingTypeStubs": "none"
+            "reportMissingTypeStubs": "none",
         },
 
         // --- File Exclusions ---
@@ -74,7 +78,7 @@
             "**/*.pyc": true,
             "**/.pytest_cache": true,
             "**/*.egg-info": true,
-            "**/.ruff_cache": true
+            "**/.ruff_cache": true,
         },
 
         // --- Theme / UI ---
@@ -97,7 +101,7 @@
             "titleBar.activeForeground": "#e7e7e7",
             "titleBar.inactiveBackground": "#21573299",
             "titleBar.inactiveForeground": "#e7e7e799"
-        }
+        },
     },
     "extensions": {
         "recommendations": [
@@ -106,8 +110,8 @@
             "charliermarsh.ruff",
             "ms-toolsai.jupyter",
             "njpwerner.autodocstring",
-            "skellock.just"
-        ]
+            "skellock.just",
+        ],
     },
     "tasks": {
         "version": "2.0.0",
@@ -117,36 +121,36 @@
                 "type": "shell",
                 "command": "uv run ruff check --fix . && uv run ruff format .",
                 "group": "build",
-                "problemMatcher": []
+                "problemMatcher": [],
             },
             {
                 "label": "Root: Type Check",
                 "type": "shell",
                 "command": "uv run ty check .",
                 "group": "build",
-                "problemMatcher": []
+                "problemMatcher": [],
             },
             {
                 "label": "Root: Test All",
                 "type": "shell",
                 "command": "uv run pytest",
                 "group": "test",
-                "problemMatcher": []
+                "problemMatcher": [],
             },
             {
                 "label": "Just: Check (lint+format+type)",
                 "type": "shell",
                 "command": "just check",
                 "group": "build",
-                "problemMatcher": []
+                "problemMatcher": [],
             },
             {
                 "label": "Just: Test",
                 "type": "shell",
                 "command": "just test",
                 "group": "test",
-                "problemMatcher": []
-            }
-        ]
-    }
+                "problemMatcher": [],
+            },
+        ],
+    },
 }

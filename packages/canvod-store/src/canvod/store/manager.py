@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 import numpy as np
 import xarray as xr
@@ -46,23 +46,19 @@ class GnssResearchSite:
     - Receiver management and validation
     - Analysis workflow coordination
     - Unified logging and error handling
+
+    Parameters
+    ----------
+    site_name : str
+        Name of the research site (must exist in config).
+
+    Raises
+    ------
+    KeyError
+        If ``site_name`` is not found in the RESEARCH_SITES config.
     """
 
     def __init__(self, site_name: str) -> None:
-        """
-        Initialize a research site manager.
-
-        Parameters
-        ----------
-        site_name : str
-            Name of the research site (must exist in config).
-
-        Raises
-        ------
-        KeyError
-            If ``site_name`` is not found in the RESEARCH_SITES config.
-        """
-
         if site_name not in RESEARCH_SITES:
             available_sites = list(RESEARCH_SITES.keys())
             raise KeyError(f"Site '{site_name}' not found in config. "
@@ -141,7 +137,6 @@ class GnssResearchSite:
         """
         Validate that the site configuration is consistent.
 
-
         Returns
         -------
         bool
@@ -149,8 +144,8 @@ class GnssResearchSite:
 
         Raises
         ------
-        ValueError:
-            If configuration is invalid
+        ValueError
+            If configuration is invalid.
         """
         # Check that all VOD analyses reference valid receivers
         for analysis_name, analysis_config in self.vod_analyses.items():
@@ -184,7 +179,7 @@ class GnssResearchSite:
 
         Returns
         -------
-        List[str]
+        list[str]
             Existing receiver group names.
         """
         return self.rinex_store.list_groups()
@@ -195,7 +190,7 @@ class GnssResearchSite:
 
         Returns
         -------
-        List[str]
+        list[str]
             Existing VOD analysis group names.
         """
         return self.vod_store.list_groups()
@@ -671,12 +666,15 @@ class GnssResearchSite:
 
                 if n_epochs < required_epochs:
                     self._logger.info(
-                        f"{receiver_name} {yyyydoy}: Only {n_epochs}/{expected_epochs} epochs "
-                        f"({n_epochs/expected_epochs*100:.1f}%) - incomplete")
+                        f"{receiver_name} {yyyydoy}: Only "
+                        f"{n_epochs}/{expected_epochs} epochs "
+                        f"({n_epochs/expected_epochs*100:.1f}%) - incomplete"
+                    )
                     return False
 
                 self._logger.debug(
-                    f"{receiver_name} {yyyydoy}: {n_epochs}/{expected_epochs} epochs - complete"
+                    f"{receiver_name} {yyyydoy}: "
+                    f"{n_epochs}/{expected_epochs} epochs - complete"
                 )
 
             except (ValueError, KeyError, Exception) as e:
@@ -696,8 +694,10 @@ class GnssResearchSite:
         vod_groups = len(self.get_vod_analysis_groups())
         return (
             f"GNSS Research Site: {self.site_name}\n"
-            f"  Receivers: {len(self.active_receivers)} configured, {rinex_groups} with data\n"
-            f"  VOD Analyses: {len(self.active_vod_analyses)} configured, {vod_groups} with results"
+            f"  Receivers: {len(self.active_receivers)} configured, "
+            f"{rinex_groups} with data\n"
+            f"  VOD Analyses: {len(self.active_vod_analyses)} configured, "
+            f"{vod_groups} with results"
         )
 
 
@@ -745,7 +745,8 @@ if __name__ == "__main__":
     #         f"  Active VOD analyses: {summary['site_config']['active_vod_analyses']}"
     #     )
     #     print(
-    #         f"  RINEX groups with data: {summary['data_status']['rinex_groups_exist']}"
+    #         "  RINEX groups with data: "
+    #         f"{summary['data_status']['rinex_groups_exist']}"
     #     )
     #     print(
     #         f"  VOD groups with results: {summary['data_status']['vod_groups_exist']}"
@@ -762,7 +763,8 @@ if __name__ == "__main__":
     #     print("Configured VOD Analyses:")
     #     for name, config in site.active_vod_analyses.items():
     #         print(
-    #             f"  {name}: {config['canopy_receiver']} vs {config['reference_receiver']}"
+    #             f"  {name}: {config['canopy_receiver']} vs "
+    #             f"{config['reference_receiver']}"
     #         )
 
     # except Exception as e:

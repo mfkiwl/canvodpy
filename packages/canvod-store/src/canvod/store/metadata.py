@@ -1,6 +1,8 @@
+"""Metadata table helpers for Icechunk-backed stores."""
+
 from datetime import datetime
 import json
-from typing import Optional
+from typing import Any
 
 import numpy as np
 import polars as pl
@@ -11,14 +13,15 @@ from canvodpy.logging.context import get_logger
 
 
 class MetadataManager:
-    """
-    Manages metadata table operations for Icechunk groups.
+    """Manage metadata table CRUD, backups, and deduplication for groups.
 
-    Handles all metadata table CRUD operations, backups, restoration,
-    and deduplication logic in a separate, focused class.
+    Parameters
+    ----------
+    logger : Any, optional
+        Logger-like object to use. Defaults to the configured context logger.
     """
 
-    def __init__(self, logger=None):
+    def __init__(self, logger: Any | None = None) -> None:
         self._logger = logger or get_logger()
 
-    #TODO future refactor of MyIcechunkStore
+    # TODO: Future refactor of MyIcechunkStore.

@@ -1,3 +1,5 @@
+"""Fetch a directory listing from the ESA FTP server."""
+
 from ftplib import FTP
 
 ftp = FTP("gssc.esa.int")

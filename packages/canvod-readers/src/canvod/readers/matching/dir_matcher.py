@@ -58,14 +58,7 @@ class DataDirMatcher:
         reference_pattern: Path = Path("01_reference/01_GNSS/01_raw"),
         canopy_pattern: Path = Path("02_canopy/01_GNSS/01_raw"),
     ) -> None:
-        """Initialize matcher with directory structure.
-        
-        Parameters documented in class docstring.
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize matcher with directory structure."""
         self.root = Path(root)
         self.reference_dir = self.root / reference_pattern
         self.canopy_dir = self.root / canopy_pattern
@@ -81,7 +74,7 @@ class DataDirMatcher:
         Yields
         ------
         MatchedDirs
-            Matched directories for each date
+            Matched directories for each date.
 
         """
         for date_str in self.get_common_dates():
@@ -100,7 +93,7 @@ class DataDirMatcher:
         -------
         list[str]
             Sorted list of date strings (YYDDD format, e.g., "25001")
-            that have RINEX files in both canopy and reference directories
+            that have RINEX files in both canopy and reference directories.
 
         """
         # Find dates with RINEX in each receiver
@@ -112,7 +105,7 @@ class DataDirMatcher:
         common.discard("00000")  # Remove placeholder directories
 
         # Sort naturally (numerical order)
-        return natsorted(list(common))
+        return natsorted(common)
 
     def _get_dates_with_rinex(self, base_dir: Path) -> set[str]:
         """Find all date directories containing RINEX files.
@@ -122,16 +115,16 @@ class DataDirMatcher:
         Parameters
         ----------
         base_dir : Path
-            Base directory to search (e.g., canopy or reference root)
+            Base directory to search (e.g., canopy or reference root).
 
         Returns
         -------
         set[str]
-            Set of date directory names that contain RINEX files
+            Set of date directory names that contain RINEX files.
 
         """
         # Get all subdirectories
-        date_dirs = [d for d in base_dir.iterdir() if d.is_dir()]
+        date_dirs = (d for d in base_dir.iterdir() if d.is_dir())
 
         # Check for RINEX files in parallel
         dates_with_rinex = set()
@@ -157,12 +150,12 @@ class DataDirMatcher:
         Parameters
         ----------
         directory : Path
-            Directory to check
+            Directory to check.
 
         Returns
         -------
         bool
-            True if RINEX files found
+            True if RINEX files found.
 
         """
         return any(directory.glob("*.[0-9][0-9]o"))
@@ -173,14 +166,14 @@ class DataDirMatcher:
         Parameters
         ----------
         path : Path
-            Directory to check
+            Directory to check.
         name : str
-            Name for error message
+            Name for error message.
 
         Raises
         ------
         FileNotFoundError
-            If directory doesn't exist
+            If directory doesn't exist.
 
         """
         if not path.exists():
@@ -241,18 +234,11 @@ class PairDataDirMatcher:
     def __init__(
         self,
         base_dir: Path,
-        receivers: dict[str, dict],
-        analysis_pairs: dict[str, dict],
+        receivers: dict[str, dict[str, str]],
+        analysis_pairs: dict[str, dict[str, str]],
         receiver_subpath_template: str = "{receiver_dir}/01_GNSS/01_raw",
     ) -> None:
-        """Initialize pair matcher with receiver configuration.
-        
-        Parameters documented in class docstring.
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize pair matcher with receiver configuration."""
         self.base_dir = Path(base_dir)
         self.receivers = receivers
         self.analysis_pairs = analysis_pairs
@@ -267,12 +253,12 @@ class PairDataDirMatcher:
         Returns
         -------
         dict[str, str]
-            Mapping of receiver name to directory path
+            Mapping of receiver name to directory path.
 
         Raises
         ------
         ValueError
-            If receiver missing 'directory' in config
+            If receiver missing 'directory' in config.
 
         """
         mapping = {}
@@ -290,14 +276,14 @@ class PairDataDirMatcher:
         Parameters
         ----------
         receiver_name : str
-            Receiver name (e.g., "canopy_01")
+            Receiver name (e.g., "canopy_01").
         yyyydoy : YYYYDOY
-            Date object
+            Date object.
 
         Returns
         -------
         Path
-            Full path to receiver's RINEX directory for the date
+            Full path to receiver's RINEX directory for the date.
 
         """
         receiver_dir = self.receiver_dirs[receiver_name]
@@ -314,7 +300,7 @@ class PairDataDirMatcher:
         Returns
         -------
         set[YYYYDOY]
-            Set of all dates with available data
+            Set of all dates with available data.
 
         """
         all_dates = set()
@@ -354,7 +340,7 @@ class PairDataDirMatcher:
         Yields
         ------
         PairMatchedDirs
-            Matched directories for a receiver pair on a specific date
+            Matched directories for a receiver pair on a specific date.
 
         """
         all_dates = sorted(self._get_all_dates())

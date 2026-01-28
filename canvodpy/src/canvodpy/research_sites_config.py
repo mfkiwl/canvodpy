@@ -13,7 +13,7 @@ File: src/gnssvodpy/research_sites_config.py
 
 import os
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 # Get the directory two levels up from this file for the env file
 _ENV_DIR = Path(__file__).parent.parent.parent
@@ -30,7 +30,7 @@ except ImportError:
 # User must set this in .env file for their local environment
 _GNSS_ROOT_DIR = Path(os.getenv("GNSS_ROOT_DIR", Path.cwd() / "data"))
 
-# ----------------------------- Research Sites Configuration -----------------------------
+# ----------------------------- Research Sites Configuration --------------------
 
 RESEARCH_SITES: dict[str, dict[str, Any]] = {
     "Rosalia": {

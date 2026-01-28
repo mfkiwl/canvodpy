@@ -18,6 +18,18 @@ from pydantic import BaseModel
 class Bands(BaseModel):
     """Registry of GNSS band definitions and properties.
 
+    Notes
+    -----
+    This is a Pydantic `BaseModel` with `frozen=True` and
+    `arbitrary_types_allowed=True`.
+
+    Parameters
+    ----------
+    aggregate_glonass_fdma : bool, default True
+        Whether to aggregate GLONASS FDMA channels into single bands.
+    **kwargs
+        Additional keyword arguments passed to ``BaseModel``.
+
     Attributes
     ----------
     BAND_PROPERTIES : dict
@@ -36,19 +48,7 @@ class Bands(BaseModel):
     model_config = dict(arbitrary_types_allowed=True, frozen=True)
 
     def __init__(self, aggregate_glonass_fdma: bool = True, **kwargs) -> None:
-        """Initialize bands registry.
-        
-        Parameters
-        ----------
-        aggregate_glonass_fdma : bool, default True
-            Whether to aggregate GLONASS FDMA channels into single bands
-        **kwargs
-            Additional keyword arguments passed to BaseModel
-        
-        Returns
-        -------
-        None
-        """
+        """Initialize bands registry."""
         # Combine all BAND_PROPERTIES from constellations
         combined_band_properties = {
             **BEIDOU.BAND_PROPERTIES,
@@ -86,16 +86,16 @@ class Bands(BaseModel):
         band_properties: dict[str, dict[str, Quantity | str | bool]]
     ) -> dict[str, dict[str, float | str | bool]]:
         """Convert a BAND_PROPERTIES dict to use only magnitudes (floats).
-        
+
         Parameters
         ----------
         band_properties : dict
-            Dictionary with Quantity values for frequencies
-        
+            Dictionary with Quantity values for frequencies.
+
         Returns
         -------
         dict
-            Dictionary with float values (magnitudes only)
+            Dictionary with float values (magnitudes only).
         """
         result = {}
         for band, props in band_properties.items():
@@ -143,25 +143,24 @@ class Bands(BaseModel):
         figsize: tuple[int, int] = (16, 8),
         savepath: str | None = None,
         exclude_systems: list[str] | None = None
-    ) -> tuple:
-        """Draw GNSS frequency plan with proper frequency ordering and x-axis break.
-        Mimics the uploaded image layout exactly.
+    ) -> tuple[plt.Figure, tuple[plt.Axes, plt.Axes]]:
+        """Draw GNSS frequency plan with frequency ordering and x-axis break.
 
         Parameters
         ----------
         available_combinations : list of str, optional
-            List of available system-band-code combinations
+            List of available system-band-code combinations.
         figsize : tuple of int, default (16, 8)
-            Figure size (width, height) in inches
+            Figure size (width, height) in inches.
         savepath : str, optional
-            If provided, saves the figure to this path
+            If provided, saves the figure to this path.
         exclude_systems : list of str, optional
-            List of system-band-code combinations to exclude
+            List of system-band-code combinations to exclude.
 
         Returns
         -------
         tuple
-            Tuple of (figure, (ax1, ax2)) containing the matplotlib figure and axes
+            Tuple of (figure, (ax1, ax2)) containing the matplotlib figure and axes.
 
         """
         import matplotlib.pyplot as plt
@@ -248,16 +247,16 @@ class Bands(BaseModel):
         # Plot function for each panel
         def plot_panel(ax, combinations: list[str], panel_name: str) -> None:
             """Plot frequency bands on a panel.
-            
+
             Parameters
             ----------
             ax : matplotlib.axes.Axes
-                Axes to plot on
+                Axes to plot on.
             combinations : list of str
-                System-band combinations to plot
+                System-band combinations to plot.
             panel_name : str
-                Panel identifier ('left' or 'right')
-            
+                Panel identifier ("left" or "right").
+
             Returns
             -------
             None

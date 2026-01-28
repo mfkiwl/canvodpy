@@ -183,11 +183,11 @@ USAGE EXAMPLES
   ```python
   from canvodpy.settings import get_settings
   from canvodpy.globals import AGENCY, FTP_SERVER
-  
+
   settings = get_settings()
   email = settings.get_user_email()      # From .env or processing.yaml
   root = settings.gnss_root_path          # Data directory
-  
+
   print(f"Agency: {AGENCY}")              # From globals
   print(f"FTP: {FTP_SERVER}")             # From globals
   ```
@@ -195,7 +195,7 @@ USAGE EXAMPLES
 2. High-Level Orchestration:
   ```python
   from canvodpy.orchestrator import RinexDataProcessor
-  
+
   processor = RinexDataProcessor(rinex_file="data.25o")
   processor.process()
   ```
@@ -205,13 +205,13 @@ USAGE EXAMPLES
   from canvod.readers import Rnxv3Obs, MatchedDirs
   from canvod.aux import AuxDataPipeline
   from canvod.utils.tools import YYYYDOY
-  
+
   md = MatchedDirs(
       canopy_data_dir="path/canopy/25001",
-      sky_data_dir="path/sky/25001",
+      reference_data_dir="path/sky/25001",
       yyyydoy=YYYYDOY.from_str("2025001")
   )
-  
+
   pipeline = AuxDataPipeline.create_standard(matched_dirs=md)
   pipeline.load_all()
   ephemerides = pipeline.get_ephemerides()

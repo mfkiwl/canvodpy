@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from ftplib import FTP_TLS, error_perm
 from pathlib import Path
 from urllib import request
+from typing import Any
 
 from tqdm import tqdm
 
@@ -14,13 +15,41 @@ class FileDownloader(ABC):
     """Protocol defining the interface for file downloading implementations."""
 
     @abstractmethod
-    def download(self, url: str, destination: Path, file_info: dict | None = None) -> Path:
-        """Download a file from url to destination."""
+    def download(
+        self,
+        url: str,
+        destination: Path,
+        file_info: dict[str, Any] | None = None,
+    ) -> Path:
+        """Download a file from a URL to a destination.
+
+        Parameters
+        ----------
+        url : str
+            Source URL.
+        destination : Path
+            Local path to save the file.
+        file_info : dict[str, Any], optional
+            Optional context for downloaders (e.g., agency, GPS week).
+
+        Returns
+        -------
+        Path
+            Path to the downloaded file.
+        """
         pass
 
 
 class FtpDownloader(FileDownloader):
-    """Implementation of FileDownloader for FTP downloads with progress bar and fallback servers."""
+    """FTP downloader with progress bar and fallback servers.
+
+    Parameters
+    ----------
+    alt_servers : list[str], optional
+        List of alternative FTP server URLs.
+    user_email : str, optional
+        Email for authenticated FTP servers (NASA CDDIS).
+    """
 
     NASA_FTP = "ftp://gdc.cddis.eosdis.nasa.gov"
 
@@ -29,18 +58,7 @@ class FtpDownloader(FileDownloader):
         alt_servers: list[str] | None = None,
         user_email: str | None = None,
     ):
-        """
-        Initialize downloader with optional alternate servers.
-
-        FTP Server Strategy:
-        ------------------
-        - Primary: Uses the URL provided in download() call (typically ESA)
-        - Fallback: NASA CDDIS (requires authentication with user_email)
-
-        Args:
-            alt_servers: List of alternative FTP server URLs
-            user_email: Email for authenticated FTP servers (NASA CDDIS)
-        """
+        """Initialize downloader with optional alternate servers."""
         if alt_servers is None:
             if user_email is not None:
                 self.alt_servers = [self.NASA_FTP]
@@ -48,10 +66,15 @@ class FtpDownloader(FileDownloader):
             else:
                 self.alt_servers = []
                 print("ℹ Using ESA FTP exclusively")
-                print("  To enable NASA CDDIS fallback, set CDDIS_MAIL environment variable")
+                print(
+                    "  To enable NASA CDDIS fallback, set CDDIS_MAIL "
+                    "environment variable"
+                )
         else:
             if user_email is None:
-                self.alt_servers = [s for s in alt_servers if "cddis" not in s.lower()]
+                self.alt_servers = [
+                    s for s in alt_servers if "cddis" not in s.lower()
+                ]
                 if len(self.alt_servers) < len(alt_servers):
                     print("⚠ Skipping CDDIS servers (no credentials)")
             else:
@@ -63,18 +86,23 @@ class FtpDownloader(FileDownloader):
         self,
         url: str,
         destination: Path,
-        file_info: dict | None = None,
+        file_info: dict[str, Any] | None = None,
     ) -> Path:
-        """
-        Download a file from FTP with progress tracking and fallback servers.
+        """Download a file with progress tracking and fallback servers.
 
-        Args:
-            url: Primary URL to download from
-            destination: Local path to save the file
-            file_info: Additional information (agency, GPS week, etc.)
+        Parameters
+        ----------
+        url : str
+            Primary URL to download from.
+        destination : Path
+            Local path to save the file.
+        file_info : dict[str, Any], optional
+            Additional information (agency, GPS week, etc.).
 
-        Returns:
-            Path to the downloaded file
+        Returns
+        -------
+        Path
+            Path to the downloaded file.
         """
         destination.parent.mkdir(parents=True, exist_ok=True)
 
@@ -93,10 +121,12 @@ class FtpDownloader(FileDownloader):
                     f"\nPrimary URL: {url}\n"
                     f"Error: {str(e)}\n"
                     f"\nPossible causes:\n"
-                    f"  - File not yet available (check latency: {file_info.get('latency', 'unknown')} hours)\n"
+                    f"  - File not yet available (check latency: "
+                    f"{file_info.get('latency', 'unknown')} hours)\n"
                     f"  - Incorrect FTP path for server\n"
                     f"  - Temporary server issue\n"
-                    f"\nTip: Set CDDIS_MAIL environment variable to enable NASA CDDIS fallback"
+                    f"\nTip: Set CDDIS_MAIL environment variable to enable "
+                    f"NASA CDDIS fallback"
                 )
 
             for alt_server in self.alt_servers:
@@ -147,7 +177,8 @@ class FtpDownloader(FileDownloader):
         """Download file from NASA CDDIS server using FTPS."""
         if self.user_email is None:
             raise RuntimeError(
-                "NASA CDDIS requires authentication. Set CDDIS_MAIL environment variable.\n"
+                "NASA CDDIS requires authentication. Set CDDIS_MAIL "
+                "environment variable.\n"
                 "Register at: https://urs.earthdata.nasa.gov/users/new"
             )
 
@@ -166,10 +197,14 @@ class FtpDownloader(FileDownloader):
                 try:
                     ftps.cwd(subdir)
                 except error_perm as e:
-                    raise RuntimeError(f"Failed to change to directory {subdir}: {str(e)}")
+                    raise RuntimeError(
+                        f"Failed to change to directory {subdir}: {str(e)}"
+                    )
 
         if filename not in ftps.nlst():
-            raise RuntimeError(f"File {filename} not found in directory {directory}")
+            raise RuntimeError(
+                f"File {filename} not found in directory {directory}"
+            )
 
         temp_path = destination.with_suffix(destination.suffix + ".tmp")
         with open(temp_path, "wb") as f:

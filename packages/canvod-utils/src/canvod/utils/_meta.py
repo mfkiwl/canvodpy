@@ -13,7 +13,7 @@ SOFTWARE_URL = "https://github.com/climers-tuwien/canvodpy"
 SOFTWARE_FULL = f"{SOFTWARE_NAME} v{__version__}"
 
 # This will be written to output files
-SOFTWARE_ATTRS = {
+SOFTWARE_ATTRS: dict[str, str] = {
     "software": SOFTWARE_FULL,
     "software_url": SOFTWARE_URL,
     "version": __version__,

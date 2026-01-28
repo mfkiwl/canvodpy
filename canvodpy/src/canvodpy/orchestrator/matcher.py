@@ -1,4 +1,5 @@
-from typing import Dict, Set
+"""Dataset alignment and interpolation for auxiliary datasets."""
+
 import warnings
 
 import numpy as np
@@ -17,8 +18,11 @@ class DatasetMatcher:
     3. Applying appropriate interpolation strategies
     """
 
-    def match_datasets(self, canopy_data_ds: xr.Dataset,
-                       **other_ds: xr.Dataset) -> dict[str, xr.Dataset]:
+    def match_datasets(
+        self,
+        canopy_data_ds: xr.Dataset,
+        **other_ds: xr.Dataset,
+    ) -> dict[str, xr.Dataset]:
         """
         Match multiple named datasets to the canopy dataset while minimizing changes.
 
@@ -56,8 +60,11 @@ class DatasetMatcher:
 
         return matched_datasets
 
-    def _validate_inputs(self, canopy_ds: xr.Dataset,
-                         other_ds: dict[str, xr.Dataset]) -> None:
+    def _validate_inputs(
+        self,
+        canopy_ds: xr.Dataset,
+        other_ds: dict[str, xr.Dataset],
+    ) -> None:
         """
         Validate input datasets.
 
@@ -82,8 +89,12 @@ class DatasetMatcher:
             raise ValueError(
                 f"{name} missing required dimension 'epoch' or 'sid'")
 
-    def _validate_temporal_coverage(self, ds: xr.Dataset,
-                                    canopy_ds: xr.Dataset, name: str) -> None:
+    def _validate_temporal_coverage(
+        self,
+        ds: xr.Dataset,
+        canopy_ds: xr.Dataset,
+        name: str,
+    ) -> None:
         """Check if dataset covers the required time period."""
         canopy_start = canopy_ds['epoch'][0]
         canopy_end = canopy_ds['epoch'][-1]
@@ -95,8 +106,11 @@ class DatasetMatcher:
             raise ValueError(
                 f"Dataset '{name}' ends before the canopy dataset")
 
-    def _validate_interpolation_config(self, ds: xr.Dataset,
-                                       name: str) -> None:
+    def _validate_interpolation_config(
+        self,
+        ds: xr.Dataset,
+        name: str,
+    ) -> None:
         """Verify dataset has interpolation configuration if needed."""
         if 'interpolator_config' not in ds.attrs:
             warnings.warn(
@@ -108,8 +122,11 @@ class DatasetMatcher:
         return float((ds['epoch'][1] - ds['epoch'][0]).values)
 
     def _match_temporal_resolution(
-            self, canopy_ds: xr.Dataset, canopy_interval: float,
-            other_ds: dict[str, xr.Dataset]) -> dict[str, xr.Dataset]:
+        self,
+        canopy_ds: xr.Dataset,
+        canopy_interval: float,
+        other_ds: dict[str, xr.Dataset],
+    ) -> dict[str, xr.Dataset]:
         """
         Match temporal resolution of all datasets.
 

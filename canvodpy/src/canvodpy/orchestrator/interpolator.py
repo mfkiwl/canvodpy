@@ -1,7 +1,9 @@
+"""Interpolation strategies for auxiliary datasets."""
+
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
-from typing import Any, Dict, Tuple
+from typing import Any
 import warnings
 
 import numpy as np
@@ -21,26 +23,44 @@ class InterpolatorConfig:
 
 @dataclass
 class Sp3Config(InterpolatorConfig):
-    """Configuration for SP3 interpolation."""
+    """Configuration for SP3 interpolation.
+
+    Notes
+    -----
+    This is a Pydantic dataclass used for validation.
+    """
     use_velocities: bool = True
     fallback_method: str = 'linear'
 
 
 @dataclass
 class ClockConfig(InterpolatorConfig):
-    """Configuration for clock interpolation."""
+    """Configuration for clock interpolation.
+
+    Notes
+    -----
+    This is a Pydantic dataclass used for validation.
+    """
     window_size: int = 9
     jump_threshold: float = 1e-6
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Interpolator(ABC):
-    """Abstract base class for interpolation strategies."""
+    """Abstract base class for interpolation strategies.
+
+    Notes
+    -----
+    This is a Pydantic dataclass and an abstract base class (ABC).
+    """
     config: InterpolatorConfig
 
     @abstractmethod
-    def interpolate(self, ds: xr.Dataset,
-                    target_epochs: np.ndarray) -> xr.Dataset:
+    def interpolate(
+        self,
+        ds: xr.Dataset,
+        target_epochs: np.ndarray,
+    ) -> xr.Dataset:
         """Interpolate dataset to match target epochs."""
         pass
 
@@ -54,11 +74,19 @@ class Interpolator(ABC):
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class ClockInterpolationStrategy(Interpolator):
-    """Optimized interpolation strategy for clock files using pure numpy."""
+    """Optimized interpolation strategy for clock files using pure numpy.
+
+    Notes
+    -----
+    This is a Pydantic dataclass.
+    """
     config: ClockConfig
 
-    def interpolate(self, ds: xr.Dataset,
-                    target_epochs: np.ndarray) -> xr.Dataset:
+    def interpolate(
+        self,
+        ds: xr.Dataset,
+        target_epochs: np.ndarray,
+    ) -> xr.Dataset:
         """Optimized clock interpolation using vectorized operations."""
         result_ds = xr.Dataset(coords={
             'epoch': target_epochs,
@@ -110,7 +138,13 @@ class ClockInterpolationStrategy(Interpolator):
 
         return result_ds
 
-    def _interpolate_sv_clock(self, data, t_source, t_target, threshold):
+    def _interpolate_sv_clock(
+        self,
+        data: np.ndarray,
+        t_source: np.ndarray,
+        t_target: np.ndarray,
+        threshold: float,
+    ) -> np.ndarray:
         """Interpolate clock data for a single sv using vectorized operations."""
         output = np.full_like(t_target, np.nan)
 
@@ -155,19 +189,30 @@ class ClockInterpolationStrategy(Interpolator):
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Sp3InterpolationStrategy(Interpolator):
-    """Optimized interpolation strategy for SP3 orbit files."""
+    """Optimized interpolation strategy for SP3 orbit files.
+
+    Notes
+    -----
+    This is a Pydantic dataclass.
+    """
     config: Sp3Config
 
-    def interpolate(self, ds: xr.Dataset,
-                    target_epochs: np.ndarray) -> xr.Dataset:
+    def interpolate(
+        self,
+        ds: xr.Dataset,
+        target_epochs: np.ndarray,
+    ) -> xr.Dataset:
         """Optimized SP3 orbit interpolation."""
         if self.config.use_velocities and all(v in ds
                                               for v in ['Vx', 'Vy', 'Vz']):
             return self._interpolate_with_velocities(ds, target_epochs)
         return self._interpolate_positions_only(ds, target_epochs)
 
-    def _interpolate_with_velocities(self, ds: xr.Dataset,
-                                     target_epochs: np.ndarray) -> xr.Dataset:
+    def _interpolate_with_velocities(
+        self,
+        ds: xr.Dataset,
+        target_epochs: np.ndarray,
+    ) -> xr.Dataset:
         """Optimized Hermite interpolation using vectorized operations."""
         result_ds = xr.Dataset(coords={
             'epoch': target_epochs,
@@ -246,7 +291,16 @@ class Sp3InterpolationStrategy(Interpolator):
     #                                     fill_value='extrapolate')
     #             coords[coord][:, idx] = interpolator(t_target)
 
-    def _interpolate_sv(self, ds, sv, t_source, t_target, idx, coords, vels):
+    def _interpolate_sv(
+        self,
+        ds: xr.Dataset,
+        sv: str,
+        t_source: np.ndarray,
+        t_target: np.ndarray,
+        idx: int,
+        coords: dict[str, np.ndarray],
+        vels: dict[str, np.ndarray] | None,
+    ) -> None:
         """Interpolate a single satellite's data."""
         for coord, vel in [('X', 'Vx'), ('Y', 'Vy'), ('Z', 'Vz')]:
             pos = ds[coord].sel(sid=sv).values

@@ -34,8 +34,7 @@ if TYPE_CHECKING:
 
 
 class AugmentationContext:
-    """
-    Context object passed to augmentation steps.
+    """Context object passed to augmentation steps.
 
     Contains shared state and computed values that augmentation steps
     might need (e.g., receiver position, matched datasets).
@@ -43,20 +42,20 @@ class AugmentationContext:
     Parameters
     ----------
     receiver_position : ECEFPosition, optional
-        ECEF position of the receiver
+        ECEF position of the receiver.
     receiver_type : str, optional
-        Type of receiver ('canopy' or 'reference')
-    matched_datasets : Dict[str, xr.Dataset], optional
-        Dictionary of matched auxiliary datasets
-    metadata : Dict[str, Any], optional
-        Additional metadata for augmentation steps
+        Type of receiver ("canopy" or "reference").
+    matched_datasets : dict[str, xr.Dataset], optional
+        Dictionary of matched auxiliary datasets.
+    metadata : dict[str, Any], optional
+        Additional metadata for augmentation steps.
     """
 
     def __init__(self,
                  receiver_position: ECEFPosition | None = None,
                  receiver_type: str | None = None,
                  matched_datasets: dict[str, xr.Dataset] | None = None,
-                 metadata: dict[str, Any] | None = None):
+                 metadata: dict[str, Any] | None = None) -> None:
         self.receiver_position = receiver_position
         self.receiver_type = receiver_type
         self.matched_datasets = matched_datasets or {}
@@ -64,14 +63,36 @@ class AugmentationContext:
         self._logger = get_logger()
 
     def get_matched_dataset(self, name: str) -> xr.Dataset:
-        """Get a matched auxiliary dataset by name."""
+        """Get a matched auxiliary dataset by name.
+
+        Parameters
+        ----------
+        name : str
+            Dataset key in the matched dataset mapping.
+
+        Returns
+        -------
+        xr.Dataset
+            Matched dataset.
+
+        Raises
+        ------
+        KeyError
+            If the dataset is not present in the context.
+        """
         if name not in self.matched_datasets:
             raise KeyError(f"Dataset '{name}' not in matched datasets. "
                            f"Available: {list(self.matched_datasets.keys())}")
         return self.matched_datasets[name]
 
     def set_receiver_position(self, position: ECEFPosition) -> None:
-        """Set or update the receiver position."""
+        """Set or update the receiver position.
+
+        Parameters
+        ----------
+        position : ECEFPosition
+            Receiver ECEF position.
+        """
         self.receiver_position = position
         self._logger.info(f"Updated receiver position: {position}")
 
@@ -83,57 +104,56 @@ class AugmentationContext:
 
 
 class AugmentationStep(ABC):
-    """
-    Abstract base class for augmentation steps.
+    """Abstract base class for augmentation steps.
 
     Each augmentation step takes a RINEX dataset and auxiliary data,
     performs calculations, and returns an augmented dataset with
     new data variables added.
+
+    Notes
+    -----
+    This class uses ``ABC`` to define required augmentation hooks.
+
+    Parameters
+    ----------
+    name : str
+        Human-readable name for this augmentation step.
     """
 
     def __init__(self, name: str):
-        """
-        Initialize augmentation step.
-
-        Parameters
-        ----------
-        name : str
-            Human-readable name for this augmentation step
-        """
+        """Initialize augmentation step."""
         self.name = name
         self._logger = get_logger()
 
     @abstractmethod
     def augment(self, ds: xr.Dataset, aux_pipeline: "AuxDataPipeline",
                 context: AugmentationContext) -> xr.Dataset:
-        """
-        Augment the dataset with computed values.
+        """Augment the dataset with computed values.
 
         Parameters
         ----------
         ds : xr.Dataset
-            RINEX observation dataset to augment
+            RINEX observation dataset to augment.
         aux_pipeline : AuxDataPipeline
-            Pipeline providing access to auxiliary data
+            Pipeline providing access to auxiliary data.
         context : AugmentationContext
-            Shared context with receiver position and matched datasets
+            Shared context with receiver position and matched datasets.
 
         Returns
         -------
         xr.Dataset
-            Augmented dataset with new data variables
+            Augmented dataset with new data variables.
         """
         pass
 
     @abstractmethod
     def get_required_aux_files(self) -> list[str]:
-        """
-        Return list of required auxiliary file names.
+        """Return list of required auxiliary file names.
 
         Returns
         -------
-        List[str]
-            Names of aux files needed (e.g., ['ephemerides', 'clock'])
+        list[str]
+            Names of aux files needed (e.g., ["ephemerides", "clock"]).
         """
         pass
 
@@ -142,8 +162,7 @@ class AugmentationStep(ABC):
 
 
 class SphericalCoordinateAugmentation(AugmentationStep):
-    """
-    Augmentation step to compute spherical coordinates (φ, θ, r) in physics convention.
+    """Compute spherical coordinates (phi, theta, r) in physics convention.
 
     Computes:
     - φ (phi): Azimuthal angle from +x (East) in radians [0, 2π), counter-clockwise
@@ -157,7 +176,8 @@ class SphericalCoordinateAugmentation(AugmentationStep):
         super().__init__(name="SphericalCoordinates")
 
     def get_required_aux_files(self) -> list[str]:
-        return ['ephemerides']
+        """Return required auxiliary file names."""
+        return ["ephemerides"]
 
     def augment(self, ds: xr.Dataset, aux_pipeline: "AuxDataPipeline",
                 context: AugmentationContext) -> xr.Dataset:
@@ -169,11 +189,11 @@ class SphericalCoordinateAugmentation(AugmentationStep):
         if context.receiver_position is None:
             raise ValueError(
                 f"{self.name} requires receiver position in context.")
-        if 'ephemerides' not in context.matched_datasets:
+        if "ephemerides" not in context.matched_datasets:
             raise ValueError(
                 f"{self.name} requires 'ephemerides' in matched_datasets.")
 
-        ephem_ds = context.matched_datasets['ephemerides']
+        ephem_ds = context.matched_datasets["ephemerides"]
         rx_pos = context.receiver_position
 
         # Get satellite positions
@@ -194,8 +214,7 @@ class SphericalCoordinateAugmentation(AugmentationStep):
 
 
 class ClockCorrectionAugmentation(AugmentationStep):
-    """
-    Augmentation step to apply satellite clock corrections.
+    """Apply satellite clock corrections (placeholder implementation).
 
     This step doesn't add new variables but could be extended to:
     - Add SV velocity data variables (Vx, Vy, Vz)
@@ -209,12 +228,12 @@ class ClockCorrectionAugmentation(AugmentationStep):
         super().__init__(name="ClockCorrection")
 
     def get_required_aux_files(self) -> list[str]:
-        return ['clock']
+        """Return required auxiliary file names."""
+        return ["clock"]
 
     def augment(self, ds: xr.Dataset, aux_pipeline: "AuxDataPipeline",
                 context: AugmentationContext) -> xr.Dataset:
-        """
-        Apply clock corrections (placeholder implementation).
+        """Apply clock corrections (placeholder implementation).
 
         Currently returns dataset unchanged. Future implementations could:
         - Add clock_offset as a data variable
@@ -224,16 +243,16 @@ class ClockCorrectionAugmentation(AugmentationStep):
         Parameters
         ----------
         ds : xr.Dataset
-            RINEX dataset
+            RINEX dataset.
         aux_pipeline : AuxDataPipeline
-            Pipeline with clock data loaded
+            Pipeline with clock data loaded.
         context : AugmentationContext
-            Augmentation context
+            Augmentation context.
 
         Returns
         -------
         xr.Dataset
-            Dataset (currently unchanged)
+            Dataset (currently unchanged).
         """
         self._logger.info(f"Applying {self.name} augmentation (placeholder)")
 
@@ -241,12 +260,12 @@ class ClockCorrectionAugmentation(AugmentationStep):
         # or apply corrections to pseudorange/carrier phase measurements
 
         # For now, just validate that clock data is available
-        if 'clock' not in context.matched_datasets:
+        if "clock" not in context.matched_datasets:
             self._logger.warning(
                 f"{self.name} expected 'clock' in matched_datasets but not found. "
                 f"Skipping clock augmentation.")
         else:
-            clk_ds = context.matched_datasets['clock']
+            clk_ds = context.matched_datasets["clock"]
             self._logger.debug(f"Clock data available: {dict(clk_ds.sizes)}, "
                                f"variables: {list(clk_ds.data_vars)}")
 
@@ -254,8 +273,7 @@ class ClockCorrectionAugmentation(AugmentationStep):
 
 
 class AuxDataAugmenter:
-    """
-    Orchestrates multiple augmentation steps on RINEX datasets.
+    """Orchestrate multiple augmentation steps on RINEX datasets.
 
     This class manages:
     1. Matching auxiliary datasets to RINEX epochs/satellites
@@ -266,8 +284,8 @@ class AuxDataAugmenter:
     Parameters
     ----------
     aux_pipeline : AuxDataPipeline
-        Pipeline with auxiliary data loaded
-    steps : List[AugmentationStep], optional
+        Pipeline with auxiliary data loaded.
+    steps : list[AugmentationStep], optional
         List of augmentation steps to apply. If None, uses default steps.
 
     Examples
@@ -278,9 +296,11 @@ class AuxDataAugmenter:
     >>> augmented_ds = augmenter.augment_dataset(rinex_ds, receiver_type='canopy')
     """
 
-    def __init__(self,
-                 aux_pipeline: "AuxDataPipeline",
-                 steps: list[AugmentationStep] | None = None):
+    def __init__(
+        self,
+        aux_pipeline: "AuxDataPipeline",
+        steps: list[AugmentationStep] | None = None,
+    ) -> None:
         self.aux_pipeline = aux_pipeline
         self.steps = steps or self._get_default_steps()
         self._logger = get_logger()
@@ -298,7 +318,13 @@ class AuxDataAugmenter:
         ]
 
     def add_step(self, step: AugmentationStep) -> None:
-        """Add an augmentation step to the pipeline."""
+        """Add an augmentation step to the pipeline.
+
+        Parameters
+        ----------
+        step : AugmentationStep
+            Step to add.
+        """
         self.steps.append(step)
         self._logger.info(f"Added augmentation step: {step.name}")
 
@@ -306,15 +332,14 @@ class AuxDataAugmenter:
                         ds: xr.Dataset,
                         receiver_type: str = 'canopy',
                         compute_receiver_position: bool = True) -> xr.Dataset:
-        """
-        Augment a RINEX dataset with all configured steps.
+        """Augment a RINEX dataset with all configured steps.
 
         Parameters
         ----------
         ds : xr.Dataset
-            RINEX observation dataset to augment
-        receiver_type : str, default 'canopy'
-            Type of receiver ('canopy' or 'reference')
+            RINEX observation dataset to augment.
+        receiver_type : str, default "canopy"
+            Type of receiver ("canopy" or "reference").
         compute_receiver_position : bool, default True
             Whether to compute receiver position from dataset metadata.
             Set to False if position already cached from previous dataset.
@@ -322,12 +347,12 @@ class AuxDataAugmenter:
         Returns
         -------
         xr.Dataset
-            Augmented dataset with computed values added
+            Augmented dataset with computed values added.
 
         Raises
         ------
         ValueError
-            If required auxiliary files not loaded in pipeline
+            If required auxiliary files not loaded in pipeline.
         """
         self._logger.info(
             f"Starting augmentation for {receiver_type} dataset: {dict(ds.sizes)}"
@@ -377,18 +402,17 @@ class AuxDataAugmenter:
         return augmented_ds
 
     def _match_datasets(self, rinex_ds: xr.Dataset) -> dict[str, xr.Dataset]:
-        """
-        Match auxiliary datasets to RINEX dataset epochs/satellites.
+        """Match auxiliary datasets to RINEX dataset epochs/satellites.
 
         Parameters
         ----------
         rinex_ds : xr.Dataset
-            RINEX observation dataset
+            RINEX observation dataset.
 
         Returns
         -------
-        Dict[str, xr.Dataset]
-            Dictionary of matched auxiliary datasets
+        dict[str, xr.Dataset]
+            Dictionary of matched auxiliary datasets.
         """
         self._logger.info(
             "Matching auxiliary datasets to RINEX epochs/satellites")
@@ -443,7 +467,7 @@ def example_basic_augmentation():
 
     # Setup
     md = MatchedDirs(canopy_data_dir=Path('/path/to/canopy/24302'),
-                     sky_data_dir=Path('/path/to/sky/24302'),
+                     reference_data_dir=Path('/path/to/sky/24302'),
                      yyyydoy=YYYYDOY.from_str('2024302'))
 
     # Create and load auxiliary data pipeline
@@ -532,7 +556,7 @@ def example_augmentation_pipeline():
     print("=" * 60)
 
     md = MatchedDirs(canopy_data_dir=Path('/path/to/canopy/24302'),
-                     sky_data_dir=Path('/path/to/sky/24302'),
+                     reference_data_dir=Path('/path/to/sky/24302'),
                      yyyydoy=YYYYDOY.from_str('2024302'))
 
     # Setup auxiliary data
@@ -645,7 +669,7 @@ def example_adding_custom_steps():
     print("=" * 60)
 
     md = MatchedDirs(canopy_data_dir=Path('/path/to/canopy/24302'),
-                     sky_data_dir=Path('/path/to/sky/24302'),
+                     reference_data_dir=Path('/path/to/sky/24302'),
                      yyyydoy=YYYYDOY.from_str('2024302'))
 
     aux_pipeline = AuxDataPipeline.create_standard(md)

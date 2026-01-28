@@ -21,6 +21,10 @@ class DatasetStructureValidator(BaseModel):
 
     All readers must produce Datasets that pass this validation
     to ensure compatibility with downstream VOD and storage operations.
+
+    Notes
+    -----
+    This is a Pydantic `BaseModel` with `arbitrary_types_allowed=True`.
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -29,15 +33,15 @@ class DatasetStructureValidator(BaseModel):
 
     def validate_dimensions(self) -> None:
         """Validate required dimensions exist.
-        
+
         Returns
         -------
         None
-        
+
         Raises
         ------
         ValueError
-            If required dimensions (epoch, sid) are missing
+            If required dimensions (epoch, sid) are missing.
         """
         required_dims = {"epoch", "sid"}
         missing_dims = required_dims - set(self.dataset.dims)
@@ -46,15 +50,15 @@ class DatasetStructureValidator(BaseModel):
 
     def validate_coordinates(self) -> None:
         """Validate required coordinates exist and have correct types.
-        
+
         Returns
         -------
         None
-        
+
         Raises
         ------
         ValueError
-            If required coordinates are missing or have incorrect dtypes
+            If required coordinates are missing or have incorrect dtypes.
         """
         required_coords = {
             "epoch": "datetime64[ns]",
@@ -85,7 +89,8 @@ class DatasetStructureValidator(BaseModel):
                     f"Coordinate {coord} has wrong dtype: "
                     f"expected {expected_dtype}, got {actual_dtype}")
 
-    def validate_data_variables(self, required_vars: list[str] = None) -> None:
+    def validate_data_variables(self, required_vars: list[str] | None = None
+                                ) -> None:
         """Validate required data variables exist.
 
         Parameters
@@ -96,11 +101,11 @@ class DatasetStructureValidator(BaseModel):
         Returns
         -------
         None
-        
+
         Raises
         ------
         ValueError
-            If required variables are missing or have incorrect dimensions
+            If required variables are missing or have incorrect dimensions.
         """
         if required_vars is None:
             # Minimum required for VOD calculation
@@ -122,15 +127,16 @@ class DatasetStructureValidator(BaseModel):
 
     def validate_attributes(self) -> None:
         """Validate required global attributes for storage.
-        
+
         Returns
         -------
         None
-        
+
         Raises
         ------
         ValueError
-            If required attributes (Created, Software, Institution, RINEX File Hash) are missing
+            If required attributes (Created, Software, Institution,
+            RINEX File Hash) are missing.
         """
         required_attrs = {
             "Created",
@@ -143,22 +149,22 @@ class DatasetStructureValidator(BaseModel):
         if missing_attrs:
             raise ValueError(f"Missing required attributes: {missing_attrs}")
 
-    def validate_all(self, required_vars: list[str] = None) -> None:
+    def validate_all(self, required_vars: list[str] | None = None) -> None:
         """Run all validations.
-        
+
         Parameters
         ----------
         required_vars : list of str, optional
             List of required data variables. If None, uses default minimum set.
-        
+
         Returns
         -------
         None
-        
+
         Raises
         ------
         ValueError
-            If any validation fails
+            If any validation fails.
         """
         self.validate_dimensions()
         self.validate_coordinates()
@@ -191,6 +197,10 @@ class GNSSDataReader(ABC):
     >>> ds = reader.to_ds()
     >>> reader.validate_output(ds)  # Automatic validation
 
+    Notes
+    -----
+    This class uses ``ABC`` and defines abstract methods and properties
+    for reader implementations.
     """
 
     # Note: fpath is not @abstractmethod because Pydantic models define it as a field
@@ -234,23 +244,23 @@ class GNSSDataReader(ABC):
         Returns
         -------
         xr.Dataset
-            Dataset that passes DatasetStructureValidator
+            Dataset that passes DatasetStructureValidator.
 
         """
 
     @abstractmethod
-    def iter_epochs(self):
+    def iter_epochs(self) -> Any:
         """Iterate over epochs in the file.
 
         Returns
         -------
         Generator
-            Generator yielding Epoch objects
+            Generator yielding Epoch objects.
 
         Yields
         ------
         Epoch
-            Parsed epoch with satellites and observations
+            Parsed epoch with satellites and observations.
 
         """
 
@@ -276,7 +286,7 @@ class GNSSDataReader(ABC):
         Raises
         ------
         ValueError
-            If Dataset doesn't meet requirements
+            If Dataset doesn't meet requirements.
 
         """
         validator = DatasetStructureValidator(dataset=dataset)
@@ -286,22 +296,22 @@ class GNSSDataReader(ABC):
     @abstractmethod
     def start_time(self) -> datetime:
         """Return start time of observations.
-        
+
         Returns
         -------
         datetime
-            First observation timestamp in the file
+            First observation timestamp in the file.
         """
 
     @property
     @abstractmethod
     def end_time(self) -> datetime:
         """Return end time of observations.
-        
+
         Returns
         -------
         datetime
-            Last observation timestamp in the file
+            Last observation timestamp in the file.
         """
 
     @property
@@ -320,22 +330,22 @@ class GNSSDataReader(ABC):
     @abstractmethod
     def num_epochs(self) -> int:
         """Return number of epochs in file.
-        
+
         Returns
         -------
         int
-            Total number of observation epochs
+            Total number of observation epochs.
         """
 
     @property
     @abstractmethod
     def num_satellites(self) -> int:
         """Return total number of unique satellites observed.
-        
+
         Returns
         -------
         int
-            Count of unique satellite vehicles across all systems
+            Count of unique satellite vehicles across all systems.
         """
 
     def __repr__(self) -> str:
@@ -379,11 +389,11 @@ class ReaderFactory:
         Returns
         -------
         None
-        
+
         Raises
         ------
         TypeError
-            If reader_class does not inherit from GNSSDataReader
+            If reader_class does not inherit from GNSSDataReader.
         """
         if not issubclass(reader_class, GNSSDataReader):
             raise TypeError(f"{reader_class} must inherit from GNSSDataReader")
@@ -403,12 +413,12 @@ class ReaderFactory:
         Returns
         -------
         GNSSDataReader
-            Instantiated reader
+            Instantiated reader.
 
         Raises
         ------
         ValueError
-            If file format cannot be determined
+            If file format cannot be determined.
 
         """
         fpath = Path(fpath)
@@ -439,7 +449,7 @@ class ReaderFactory:
         Returns
         -------
         str
-            Format name
+            Format name.
 
         """
         # Check RINEX version from first line
@@ -462,11 +472,11 @@ class ReaderFactory:
     @classmethod
     def list_formats(cls) -> list[str]:
         """List available formats.
-        
+
         Returns
         -------
         list of str
-            Registered format identifiers
+            Registered format identifiers.
         """
         return list(cls._readers.keys())
 

@@ -1,15 +1,14 @@
 from collections import defaultdict
-from concurrent.futures import ProcessPoolExecutor
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import xarray as xr
-
 from canvod.readers import PairDataDirMatcher, PairMatchedDirs
 from canvod.store import GnssResearchSite
+from canvod.utils.tools import YYYYDOY
+
 from canvodpy.logging.context import get_logger
 from canvodpy.orchestrator.processor import RinexDataProcessor
-from canvod.utils.tools import YYYYDOY
 
 
 class PipelineOrchestrator:
@@ -44,7 +43,10 @@ class PipelineOrchestrator:
         self._logger = get_logger().bind(site=site.site_name)
 
         self.pair_matcher = PairDataDirMatcher(
-            site=site, receiver_subpath_template=receiver_subpath_template)
+            base_dir=site.site_config["base_dir"],
+            receivers=site.receivers,
+            analysis_pairs=site.vod_analyses,
+            receiver_subpath_template=receiver_subpath_template)
 
         self._logger.info(
             f"Initialized pipeline for site '{site.site_name}' "
@@ -52,7 +54,7 @@ class PipelineOrchestrator:
             f"{' [DRY RUN]' if dry_run else ''}")
 
     def _group_by_date_and_receiver(
-            self) -> dict[str, dict[str, tuple[Path, str]]]:
+        self, ) -> dict[str, dict[str, tuple[Path, str]]]:
         """
         Group receivers by date to avoid duplicate processing.
 
@@ -199,7 +201,8 @@ class PipelineOrchestrator:
             first_data_dir = receiver_configs[0][2]
             matched_dirs = MatchedDirs(
                 canopy_data_dir=first_data_dir,
-                sky_data_dir=first_data_dir,  # Dummy, only date matters for aux
+                reference_data_dir=
+                first_data_dir,  # Dummy, only date matters for aux
                 yyyydoy=YYYYDOY.from_str(date_key))
 
             # Process all receivers for this date in one go
@@ -224,7 +227,7 @@ class PipelineOrchestrator:
                 for receiver_name, ds, proc_time in processor.parsed_rinex_data_gen(
                         keep_vars=keep_vars,
                         receiver_configs=receiver_configs):
-                    # Don't overwrite receiver_name - it's already correct from the generator
+                    # Receiver name is already correct from the generator.
                     datasets[receiver_name] = ds
                     timings[receiver_name] = proc_time
             except Exception as e:
@@ -261,15 +264,17 @@ class SingleReceiverProcessor:
                  data_dir: Path,
                  yyyydoy: YYYYDOY,
                  site: GnssResearchSite,
-                 n_max_workers: int = 12):
+                 n_max_workers: int = 12) -> None:
         self.receiver_name = receiver_name
         self.receiver_type = receiver_type
         self.data_dir = data_dir
         self.yyyydoy = yyyydoy
         self.site = site
         self.n_max_workers = n_max_workers
-        self._logger = get_logger().bind(receiver=receiver_name,
-                                         date=yyyydoy.to_str())
+        self._logger = get_logger().bind(
+            receiver=receiver_name,
+            date=yyyydoy.to_str(),
+        )
 
     def _get_rinex_files(self) -> list[Path]:
         """Get sorted list of RINEX files."""
@@ -301,7 +306,7 @@ class SingleReceiverProcessor:
         from canvod.readers import MatchedDirs
         matched_dirs = MatchedDirs(
             canopy_data_dir=self.data_dir,
-            sky_data_dir=self.data_dir,  # Dummy, aux data is date-based
+            reference_data_dir=self.data_dir,  # Dummy, aux data is date-based
             yyyydoy=self.yyyydoy)
 
         # Initialize processor with receiver name override
@@ -337,8 +342,9 @@ if __name__ == "__main__":
     # for pair_dirs, datasets in orchestrator.process_all_pairs():
     #     print(f"Processed: {pair_dirs.pair_name}")
 
-    from canvodpy.globals import KEEP_RNX_VARS
     from canvod.store import GnssResearchSite
+
+    from canvodpy.globals import KEEP_RNX_VARS
 
     site = GnssResearchSite(site_name="Rosalia")
 

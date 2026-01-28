@@ -1,3 +1,5 @@
+"""Global constants and defaults for canvodpy."""
+
 from enum import KEEP
 from pathlib import Path
 from typing import Dict, List, Union
@@ -18,7 +20,9 @@ KEEP_RNX_VARS: list[str] = [
     # 'Pseudorange',
     # 'Phase',
     # 'Doppler',
-]  # Support for LLI, SSI and Auxiliary is experimental and not fully tested. Use with caution!
+]
+# Support for LLI, SSI, and Auxiliary is experimental and not fully tested.
+# Use with caution.
 
 EPOCH_RECORD_INDICATOR: str = ">"
 
@@ -62,7 +66,11 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 # Final log file
 LOG_FILE: Path = LOG_DIR / "gnssvodpy.log"
 
-LOG_PATH_DEPTH: int = 6  # Number of path parts of the RINEX files to include in log context, e.g. the last 5 parts of /home/user/shares/directory/subdir/moredirs/05_data/01_Rosalia/02_canopy/01_GNSS/01_raw/25246/ract246a15.25o
+LOG_PATH_DEPTH: int = 6
+# Number of path parts of the RINEX files to include in log context, e.g. the
+# last 5 parts of
+# /home/user/shares/directory/subdir/moredirs/05_data/01_Rosalia/02_canopy/
+# 01_GNSS/01_raw/25246/ract246a15.25o
 
 #-----------------------------Data Directories-------------------------------
 
@@ -87,7 +95,7 @@ COMPRESSION: dict[str, bool | int] = {
     'complevel': 5,
 }
 
-#-----------------------------Author & Software Information--------------------------------
+#-----------------------------Author & Software Information---------------------
 AUTHOR: str = "Nicolas F. Bader"
 EMAIL: str = "nicolas.bader@tuwien.ac.at"
 INSTITUTION: str = "TU Wien"
@@ -100,7 +108,8 @@ SOFTWARE: str = "gnssvodpy, https://github.com/nfb2021/gnssvodpy"
 
 # Compression settings for all Icechunk stores
 ICECHUNK_COMPRESSION_LEVEL: int = 5
-ICECHUNK_COMPRESSION_ALGORITHM: str = "zstd"  # Will be converted to icechunk.CompressionAlgorithm enum
+ICECHUNK_COMPRESSION_ALGORITHM: str = "zstd"
+# Will be converted to icechunk.CompressionAlgorithm enum.
 ICECHUNK_INLINE_THRESHOLD: int = 512
 ICECHUNK_GET_CONCURRENCY: int = 1  # Default chunking strategies
 ICECHUNK_CHUNK_STRATEGIES: dict[str, dict[str, int]] = {
@@ -123,16 +132,22 @@ AGGREGATE_GLONASS_FDMA: bool = True  # Whether to aggregate GLONASS FDMA bands
 
 #-----------------------------Data Storage Strategy--------------------------------
 # Strategy for handling duplicate RINEX ingests
-# "overwrite" → always replace existing entries with new data. this is expensive, because icechunk/zarr does not
-# support in-place updates, so the entire datastore has to be rewritten and the metadata table stored somewhere in between, before writing again.
+# "overwrite" → always replace existing entries with new data. This is
+# expensive, because icechunk/zarr does not support in-place updates, so the
+# entire datastore has to be rewritten and the metadata table stored somewhere
+# in between, before writing again.
 # "skip"      → keep existing data, don't ingest duplicates
-# "append"    → append new data to existing data. this may result in duplicate epochs if the new data overlaps with existing data.
+# "append"    → append new data to existing data. This may result in duplicate
+# epochs if the new data overlaps with existing data.
 RINEX_STORE_STRATEGY = "skip"  # or "skip", "append"
-RINEX_STORE_EXPIRE_DAYS = 2  # Number of days after which old snapshots are expired and eligible for garbage collection
+RINEX_STORE_EXPIRE_DAYS = 2
+# Number of days after which old snapshots are expired and eligible for garbage
+# collection.
 VOD_STORE_STRATEGY = "overwrite"  # or "skip", "append"
 
 #------Define SIDs to keep-------------------------------
-# empty list means keep all SIDs possible in Rinex v3.04, otherwise only keep listed SIDs
+# Empty list means keep all SIDs possible in Rinex v3.04, otherwise only keep
+# listed SIDs.
 #    that are also found in the possible Rinex v3.04 SIDs
 # KEEP_SIDS: list[str] | None = None
 KEEP_SIDS: list[str] = [

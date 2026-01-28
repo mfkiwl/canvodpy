@@ -1,3 +1,5 @@
+"""Logging configuration for canvodpy."""
+
 import logging
 from pathlib import Path
 import sys
@@ -8,6 +10,19 @@ from canvodpy.globals import LOG_FILE, LOG_PATH_DEPTH
 
 
 def configure_logging(logfile: Path = LOG_FILE):
+    """
+    Configure structlog and standard logging handlers.
+
+    Parameters
+    ----------
+    logfile : Path, optional
+        Path to the log file. Defaults to LOG_FILE.
+
+    Returns
+    -------
+    structlog.BoundLogger
+        Configured structlog logger.
+    """
     timestamper = structlog.processors.TimeStamper(fmt="iso", utc=True)
 
     shared_processors = [
@@ -38,9 +53,13 @@ def configure_logging(logfile: Path = LOG_FILE):
 
     # Formatters
     formatter_console = structlog.stdlib.ProcessorFormatter(
-        foreign_pre_chain=shared_processors, processor=console_renderer)
+        foreign_pre_chain=shared_processors,
+        processor=console_renderer,
+    )
     formatter_file = structlog.stdlib.ProcessorFormatter(
-        foreign_pre_chain=shared_processors, processor=file_renderer)
+        foreign_pre_chain=shared_processors,
+        processor=file_renderer,
+    )
 
     console_handler.setFormatter(formatter_console)
     file_handler.setFormatter(formatter_file)
@@ -62,6 +81,13 @@ LOGGER = configure_logging()
 
 
 def get_file_logger(fname: Path):
-    """Return logger bound with parent/parent/file path."""
+    """
+    Return logger bound with parent/parent/file path.
+
+    Parameters
+    ----------
+    fname : Path
+        File path to include in the log context.
+    """
     rel_path = Path(*fname.parts[-LOG_PATH_DEPTH:])
     return LOGGER.bind(file=str(rel_path))

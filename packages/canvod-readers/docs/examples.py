@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.19.0"
+__generated_with = "0.19.5"
 app = marimo.App(width="medium")
 
 
@@ -19,6 +19,7 @@ def _(mo):
 
     This package provides readers for various GNSS data formats, with a focus on RINEX v3.04 observation files.
     """)
+    return
 
 
 @app.cell
@@ -37,6 +38,7 @@ def _(mo):
     uv sync
     ```
     """)
+    return
 
 
 @app.cell
@@ -44,6 +46,7 @@ def _(mo):
     mo.md(r"""
     ## Import the Package
     """)
+    return
 
 
 @app.cell
@@ -62,13 +65,14 @@ def _(mo):
     The main class for reading RINEX v3.04 observation files is `Rnxv3Obs`.
     It automatically parses the header and validates the file structure.
     """)
+    return
 
 
 @app.cell
 def _(Path, Rnxv3Obs):
     # Example file path (adjust to your actual data location)
     rinex_file = Path(
-        "tests/test_data/01_Rosalia/01_reference/01_GNSS/01_raw/25001/rref001a00.25o"
+        "tests/test_data/valid/rinex_v3_04/01_Rosalia/01_reference/01_GNSS/01_raw/25001/rref001a00.25o"
     )
 
     # Check if file exists
@@ -92,6 +96,7 @@ def _(mo):
 
     The RINEX header contains important metadata about the observation file.
     """)
+    return
 
 
 @app.cell
@@ -107,6 +112,7 @@ def _(reader):
         print(f"  Antenna: {header.antenna_type}")
         print(f"  Position: {header.approx_position}")
         print(f"  First observation: {header.t0}")
+    return
 
 
 @app.cell
@@ -117,6 +123,7 @@ def _(mo):
     The `to_ds()` method converts RINEX observations into an xarray Dataset
     with proper metadata and coordinates.
     """)
+    return
 
 
 @app.cell
@@ -127,7 +134,7 @@ def _(reader):
             keep_rnx_data_vars=["SNR", "Doppler", "Phase", "Pseudorange"],  # Keep only SNR observations
             write_global_attrs=True,  # Include comprehensive metadata
         )
-        print(ds)
+        ds
     else:
         ds = None
     return (ds,)
@@ -136,6 +143,7 @@ def _(reader):
 @app.cell
 def _(ds):
     ds
+    return
 
 
 @app.cell
@@ -150,6 +158,7 @@ def _(ds, mo):
 
             Each signal ID has the format: `SV|BAND|CODE` (e.g., `G01|L1|C` for GPS PRN 01, L1 band, C/A code)
             """)
+    return
 
 
 @app.cell
@@ -159,6 +168,7 @@ def _(ds):
         print("Sample signal IDs:")
         for sid in ds.sid.values[:10]:
             print(f"  {sid}")
+    return
 
 
 @app.cell
@@ -168,6 +178,7 @@ def _(mo):
 
     You can filter the dataset by system, band, or code.
     """)
+    return
 
 
 @app.cell
@@ -184,6 +195,7 @@ def _(ds):
         # Filter by code type
         ca_code = ds.where(ds.code == "C", drop=True)
         print(f"C/A code signals: {len(ca_code.sid)}")
+    return
 
 
 @app.cell
@@ -193,6 +205,7 @@ def _(mo):
 
     For memory-efficient processing, you can iterate through epochs:
     """)
+    return
 
 
 @app.cell
@@ -207,6 +220,7 @@ def _(reader):
                 f"{epoch.info.hour}:{epoch.info.minute}:{epoch.info.seconds}"
             )
             print(f"  Satellites: {len(list(epoch.data))}")
+    return
 
 
 @app.cell
@@ -216,6 +230,7 @@ def _(mo):
 
     The reader automatically validates epoch completeness:
     """)
+    return
 
 
 @app.cell
@@ -230,6 +245,7 @@ def _(reader):
             print("✓ All epochs present and valid")
         except Exception as e:
             print(f"✗ Validation error: {e}")
+    return
 
 
 @app.cell
@@ -248,6 +264,7 @@ def _(mo):
 
     For more information, see the [API documentation](../README.md).
     """)
+    return
 
 
 @app.cell
@@ -433,6 +450,7 @@ def _(ds_f, go, mo, sid_pick, var):
 
     body = mo.vstack(parts, gap=1)
     body
+    return
 
 
 @app.cell

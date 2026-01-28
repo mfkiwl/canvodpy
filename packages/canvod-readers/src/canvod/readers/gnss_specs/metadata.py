@@ -32,7 +32,7 @@ canvod.readers.base.DatasetStructureValidator : Validates dataset structure
 
 """
 
-from typing import Any
+from typing import Any, Final
 
 import numpy as np
 from canvod.readers.gnss_specs.constants import (
@@ -49,16 +49,22 @@ from canvod.readers.gnss_specs.constants import (
 # -------------------
 # Observable metadata
 # -------------------
-OBSERVABLES_METADATA: dict[str, dict[str, str | float | int]] = {
+OBSERVABLES_METADATA: Final[dict[str, dict[str, str | float | int]]] = {
     "Pseudorange": {
         "standard_name": "pseudorange",
         "long_name": "GNSS Pseudorange",
         "units": "meters",
         "valid_min": 0,
-        "description":
-        "The pseudorange is the raw distance measurement between the GNSS satellite and receiver, including any timing errors due to satellite and receiver clocks.",
-        "comment":
-        "Pseudorange values represent the apparent distance from the satellite to the receiver and include biases from satellite and receiver clock errors.",
+        "description": (
+            "The pseudorange is the raw distance measurement between the GNSS "
+            "satellite and receiver, including any timing errors due to "
+            "satellite and receiver clocks."
+        ),
+        "comment": (
+            "Pseudorange values represent the apparent distance from the "
+            "satellite to the receiver and include biases from satellite and "
+            "receiver clock errors."
+        ),
         "_FillValue": np.nan,
     },
     "Doppler": {
@@ -66,20 +72,34 @@ OBSERVABLES_METADATA: dict[str, dict[str, str | float | int]] = {
         "long_name": "GNSS Doppler Shift",
         "units": "Hz",
         "valid_min": -10_000,
-        "description":
-        "The Doppler shift represents the rate of change in the phase of the GNSS signal due to the relative motion between the satellite and receiver.",
-        "comment":
-        "Doppler shift values are used to determine the relative velocity between the GNSS satellite and the receiver. Positive values indicate the satellite is moving toward the receiver, while negative values indicate it is moving away.",
+        "description": (
+            "The Doppler shift represents the rate of change in the phase of "
+            "the GNSS signal due to the relative motion between the satellite "
+            "and receiver."
+        ),
+        "comment": (
+            "Doppler shift values are used to determine the relative velocity "
+            "between the GNSS satellite and the receiver. Positive values "
+            "indicate the satellite is moving toward the receiver, while "
+            "negative values indicate it is moving away."
+        ),
         "_FillValue": np.nan,
     },
     "Phase": {
         "standard_name": "carrier_phase",
         "long_name": "GNSS Carrier Phase",
         "units": "cycles",
-        "description":
-        "The carrier phase is the accumulated phase change of the GNSS signal's carrier wave from the satellite to the receiver, representing precise distance measurements.",
-        "comment":
-        "Carrier phase measurements are relative to an arbitrary reference cycle and may include an unknown integer ambiguity. They provide high-precision data for positioning applications when combined with pseudorange measurements.",
+        "description": (
+            "The carrier phase is the accumulated phase change of the GNSS "
+            "signal's carrier wave from the satellite to the receiver, "
+            "representing precise distance measurements."
+        ),
+        "comment": (
+            "Carrier phase measurements are relative to an arbitrary reference "
+            "cycle and may include an unknown integer ambiguity. They provide "
+            "high-precision data for positioning applications when combined "
+            "with pseudorange measurements."
+        ),
         "_FillValue": np.nan,
     },
     "LLI": {
@@ -87,8 +107,11 @@ OBSERVABLES_METADATA: dict[str, dict[str, str | float | int]] = {
         "long_name": "Loss of Lock Indicator",
         "units": "1",
         "valid_range": [-1, 9],
-        "description":
-        "Indicator representing the loss of lock status of the signal. -1 indicates no data, while values 0-9 indicate the indicator value.",
+        "description": (
+            "Indicator representing the loss of lock status of the signal. "
+            "-1 indicates no data, while values 0-9 indicate the indicator "
+            "value."
+        ),
         "_FillValue": -1,
     },
     "SSI": {
@@ -96,8 +119,11 @@ OBSERVABLES_METADATA: dict[str, dict[str, str | float | int]] = {
         "long_name": "Signal Strength Indicator",
         "units": "1",
         "valid_range": [-1, 9],
-        "description":
-        "Indicator representing the signal strength of the observation. -1 indicates no data, while values 0-9 indicate the measured signal strength.",
+        "description": (
+            "Indicator representing the signal strength of the observation. "
+            "-1 indicates no data, while values 0-9 indicate the measured "
+            "signal strength."
+        ),
         "_FillValue": -1,
     },
     "Auxiliary": {
@@ -113,25 +139,31 @@ OBSERVABLES_METADATA: dict[str, dict[str, str | float | int]] = {
 # -------------------
 # SNR vs C/N0 metadata
 # -------------------
-CN0_METADATA: dict[str, Any] = {
+CN0_METADATA: Final[dict[str, Any]] = {
     "standard_name": "carrier_to_noise_density_ratio",
     "long_name": "Carrier-to-Noise Density Ratio (C/N0)",
     "units": "dB-Hz",
     "valid_min": 0,
-    "description":
-    "Carrier-to-noise density ratio (C/N0) represents the carrier signal strength relative to noise power density (per 1 Hz).",
-    "comment":
-    "C/N0 is a standard quality indicator of GNSS tracking performance. Expressed in decibels per hertz (dB-Hz).",
+    "description": (
+        "Carrier-to-noise density ratio (C/N0) represents the carrier signal "
+        "strength relative to noise power density (per 1 Hz)."
+    ),
+    "comment": (
+        "C/N0 is a standard quality indicator of GNSS tracking performance. "
+        "Expressed in decibels per hertz (dB-Hz)."
+    ),
     "_FillValue": np.nan,
 }
 
-SNR_METADATA: dict[str, str | float | int] = {
+SNR_METADATA: Final[dict[str, str | float | int]] = {
     "standard_name": "signal_to_noise_ratio",
     "long_name": "Signal-to-Noise Ratio (SNR)",
     "units": "dB",
     "valid_min": 0,
-    "description":
-    "Signal-to-noise ratio (SNR) represents the received signal strength relative to the noise floor across the signal bandwidth.",
+    "description": (
+        "Signal-to-noise ratio (SNR) represents the received signal strength "
+        "relative to the noise floor across the signal bandwidth."
+    ),
     "comment":
     "SNR is expressed in decibels (dB). Higher values indicate better signal quality.",
     "_FillValue": np.nan,
@@ -140,7 +172,7 @@ SNR_METADATA: dict[str, str | float | int] = {
 # -------------------
 # Coordinate metadata
 # -------------------
-COORDS_METADATA: dict[str, dict[str, str]] = {
+COORDS_METADATA: Final[dict[str, dict[str, str]]] = {
     "epoch": {
         "standard_name":
         "time",
@@ -148,22 +180,28 @@ COORDS_METADATA: dict[str, dict[str, str]] = {
         "GNSS Observation epoch",
         "short_name":
         "epoch",
-        "description":
-        "The epoch indicates the precise time at which each GNSS observation was recorded.",
+        "description": (
+            "The epoch indicates the precise time at which each GNSS "
+            "observation was recorded."
+        ),
     },
     "sv": {
         "standard_name":
         "space_vehicle_identifier",
         "long_name":
         "GNSS Space Vehicle Identifier",
-        "description":
-        "The Space Vehicle (sv) identifier denotes the specific satellite from which the GNSS observation was received.",
+        "description": (
+            "The Space Vehicle (sv) identifier denotes the specific satellite "
+            "from which the GNSS observation was received."
+        ),
     },
     "sid": {
         "long_name":
         "Signal ID",
-        "description":
-        "Unique signal identifier (sv|band|code). Used to map each observation unambiguously to its properties.",
+        "description": (
+            "Unique signal identifier (sv|band|code). Used to map each "
+            "observation unambiguously to its properties."
+        ),
     },
     "band": {
         "description": "Signal band (L1, L2, E1, etc.)",
@@ -200,7 +238,7 @@ COORDS_METADATA: dict[str, dict[str, str]] = {
 # -------------------
 # Encoding definitions
 # -------------------
-DTYPES: dict[str, np.dtype] = {
+DTYPES: Final[dict[str, np.dtype]] = {
     "SNR": np.dtype("float32"),
     "Pseudorange": np.dtype("float64"),
     "Phase": np.dtype("float64"),
@@ -215,7 +253,7 @@ DTYPES: dict[str, np.dtype] = {
 # -------------------
 # Global attributes
 # -------------------
-GLOBAL_ATTRS_TEMPLATE: dict[str, str] = {
+GLOBAL_ATTRS_TEMPLATE: Final[dict[str, str]] = {
     "Author": AUTHOR,
     "Email": EMAIL,
     "Institution": INSTITUTION,
@@ -227,7 +265,7 @@ GLOBAL_ATTRS_TEMPLATE: dict[str, str] = {
 # -------------------
 # Additional data variables
 # -------------------
-DATAVARS_TO_BE_FILLED: dict[str, dict[str, Any]] = {
+DATAVARS_TO_BE_FILLED: Final[dict[str, dict[str, Any]]] = {
     "r": {
         "fill_value": -9999.0,
         "dtype": np.float32,

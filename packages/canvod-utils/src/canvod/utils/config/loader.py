@@ -8,7 +8,7 @@ Loads configuration from multiple YAML files with priority:
 
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Any
 
 import yaml
 from pydantic import ValidationError
@@ -17,15 +17,16 @@ from .models import CanvodConfig, ProcessingConfig, SidsConfig, SitesConfig
 
 
 class ConfigLoader:
-    """Load and merge configuration from YAML files."""
+    """
+    Load and merge configuration from YAML files.
 
-    def __init__(self, config_dir: Optional[Path] = None):
-        """
-        Initialize configuration loader.
+    Parameters
+    ----------
+    config_dir : Path | None, optional
+        Directory containing config files (default: ./config).
+    """
 
-        Args:
-            config_dir: Directory containing config files (default: ./config)
-        """
+    def __init__(self, config_dir: Path | None = None) -> None:
         self.config_dir = Path(config_dir or Path.cwd() / "config")
         self.defaults_dir = Path(__file__).parent / "defaults"
 
@@ -35,11 +36,15 @@ class ConfigLoader:
 
         Priority: Package defaults < User config files
 
-        Returns:
-            Validated CanvodConfig object
+        Returns
+        -------
+        CanvodConfig
+            Validated configuration object.
 
-        Raises:
-            SystemExit: If configuration is invalid or required files missing
+        Raises
+        ------
+        SystemExit
+            If configuration is invalid or required files are missing.
         """
         # Load each section
         processing = self._load_processing()
@@ -98,29 +103,42 @@ class ConfigLoader:
 
         return SidsConfig(**defaults)
 
-    def _load_yaml(self, path: Path) -> dict:
+    def _load_yaml(self, path: Path) -> dict[str, Any]:
         """
         Load YAML file.
 
-        Args:
-            path: Path to YAML file
+        Parameters
+        ----------
+        path : Path
+            Path to YAML file.
 
-        Returns:
-            Dictionary with YAML content (empty dict if file empty)
+        Returns
+        -------
+        dict[str, Any]
+            YAML content (empty dict if file empty).
         """
         with open(path) as f:
             return yaml.safe_load(f) or {}
 
-    def _deep_merge(self, base: dict, override: dict) -> dict:
+    def _deep_merge(
+        self,
+        base: dict[str, Any],
+        override: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Deep merge override dictionary into base dictionary.
 
-        Args:
-            base: Base dictionary
-            override: Override dictionary
+        Parameters
+        ----------
+        base : dict[str, Any]
+            Base dictionary.
+        override : dict[str, Any]
+            Override dictionary.
 
-        Returns:
-            Merged dictionary
+        Returns
+        -------
+        dict[str, Any]
+            Merged dictionary.
         """
         result = base.copy()
         for key, value in override.items():
@@ -134,7 +152,7 @@ class ConfigLoader:
                 result[key] = value
         return result
 
-    def _show_validation_error(self, error: ValidationError):
+    def _show_validation_error(self, error: ValidationError) -> None:
         """Show user-friendly validation error."""
         print("\n" + "=" * 70)
         print("❌ Configuration Validation Error")
@@ -144,23 +162,28 @@ class ConfigLoader:
         print("\n" + "=" * 70)
 
 
-def load_config(config_dir: Optional[Path] = None) -> CanvodConfig:
+def load_config(config_dir: Path | None = None) -> CanvodConfig:
     """
     Load configuration from YAML files.
 
     This is the main entry point for loading configuration.
 
-    Args:
-        config_dir: Directory containing config files (default: ./config)
+    Parameters
+    ----------
+    config_dir : Path | None, optional
+        Directory containing config files (default: ./config).
 
-    Returns:
-        Validated CanvodConfig object
+    Returns
+    -------
+    CanvodConfig
+        Validated configuration object.
 
-    Example:
-        >>> from canvod.utils.config import load_config
-        >>> config = load_config()
-        >>> print(config.gnss_root_dir)
-        >>> print(config.processing.aux_data.agency)
+    Examples
+    --------
+    >>> from canvod.utils.config import load_config
+    >>> config = load_config()
+    >>> print(config.gnss_root_dir)
+    >>> print(config.processing.aux_data.agency)
     """
     loader = ConfigLoader(config_dir)
     return loader.load()

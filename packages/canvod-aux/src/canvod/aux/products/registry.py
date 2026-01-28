@@ -5,20 +5,34 @@ from dataclasses import dataclass
 
 @dataclass
 class ProductSpec:
-    """
-    Specification for an IGS product.
+    """Specification for an IGS product.
 
-    Attributes:
-        agency_code: 3-letter code (COD, GFZ, ESA, JPL, IGS, etc.)
-        agency_name: Full name of the analysis center
-        product_type: Product type (final, rapid, ultrarapid, predicted)
-        prefix: Filename prefix following IGS conventions
-        sampling_rate: Temporal resolution (05M, 15M, 30S, etc.)
-        duration: File duration (01D, 03D, etc.)
-        available_formats: List of available file formats
-        ftp_path_pattern: URL pattern with placeholders
-        latency_hours: Typical latency in hours from epoch
-        description: Optional description
+    Notes
+    -----
+    This is a standard dataclass.
+
+    Parameters
+    ----------
+    agency_code : str
+        3-letter code (COD, GFZ, ESA, JPL, IGS, etc.).
+    agency_name : str
+        Full name of the analysis center.
+    product_type : str
+        Product type (final, rapid, ultrarapid, predicted).
+    prefix : str
+        Filename prefix following IGS conventions.
+    sampling_rate : str
+        Temporal resolution (05M, 15M, 30S, etc.).
+    duration : str
+        File duration (01D, 03D, etc.).
+    available_formats : list[str]
+        List of available file formats.
+    ftp_path_pattern : str
+        URL pattern with placeholders.
+    latency_hours : int
+        Typical latency in hours from epoch.
+    description : str
+        Optional description.
     """
 
     agency_code: str
@@ -69,7 +83,8 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
     # ========================================
     # GFZ (GeoForschungsZentrum Potsdam)
     # Note: GFZ products use different naming conventions by date:
-    #   - GPS week <2038 (before Jan 27, 2019): Short name format "gbm" (not yet supported)
+    #   - GPS week <2038 (before Jan 27, 2019): Short name format "gbm"
+    #     (not yet supported)
     #   - GPS week >=2038 (Jan 27, 2019+): Long name format "GFZ0MGXRAP" (supported)
     # ========================================
     ("GFZ", "final"):

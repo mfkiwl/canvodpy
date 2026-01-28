@@ -20,7 +20,7 @@ from collections import Counter, defaultdict
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 import georinex as gr
 import numpy as np
@@ -75,6 +75,10 @@ class Rnxv3Header(BaseModel):
     Key changes from previous version:
     - date field is now datetime (like original)
     - Uses the original parsing logic for __get_pgm_runby_date
+
+    Notes
+    -----
+    This is a Pydantic `BaseModel`. Prefer :meth:`from_file` for construction.
     """
 
     model_config = ConfigDict(
@@ -132,7 +136,7 @@ class Rnxv3Header(BaseModel):
             return None
 
     @classmethod
-    def from_file(cls, fpath: Path) -> "Rnxv3Header":
+    def from_file(cls, fpath: Path) -> Self:
         """Factory method to create header from RINEX file."""
         try:
             file_model = RnxObsFileModel(fpath=fpath)
@@ -149,7 +153,7 @@ class Rnxv3Header(BaseModel):
             pass
 
     @classmethod
-    def from_file(cls, fpath: Path) -> "Rnxv3Header":
+    def from_file(cls, fpath: Path) -> Self:
         """Factory method to create header from RINEX file."""
         # External validation models handle file and version checks
         file_model = RnxObsFileModel(fpath=fpath)
@@ -166,9 +170,24 @@ class Rnxv3Header(BaseModel):
         return cls.model_validate(parsed_data)
 
     @staticmethod
-    def _parse_header_data(header: dict[str, Any],
-                           fpath: Path) -> dict[str, Any]:
-        """Parse raw header into structured data using original logic."""
+    def _parse_header_data(
+        header: dict[str, Any],
+        fpath: Path,
+    ) -> dict[str, Any]:
+        """Parse raw header into structured data using original logic.
+
+        Parameters
+        ----------
+        header : dict[str, Any]
+            Raw header dictionary returned by `georinex`.
+        fpath : Path
+            Path to the RINEX file.
+
+        Returns
+        -------
+        dict[str, Any]
+            Parsed header data suitable for model validation.
+        """
         data = {
             "fpath": fpath,
             "version": header.get("version", 3.0),
@@ -299,8 +318,9 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_pgm_runby_date(
-            header_dict: dict[str, Any]) -> tuple[str, str, datetime]:
-        """Original logic for parsing PGM / RUN BY / DATE that returns datetime.
+        header_dict: dict[str, Any],
+    ) -> tuple[str, str, datetime]:
+        """Parse ``PGM / RUN BY / DATE`` into program, run_by, and datetime.
 
         Based on the original __get_pgm_runby_date method.
         """
@@ -332,7 +352,18 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_observer_agency(header_dict: dict[str, Any]) -> tuple[str, str]:
-        """Original __get_observer_agency logic."""
+        """Parse ``OBSERVER / AGENCY`` record.
+
+        Parameters
+        ----------
+        header_dict : dict[str, Any]
+            Raw header dictionary.
+
+        Returns
+        -------
+        tuple[str, str]
+            (observer, agency).
+        """
         header_value = header_dict.get("OBSERVER / AGENCY", "")
         try:
             observer, agency = header_value.split(maxsplit=1)
@@ -342,8 +373,20 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_receiver_num_type_version(
-            header_dict: dict[str, Any]) -> tuple[str, str, str]:
-        """Original __get_receiver_num_type_version logic."""
+        header_dict: dict[str, Any],
+    ) -> tuple[str, str, str]:
+        """Parse ``REC # / TYPE / VERS`` record.
+
+        Parameters
+        ----------
+        header_dict : dict[str, Any]
+            Raw header dictionary.
+
+        Returns
+        -------
+        tuple[str, str, str]
+            (receiver_number, receiver_type, receiver_version).
+        """
         header_value = header_dict.get("REC # / TYPE / VERS", "")
         components = header_value.split()
 
@@ -357,7 +400,18 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_antenna_num_type(header_dict: dict[str, Any]) -> tuple[str, str]:
-        """Original __get_antenna_num_type logic."""
+        """Parse ``ANT # / TYPE`` record.
+
+        Parameters
+        ----------
+        header_dict : dict[str, Any]
+            Raw header dictionary.
+
+        Returns
+        -------
+        tuple[str, str]
+            (antenna_number, antenna_type).
+        """
         header_value = header_dict.get("ANT # / TYPE", "")
         components = header_value.split()
 
@@ -369,8 +423,20 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_time_of_first_obs(
-            header_dict: dict[str, Any]) -> dict[str, datetime]:
-        """Original __get_time_of_first_obs logic."""
+        header_dict: dict[str, Any],
+    ) -> dict[str, datetime]:
+        """Parse ``TIME OF FIRST OBS`` record.
+
+        Parameters
+        ----------
+        header_dict : dict[str, Any]
+            Raw header dictionary.
+
+        Returns
+        -------
+        dict[str, datetime]
+            Mapping of time system labels to datetimes.
+        """
         header_value = header_dict.get("TIME OF FIRST OBS", "")
         components = header_value.split()
 
@@ -405,8 +471,20 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_glonass_cod_phs_bis(
-            header_dict: dict[str, Any]) -> tuple[str, str, str]:
-        """Original __get_glonass_cod_phs_bis logic."""
+        header_dict: dict[str, Any],
+    ) -> tuple[str, str, str]:
+        """Parse ``GLONASS COD/PHS/BIS`` record.
+
+        Parameters
+        ----------
+        header_dict : dict[str, Any]
+            Raw header dictionary.
+
+        Returns
+        -------
+        tuple[str, str, str]
+            (glonass_cod, glonass_phs, glonass_bis).
+        """
         header_value = header_dict.get("GLONASS COD/PHS/BIS", "")
         components = header_value.split()
 
@@ -419,8 +497,20 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_glonass_slot_freq_num(
-            header_dict: dict[str, Any]) -> dict[str, int]:
-        """Original __get_glonass_slot_freq_num logic."""
+        header_dict: dict[str, Any],
+    ) -> dict[str, int]:
+        """Parse ``GLONASS SLOT / FRQ #`` record.
+
+        Parameters
+        ----------
+        header_dict : dict[str, Any]
+            Raw header dictionary.
+
+        Returns
+        -------
+        dict[str, int]
+            Mapping of slot to frequency number.
+        """
         header_value = header_dict.get("GLONASS SLOT / FRQ #", "")
         components = header_value.split()
 
@@ -438,8 +528,20 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_sys_phase_shift(
-            header_dict: dict[str, Any]) -> dict[str, dict[str, float | None]]:
-        """Original __get_sys_phase_shift logic."""
+        header_dict: dict[str, Any],
+    ) -> dict[str, dict[str, float | None]]:
+        """Parse ``SYS / PHASE SHIFT`` records.
+
+        Parameters
+        ----------
+        header_dict : dict[str, Any]
+            Raw header dictionary.
+
+        Returns
+        -------
+        dict[str, dict[str, float | None]]
+            Mapping of system to signal phase shifts.
+        """
         header_value = header_dict.get("SYS / PHASE SHIFT", "")
         components = header_value.split()
 
@@ -474,8 +576,20 @@ class Rnxv3Header(BaseModel):
 
     @staticmethod
     def _get_signal_strength_unit(
-            header_dict: dict[str, Any]) -> pint.Unit | str:
-        """Original __get_signal_strength_unit logic."""
+        header_dict: dict[str, Any],
+    ) -> pint.Unit | str:
+        """Parse ``SIGNAL STRENGTH UNIT`` record.
+
+        Parameters
+        ----------
+        header_dict : dict[str, Any]
+            Raw header dictionary.
+
+        Returns
+        -------
+        pint.Unit or str
+            Parsed unit or a default string.
+        """
         header_value = header_dict.get("SIGNAL STRENGTH UNIT", "").strip()
 
         # Using match statement like original
@@ -508,6 +622,33 @@ class Rnxv3Header(BaseModel):
 
 
 class Rnxv3Obs(GNSSDataReader, BaseModel):
+    """RINEX v3.04 observation reader.
+
+    Parameters
+    ----------
+    fpath : Path
+        Path to the RINEX observation file.
+    polarization : str, default "RHCP"
+        Polarization label for observables.
+    completeness_mode : {"strict", "warn", "off"}, default "strict"
+        Behavior when epoch completeness checks fail.
+    expected_dump_interval : str or pint.Quantity, optional
+        Expected file dump interval for completeness validation.
+    expected_sampling_interval : str or pint.Quantity, optional
+        Expected sampling interval for completeness validation.
+    include_auxiliary : bool, default False
+        Whether to include auxiliary observations (e.g., X1).
+    apply_overlap_filter : bool, default False
+        Whether to filter overlapping signal groups.
+    overlap_preferences : dict[str, str], optional
+        Preferred signals for overlap resolution.
+    aggregate_glonass_fdma : bool, optional
+        Whether to aggregate GLONASS FDMA channels.
+
+    Notes
+    -----
+    This class inherits from `GNSSDataReader` and is a Pydantic `BaseModel`.
+    """
     fpath: Path
     polarization: str = "RHCP"
 
@@ -533,7 +674,8 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     )
 
     @model_validator(mode="after")
-    def _post_init(self) -> "Rnxv3Obs":
+    def _post_init(self) -> Self:
+        """Initialize derived state after validation."""
         # Load header once
         self._header = Rnxv3Header.from_file(self.fpath)
 
@@ -561,11 +703,11 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     @property
     def header(self) -> Rnxv3Header:
         """Expose validated header (read-only).
-        
+
         Returns
         -------
         Rnxv3Header
-            Parsed and validated RINEX header
+            Parsed and validated RINEX header.
         """
         return self._header
 
@@ -579,7 +721,13 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         return f"{self.__class__.__name__}(fpath={self.fpath})"
 
     def _load_file(self) -> list[str]:
-        """Read file once, cache lines and compute hash."""
+        """Read file once, cache lines, and compute hash.
+
+        Returns
+        -------
+        list[str]
+            File contents split into lines.
+        """
         if not hasattr(self, "_lines"):
             h = hashlib.sha256()
             with open(self.fpath,
@@ -594,33 +742,33 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     @property
     def file_hash(self) -> str:
         """Return cached SHA256 short hash of the file content.
-        
+
         Returns
         -------
         str
-            16-character short hash for deduplication
+            16-character short hash for deduplication.
         """
         return self._file_hash
 
     @property
     def start_time(self) -> datetime:
         """Return start time of observations from header.
-        
+
         Returns
         -------
         datetime
-            First observation timestamp
+            First observation timestamp.
         """
         return min(self.header.t0.values())
 
     @property
     def end_time(self) -> datetime:
         """Return end time of observations from last epoch.
-        
+
         Returns
         -------
         datetime
-            Last observation timestamp
+            Last observation timestamp.
         """
         last_epoch = None
         for epoch in self.iter_epochs():
@@ -632,11 +780,11 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     @property
     def systems(self) -> list[str]:
         """Return list of GNSS systems in file.
-        
+
         Returns
         -------
         list of str
-            System identifiers (G, R, E, C, J, S, I)
+            System identifiers (G, R, E, C, J, S, I).
         """
         if self.header.systems == "M":
             return list(self.header.obs_codes_per_system.keys())
@@ -645,22 +793,22 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     @property
     def num_epochs(self) -> int:
         """Return number of epochs in file.
-        
+
         Returns
         -------
         int
-            Total epoch count
+            Total epoch count.
         """
         return len(list(self.get_epoch_record_batches()))
 
     @property
     def num_satellites(self) -> int:
         """Return total number of unique satellites observed.
-        
+
         Returns
         -------
         int
-            Count of unique satellite vehicles across all systems
+            Count of unique satellite vehicles across all systems.
         """
         satellites = set()
         for epoch in self.iter_epochs():
@@ -673,16 +821,16 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         epoch_record_indicator: str = EPOCH_RECORD_INDICATOR
     ) -> list[tuple[int, int]]:
         """Get the start and end line numbers for each epoch in the file.
-        
+
         Parameters
         ----------
         epoch_record_indicator : str, default '>'
-            Character marking epoch record lines
-        
+            Character marking epoch record lines.
+
         Returns
         -------
         list of tuple of int
-            List of (start_line, end_line) pairs for each epoch
+            List of (start_line, end_line) pairs for each epoch.
         """
         starts = [
             i for i, line in enumerate(self._load_file())
@@ -693,10 +841,23 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                 if i + 1 < len(starts)]
 
     def parse_observation_slice(
-            self, slice: str) -> tuple[float | None, int | None, int | None]:
+        self,
+        slice: str,
+    ) -> tuple[float | None, int | None, int | None]:
         """Parse a RINEX observation slice into value, LLI, and SSI.
 
-        Enhanced to handle both standard 16-character format and variable-length records.
+        Enhanced to handle both standard 16-character format and
+        variable-length records.
+
+        Parameters
+        ----------
+        slice : str
+            Observation slice to parse.
+
+        Returns
+        -------
+        tuple[float | None, int | None, int | None]
+            Parsed (value, LLI, SSI) tuple.
         """
         if not slice or not slice.strip():
             return None, None, None
@@ -937,7 +1098,10 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         return np.datetime64(dt, "ns")
 
     def _epoch_datetimes(self) -> list[datetime]:
-        """Extract epoch datetimes from the file (using the same epoch parsing you already have)."""
+        """Extract epoch datetimes from the file.
+
+        Uses the same epoch parsing logic already implemented.
+        """
         dts: list[datetime] = []
 
         for start, end in self.get_epoch_record_batches():
@@ -1016,7 +1180,8 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             return None
 
         coverage = (dts[-1] - dts[0]).total_seconds()
-        # Inclusive coverage often equals (n_epochs - 1) * step; intended dump interval is n_epochs * step
+        # Inclusive coverage often equals (n_epochs - 1) * step; intended
+        # dump interval is n_epochs * step.
         return (n_epochs * est_step.to(UREG.seconds)).to(UREG.seconds)
 
     def validate_epoch_completeness(
@@ -1175,7 +1340,8 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                             bw = float(bw.m_as(UREG.MHz))
                         else:
                             print(
-                                f"WARNING: No frequency data for sid={sid}, band={band}, sv={sv_part}"
+                                f"WARNING: No frequency data for sid={sid}, "
+                                f"band={band}, sv={sv_part}"
                             )
                             center_frequency = np.nan
                             freq_min = np.nan
@@ -1194,7 +1360,8 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                             "overlapping_group": overlapping_group,
                         }
 
-        # inconsequent integration of the Septentrio X1 obs. code, filtering out here again
+        # Inconsistent integration of the Septentrio X1 obs. code, filtering
+        # out here again.
         signal_ids = {sid for sid in signal_ids if "|X1|" not in sid}
         signal_id_to_properties = {
             sid: props
@@ -1400,7 +1567,10 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
 
         if add_future_datavars:
             # TODO: Move to canvod-store
-            # ds = IcechunkPreprocessor.add_future_datavars(ds=ds, var_config=DATAVARS_TO_BE_FILLED)
+            # ds = IcechunkPreprocessor.add_future_datavars(
+            #     ds=ds,
+            #     var_config=DATAVARS_TO_BE_FILLED,
+            # )
             pass
 
         # TODO: Move to canvod-store
@@ -1521,8 +1691,14 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             self.header.marker_number,
             "Marker Type":
             self.header.marker_type,
-            "Approximate Position":
-            f"(X = {self.header.approx_position[0].magnitude} {self.header.approx_position[0].units:~}, Y = {self.header.approx_position[1].magnitude} {self.header.approx_position[1].units:~}, Z = {self.header.approx_position[2].magnitude} {self.header.approx_position[2].units:~})",
+            "Approximate Position": (
+                f"(X = {self.header.approx_position[0].magnitude} "
+                f"{self.header.approx_position[0].units:~}, "
+                f"Y = {self.header.approx_position[1].magnitude} "
+                f"{self.header.approx_position[1].units:~}, "
+                f"Z = {self.header.approx_position[2].magnitude} "
+                f"{self.header.approx_position[2].units:~})"
+            ),
             "Receiver Type":
             self.header.receiver_type,
             "Receiver Version":
@@ -1533,8 +1709,14 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             self.header.antenna_type,
             "Antenna Number":
             self.header.antenna_number,
-            "Antenna Position":
-            f"(X = {self.header.antenna_position[0].magnitude} {self.header.antenna_position[0].units:~}, Y = {self.header.antenna_position[1].magnitude} {self.header.antenna_position[1].units:~}, Z = {self.header.antenna_position[2].magnitude} {self.header.antenna_position[2].units:~})",
+            "Antenna Position": (
+                f"(X = {self.header.antenna_position[0].magnitude} "
+                f"{self.header.antenna_position[0].units:~}, "
+                f"Y = {self.header.antenna_position[1].magnitude} "
+                f"{self.header.antenna_position[1].units:~}, "
+                f"Z = {self.header.antenna_position[2].magnitude} "
+                f"{self.header.antenna_position[2].units:~})"
+            ),
             "Program":
             self.header.pgm,
             "Run By":
@@ -1679,7 +1861,8 @@ _register_with_factory()
 if __name__ == "__main__":
 
     filepath = Path(
-        "/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/05_data/01_Rosalia/02_canopy/01_GNSS/01_raw/25036/ract036b30.25o"
+        "/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/05_data/"
+        "01_Rosalia/02_canopy/01_GNSS/01_raw/25036/ract036b30.25o"
     )
     # Example of how to use it
 

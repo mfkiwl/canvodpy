@@ -3,15 +3,19 @@
 # ============================================================================
 # These are package defaults. Users should create config/processing.yaml
 # with their own settings by running: canvodpy config init
+#
+# Note: Credentials (CDDIS_MAIL, GNSS_ROOT_DIR) are configured via .env file,
+#       not in this file. See .env.example for template.
 
 metadata:
   author: Unknown
   email: user@example.com
   institution: Unknown Institution
 
-credentials:
-  cddis_mail: null  # Set this to enable NASA CDDIS (optional)
-  gnss_root_dir: /path/to/gnss/data  # MUST be set by user!
+# Credentials are configured via .env file (NOT here)
+# See .env.example for:
+#   CDDIS_MAIL=your.email@example.com  # Optional
+#   GNSS_ROOT_DIR=/path/to/gnss/data   # Required
 
 aux_data:
   agency: COD

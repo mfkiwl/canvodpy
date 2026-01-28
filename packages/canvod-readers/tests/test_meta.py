@@ -1,7 +1,6 @@
 """Meta tests for canvod-readers package."""
 
 
-
 class TestPackageStructure:
     """Test package structure and imports."""
 

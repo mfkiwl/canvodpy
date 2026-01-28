@@ -18,7 +18,7 @@ def get_version_from_pyproject(pyproject_path: Path | None = None) -> str:
     Returns
     -------
     str
-        Version string from pyproject.toml
+        Version string from pyproject.toml.
 
     Examples
     --------

@@ -13,14 +13,14 @@ def rinex_file_hash(path: Path, chunk_size: int = 8192) -> str:
     Parameters
     ----------
     path : Path
-        Path to RINEX file
+        Path to RINEX file.
     chunk_size : int, optional
-        Size of chunks to read (default: 8192 bytes)
+        Size of chunks to read (default: 8192 bytes).
 
     Returns
     -------
     str
-        First 16 characters of SHA256 hash
+        First 16 characters of SHA256 hash.
 
     Examples
     --------

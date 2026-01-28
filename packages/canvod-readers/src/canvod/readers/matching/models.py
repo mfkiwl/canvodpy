@@ -19,11 +19,11 @@ class MatchedDirs:
     Parameters
     ----------
     canopy_data_dir : Path
-        Path to canopy receiver RINEX directory
+        Path to canopy receiver RINEX directory.
     reference_data_dir : Path
-        Path to reference (open-sky) receiver RINEX directory
+        Path to reference (open-sky) receiver RINEX directory.
     yyyydoy : YYYYDOY
-        Date object for this matched pair
+        Date object for this matched pair.
 
     Examples
     --------
@@ -55,17 +55,17 @@ class PairMatchedDirs:
     Parameters
     ----------
     yyyydoy : YYYYDOY
-        Date for this matched pair
+        Date for this matched pair.
     pair_name : str
-        Identifier for this receiver pair (e.g., "pair_01")
+        Identifier for this receiver pair (e.g., "pair_01").
     canopy_receiver : str
-        Name of canopy receiver (e.g., "canopy_01")
+        Name of canopy receiver (e.g., "canopy_01").
     reference_receiver : str
-        Name of reference receiver (e.g., "reference_01")
+        Name of reference receiver (e.g., "reference_01").
     canopy_data_dir : Path
-        Path to canopy receiver RINEX directory
+        Path to canopy receiver RINEX directory.
     reference_data_dir : Path
-        Path to reference receiver RINEX directory
+        Path to reference receiver RINEX directory.
 
     Examples
     --------

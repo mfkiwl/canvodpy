@@ -19,8 +19,7 @@ def compute_spherical_coordinates(
     sat_z: np.ndarray,
     rx_pos: ECEFPosition,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Compute spherical coordinates (r, theta, phi) in physics convention.
+    """Compute spherical coordinates (r, theta, phi) in physics convention.
 
     Uses local ENU (East-North-Up) topocentric frame centered at receiver.
 
@@ -39,13 +38,13 @@ def compute_spherical_coordinates(
     Parameters
     ----------
     sat_x : np.ndarray
-        Satellite X coordinates in ECEF (meters)
+        Satellite X coordinates in ECEF (meters).
     sat_y : np.ndarray
-        Satellite Y coordinates in ECEF (meters)
+        Satellite Y coordinates in ECEF (meters).
     sat_z : np.ndarray
-        Satellite Z coordinates in ECEF (meters)
+        Satellite Z coordinates in ECEF (meters).
     rx_pos : ECEFPosition
-        Receiver position in ECEF
+        Receiver position in ECEF.
 
     Returns
     -------
@@ -116,28 +115,28 @@ def add_spherical_coords_to_dataset(
     theta: np.ndarray,
     phi: np.ndarray,
 ) -> xr.Dataset:
-    """
-    Add spherical coordinates to xarray Dataset with proper metadata.
+    """Add spherical coordinates to xarray Dataset with proper metadata.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Dataset with 'epoch' and 'sid' dimensions
+        Dataset with 'epoch' and 'sid' dimensions.
     r : np.ndarray
-        Radial distances in meters
+        Radial distances in meters.
     theta : np.ndarray
-        Polar angles in radians [0, π]
+        Polar angles in radians [0, π].
     phi : np.ndarray
-        Azimuthal angles in radians [0, 2π)
+        Azimuthal angles in radians [0, 2π).
 
     Returns
     -------
     xr.Dataset
-        Dataset with phi, theta, r variables added
+        Dataset with phi, theta, r variables added.
 
     Notes
     -----
-    Variables are added with CF-compliant attributes following physics convention.
+    Variables are added with CF-compliant attributes following physics
+    convention.
 
     Examples
     --------
@@ -158,8 +157,10 @@ def add_spherical_coords_to_dataset(
                 "long_name": "Azimuthal angle (physics convention)",
                 "short_name": "φ",
                 "units": "rad",
-                "description":
-                "Azimuthal angle from East (+x) in ENU frame, counter-clockwise",
+                "description": (
+                    "Azimuthal angle from East (+x) in ENU frame, "
+                    "counter-clockwise"
+                ),
                 "valid_range": [0.0, 2 * np.pi],
                 "convention":
                 "physics (0=East, π/2=North, π=West, 3π/2=South)",

@@ -26,21 +26,21 @@ from canvod.readers.gnss_specs.signals import SignalIDMapper
 def create_sv_to_sid_mapping(
     svs: list[str], aggregate_glonass_fdma: bool = True
 ) -> dict[str, list[str]]:
-    """
-    Build mapping from each sv to its possible SIDs.
-    Adds `X1|X` placeholder SIDs as well.
+    """Build mapping from each SV to its possible SIDs.
+
+    Adds ``X1|X`` placeholder SIDs as well.
 
     Parameters
     ----------
     svs : list[str]
-        List of space vehicles (e.g., ["G01", "E02"])
+        List of space vehicles (e.g., ["G01", "E02"]).
     aggregate_glonass_fdma : bool, default True
-        Whether to aggregate GLONASS FDMA bands
+        Whether to aggregate GLONASS FDMA bands.
 
     Returns
     -------
     dict[str, list[str]]
-        Mapping from sv → list of SIDs
+        Mapping from sv → list of SIDs.
     """
     mapper = SignalIDMapper(aggregate_glonass_fdma=aggregate_glonass_fdma)
     systems = {
@@ -77,8 +77,7 @@ def map_aux_sv_to_sid(
     fill_value: float = np.nan,
     aggregate_glonass_fdma: bool = True,
 ) -> xr.Dataset:
-    """
-    Transform auxiliary dataset from sv → sid dimension.
+    """Transform auxiliary dataset from sv → sid dimension.
 
     Each sv in the dataset is expanded to all its possible SIDs.
     Values are replicated across SIDs for the same satellite.
@@ -86,16 +85,16 @@ def map_aux_sv_to_sid(
     Parameters
     ----------
     aux_ds : xr.Dataset
-        Dataset with 'sv' dimension
+        Dataset with 'sv' dimension.
     fill_value : float, default np.nan
-        Fill value for missing entries
+        Fill value for missing entries.
     aggregate_glonass_fdma : bool, default True
-        Whether to aggregate GLONASS FDMA bands
+        Whether to aggregate GLONASS FDMA bands.
 
     Returns
     -------
     xr.Dataset
-        Dataset with 'sid' dimension replacing 'sv'
+        Dataset with 'sid' dimension replacing 'sv'.
     """
     svs = aux_ds["sv"].values.tolist()
     sv_to_sids = create_sv_to_sid_mapping(svs, aggregate_glonass_fdma)
@@ -149,23 +148,22 @@ def pad_to_global_sid(
     keep_sids: list[str] | None = None,
     aggregate_glonass_fdma: bool = True,
 ) -> xr.Dataset:
-    """
-    Pad dataset so it has all possible SIDs across all constellations.
+    """Pad dataset so it has all possible SIDs across all constellations.
     Ensures consistent sid dimension for appending to Icechunk.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Dataset with 'sid' dimension
+        Dataset with 'sid' dimension.
     keep_sids : list[str] | None
         Optional list of specific SIDs to keep. If None, keeps all.
     aggregate_glonass_fdma : bool, default True
-        Whether to aggregate GLONASS FDMA bands
+        Whether to aggregate GLONASS FDMA bands.
 
     Returns
     -------
     xr.Dataset
-        Dataset padded with NaN for missing SIDs
+        Dataset padded with NaN for missing SIDs.
     """
     mapper = SignalIDMapper(aggregate_glonass_fdma=aggregate_glonass_fdma)
     systems = {
@@ -195,18 +193,17 @@ def pad_to_global_sid(
 
 
 def normalize_sid_dtype(ds: xr.Dataset) -> xr.Dataset:
-    """
-    Ensure sid coordinate uses object dtype (avoids Zarr/Icechunk issues).
+    """Ensure sid coordinate uses object dtype.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Dataset with 'sid' coordinate
+        Dataset with 'sid' coordinate.
 
     Returns
     -------
     xr.Dataset
-        Dataset with sid as object dtype
+        Dataset with sid as object dtype.
     """
     if ds is None:
         return ds
@@ -217,18 +214,17 @@ def normalize_sid_dtype(ds: xr.Dataset) -> xr.Dataset:
 
 
 def strip_fillvalue(ds: xr.Dataset) -> xr.Dataset:
-    """
-    Remove _FillValue attrs/encodings (avoids Icechunk conflicts).
+    """Remove _FillValue attrs/encodings.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Dataset to clean
+        Dataset to clean.
 
     Returns
     -------
     xr.Dataset
-        Dataset with _FillValue attributes removed
+        Dataset with _FillValue attributes removed.
     """
     if ds is None:
         return ds
@@ -240,13 +236,12 @@ def strip_fillvalue(ds: xr.Dataset) -> xr.Dataset:
 
 def add_future_datavars(ds: xr.Dataset,
                         var_config: dict[str, dict[str, Any]]) -> xr.Dataset:
-    """
-    Add placeholder data variables from a configuration dictionary.
+    """Add placeholder data variables from a configuration dictionary.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Dataset to add variables to
+        Dataset to add variables to.
     var_config : dict[str, dict[str, Any]]
         Configuration dict with structure:
         {
@@ -260,7 +255,7 @@ def add_future_datavars(ds: xr.Dataset,
     Returns
     -------
     xr.Dataset
-        Dataset with new variables added
+        Dataset with new variables added.
     """
     n_epochs, n_sids = ds.sizes["epoch"], ds.sizes["sid"]
     for name, cfg in var_config.items():
@@ -277,8 +272,7 @@ def prep_aux_ds(
     fill_value: float = np.nan,
     aggregate_glonass_fdma: bool = True,
 ) -> xr.Dataset:
-    """
-    Preprocess auxiliary dataset before writing to Icechunk.
+    """Preprocess auxiliary dataset before writing to Icechunk.
 
     Performs complete 4-step preprocessing:
     1. Convert sv → sid dimension
@@ -286,21 +280,22 @@ def prep_aux_ds(
     3. Normalize sid dtype to object
     4. Strip _FillValue attributes
 
-    This matches gnssvodpy.icechunk_manager.preprocessing.IcechunkPreprocessor.prep_aux_ds()
+    This matches
+    gnssvodpy.icechunk_manager.preprocessing.IcechunkPreprocessor.prep_aux_ds().
 
     Parameters
     ----------
     aux_ds : xr.Dataset
-        Dataset with 'sv' dimension
+        Dataset with 'sv' dimension.
     fill_value : float, default np.nan
-        Fill value for missing entries
+        Fill value for missing entries.
     aggregate_glonass_fdma : bool, default True
-        Whether to aggregate GLONASS FDMA bands
+        Whether to aggregate GLONASS FDMA bands.
 
     Returns
     -------
     xr.Dataset
-        Fully preprocessed dataset ready for Icechunk or interpolation
+        Fully preprocessed dataset ready for Icechunk or interpolation.
     """
     ds = map_aux_sv_to_sid(aux_ds, fill_value, aggregate_glonass_fdma)
     ds = pad_to_global_sid(ds, aggregate_glonass_fdma=aggregate_glonass_fdma)
@@ -315,8 +310,7 @@ def preprocess_aux_for_interpolation(
     full_preprocessing: bool = False,
     aggregate_glonass_fdma: bool = True,
 ) -> xr.Dataset:
-    """
-    Preprocess auxiliary dataset before interpolation.
+    """Preprocess auxiliary dataset before interpolation.
 
     Converts satellite vehicle (sv) dimension to Signal ID (sid) dimension,
     which is required for matching with RINEX observations after interpolation.
@@ -324,19 +318,20 @@ def preprocess_aux_for_interpolation(
     Parameters
     ----------
     aux_ds : xr.Dataset
-        Raw auxiliary dataset with 'sv' dimension
+        Raw auxiliary dataset with 'sv' dimension.
     fill_value : float, default np.nan
-        Fill value for missing entries
+        Fill value for missing entries.
     full_preprocessing : bool, default False
-        If True, applies full 4-step preprocessing (pad_to_global_sid, normalize_sid_dtype, strip_fillvalue).
-        If False, only converts sv → sid (sufficient for interpolation).
+        If True, applies full 4-step preprocessing (pad_to_global_sid,
+        normalize_sid_dtype, strip_fillvalue). If False, only converts
+        sv → sid (sufficient for interpolation).
     aggregate_glonass_fdma : bool, default True
-        Whether to aggregate GLONASS FDMA bands
+        Whether to aggregate GLONASS FDMA bands.
 
     Returns
     -------
     xr.Dataset
-        Preprocessed dataset with 'sid' dimension
+        Preprocessed dataset with 'sid' dimension.
 
     Notes
     -----
@@ -362,7 +357,10 @@ def preprocess_aux_for_interpolation(
     {'epoch': 96, 'sid': 384}
     >>>
     >>> # Preprocess before Icechunk (full)
-    >>> sp3_preprocessed = preprocess_aux_for_interpolation(sp3_data, full_preprocessing=True)
+    >>> sp3_preprocessed = preprocess_aux_for_interpolation(
+    ...     sp3_data,
+    ...     full_preprocessing=True,
+    ... )
     >>> sp3_preprocessed.dims
     {'epoch': 96, 'sid': ~2000}  # Padded to all possible sids
     >>>

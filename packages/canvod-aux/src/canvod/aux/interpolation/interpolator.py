@@ -29,15 +29,14 @@ class InterpolatorConfig:
 
 @dataclass
 class Sp3Config(InterpolatorConfig):
-    """
-    Configuration for SP3 ephemeris interpolation.
+    """Configuration for SP3 ephemeris interpolation.
 
     Parameters
     ----------
     use_velocities : bool, default True
-        Use Hermite splines with satellite velocities if available
+        Use Hermite splines with satellite velocities if available.
     fallback_method : str, default 'linear'
-        Interpolation method when velocities unavailable
+        Interpolation method when velocities are unavailable.
     """
     use_velocities: bool = True
     fallback_method: str = 'linear'
@@ -45,15 +44,14 @@ class Sp3Config(InterpolatorConfig):
 
 @dataclass
 class ClockConfig(InterpolatorConfig):
-    """
-    Configuration for clock correction interpolation.
+    """Configuration for clock correction interpolation.
 
     Parameters
     ----------
     window_size : int, default 9
-        Window size for discontinuity detection
+        Window size for discontinuity detection.
     jump_threshold : float, default 1e-6
-        Threshold for detecting clock jumps (seconds)
+        Threshold for detecting clock jumps (seconds).
     """
     window_size: int = 9
     jump_threshold: float = 1e-6
@@ -61,26 +59,31 @@ class ClockConfig(InterpolatorConfig):
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Interpolator(ABC):
-    """Abstract base class for interpolation strategies."""
+    """Abstract base class for interpolation strategies.
+
+    Notes
+    -----
+    This is a Pydantic dataclass with `arbitrary_types_allowed=True` and
+    uses `ABC` to define required interpolation hooks.
+    """
     config: InterpolatorConfig
 
     @abstractmethod
     def interpolate(self, ds: xr.Dataset,
                     target_epochs: np.ndarray) -> xr.Dataset:
-        """
-        Interpolate dataset to match target epochs.
+        """Interpolate dataset to match target epochs.
 
         Parameters
         ----------
         ds : xr.Dataset
-            Source dataset with (epoch, sid) dimensions
+            Source dataset with (epoch, sid) dimensions.
         target_epochs : np.ndarray
-            Target epoch grid (datetime64)
+            Target epoch grid (datetime64).
 
         Returns
         -------
         xr.Dataset
-            Interpolated dataset at target epochs
+            Interpolated dataset at target epochs.
         """
         pass
 
@@ -94,8 +97,7 @@ class Interpolator(ABC):
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Sp3InterpolationStrategy(Interpolator):
-    """
-    Hermite cubic spline interpolation for SP3 ephemeris data.
+    """Hermite cubic spline interpolation for SP3 ephemeris data.
 
     Uses satellite velocities (Vx, Vy, Vz) for higher accuracy.
     Falls back to linear interpolation if velocities unavailable.
@@ -160,8 +162,18 @@ class Sp3InterpolationStrategy(Interpolator):
             futures = []
             for i, sat in enumerate(sat_values):
                 futures.append(
-                    executor.submit(self._interpolate_sat, ds, sat, sat_dim, t_source,
-                                    t_target, i, coords, vels))
+                    executor.submit(
+                        self._interpolate_sat,
+                        ds,
+                        sat,
+                        sat_dim,
+                        t_source,
+                        t_target,
+                        i,
+                        coords,
+                        vels,
+                    )
+                )
 
             # Wait for completion
             for future in futures:
@@ -180,8 +192,38 @@ class Sp3InterpolationStrategy(Interpolator):
 
         return result_ds
 
-    def _interpolate_sat(self, ds, sat, sat_dim, t_source, t_target, idx, coords, vels):
-        """Interpolate single satellite using Hermite splines."""
+    def _interpolate_sat(
+        self,
+        ds: xr.Dataset,
+        sat: str,
+        sat_dim: str,
+        t_source: np.ndarray,
+        t_target: np.ndarray,
+        idx: int,
+        coords: dict[str, np.ndarray],
+        vels: dict[str, np.ndarray],
+    ) -> None:
+        """Interpolate a single satellite using Hermite splines.
+
+        Parameters
+        ----------
+        ds : xr.Dataset
+            Source dataset.
+        sat : str
+            Satellite identifier.
+        sat_dim : str
+            Dimension name for satellites ("sv" or "sid").
+        t_source : np.ndarray
+            Source epochs in seconds from start.
+        t_target : np.ndarray
+            Target epochs in seconds from start.
+        idx : int
+            Output index for this satellite.
+        coords : dict[str, np.ndarray]
+            Output position arrays to fill.
+        vels : dict[str, np.ndarray]
+            Output velocity arrays to fill.
+        """
         for coord, vel in [('X', 'Vx'), ('Y', 'Vy'), ('Z', 'Vz')]:
             # Select by satellite dimension name
             pos = ds[coord].sel({sat_dim: sat}).values
@@ -209,8 +251,7 @@ class Sp3InterpolationStrategy(Interpolator):
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class ClockInterpolationStrategy(Interpolator):
-    """
-    Piecewise linear interpolation for clock corrections.
+    """Piecewise linear interpolation for clock corrections.
 
     Detects and handles discontinuities (clock jumps) properly.
 
@@ -280,11 +321,32 @@ class ClockInterpolationStrategy(Interpolator):
 
         return result_ds
 
-    def _interpolate_sat_clock(self, data, t_source, t_target, threshold):
-        """
-        Interpolate clock data for single satellite.
+    def _interpolate_sat_clock(
+        self,
+        data: np.ndarray,
+        t_source: np.ndarray,
+        t_target: np.ndarray,
+        threshold: float,
+    ) -> np.ndarray:
+        """Interpolate clock data for a single satellite.
 
         Handles discontinuities by splitting into segments.
+
+        Parameters
+        ----------
+        data : np.ndarray
+            Source clock data for one satellite.
+        t_source : np.ndarray
+            Source epochs in seconds from start.
+        t_target : np.ndarray
+            Target epochs in seconds from start.
+        threshold : float
+            Jump threshold for discontinuity detection.
+
+        Returns
+        -------
+        np.ndarray
+            Interpolated values aligned to `t_target`.
         """
         output = np.full_like(t_target, np.nan)
 
@@ -328,18 +390,17 @@ class ClockInterpolationStrategy(Interpolator):
 
 
 def create_interpolator_from_attrs(attrs: dict[str, Any]) -> Interpolator:
-    """
-    Recreate interpolator instance from dataset attributes.
+    """Recreate interpolator instance from dataset attributes.
 
     Parameters
     ----------
     attrs : dict
-        Dataset attributes containing interpolator_config
+        Dataset attributes containing interpolator_config.
 
     Returns
     -------
     Interpolator
-        Reconstructed interpolator instance
+        Reconstructed interpolator instance.
 
     Examples
     --------

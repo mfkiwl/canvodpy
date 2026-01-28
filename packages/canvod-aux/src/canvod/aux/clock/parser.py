@@ -13,21 +13,28 @@ Key Features:
 
 import datetime
 from pathlib import Path
+from typing import TextIO
 
 import numpy as np
 
 
-def parse_clk_header(file_handle) -> set[str]:
+def parse_clk_header(file_handle: TextIO) -> set[str]:
     """Parse CLK file header to extract satellite list.
 
-    Args:
-        file_handle: Open file object positioned at start
+    Parameters
+    ----------
+    file_handle : TextIO
+        Open file object positioned at start.
 
-    Returns:
-        Set of satellite identifiers (e.g., 'G01', 'R01')
+    Returns
+    -------
+    set[str]
+        Satellite identifiers (e.g., "G01", "R01").
 
-    Raises:
-        ValueError: If header format is invalid
+    Raises
+    ------
+    ValueError
+        If header format is invalid.
     """
     satellites = set()
 
@@ -46,7 +53,9 @@ def parse_clk_header(file_handle) -> set[str]:
     return satellites
 
 
-def parse_clk_data(file_handle) -> tuple[list[datetime.datetime], list[str], np.ndarray]:
+def parse_clk_data(
+    file_handle: TextIO,
+) -> tuple[list[datetime.datetime], list[str], np.ndarray]:
     """Parse CLK data records using two-pass strategy.
 
     Two-Pass Strategy:
@@ -56,14 +65,18 @@ def parse_clk_data(file_handle) -> tuple[list[datetime.datetime], list[str], np.
     This ensures we capture all satellites, even if they're not in the header,
     and handles satellites appearing/disappearing during the time period.
 
-    Args:
-        file_handle: Open file object positioned after header
+    Parameters
+    ----------
+    file_handle : TextIO
+        Open file object positioned after header.
 
-    Returns:
-        Tuple of (epochs, satellites, clock_offsets):
-            - epochs: List of datetime objects
-            - satellites: Sorted list of satellite codes
-            - clock_offsets: 2D array (epochs × satellites) in microseconds
+    Returns
+    -------
+    tuple[list[datetime.datetime], list[str], np.ndarray]
+        (epochs, satellites, clock_offsets) where:
+        - epochs: list of datetime objects
+        - satellites: sorted list of satellite codes
+        - clock_offsets: 2D array (epochs × satellites) in microseconds
     """
     # First pass: collect all epochs and satellites
     epochs = []
@@ -115,14 +128,20 @@ def parse_clk_data(file_handle) -> tuple[list[datetime.datetime], list[str], np.
     return epochs, sv_list, clock_offsets
 
 
-def parse_clk_file(filepath: Path) -> tuple[list[datetime.datetime], list[str], np.ndarray]:
+def parse_clk_file(
+    filepath: Path,
+) -> tuple[list[datetime.datetime], list[str], np.ndarray]:
     """Parse complete CLK file.
 
-    Args:
-        filepath: Path to CLK file
+    Parameters
+    ----------
+    filepath : Path
+        Path to CLK file.
 
-    Returns:
-        Tuple of (epochs, satellites, clock_offsets)
+    Returns
+    -------
+    tuple[list[datetime.datetime], list[str], np.ndarray]
+        (epochs, satellites, clock_offsets).
     """
     with open(filepath) as f:
         # Parse header (skip it, we get satellites from data anyway)

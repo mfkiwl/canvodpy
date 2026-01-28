@@ -685,7 +685,12 @@ except (ImportError, AttributeError):  # pragma: no cover - legacy Polars
 
 
 class CoordinateSystem(BaseModel):
-    """Coordinate system documentation."""
+    """Coordinate system metadata for grid validation.
+
+    Notes
+    -----
+    This is a Pydantic model used to validate serialized metadata fields.
+    """
     phi_description: str = Field(
         default="azimuth [0, 2π) radians, 0=North, increases clockwise",
         description="Azimuthal angle convention")
@@ -697,7 +702,12 @@ class CoordinateSystem(BaseModel):
 
 
 class GridMetadata(BaseModel):
-    """Grid-level metadata for validation."""
+    """Grid-level metadata for validation.
+
+    Notes
+    -----
+    This is a Pydantic model used to validate serialized metadata fields.
+    """
     grid_type: str = Field(...,
                            description="Grid type (htm, equal_area, geodesic)")
     angular_resolution: float = Field(
@@ -728,7 +738,12 @@ class GridMetadata(BaseModel):
 
 
 class GridSpecificMetadata(BaseModel):
-    """Grid-type-specific metadata."""
+    """Grid-type-specific metadata for validation.
+
+    Notes
+    -----
+    This is a Pydantic model used to validate serialized metadata fields.
+    """
     htm_level: Optional[int] = Field(None,
                                      ge=0,
                                      description="HTM subdivision level")
@@ -858,17 +873,16 @@ def compute_grid_hash(phi: np.ndarray, theta: np.ndarray, grid_type: str,
 
 
 class KDTreeCache:
-    """Manages local caching of KDTrees for fast grid loading."""
+    """
+    Manage local caching of KDTrees for fast grid loading.
+
+    Parameters
+    ----------
+    cache_dir : Path, optional
+        Cache directory. Defaults to ~/.cache/gnssvodpy/grids/.
+    """
 
     def __init__(self, cache_dir: Optional[Path] = None):
-        """
-        Initialize KDTree cache.
-
-        Parameters
-        ----------
-        cache_dir : Path, optional
-            Cache directory. Defaults to ~/.cache/gnssvodpy/grids/
-        """
         if cache_dir is None:
             cache_dir = Path.home() / '.cache' / 'gnssvodpy' / 'grids'
 
@@ -1686,9 +1700,8 @@ def load_grid_from_icechunk(session,
                     df_vertices = (df_vertices.sort('cell_id').with_columns(
                         pl.col('cell_id').cumcount().over('cell_id').alias(
                             'vertex_idx')))
-            logger.debug(
-                f"  ✓ Loaded {0 if df_vertices is None else df_vertices.height} vertices"
-            )
+            vertex_count = 0 if df_vertices is None else df_vertices.height
+            logger.debug(f"  ✓ Loaded {vertex_count} vertices")
         except (KeyError, FileNotFoundError):
             df_vertices = None
 
@@ -1704,8 +1717,9 @@ def load_grid_from_icechunk(session,
             }
             if neighbor_data:
                 df_neighbors = pl.DataFrame(neighbor_data)
+            neighbor_count = 0 if df_neighbors is None else df_neighbors.height
             logger.debug(
-                f"  ✓ Loaded {0 if df_neighbors is None else df_neighbors.height} neighbor relationships"
+                f"  ✓ Loaded {neighbor_count} neighbor relationships"
             )
         except (KeyError, FileNotFoundError):
             df_neighbors = None

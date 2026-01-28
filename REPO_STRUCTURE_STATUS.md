@@ -1,7 +1,7 @@
 # Repository Structure & Configuration Status ✅
 
-**Date:** 2026-01-25  
-**Status:** ✅ All systems operational  
+**Date:** 2026-01-25
+**Status:** ✅ All systems operational
 **Migration:** Complete
 
 ---
@@ -91,7 +91,7 @@ gnss_root = settings.gnss_root_path
 # Optional: Enable NASA CDDIS fallback
 CDDIS_MAIL=your.email@example.com
 
-# Optional: Override default data directory  
+# Optional: Override default data directory
 GNSS_ROOT_DIR=/path/to/your/data
 ```
 
@@ -149,7 +149,7 @@ from canvodpy.globals import (
 
 ```python
 from canvod.readers import Rnxv3Obs
-from canvod.aux import AuxDataPipeline, Sp3File, ClkFile  
+from canvod.aux import AuxDataPipeline, Sp3File, ClkFile
 from canvod.store import GnssResearchSite
 from canvod.utils.tools import YYYYDOY
 from canvodpy.orchestrator import RinexDataProcessor
@@ -369,17 +369,17 @@ from canvodpy.globals import AGENCY, FTP_SERVER
 
 ## ✅ Success Criteria Met
 
-| Criterion | Status |
-|-----------|--------|
-| Namespace packages configured | ✅ 7/7 |
-| No __init__.py in namespace roots | ✅ 7/7 |
-| All packages import successfully | ✅ 100% |
-| Settings system working | ✅ Yes |
-| Globals accessible | ✅ Yes |
-| No circular dependencies | ✅ Yes |
-| Cross-package imports work | ✅ Yes |
-| FTP credentials configurable | ✅ Yes |
-| Environment variables load | ✅ Yes |
+| Criterion                         | Status |
+| --------------------------------- | ------ |
+| Namespace packages configured     | ✅ 7/7  |
+| No __init__.py in namespace roots | ✅ 7/7  |
+| All packages import successfully  | ✅ 100% |
+| Settings system working           | ✅ Yes  |
+| Globals accessible                | ✅ Yes  |
+| No circular dependencies          | ✅ Yes  |
+| Cross-package imports work        | ✅ Yes  |
+| FTP credentials configurable      | ✅ Yes  |
+| Environment variables load        | ✅ Yes  |
 
 ---
 
@@ -414,7 +414,7 @@ from canvod.utils.tools import YYYYDOY
 # Create matched directories
 md = MatchedDirs(
     canopy_data_dir="/path/to/canopy/25001",
-    sky_data_dir="/path/to/sky/25001",
+    reference_data_dir="/path/to/sky/25001",
     yyyydoy=YYYYDOY.from_str("2025001")
 )
 
@@ -477,7 +477,7 @@ print(f"Root: {settings.gnss_root_path}")
 
 See also:
 - `NAMESPACE_PACKAGE_FIX.md` - Namespace package configuration
-- `IMPORT_MIGRATION_COMPLETE.md` - Import migration details  
+- `IMPORT_MIGRATION_COMPLETE.md` - Import migration details
 - `UTILS_MIGRATION_COMPLETE_ANALYSIS.md` - Utils migration analysis
 - `CANVOD_UTILS_TOOLS_CREATED.md` - Utils tools documentation
 

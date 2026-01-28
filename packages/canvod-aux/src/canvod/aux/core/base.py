@@ -16,8 +16,7 @@ from canvod.aux.interpolation import Interpolator
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class AuxFile(ABC):
-    """
-    Abstract base class for GNSS auxiliary files (SP3, CLK, IONEX, etc.).
+    """Abstract base class for GNSS auxiliary files (SP3, CLK, IONEX, etc.).
 
     This class provides two ways to create instances:
     1. from_datetime_date(): Create from a datetime.date object and metadata
@@ -32,6 +31,11 @@ class AuxFile(ABC):
       - If None: Uses ESA FTP server exclusively (no authentication required)
       - If provided: Enables NASA CDDIS as fallback server (requires registration)
       - To enable CDDIS, set CDDIS_MAIL environment variable
+
+    Notes
+    -----
+    This is a Pydantic dataclass with `arbitrary_types_allowed=True`, and
+    it uses `ABC` to define required subclass hooks.
     """
     date: str
     agency: str
@@ -44,8 +48,11 @@ class AuxFile(ABC):
     downloader: FileDownloader | None = None
     _data: xr.Dataset | None = Field(default=None, init=False)
 
-    def __post_init__(self):
-        """Initialize after dataclass creation, setting up paths and checking file existence."""
+    def __post_init__(self) -> None:
+        """Initialize after dataclass creation.
+
+        Sets up paths, downloader, and verifies local file existence.
+        """
         if not self.file_type:
             self.file_type = ["unknown"]
         self.local_dir = Path(self.local_dir)
@@ -66,18 +73,27 @@ class AuxFile(ABC):
         local_dir: Path,
         **kwargs: Any,
     ) -> "AuxFile":
-        """
-        Create an AuxFile instance from a datetime.date object.
+        """Create an AuxFile instance from a datetime.date.
 
-        Args:
-            date: A datetime.date object representing the desired date
-            agency: Agency providing the data (e.g., 'COD', 'IGS')
-            product_type: Type of product ('final', 'rapid', 'ultrarapid')
-            ftp_server: Base URL for file downloads
-            local_dir: Directory for storing files locally
+        Parameters
+        ----------
+        date : datetime.date
+            Date for the desired auxiliary file.
+        agency : str
+            Agency providing the data (e.g., "COD", "IGS").
+        product_type : str
+            Product type ("final", "rapid", "ultrarapid").
+        ftp_server : str
+            Base URL for file downloads.
+        local_dir : Path
+            Directory for storing files locally.
+        **kwargs : Any
+            Extra keyword arguments for subclass construction.
 
-        Returns:
-            A new instance of the AuxFile subclass
+        Returns
+        -------
+        AuxFile
+            A new instance of the AuxFile subclass.
         """
         yyyydoy = YYYYDOY.from_date(date=date).to_str()
         return cls(
@@ -91,17 +107,24 @@ class AuxFile(ABC):
 
     @classmethod
     def from_file(cls, fpath: Path, **kwargs: Any) -> "AuxFile":
-        """
-        Create an AuxFile instance from an existing file path.
+        """Create an AuxFile instance from an existing file path.
 
-        Args:
-            fpath: Path to the existing GNSS file
+        Parameters
+        ----------
+        fpath : Path
+            Path to the existing GNSS file.
+        **kwargs : Any
+            Extra keyword arguments for subclass construction.
 
-        Returns:
-            A new instance of the AuxFile subclass
+        Returns
+        -------
+        AuxFile
+            A new instance of the AuxFile subclass.
 
-        Raises:
-            FileNotFoundError: If the specified file doesn't exist
+        Raises
+        ------
+        FileNotFoundError
+            If the specified file does not exist.
         """
         if not fpath.exists():
             raise FileNotFoundError(f"File not found: {fpath}")
@@ -126,19 +149,40 @@ class AuxFile(ABC):
         destination: Path,
         file_info: dict | None = None,
     ) -> Path:
-        """Download a file using the configured downloader."""
+        """Download a file using the configured downloader.
+
+        Parameters
+        ----------
+        url : str
+            Download URL.
+        destination : Path
+            Local file destination.
+        file_info : dict, optional
+            Extra info passed to the downloader.
+
+        Returns
+        -------
+        Path
+            Path to the downloaded file.
+        """
         if self.downloader is None:
             raise RuntimeError("No downloader is configured")
         return self.downloader.download(url, destination, file_info)
 
     @abstractmethod
     def read_file(self) -> xr.Dataset:
-        """Read and parse the auxiliary file."""
+        """Read and parse the auxiliary file.
+
+        Returns
+        -------
+        xr.Dataset
+            Parsed dataset representation of the file.
+        """
         pass
 
     @abstractmethod
     def get_interpolation_strategy(self) -> Interpolator:
-        """Get the appropriate interpolation strategy for this file type."""
+        """Get the interpolation strategy for this file type."""
         pass
 
     @property
@@ -151,7 +195,13 @@ class AuxFile(ABC):
         return self._data
 
     def check_file_exists(self) -> Path:
-        """Verify file exists locally or download it if needed."""
+        """Verify file exists locally or download it if needed.
+
+        Returns
+        -------
+        Path
+            Local file path.
+        """
         filename = self.generate_filename_based_on_type()
         file_path = self.local_dir / filename
         if not file_path.exists():

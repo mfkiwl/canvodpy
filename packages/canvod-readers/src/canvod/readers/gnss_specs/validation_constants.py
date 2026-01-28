@@ -13,12 +13,19 @@ Tables extracted from:
 - Table 10: IRNSS Observation Codes
 """
 
+from typing import Final
+
+# Type aliases for band tables
+BandCodes = set[str]
+BandSpec = dict[str, float | str | BandCodes]
+BandTable = dict[str, BandSpec]
+
 # ========================================
 # GNSS System Identifiers
 # ========================================
-GNSS_SYSTEMS = {"G", "R", "E", "C", "J", "S", "I"}
+GNSS_SYSTEMS: Final[set[str]] = {"G", "R", "E", "C", "J", "S", "I"}
 
-SYSTEM_NAMES = {
+SYSTEM_NAMES: Final[dict[str, str]] = {
     "G": "GPS",
     "R": "GLONASS",
     "E": "Galileo",
@@ -31,7 +38,7 @@ SYSTEM_NAMES = {
 # ========================================
 # GPS (Table 4)
 # ========================================
-GPS_BANDS = {
+GPS_BANDS: Final[BandTable] = {
     "1": {
         "name": "L1",
         "frequency": 1575.42,  # MHz
@@ -55,7 +62,7 @@ GPS_BANDS = {
 # ========================================
 # GLONASS (Table 5)
 # ========================================
-GLONASS_BANDS = {
+GLONASS_BANDS: Final[BandTable] = {
     "1": {
         "name": "G1",
         "frequency_base": 1602.0,  # MHz + k*9/16, k=-7..+12
@@ -89,12 +96,12 @@ GLONASS_BANDS = {
 }
 
 # GLONASS frequency numbers
-GLONASS_FREQ_NUMBERS = list(range(-7, 13))  # -7 to +12
+GLONASS_FREQ_NUMBERS: Final[list[int]] = list(range(-7, 13))  # -7 to +12
 
 # ========================================
 # Galileo (Table 6)
 # ========================================
-GALILEO_BANDS = {
+GALILEO_BANDS: Final[BandTable] = {
     "1": {
         "name": "E1",
         "frequency": 1575.42,
@@ -130,7 +137,7 @@ GALILEO_BANDS = {
 # ========================================
 # SBAS (Table 7)
 # ========================================
-SBAS_BANDS = {
+SBAS_BANDS: Final[BandTable] = {
     "1": {
         "name": "L1",
         "frequency": 1575.42,
@@ -146,7 +153,7 @@ SBAS_BANDS = {
 # ========================================
 # QZSS (Table 8)
 # ========================================
-QZSS_BANDS = {
+QZSS_BANDS: Final[BandTable] = {
     "1": {
         "name": "L1",
         "frequency": 1575.42,
@@ -172,7 +179,7 @@ QZSS_BANDS = {
 # ========================================
 # BeiDou (Table 9)
 # ========================================
-BEIDOU_BANDS = {
+BEIDOU_BANDS: Final[BandTable] = {
     "2": {
         "name": "B1-2",
         "frequency": 1561.098,
@@ -208,7 +215,7 @@ BEIDOU_BANDS = {
 # ========================================
 # IRNSS (Table 10)
 # ========================================
-IRNSS_BANDS = {
+IRNSS_BANDS: Final[BandTable] = {
     "5": {
         "name": "L5",
         "frequency": 1176.45,
@@ -224,7 +231,7 @@ IRNSS_BANDS = {
 # ========================================
 # Combined System Observation Codes
 # ========================================
-VALID_OBS_CODES: dict[str, dict] = {
+VALID_OBS_CODES: Final[dict[str, BandTable]] = {
     "G": GPS_BANDS,
     "R": GLONASS_BANDS,
     "E": GALILEO_BANDS,
@@ -237,7 +244,7 @@ VALID_OBS_CODES: dict[str, dict] = {
 # ========================================
 # Observation Types
 # ========================================
-OBSERVATION_TYPES = {
+OBSERVATION_TYPES: Final[dict[str, str]] = {
     "C": "Pseudorange",
     "L": "Carrier phase",
     "D": "Doppler",
@@ -249,7 +256,7 @@ OBSERVATION_TYPES = {
 # ========================================
 # Signal Strength Ranges (Table 12)
 # ========================================
-SIGNAL_STRENGTH_RANGES = {
+SIGNAL_STRENGTH_RANGES: Final[dict[int, tuple[int, int]]] = {
     1: (0, 12),  # < 12 dBHz
     2: (12, 17),
     3: (18, 23),
@@ -264,7 +271,7 @@ SIGNAL_STRENGTH_RANGES = {
 # ========================================
 # Epoch Flags
 # ========================================
-EPOCH_FLAGS = {
+EPOCH_FLAGS: Final[dict[int, str]] = {
     0: "OK",
     1: "Power failure between previous and current epoch",
     2: "Start moving antenna",
@@ -277,9 +284,9 @@ EPOCH_FLAGS = {
 # ========================================
 # Time Systems
 # ========================================
-TIME_SYSTEMS = {"GPS", "GLO", "GAL", "QZS", "BDT", "IRN"}
+TIME_SYSTEMS: Final[set[str]] = {"GPS", "GLO", "GAL", "QZS", "BDT", "IRN"}
 
-TIME_SYSTEM_DEFAULTS = {
+TIME_SYSTEM_DEFAULTS: Final[dict[str, str]] = {
     "G": "GPS",
     "R": "GLO",
     "E": "GAL",
@@ -292,7 +299,7 @@ TIME_SYSTEM_DEFAULTS = {
 # ========================================
 # Phase Reference Signals (Table A23)
 # ========================================
-PHASE_REFERENCE_SIGNALS = {
+PHASE_REFERENCE_SIGNALS: Final[dict[str, dict[str, str]]] = {
     "G": {
         "1": "C",  # L1: C/A is reference
         "2": "W",  # L2: Z-tracking is reference
@@ -339,7 +346,7 @@ PHASE_REFERENCE_SIGNALS = {
 # ========================================
 # Valid Marker Types
 # ========================================
-MARKER_TYPES = {
+MARKER_TYPES: Final[set[str]] = {
     "GEODETIC",
     "NON_GEODETIC",
     "NON_PHYSICAL",
@@ -360,7 +367,7 @@ MARKER_TYPES = {
 # Observation Value Ranges
 # ========================================
 # Reasonable ranges for data validation
-OBSERVATION_RANGES = {
+OBSERVATION_RANGES: Final[dict[str, tuple[float, float]]] = {
     "C": (15e6, 30e6),  # Pseudorange: 15M to 30M meters
     "L": (-1e9, 1e9),  # Phase: -1G to 1G cycles
     "D": (-50000, 50000),  # Doppler: -50k to 50k Hz
@@ -372,7 +379,7 @@ OBSERVATION_RANGES = {
 # ========================================
 # RINEX File Types
 # ========================================
-FILE_TYPES = {
+FILE_TYPES: Final[dict[str, str]] = {
     "O": "Observation",
     "N": "Navigation (GPS)",
     "G": "Navigation (GLONASS)",
@@ -387,7 +394,7 @@ FILE_TYPES = {
 # ========================================
 # Required Header Records
 # ========================================
-REQUIRED_OBS_HEADER_RECORDS = {
+REQUIRED_OBS_HEADER_RECORDS: Final[set[str]] = {
     "RINEX VERSION / TYPE",
     "PGM / RUN BY / DATE",
     "MARKER NAME",
@@ -402,12 +409,12 @@ REQUIRED_OBS_HEADER_RECORDS = {
 }
 
 # Additional required for RINEX 3.01+
-REQUIRED_301_HEADER_RECORDS = {
+REQUIRED_301_HEADER_RECORDS: Final[set[str]] = {
     "SYS / PHASE SHIFT",  # Mandatory for phase alignment
 }
 
 # Additional required for GLONASS
-REQUIRED_GLONASS_HEADER_RECORDS = {
+REQUIRED_GLONASS_HEADER_RECORDS: Final[set[str]] = {
     "GLONASS SLOT / FRQ #",
     "GLONASS COD/PHS/BIS",
 }
@@ -415,14 +422,14 @@ REQUIRED_GLONASS_HEADER_RECORDS = {
 # ========================================
 # GPS Week Number
 # ========================================
-GPS_WEEK_ZERO = 0  # Start: Jan 6, 1980
-GPS_WEEK_ROLLOVER = 1024
-BDT_WEEK_ZERO_GPS_WEEK = 1356  # BDT starts Jan 1, 2006
+GPS_WEEK_ZERO: Final[int] = 0  # Start: Jan 6, 1980
+GPS_WEEK_ROLLOVER: Final[int] = 1024
+BDT_WEEK_ZERO_GPS_WEEK: Final[int] = 1356  # BDT starts Jan 1, 2006
 
 # ========================================
 # Leap Seconds (as of 2017-01-01)
 # ========================================
-CURRENT_LEAP_SECONDS = 18  # GPS-UTC as of 2017
+CURRENT_LEAP_SECONDS: Final[int] = 18  # GPS-UTC as of 2017
 
 # ========================================
 # Export all

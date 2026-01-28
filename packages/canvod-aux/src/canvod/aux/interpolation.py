@@ -39,13 +39,32 @@ class ClockConfig(InterpolatorConfig):
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Interpolator(ABC):
-    """Abstract base class for interpolation strategies."""
+    """Abstract base class for interpolation strategies.
+
+    Notes
+    -----
+    This is a Pydantic dataclass with `arbitrary_types_allowed=True` and
+    uses `ABC` to define required interpolation hooks.
+    """
     config: InterpolatorConfig
 
     @abstractmethod
     def interpolate(self, ds: xr.Dataset,
                     target_epochs: np.ndarray) -> xr.Dataset:
-        """Interpolate dataset to match target epochs."""
+        """Interpolate dataset to match target epochs.
+
+        Parameters
+        ----------
+        ds : xr.Dataset
+            Source dataset.
+        target_epochs : np.ndarray
+            Target epoch timestamps.
+
+        Returns
+        -------
+        xr.Dataset
+            Interpolated dataset aligned to `target_epochs`.
+        """
         pass
 
     def to_attrs(self) -> dict[str, Any]:
@@ -111,8 +130,31 @@ class ClockInterpolationStrategy(Interpolator):
 
         return result_ds
 
-    def _interpolate_sv_clock(self, data, t_source, t_target, threshold):
-        """Interpolate clock data for a single sv using vectorized operations."""
+    def _interpolate_sv_clock(
+        self,
+        data: np.ndarray,
+        t_source: np.ndarray,
+        t_target: np.ndarray,
+        threshold: float,
+    ) -> np.ndarray:
+        """Interpolate clock data for a single SV using vectorized operations.
+
+        Parameters
+        ----------
+        data : np.ndarray
+            Source clock data for one SV.
+        t_source : np.ndarray
+            Source epochs in seconds from start.
+        t_target : np.ndarray
+            Target epochs in seconds from start.
+        threshold : float
+            Jump threshold for segmenting discontinuities.
+
+        Returns
+        -------
+        np.ndarray
+            Interpolated values aligned to `t_target`.
+        """
         output = np.full_like(t_target, np.nan)
 
         # Skip if all data is NaN
@@ -200,7 +242,6 @@ class Sp3InterpolationStrategy(Interpolator):
             }
 
         # Process each sv in parallel
-        from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor() as executor:
             futures = []
             for i, sv in enumerate(ds['sid'].values):
@@ -227,8 +268,35 @@ class Sp3InterpolationStrategy(Interpolator):
 
         return result_ds
 
-    def _interpolate_sv(self, ds, sv, t_source, t_target, idx, coords, vels):
-        """Interpolate a single satellite's data."""
+    def _interpolate_sv(
+        self,
+        ds: xr.Dataset,
+        sv: str,
+        t_source: np.ndarray,
+        t_target: np.ndarray,
+        idx: int,
+        coords: dict[str, np.ndarray],
+        vels: dict[str, np.ndarray] | None,
+    ) -> None:
+        """Interpolate a single satellite's data.
+
+        Parameters
+        ----------
+        ds : xr.Dataset
+            Source dataset.
+        sv : str
+            Satellite identifier.
+        t_source : np.ndarray
+            Source epochs in seconds from start.
+        t_target : np.ndarray
+            Target epochs in seconds from start.
+        idx : int
+            Output index for this SV.
+        coords : dict[str, np.ndarray]
+            Output position arrays to fill.
+        vels : dict[str, np.ndarray] | None
+            Output velocity arrays to fill, if available.
+        """
         for coord, vel in [('X', 'Vx'), ('Y', 'Vy'), ('Z', 'Vz')]:
             pos = ds[coord].sel(sid=sv).values
 
@@ -263,7 +331,18 @@ class Sp3InterpolationStrategy(Interpolator):
 
 
 def create_interpolator_from_attrs(attrs: dict[str, Any]) -> Interpolator:
-    """Recreate interpolator instance from dataset attributes."""
+    """Recreate interpolator instance from dataset attributes.
+
+    Parameters
+    ----------
+    attrs : dict[str, Any]
+        Dataset attributes containing interpolator config.
+
+    Returns
+    -------
+    Interpolator
+        Reconstructed interpolator instance.
+    """
     interpolator_type = attrs['interpolator_config']['interpolator_type']
     config_dict = attrs['interpolator_config']['config']
 

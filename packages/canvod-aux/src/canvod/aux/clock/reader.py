@@ -11,7 +11,7 @@ import xarray as xr
 from pydantic import ConfigDict
 from pydantic.dataclasses import dataclass
 
-from canvod.aux._internal.date_utils import get_gps_week_from_filename
+from canvod.utils.tools import get_gps_week_from_filename
 from canvod.aux._internal.units import UREG
 from canvod.aux.clock.parser import parse_clk_file
 from canvod.aux.clock.validator import validate_clk_dataset
@@ -35,13 +35,24 @@ class ClkFile(AuxFile):
     Supports multiple analysis centers via product registry with proper FTP paths
     and filename conventions.
 
-    Attributes:
-        date: String in YYYYDOY format representing the start date
-        agency: String identifying the analysis center (e.g., 'COD', 'GFZ')
-        product_type: String indicating product type ('final', 'rapid', 'ultrarapid')
-        ftp_server: String containing the base URL for file downloads
-        local_dir: Path object pointing to local storage directory
-        dimensionless: Optional boolean to control whether output has units attached
+    Notes
+    -----
+    This is a Pydantic dataclass with `arbitrary_types_allowed=True`.
+
+    Parameters
+    ----------
+    date : str
+        String in YYYYDOY format representing the start date.
+    agency : str
+        Analysis center identifier (e.g., "COD", "GFZ").
+    product_type : str
+        Product type ("final", "rapid", "ultrarapid").
+    ftp_server : str
+        Base URL for file downloads.
+    local_dir : Path
+        Local storage directory.
+    dimensionless : bool | None, default True
+        If True, outputs magnitude-only values (no units attached).
     """
     date: str
     agency: str
@@ -71,11 +82,15 @@ class ClkFile(AuxFile):
         Uses product registry to get correct prefix for the agency/product combination.
         Filename format: {PREFIX}_{YYYYDOY}0000_01D_30S_CLK.CLK
 
-        Returns:
-            Path: Filename according to CLK conventions
+        Returns
+        -------
+        Path
+            Filename according to CLK conventions.
 
-        Raises:
-            ValueError: If agency/product combination not in registry
+        Raises
+        ------
+        ValueError
+            If agency/product combination not in registry.
         """
         # Get product spec from registry
         spec = get_product_spec(self.agency, self.product_type)
@@ -91,9 +106,12 @@ class ClkFile(AuxFile):
         Constructs URL using product registry path pattern.
         Uses GPS week for directory structure.
 
-        Raises:
-            RuntimeError: If file cannot be downloaded from any available server
-            ValueError: If GPS week calculation fails
+        Raises
+        ------
+        RuntimeError
+            If file cannot be downloaded from any available server.
+        ValueError
+            If GPS week calculation fails.
         """
         clock_file = self.generate_filename_based_on_type()
         gps_week = get_gps_week_from_filename(clock_file)
@@ -133,9 +151,11 @@ class ClkFile(AuxFile):
         Uses modular parser for data extraction and validator for quality checks.
         Applies unit conversion from microseconds to seconds.
 
-        Returns:
-            xr.Dataset: Clock offsets with dimensions (epoch, sv)
-                        Values in seconds (or dimensionless if specified)
+        Returns
+        -------
+        xr.Dataset
+            Clock offsets with dimensions (epoch, sv). Values are in seconds
+            (or dimensionless if specified).
         """
         # Parse file using modular parser
         epochs, satellites, clock_offsets = parse_clk_file(self.fpath)
@@ -164,12 +184,17 @@ class ClkFile(AuxFile):
     def _prepare_dataset(self, ds: xr.Dataset, validation: dict) -> xr.Dataset:
         """Add metadata and attributes to dataset.
 
-        Args:
-            ds: xarray Dataset from parsing
-            validation: Validation results dictionary
+        Parameters
+        ----------
+        ds : xr.Dataset
+            Dataset from parsing.
+        validation : dict
+            Validation results dictionary.
 
-        Returns:
-            Dataset with complete metadata
+        Returns
+        -------
+        xr.Dataset
+            Dataset with complete metadata.
         """
         ds.attrs = {
             'file': str(self.fpath.name),
@@ -179,7 +204,7 @@ class ClkFile(AuxFile):
             'date': self.date,
             'valid_data_percent': validation['valid_data_percent'],
             'num_epochs': validation['num_epochs'],
-            'num_satellites': validation['num_satellites']
+            'num_satellites': validation['num_satellites'],
         }
 
         # Add variable attributes

@@ -11,34 +11,38 @@ from canvod.aux._internal import UREG
 
 
 class Sp3Parser:
-    """
-    Parser for SP3 (Standard Product #3) orbit files.
-    
+    """Parser for SP3 (Standard Product #3) orbit files.
+
     Handles parsing of SP3 format files containing precise satellite orbit data.
     Implements optimized single-pass reading for performance.
+
+    Parameters
+    ----------
+    fpath : Path
+        Path to SP3 file.
+    dimensionless : bool, default True
+        If True, strip units from output.
     """
 
-    def __init__(self, fpath: Path, dimensionless: bool = True):
-        """
-        Initialize SP3 parser.
-        
-        Args:
-            fpath: Path to SP3 file
-            dimensionless: If True, strip units from output
-        """
+    def __init__(self, fpath: Path, dimensionless: bool = True) -> None:
+        """Initialize SP3 parser."""
         self.fpath = Path(fpath)
         self.dimensionless = dimensionless
 
     def parse(self) -> xr.Dataset:
-        """
-        Parse SP3 file to xarray Dataset.
-        
-        Returns:
-            Dataset with satellite positions (X, Y, Z) in meters
-            
-        Raises:
-            FileNotFoundError: If file doesn't exist
-            ValueError: If file format is invalid
+        """Parse SP3 file to xarray Dataset.
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset with satellite positions (X, Y, Z) in meters.
+
+        Raises
+        ------
+        FileNotFoundError
+            If file does not exist.
+        ValueError
+            If file format is invalid.
         """
         if not self.fpath.exists():
             raise FileNotFoundError(f"SP3 file not found: {self.fpath}")
@@ -129,18 +133,22 @@ class Sp3Parser:
         return ds
 
     def _parse_epoch_line(self, line: str) -> datetime.datetime:
-        """
-        Parse epoch marker line.
-        
-        Args:
-            line: Line starting with '*' containing timestamp
-            
-        Returns:
-            Parsed datetime
-            
-        Example:
-            >>> _parse_epoch_line("* 2024 1 15 0 0 0.00000000")
-            datetime.datetime(2024, 1, 15, 0, 0)
+        """Parse epoch marker line.
+
+        Parameters
+        ----------
+        line : str
+            Line starting with "*" containing timestamp.
+
+        Returns
+        -------
+        datetime.datetime
+            Parsed datetime.
+
+        Examples
+        --------
+        >>> _parse_epoch_line("* 2024 1 15 0 0 0.00000000")
+        datetime.datetime(2024, 1, 15, 0, 0)
         """
         parts = line.split()
         return datetime.datetime(
@@ -153,19 +161,24 @@ class Sp3Parser:
         )
 
     def _parse_coordinate(self, coord_str: str) -> float | None:
-        """
-        Parse coordinate field from SP3 file.
-        
-        Handles edge cases like missing spaces, invalid data markers.
-        
-        Args:
-            coord_str: 14-character coordinate string
-            
-        Returns:
-            Coordinate value in kilometers, or None if missing
-            
-        Raises:
-            ValueError: If coordinate cannot be parsed
+        """Parse coordinate field from SP3 file.
+
+        Handles edge cases like missing spaces and invalid data markers.
+
+        Parameters
+        ----------
+        coord_str : str
+            14-character coordinate string.
+
+        Returns
+        -------
+        float | None
+            Coordinate value in kilometers, or None if missing.
+
+        Raises
+        ------
+        ValueError
+            If coordinate cannot be parsed.
         """
         coord_str = coord_str.strip()
         if not coord_str or coord_str == '999999.999999':
@@ -191,7 +204,8 @@ class Sp3Parser:
                 'short_name': 'x',
                 'units': 'm',
                 'axis': 'x',
-                'description': 'x-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
+                'description':
+                'x-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
             },
             'Y': {
                 'long_name': 'y-coordinate in ECEF',
@@ -199,7 +213,8 @@ class Sp3Parser:
                 'short_name': 'y',
                 'units': 'm',
                 'axis': 'y',
-                'description': 'y-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
+                'description':
+                'y-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
             },
             'Z': {
                 'long_name': 'z-coordinate in ECEF',
@@ -207,6 +222,7 @@ class Sp3Parser:
                 'short_name': 'z',
                 'units': 'm',
                 'axis': 'z',
-                'description': 'z-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
+                'description':
+                'z-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
             },
         }

@@ -17,18 +17,22 @@ def validate_clk_dataset(ds: xr.Dataset) -> dict[str, bool | float | int]:
         - Data completeness (percentage of valid values)
         - Temporal consistency (monotonic epochs)
 
-    Args:
-        ds: xarray Dataset from CLK file
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset from a CLK file.
 
-    Returns:
-        Dictionary with validation results:
-            - has_clock_offset: bool
-            - has_epoch: bool
-            - has_sv: bool
-            - valid_data_percent: float (0-100)
-            - epochs_monotonic: bool
-            - num_epochs: int
-            - num_satellites: int
+    Returns
+    -------
+    dict[str, bool | float | int]
+        Validation results with keys:
+        - has_clock_offset
+        - has_epoch
+        - has_sv
+        - valid_data_percent
+        - epochs_monotonic
+        - num_epochs
+        - num_satellites
     """
     results = {}
 
@@ -68,12 +72,17 @@ def validate_clk_dataset(ds: xr.Dataset) -> dict[str, bool | float | int]:
 def check_clk_data_quality(ds: xr.Dataset, min_coverage: float = 80.0) -> bool:
     """Check if CLK data meets minimum quality requirements.
 
-    Args:
-        ds: xarray Dataset from CLK file
-        min_coverage: Minimum required data coverage percentage (default: 80%)
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset from a CLK file.
+    min_coverage : float, default 80.0
+        Minimum required data coverage percentage.
 
-    Returns:
-        True if data quality is acceptable
+    Returns
+    -------
+    bool
+        True if data quality is acceptable.
     """
     results = validate_clk_dataset(ds)
 

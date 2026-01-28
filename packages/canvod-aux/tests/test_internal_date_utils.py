@@ -7,8 +7,7 @@ import datetime
 from pathlib import Path
 
 import pytest
-
-from canvod.utils.tools import YYYYDOY, get_gps_week_from_filename, gpsweekday
+from canvod.utils.tools import YYYYDOY, get_gps_week_from_filename
 
 
 class TestYYYYDOY:
@@ -57,7 +56,7 @@ class TestYYYYDOY:
 
     def test_invalid_str_format(self):
         """Test that invalid string format raises ValueError."""
-        with pytest.raises(ValueError, match="Invalid date format"):
+        with pytest.raises(ValueError, match="Invalid format"):
             YYYYDOY.from_str("2024")
 
     def test_equality(self):
@@ -107,14 +106,14 @@ class TestGPSWeekFunctions:
     def test_gpsweekday_from_date(self):
         """Test gpsweekday with datetime.date."""
         date = datetime.date(1980, 1, 6)  # GPS epoch
-        week, day = gpsweekday(date)
+        week, day = YYYYDOY.gpsweekday(date)
 
         assert week == 0
         assert day == 0
 
     def test_gpsweekday_from_string(self):
         """Test gpsweekday with string date."""
-        week, day = gpsweekday("06-01-1980")
+        week, day = YYYYDOY.gpsweekday("06-01-1980")
 
         assert week == 0
         assert day == 0

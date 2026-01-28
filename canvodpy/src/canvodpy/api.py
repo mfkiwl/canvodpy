@@ -27,8 +27,9 @@ Level 3 - Low-level (full control):
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from pathlib import Path
-from typing import TYPE_CHECKING, Generator, Literal
+from typing import TYPE_CHECKING, Literal
 
 import xarray as xr
 
@@ -42,15 +43,15 @@ from canvodpy.globals import KEEP_RNX_VARS
 
 class Site:
     """User-friendly wrapper around GnssResearchSite.
-    
+
     Provides a clean, modern API for site management while using
     the proven GnssResearchSite implementation internally.
-    
+
     Parameters
     ----------
     name : str
         Site name from configuration (e.g., "Rosalia")
-        
+
     Attributes
     ----------
     name : str
@@ -65,60 +66,53 @@ class Site:
         Access to RINEX data store
     vod_store
         Access to VOD results store
-        
+
     Examples
     --------
     >>> site = Site("Rosalia")
     >>> print(site.receivers)
     {'canopy_01': {...}, 'reference_01': {...}}
-    
+
     >>> # Create pipeline
     >>> pipeline = site.pipeline()
-    
+
     >>> # Access stores
     >>> site.rinex_store.list_groups()
     """
-    
-    def __init__(self, name: str):
-        """Initialize site.
-        
-        Parameters
-        ----------
-        name : str
-            Site name from config file
-        """
+
+    def __init__(self, name: str) -> None:
         # Lazy import to avoid circular dependency
         from canvod.store import GnssResearchSite
-        
+
         # Use proven implementation
         self._site = GnssResearchSite(name)
         self.name = name
-    
+
     @property
     def receivers(self) -> dict:
         """Get all configured receivers."""
         return self._site.receivers
-    
+
     @property
     def active_receivers(self) -> dict:
         """Get only active receivers."""
         return self._site.active_receivers
-    
+
     @property
     def vod_analyses(self) -> dict:
         """Get configured VOD analysis pairs."""
         return self._site.active_vod_analyses
-    
+
     @property
     def rinex_store(self):
         """Access RINEX data store."""
         return self._site.rinex_store
-    
+
     @property
     def vod_store(self):
         """Access VOD results store."""
         return self._site.vod_store
-    
+
     def pipeline(
         self,
         keep_vars: list[str] | None = None,
@@ -127,7 +121,7 @@ class Site:
         dry_run: bool = False,
     ) -> Pipeline:
         """Create a processing pipeline for this site.
-        
+
         Parameters
         ----------
         keep_vars : list[str], optional
@@ -138,12 +132,12 @@ class Site:
             Number of parallel workers
         dry_run : bool, default False
             If True, simulate processing without execution
-            
+
         Returns
         -------
         Pipeline
             Configured pipeline for this site
-            
+
         Examples
         --------
         >>> site = Site("Rosalia")
@@ -157,22 +151,22 @@ class Site:
             n_workers=n_workers,
             dry_run=dry_run,
         )
-    
+
     def __repr__(self) -> str:
         n_receivers = len(self.active_receivers)
         n_analyses = len(self.vod_analyses)
         return f"Site('{self.name}', receivers={n_receivers}, analyses={n_analyses})"
-    
+
     def __str__(self) -> str:
         return f"GNSS Site: {self.name}"
 
 
 class Pipeline:
     """User-friendly wrapper around PipelineOrchestrator.
-    
+
     Provides a clean API for processing workflows while using
     proven orchestrator logic internally.
-    
+
     Parameters
     ----------
     site : Site or str
@@ -185,19 +179,19 @@ class Pipeline:
         Number of parallel workers
     dry_run : bool, default False
         If True, simulate without execution
-        
+
     Examples
     --------
     >>> # From site object
     >>> site = Site("Rosalia")
     >>> pipeline = Pipeline(site)
-    
+
     >>> # Or directly from name
     >>> pipeline = Pipeline("Rosalia")
-    
+
     >>> # Process single date
     >>> data = pipeline.process_date("2025001")
-    
+
     >>> # Process range
     >>> for date, datasets in pipeline.process_range("2025001", "2025007"):
     ...     print(f"Processed {date}")
@@ -210,35 +204,20 @@ class Pipeline:
         aux_agency: str = "COD",
         n_workers: int = 12,
         dry_run: bool = False,
-    ):
-        """Initialize pipeline.
-        
-        Parameters
-        ----------
-        site : Site or str
-            Site object or site name
-        keep_vars : list[str], optional
-            RINEX variables to keep
-        aux_agency : str
-            Analysis center
-        n_workers : int
-            Parallel workers
-        dry_run : bool
-            Simulation mode
-        """
+    ) -> None:
         # Handle both Site object and string
         if isinstance(site, str):
             site = Site(site)
-        
+
         self.site = site
         self.keep_vars = keep_vars or KEEP_RNX_VARS
         self.aux_agency = aux_agency
         self.n_workers = n_workers
         self.dry_run = dry_run
-        
+
         # Lazy import to avoid circular dependency
         from canvodpy.orchestrator import PipelineOrchestrator
-        
+
         # Use proven orchestrator implementation
         self._orchestrator = PipelineOrchestrator(
             site=site._site,  # Pass internal GnssResearchSite
@@ -248,24 +227,24 @@ class Pipeline:
     
     def process_date(self, date: str) -> dict[str, xr.Dataset]:
         """Process RINEX data for one date.
-        
+
         Parameters
         ----------
         date : str
             Date in YYYYDOY format (e.g., "2025001" for Jan 1, 2025)
-            
+
         Returns
         -------
         dict[str, xr.Dataset]
             Processed datasets for each receiver
-            
+
         Examples
         --------
         >>> pipeline = Pipeline("Rosalia")
         >>> data = pipeline.process_date("2025001")
         >>> print(data.keys())
         dict_keys(['canopy_01', 'canopy_02', 'reference_01'])
-        
+
         >>> # Access individual receiver
         >>> canopy_data = data['canopy_01']
         >>> print(canopy_data.dims)
@@ -278,28 +257,28 @@ class Pipeline:
             end_at=date,
         ):
             return datasets  # Return first (only) date
-        
+
         return {}  # No data processed
-    
+
     def process_range(
         self,
         start: str,
         end: str,
     ) -> Generator[tuple[str, dict[str, xr.Dataset]], None, None]:
         """Process RINEX data for a date range.
-        
+
         Parameters
         ----------
         start : str
             Start date (YYYYDOY)
         end : str
             End date (YYYYDOY)
-            
+
         Yields
         ------
         tuple[str, dict[str, xr.Dataset]]
             (date_key, datasets) for each processed date
-            
+
         Examples
         --------
         >>> pipeline = Pipeline("Rosalia")
@@ -316,7 +295,7 @@ class Pipeline:
             end_at=end,
         ):
             yield date_key, datasets
-    
+
     def calculate_vod(
         self,
         canopy: str,
@@ -324,7 +303,7 @@ class Pipeline:
         date: str,
     ) -> xr.Dataset:
         """Calculate VOD for a receiver pair.
-        
+
         Parameters
         ----------
         canopy : str
@@ -333,12 +312,12 @@ class Pipeline:
             Reference receiver name (e.g., "reference_01")
         date : str
             Date in YYYYDOY format
-            
+
         Returns
         -------
         xr.Dataset
             VOD analysis results
-            
+
         Examples
         --------
         >>> pipeline = Pipeline("Rosalia")
@@ -360,17 +339,17 @@ class Pipeline:
         # Store results
         analysis_name = f"{canopy}_vs_{reference}"
         self.site.vod_store.write_group(analysis_name, vod_results)
-        
+
         return vod_results
-    
+
     def preview(self) -> dict:
         """Preview processing plan without execution.
-        
+
         Returns
         -------
         dict
             Summary of dates, receivers, and files
-            
+
         Examples
         --------
         >>> pipeline = Pipeline("Rosalia")
@@ -378,7 +357,7 @@ class Pipeline:
         >>> print(f"Total files: {plan['total_files']}")
         """
         return self._orchestrator.preview_processing_plan()
-    
+
     def __repr__(self) -> str:
         return (
             f"Pipeline(site='{self.site.name}', "
@@ -400,10 +379,10 @@ def process_date(
     n_workers: int = 12,
 ) -> dict[str, xr.Dataset]:
     """Process RINEX data for one date (convenience function).
-    
+
     This is the simplest way to process GNSS data - just provide
     the site name and date.
-    
+
     Parameters
     ----------
     site : str
@@ -416,12 +395,12 @@ def process_date(
         Analysis center for auxiliary data
     n_workers : int, default 12
         Number of parallel workers
-        
+
     Returns
     -------
     dict[str, xr.Dataset]
         Processed datasets for each receiver
-        
+
     Examples
     --------
     >>> from canvodpy import process_date
@@ -431,7 +410,7 @@ def process_date(
     
     >>> # With custom settings
     >>> data = process_date(
-    ...     "Rosalia", 
+    ...     "Rosalia",
     ...     "2025001",
     ...     keep_vars=["C1C", "L1C"],
     ...     aux_agency="ESA"
@@ -455,10 +434,10 @@ def calculate_vod(
     aux_agency: str = "COD",
 ) -> xr.Dataset:
     """Calculate VOD for a receiver pair (convenience function).
-    
+
     This is the simplest way to calculate VOD - just provide
     site, receivers, and date.
-    
+
     Parameters
     ----------
     site : str
@@ -473,12 +452,12 @@ def calculate_vod(
         RINEX variables to keep
     aux_agency : str, default "COD"
         Analysis center
-        
+
     Returns
     -------
     xr.Dataset
         VOD analysis results
-        
+
     Examples
     --------
     >>> from canvodpy import calculate_vod
@@ -501,17 +480,17 @@ def calculate_vod(
 
 def preview_processing(site: str) -> dict:
     """Preview processing plan for a site (convenience function).
-    
+
     Parameters
     ----------
     site : str
         Site name
-        
+
     Returns
     -------
     dict
         Processing plan summary
-        
+
     Examples
     --------
     >>> from canvodpy import preview_processing

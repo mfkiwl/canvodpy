@@ -1,30 +1,47 @@
+import os
+"""RINEX processing orchestration and Icechunk writing helpers."""
+
 from collections.abc import Generator
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from datetime import date, datetime, time
 from genericpath import exists
-import os
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 from warnings import deprecated
 
 import dask
-from dask.diagnostics import ProgressBar
 import dotenv
-from natsort import natsorted
 import numpy as np
 import pint
 import polars as pl
-from pydantic import BaseModel, ConfigDict, ValidationError
-from pydantic.dataclasses import dataclass
 import pydantic_core
 import pymap3d as pm
-from tqdm import tqdm
 import xarray as xr
-
+from canvod.aux import ClkFile, Sp3File
 from canvod.aux.augmentation import AuxDataAugmenter
 from canvod.aux.pipeline import AuxDataPipeline
-from canvod.aux import ClkFile, Sp3File
+from canvod.aux.position import (
+    ECEFPosition,
+    add_spherical_coords_to_dataset,
+    compute_spherical_coordinates,
+)
 from canvod.readers import DataDirMatcher, MatchedDirs, Rnxv3Obs
+from canvod.store import (
+    GnssResearchSite,
+    IcechunkDataReader,
+    MyIcechunkStore,
+    create_rinex_store,
+    create_vod_store,
+)
+from canvod.store.preprocessing import IcechunkPreprocessor
+from canvod.utils.tools import get_version_from_pyproject
+from canvod.vod import TauOmegaZerothOrder, VODCalculator
+from dask.diagnostics import ProgressBar
+from natsort import natsorted
+from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic.dataclasses import dataclass
+from tqdm import tqdm
+
 from canvodpy.globals import (
     AGENCY,
     CLK_FILE_PATH,
@@ -38,24 +55,9 @@ from canvodpy.globals import (
     SP3_FILE_PATH,
     UREG,
 )
-from canvod.store import GnssResearchSite
-from canvod.store.preprocessing import IcechunkPreprocessor
-from canvod.store import IcechunkDataReader
-from canvod.store import (
-    MyIcechunkStore,
-    create_rinex_store,
-    create_vod_store,
-)
-from canvodpy.settings import get_settings
 from canvodpy.logging.context import get_logger, reset_context, set_file_context
-from canvod.aux.position import ECEFPosition
-from canvod.aux.position import (
-    add_spherical_coords_to_dataset,
-    compute_spherical_coordinates,
-)
 from canvodpy.orchestrator.matcher import DatasetMatcher
-from canvod.utils.tools import get_version_from_pyproject
-from canvod.vod import TauOmegaZerothOrder, VODCalculator
+from canvodpy.settings import get_settings
 
 dotenv.load_dotenv()
 
@@ -100,9 +102,9 @@ def preprocess_with_hermite_aux(
         File path and augmented dataset with phi, theta, r
     """
     import xarray as xr
+    from canvod.readers import Rnxv3Obs
 
     from canvodpy.logging.context import get_logger, reset_context, set_file_context
-    from canvod.readers import Rnxv3Obs
 
     token = set_file_context(rnx_file)
     try:
@@ -476,15 +478,15 @@ class RinexDataProcessor:
 
         # 6. Interpolate clock corrections using piecewise linear
         self._logger.info(
-            "Interpolating clock corrections using piecewise linear (discontinuity-aware)"
-        )
+            "Interpolating clock corrections using piecewise linear "
+            "(discontinuity-aware)")
         clock_config = ClockConfig(window_size=9, jump_threshold=1e-6)
         clock_interpolator = ClockInterpolationStrategy(config=clock_config)
         clock_interp = clock_interpolator.interpolate(clock_ds, target_epochs)
 
         # Store interpolation metadata
-        clock_interp.attrs[
-            'interpolator_config'] = clock_interpolator.to_attrs()
+        clock_interp.attrs['interpolator_config'] = (
+            clock_interpolator.to_attrs())
 
         # 7. Merge ephemerides and clock into single dataset
         aux_processed = xr.merge([ephem_interp, clock_interp])
@@ -603,16 +605,16 @@ class RinexDataProcessor:
 
         Parameters
         ----------
-        augmented_datasets : List[tuple[Path, xr.Dataset]]
+        augmented_datasets : list[tuple[Path, xr.Dataset]]
             List of (filename, dataset) tuples
         receiver_name : str
             Receiver name (e.g., 'canopy', 'reference')
-        rinex_files : List[Path]
+        rinex_files : list[Path]
             Original list of RINEX files (for context)
         """
         self._logger.info(
-            f"Appending {len(augmented_datasets)} datasets to Icechunk for '{receiver_name}'"
-        )
+            f"Appending {len(augmented_datasets)} datasets to Icechunk for "
+            f"'{receiver_name}'")
 
         groups = self.site.rinex_store.list_groups() or []
         version = get_version_from_pyproject()
@@ -759,8 +761,8 @@ class RinexDataProcessor:
                         elapsed = time.time() - t5
                         rate = idx / elapsed if elapsed > 0 else 0
                         log.info(
-                            f"  Progress: {idx}/{len(augmented_datasets)} ({rate:.1f} files/s)"
-                        )
+                            f"  Progress: {idx}/{len(augmented_datasets)} "
+                            f"({rate:.1f} files/s)")
 
                     token = set_file_context(fname)
                     try:
@@ -848,15 +850,15 @@ class RinexDataProcessor:
                 # STEP 4: Single commit for all data
                 summary = ", ".join(f"{k}={v}" for k, v in actions.items()
                                     if v > 0)
-                commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}: {summary}"
+                commit_msg = (f"[v{version}] {receiver_name} "
+                              f"{self.matched_data_dirs.yyyydoy}: {summary}")
 
                 log.info(f"Committing: {summary}")
                 t7 = time.time()
                 snapshot_id = session.commit(commit_msg)
                 t8 = time.time()
-                log.info(
-                    f"Commit complete in {t8-t7:.2f}s (snapshot: {snapshot_id[:8]}...)"
-                )
+                log.info(f"Commit complete in {t8-t7:.2f}s "
+                         f"(snapshot: {snapshot_id[:8]}...)")
 
                 # STEP 5: Write metadata (separate transactions after data commit)
                 log.info(
@@ -895,8 +897,8 @@ class RinexDataProcessor:
                     log.info(f"  TOTAL:          {t_end-t_start:.2f}s")
 
                     log.info(
-                        f"Successfully processed {len(augmented_datasets)} files for '{receiver_name}'"
-                    )
+                        f"Successfully processed {len(augmented_datasets)} "
+                        f"files for '{receiver_name}'")
 
             except Exception as e:
                 log.error(f"Batch append failed: {e}")
@@ -964,9 +966,8 @@ class RinexDataProcessor:
                 if idx % 20 == 0 and idx > 0:
                     elapsed = time.time() - t5
                     rate = idx / elapsed if elapsed > 0 else 0
-                    log.info(
-                        f"  Progress: {idx}/{len(augmented_datasets)} ({rate:.1f} files/s)"
-                    )
+                    log.info(f"  Progress: {idx}/{len(augmented_datasets)} "
+                             f"({rate:.1f} files/s)")
 
                 token = set_file_context(fname)
                 try:
@@ -1042,7 +1043,8 @@ class RinexDataProcessor:
             # STEP 4: Single commit for all data
             summary = ", ".join(f"{k}={v}" for k, v in actions.items()
                                 if v > 0)
-            commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}: {summary}"
+            commit_msg = (f"[v{version}] {receiver_name} "
+                          f"{self.matched_data_dirs.yyyydoy}: {summary}")
 
             log.info(f"Committing data: {summary}")
             t7 = time.time()
@@ -1067,9 +1069,8 @@ class RinexDataProcessor:
             t7 = time.time()
             snapshot_id = session.commit(commit_msg)
             t8 = time.time()
-            log.info(
-                f"Commit complete in {t8-t7:.2f}s (snapshot: {snapshot_id[:8]}...)"
-            )
+            log.info(f"Commit complete in {t8-t7:.2f}s "
+                     f"(snapshot: {snapshot_id[:8]}...)")
 
             expired = self.site.rinex_store.expire_old_snapshots(days=7)
 
@@ -1086,9 +1087,8 @@ class RinexDataProcessor:
             log.info(f"  Metadata:       {t10-t9:.2f}s")
             log.info(f"  TOTAL:          {t_end-t_start:.2f}s")
 
-            log.info(
-                f"Successfully processed {len(augmented_datasets)} files for '{receiver_name}'"
-            )
+            log.info(f"Successfully processed {len(augmented_datasets)} files "
+                     f"for '{receiver_name}'")
 
         except Exception as e:
             log.error(f"Batch append failed: {e}")
@@ -1212,14 +1212,14 @@ class RinexDataProcessor:
             # STEP 4: Single commit for all data
             summary = ", ".join(f"{k}={v}" for k, v in actions.items()
                                 if v > 0)
-            commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}: {summary}"
+            commit_msg = (f"[v{version}] {receiver_name} "
+                          f"{self.matched_data_dirs.yyyydoy}: {summary}")
             log.info(f"Committing data: {summary}")
             t7 = time.time()
             snapshot_id = session.commit(commit_msg)
             t8 = time.time()
-            log.info(
-                f"Commit complete in {t8-t7:.2f}s (snapshot: {snapshot_id[:8]}...)"
-            )
+            log.info(f"Commit complete in {t8-t7:.2f}s "
+                     f"(snapshot: {snapshot_id[:8]}...)")
 
             # STEP 5: Metadata in a separate commit
             log.info(f"Writing metadata for {len(metadata_records)} files...")
@@ -1233,7 +1233,9 @@ class RinexDataProcessor:
                     session=meta_session,
                     snapshot_id=snapshot_id,
                 )
-                meta_commit_msg = f"[v{version}] metadata for {receiver_name} {self.matched_data_dirs.yyyydoy}"
+                meta_commit_msg = (
+                    f"[v{version}] metadata for {receiver_name} "
+                    f"{self.matched_data_dirs.yyyydoy}")
                 meta_session.commit(meta_commit_msg)
             except Exception as e:
                 log.warning(f"Metadata commit failed: {e}")
@@ -1249,9 +1251,8 @@ class RinexDataProcessor:
             log.info(f"  Commit:         {t8-t7:.2f}s")
             log.info(f"  Metadata:       {t10-t9:.2f}s")
             log.info(f"  TOTAL:          {t_end-t_start:.2f}s")
-            log.info(
-                f"Successfully processed {len(augmented_datasets)} files for '{receiver_name}'"
-            )
+            log.info(f"Successfully processed {len(augmented_datasets)} files "
+                     f"for '{receiver_name}'")
 
         except Exception as e:
             log.error(f"Batch append failed: {e}")
@@ -1269,13 +1270,13 @@ class RinexDataProcessor:
 
         Returns
         -------
-        tuple[Path, Optional[str]]
+        tuple[Path, str | None]
             (rinex_dir, receiver_name)
         """
         if receiver_type == "canopy":
             rinex_dir = self.matched_data_dirs.canopy_data_dir
         elif receiver_type == "reference":
-            rinex_dir = self.matched_data_dirs.sky_data_dir
+            rinex_dir = self.matched_data_dirs.reference_data_dir
         else:
             raise ValueError(f"Unknown receiver type: {receiver_type}")
 
@@ -1450,9 +1451,8 @@ class RinexDataProcessor:
         if keep_vars is None:
             keep_vars = KEEP_RNX_VARS
 
-        self._logger.info(
-            f"Starting RINEX processing pipeline for {len(receiver_configs)} receivers"
-        )
+        self._logger.info(f"Starting RINEX processing pipeline for "
+                          f"{len(receiver_configs)} receivers")
 
         # ====================================================================
         # STEP 1: Preprocess aux data ONCE per day with Hermite splines
@@ -1464,8 +1464,8 @@ class RinexDataProcessor:
 
         if not first_files:
             raise ValueError(
-                f"No RINEX files found for {first_receiver_name} - cannot infer sampling rate"
-            )
+                f"No RINEX files found for {first_receiver_name} - "
+                "cannot infer sampling rate")
 
         aux_zarr_path = Path(
             f"/tmp/aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr")
@@ -1557,9 +1557,8 @@ class RinexDataProcessor:
             daily_dataset = self.site.read_receiver_data(
                 receiver_name=receiver_name, time_range=time_range)
 
-            self._logger.info(
-                f"Yielding daily dataset for '{receiver_name}': {dict(daily_dataset.sizes)}"
-            )
+            self._logger.info(f"Yielding daily dataset for '{receiver_name}': "
+                              f"{dict(daily_dataset.sizes)}")
 
             receiver_end = time.time()
             processing_time = receiver_end - receiver_start
@@ -1583,22 +1582,23 @@ class RinexDataProcessor:
         # Get reference receiver
         for name, config in self.site.active_receivers.items():
             if config.get('type') == 'reference':
-                configs.append(
-                    (name, 'reference', self.matched_data_dirs.sky_data_dir))
+                configs.append((name, 'reference',
+                                self.matched_data_dirs.reference_data_dir))
                 break
 
         return configs
 
     def should_skip_day(
-            self,
-            receiver_types: list[str] | None = None,
-            completeness_threshold: float = 1) -> tuple[bool, dict]:
+        self,
+        receiver_types: list[str] | None = None,
+        completeness_threshold: float = 1,
+    ) -> tuple[bool, dict]:
         """
         Check if this day should be skipped based on existing data coverage.
 
         Parameters
         ----------
-        receiver_types : List[str], optional
+        receiver_types : list[str], optional
             Receiver types to check. Defaults to ['canopy', 'reference']
         completeness_threshold : float
             Fraction of expected epochs (default 0.95 = 95%)
@@ -1606,7 +1606,8 @@ class RinexDataProcessor:
         Returns
         -------
         tuple[bool, dict]
-            (should_skip, coverage_info) where coverage_info contains details per receiver
+            (should_skip, coverage_info) where coverage_info contains details
+            per receiver.
         """
         if receiver_types is None:
             receiver_types = ['canopy', 'reference']
@@ -1700,7 +1701,7 @@ class RinexDataProcessor:
         return True, coverage_info
 
     def __repr__(self) -> str:
-        return (f"RinexDataProcessor("
+        return ("RinexDataProcessor("
                 f"date={self.matched_data_dirs.yyyydoy.to_str()}, "
                 f"site={self.site.site_name}, "
                 f"aux_pipeline={self.aux_pipeline})")
@@ -1708,11 +1709,15 @@ class RinexDataProcessor:
 
 class DistributedRinexDataProcessor(RinexDataProcessor):
     """
+    Under development. Use with caution.
 
-    Under development. Use with caution. In `MyIcechunkStore`, attrs `MyIcechunkStore.compression_algorithm` \
-        and `MyIcechunkStore.config` must be disabled, so that any instance becomes serializable.
+    In `MyIcechunkStore`, attrs `MyIcechunkStore.compression_algorithm` and
+    `MyIcechunkStore.config` must be disabled, so that any instance becomes
+    serializable.
 
-    Subclass of RinexDataProcessor that uses cooperative distributed writing, following: \
+    Subclass of RinexDataProcessor that uses cooperative distributed writing.
+
+    See:
         https://icechunk.io/en/latest/parallel/#cooperative-distributed-writes
 
     """
@@ -1721,11 +1726,11 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
                  matched_data_dirs: MatchedDirs,
                  site: GnssResearchSite,
                  aux_file_path: Path | None = None,
-                 n_max_workers: int = 12):
+                 n_max_workers: int = 12) -> None:
         super().__init__(matched_data_dirs, site, aux_file_path, n_max_workers)
 
     def __repr__(self) -> str:
-        return (f"DistributedRinexDataProcessor("
+        return ("DistributedRinexDataProcessor("
                 f"date={self.matched_data_dirs.yyyydoy.to_str()}, "
                 f"site={self.site.site_name}, "
                 f"aux_pipeline={self.aux_pipeline})")
@@ -1978,9 +1983,8 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
                 if idx % 20 == 0 and idx > 0:
                     elapsed = time.time() - t5
                     rate = idx / elapsed if elapsed > 0 else 0
-                    log.info(
-                        f"  Progress: {idx}/{len(augmented_datasets)} ({rate:.1f} files/s)"
-                    )
+                    log.info(f"  Progress: {idx}/{len(augmented_datasets)} "
+                             f"({rate:.1f} files/s)")
 
                 token = set_file_context(fname)
                 try:
@@ -2056,7 +2060,8 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
             # STEP 4: Single commit for all data
             summary = ", ".join(f"{k}={v}" for k, v in actions.items()
                                 if v > 0)
-            commit_msg = f"[v{version}] {receiver_name} {self.matched_data_dirs.yyyydoy}: {summary}"
+            commit_msg = (f"[v{version}] {receiver_name} "
+                          f"{self.matched_data_dirs.yyyydoy}: {summary}")
 
             # STEP 5: Write metadata (separate transactions after data commit)
             log.info(f"Writing metadata for {len(metadata_records)} files...")
@@ -2093,9 +2098,8 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
             t7 = time.time()
             snapshot_id = session.commit(commit_msg)
             t8 = time.time()
-            log.info(
-                f"Commit complete in {t8-t7:.2f}s (snapshot: {snapshot_id[:8]}...)"
-            )
+            log.info(f"Commit complete in {t8-t7:.2f}s "
+                     f"(snapshot: {snapshot_id[:8]}...)")
 
             # Timing summary
             t_end = time.time()
@@ -2107,9 +2111,8 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
             log.info(f"  Metadata:       {t10-t9:.2f}s")
             log.info(f"  TOTAL:          {t_end-t_start:.2f}s")
 
-            log.info(
-                f"Successfully processed {len(augmented_datasets)} files for '{receiver_name}'"
-            )
+            log.info(f"Successfully processed {len(augmented_datasets)} files "
+                     f"for '{receiver_name}'")
 
         except Exception as e:
             log.error(f"Batch append failed: {e}")
@@ -2285,17 +2288,18 @@ if __name__ == "__main__":
 
     #     sky_ds = next(data_generator)
 
-    from canvodpy.data_handler.data_handler import MatchedDirs
     from canvod.store import GnssResearchSite
-    from canvodpy.orchestrator.processor import RinexDataProcessor
     from canvod.utils.tools import YYYYDOY
+
+    from canvodpy.data_handler.data_handler import MatchedDirs
+    from canvodpy.orchestrator.processor import RinexDataProcessor
 
     print(f"stared main block at {datetime.now()}")
 
     # md = MatchedDirs(
     #     canopy_data_dir=Path(
     #         "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302"),
-    #     sky_data_dir=Path(
+    #     reference_data_dir=Path(
     #         "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302"),
     #     yyyydoy=YYYYDOY.from_str("2024302"),
     # )
@@ -2303,7 +2307,7 @@ if __name__ == "__main__":
     # md = MatchedDirs(
     #     canopy_data_dir=Path(
     #         "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/25105"),
-    #     sky_data_dir=Path(
+    #     reference_data_dir=Path(
     #         "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/25105"),
     #     yyyydoy=YYYYDOY.from_str("2025105"),
     # )
@@ -2324,8 +2328,8 @@ if __name__ == "__main__":
             continue
 
         try:
-            print(
-                f'instantiating processor for {yyyydoy_str}: {datetime.now()}')
+            print(f"instantiating processor for {yyyydoy_str}: "
+                  f"{datetime.now()}")
             # Create processor first to check completeness
             processor = RinexDataProcessor(matched_data_dirs=md,
                                            site=site,
@@ -2338,9 +2342,8 @@ if __name__ == "__main__":
                 if should_skip:
                     print(f"✓ Skipping {yyyydoy_str} - already complete:")
                     for receiver_type, info in coverage.items():
-                        print(
-                            f"  {receiver_type}: {info['epochs']}/{info['expected']} "
-                            f"({info['percent']:.1f}%)")
+                        print(f"  {receiver_type}: {info['epochs']}/"
+                              f"{info['expected']} ({info['percent']:.1f}%)")
                     stats["skipped"] += 1
                     continue
                 else:
@@ -2348,15 +2351,14 @@ if __name__ == "__main__":
                     for receiver_type, info in coverage.items():
                         if info['exists']:
                             print(
-                                f"  {receiver_type}: {info['epochs']}/{info['expected']} "
-                                f"({info['percent']:.1f}%)")
+                                f"  {receiver_type}: {info['epochs']}/"
+                                f"{info['expected']} ({info['percent']:.1f}%)")
                         else:
                             print(f"  {receiver_type}: No data")
 
             # Process data
-            print(
-                f'about to call parsed_rinex_data_gen for {yyyydoy_str}: {datetime.now()}'
-            )
+            print(f"about to call parsed_rinex_data_gen for {yyyydoy_str}: "
+                  f"{datetime.now()}")
             data_generator = processor.parsed_rinex_data_gen()
             print(f'calling next for canopy: {datetime.now()}')
             canopy_ds = next(data_generator)

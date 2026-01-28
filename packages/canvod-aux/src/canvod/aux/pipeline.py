@@ -11,6 +11,8 @@ from pathlib import Path
 
 import xarray as xr
 from canvod.readers.matching import MatchedDirs
+from canvod.store.preprocessing import IcechunkPreprocessor
+from canvod.utils.tools import YYYYDOY
 from canvodpy.globals import (
     AGENCY,
     CLK_FILE_PATH,
@@ -18,15 +20,12 @@ from canvodpy.globals import (
     PRODUCT_TYPE,
     SP3_FILE_PATH,
 )
-from canvod.store.preprocessing import IcechunkPreprocessor
 from canvodpy.settings import get_settings
 
 from canvod.aux._internal import get_logger
-from canvod.utils.tools import YYYYDOY
 from canvod.aux.clock import ClkFile
 from canvod.aux.core.base import AuxFile
 from canvod.aux.ephemeris import Sp3File
-
 """
 Auxiliary Data Pipeline for GNSS Processing
 
@@ -38,8 +37,7 @@ import numpy as np
 
 
 class AuxDataPipeline:
-    """
-    Pipeline for managing auxiliary data files in GNSS processing.
+    """Pipeline for managing auxiliary data files in GNSS processing.
 
     Handles the complete lifecycle of auxiliary files:
     1. Registration of aux file handlers (Sp3File, ClkFile, etc.)
@@ -50,31 +48,24 @@ class AuxDataPipeline:
     Parameters
     ----------
     matched_dirs : MatchedDirs
-        Matched directories containing date information (YYYYDOY)
+        Matched directories containing date information (YYYYDOY).
 
     Attributes
     ----------
     matched_dirs : MatchedDirs
-        Matched directories for this processing day
-    _registry : Dict[str, dict]
-        Registered auxiliary file handlers with metadata
-    _cache : Dict[str, xr.Dataset]
-        Cache for preprocessed (sid-mapped) datasets
+        Matched directories for this processing day.
+    _registry : dict[str, dict]
+        Registered auxiliary file handlers with metadata.
+    _cache : dict[str, xr.Dataset]
+        Cache for preprocessed (sid-mapped) datasets.
     _lock : threading.Lock
-        Thread lock for concurrent access during parallel processing
+        Thread lock for concurrent access during parallel processing.
     _logger : Logger
-        Logger instance for this pipeline
+        Logger instance for this pipeline.
     """
 
     def __init__(self, matched_dirs: MatchedDirs):
-        """
-        Initialize the auxiliary data pipeline.
-
-        Parameters
-        ----------
-        matched_dirs : MatchedDirs
-            Matched directories containing date information
-        """
+        """Initialize the auxiliary data pipeline."""
         self.matched_dirs = matched_dirs
         self._registry: dict[str, dict] = {}
         self._cache: dict[str, xr.Dataset] = {}
@@ -89,17 +80,16 @@ class AuxDataPipeline:
                  name: str,
                  aux_file: AuxFile,
                  required: bool = False) -> None:
-        """
-        Register an auxiliary file handler.
+        """Register an auxiliary file handler.
 
         Parameters
         ----------
         name : str
-            Identifier for this aux file (e.g., 'ephemerides', 'clock')
+            Identifier for this aux file (e.g., "ephemerides", "clock").
         aux_file : AuxFile
-            Instance of AuxFile subclass (Sp3File, ClkFile, etc.)
+            Instance of AuxFile subclass (Sp3File, ClkFile, etc.).
         required : bool, default False
-            If True, pipeline will fail if this file cannot be loaded
+            If True, pipeline will fail if this file cannot be loaded.
 
         Examples
         --------
@@ -122,8 +112,7 @@ class AuxDataPipeline:
             f"Registered aux file '{name}' (required={required})")
 
     def load_all(self) -> None:
-        """
-        Load all registered auxiliary files.
+        """Load all registered auxiliary files.
 
         Performs two-stage loading:
         1. Download & read → raw xr.Dataset with 'sv' dimension
@@ -132,7 +121,7 @@ class AuxDataPipeline:
         Raises
         ------
         RuntimeError
-            If a required aux file fails to load
+            If a required aux file fails to load.
         """
         self._logger.info("Loading all registered auxiliary files...")
 
@@ -167,31 +156,30 @@ class AuxDataPipeline:
                     ) from e
                 else:
                     self._logger.warning(
-                        f"Optional auxiliary file '{name}' failed to load, continuing..."
-                    )
+                        f"Optional auxiliary file '{name}' failed to load, "
+                        f"continuing...")
 
     def get(self, name: str) -> xr.Dataset:
-        """
-        Get a preprocessed (sid-mapped) auxiliary dataset.
+        """Get a preprocessed (sid-mapped) auxiliary dataset.
 
         Thread-safe method for concurrent access during parallel RINEX processing.
 
         Parameters
         ----------
         name : str
-            Name of the registered aux file
+            Name of the registered aux file.
 
         Returns
         -------
         xr.Dataset
-            Preprocessed dataset with 'sid' dimension
+            Preprocessed dataset with 'sid' dimension.
 
         Raises
         ------
         KeyError
-            If aux file not registered
+            If aux file not registered.
         ValueError
-            If aux file registered but not loaded
+            If aux file registered but not loaded.
 
         Examples
         --------
@@ -225,8 +213,7 @@ class AuxDataPipeline:
         end_time: "np.datetime64",
         buffer_minutes: int = 5,
     ) -> xr.Dataset:
-        """
-        Get aux data sliced for a specific time range with buffer.
+        """Get aux data sliced for a specific time range with buffer.
 
         This is useful when processing individual RINEX files that cover
         only a portion of the day (e.g., 15 minutes). The buffer ensures
@@ -235,18 +222,18 @@ class AuxDataPipeline:
         Parameters
         ----------
         name : str
-            Name of the registered aux file
+            Name of the registered aux file.
         start_time : np.datetime64
-            Start of the time range
+            Start of the time range.
         end_time : np.datetime64
-            End of the time range
+            End of the time range.
         buffer_minutes : int, default 5
-            Minutes to add before/after the range for interpolation buffer
+            Minutes to add before/after the range for interpolation buffer.
 
         Returns
         -------
         xr.Dataset
-            Aux dataset sliced to the time range (with buffer)
+            Aux dataset sliced to the time range (with buffer).
 
         Examples
         --------
@@ -281,8 +268,8 @@ class AuxDataPipeline:
                     {time_dim[0]: slice(buffered_start, buffered_end)})
             else:
                 self._logger.warning(
-                    f"Could not find time dimension in '{name}', returning full dataset"
-                )
+                    f"Could not find time dimension in '{name}', "
+                    f"returning full dataset")
                 sliced_ds = full_ds
 
         self._logger.debug(
@@ -296,13 +283,12 @@ class AuxDataPipeline:
         return name in self._registry and self._registry[name]["loaded"]
 
     def list_registered(self) -> dict[str, dict]:
-        """
-        Get information about all registered aux files.
+        """Get information about all registered aux files.
 
         Returns
         -------
-        Dict[str, dict]
-            Dictionary with aux file names as keys and metadata as values
+        dict[str, dict]
+            Dictionary with aux file names as keys and metadata as values.
         """
         return {
             name: {
@@ -323,8 +309,8 @@ class AuxDataPipeline:
         ftp_server: str = None,
         user_email: str = None,
     ) -> "AuxDataPipeline":
-        """
-        Factory method to create a standard pipeline with ephemerides and clock.
+        """Factory method to create a standard pipeline with ephemerides and
+        clock.
 
         This is a convenience method that creates a pipeline and registers
         the two required auxiliary files (ephemerides and clock) with
@@ -333,22 +319,22 @@ class AuxDataPipeline:
         Parameters
         ----------
         matched_dirs : MatchedDirs
-            Matched directories containing date information
+            Matched directories containing date information.
         aux_file_path : Path, optional
-            Root path for auxiliary files. If None, uses GNSS_ROOT_DIR env var
+            Root path for auxiliary files. If None, uses GNSS_ROOT_DIR env var.
         agency : str, optional
-            Analysis center code (e.g., 'COD'). If None, uses AGENCY from globals
+            Analysis center code (e.g., "COD"). If None, uses AGENCY from globals.
         product_type : str, optional
-            Product type ('final', 'rapid'). If None, uses PRODUCT_TYPE from globals
+            Product type ("final", "rapid"). If None, uses PRODUCT_TYPE from globals.
         ftp_server : str, optional
-            FTP server URL. If None, uses FTP_SERVER from globals
+            FTP server URL. If None, uses FTP_SERVER from globals.
         user_email : str, optional
-            Email for authenticated FTP. If None, uses CDDIS_MAIL env var
+            Email for authenticated FTP. If None, uses CDDIS_MAIL env var.
 
         Returns
         -------
         AuxDataPipeline
-            Configured pipeline with ephemerides and clock registered
+            Configured pipeline with ephemerides and clock registered.
 
         Examples
         --------
@@ -374,8 +360,8 @@ class AuxDataPipeline:
         product_type = product_type or DEFAULT_PRODUCT_TYPE
         ftp_server = ftp_server or DEFAULT_FTP_SERVER
         # Use user_email from settings if not explicitly provided
-        user_email = user_email if user_email is not None else settings.get_user_email(
-        )
+        user_email = (user_email
+                      if user_email is not None else settings.get_user_email())
 
         # Determine aux file paths
         if aux_file_path is None:
@@ -437,20 +423,20 @@ if __name__ == "__main__":
 
     def create_aux_pipeline(matched_dirs: MatchedDirs,
                             aux_file_path: Path = None) -> AuxDataPipeline:
-        """
-        Factory function to create a standard AuxDataPipeline with ephemerides and clock.
+        """Factory function to create a standard AuxDataPipeline with
+        ephemerides and clock.
 
         Parameters
         ----------
         matched_dirs : MatchedDirs
-            Matched directories containing date information
+            Matched directories containing date information.
         aux_file_path : Path, optional
-            Root path for auxiliary files. If None, uses GNSS_ROOT_DIR env var
+            Root path for auxiliary files. If None, uses GNSS_ROOT_DIR env var.
 
         Returns
         -------
         AuxDataPipeline
-            Configured pipeline with ephemerides and clock registered
+            Configured pipeline with ephemerides and clock registered.
         """
         # Initialize pipeline
         pipeline = AuxDataPipeline(matched_dirs=matched_dirs)
@@ -496,13 +482,12 @@ if __name__ == "__main__":
 
     # Create matched directories
     matcher = DataDirMatcher.from_root(
-        Path(
-            "/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/05_data/01_Rosalia"
-        ))
+        Path("/home/nbader/shares/climers/Studies/"
+             "GNSS_Vegetation_Study/05_data/01_Rosalia"))
     md = MatchedDirs(
         canopy_data_dir=Path(
             "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302"),
-        sky_data_dir=Path(
+        reference_data_dir=Path(
             "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302"),
         yyyydoy=YYYYDOY.from_str("2024302"),
     )
@@ -569,9 +554,8 @@ if __name__ == "__main__":
     )
 
     print(f"\nSliced ephemerides shape: {dict(ephem_slice.sizes)}")
-    print(
-        f"Time range: {ephem_slice.epoch.min().values} to {ephem_slice.epoch.max().values}"
-    )
+    print(f"Time range: {ephem_slice.epoch.min().values} to "
+          f"{ephem_slice.epoch.max().values}")
 
     # ==========================================
     # Thread-safe access in parallel context
