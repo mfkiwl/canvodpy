@@ -271,12 +271,13 @@ def prep_aux_ds(
     aux_ds: xr.Dataset,
     fill_value: float = np.nan,
     aggregate_glonass_fdma: bool = True,
+    keep_sids: list[str] | None = None,
 ) -> xr.Dataset:
     """Preprocess auxiliary dataset before writing to Icechunk.
 
     Performs complete 4-step preprocessing:
     1. Convert sv → sid dimension
-    2. Pad to global sid list (all constellations)
+    2. Pad to global sid list (all constellations) or filter to keep_sids
     3. Normalize sid dtype to object
     4. Strip _FillValue attributes
 
@@ -291,6 +292,8 @@ def prep_aux_ds(
         Fill value for missing entries.
     aggregate_glonass_fdma : bool, default True
         Whether to aggregate GLONASS FDMA bands.
+    keep_sids : list[str] | None, default None
+        List of specific SIDs to keep. If None, keeps all possible SIDs.
 
     Returns
     -------
@@ -298,7 +301,9 @@ def prep_aux_ds(
         Fully preprocessed dataset ready for Icechunk or interpolation.
     """
     ds = map_aux_sv_to_sid(aux_ds, fill_value, aggregate_glonass_fdma)
-    ds = pad_to_global_sid(ds, aggregate_glonass_fdma=aggregate_glonass_fdma)
+    ds = pad_to_global_sid(
+        ds, keep_sids=keep_sids, aggregate_glonass_fdma=aggregate_glonass_fdma
+    )
     ds = normalize_sid_dtype(ds)
     ds = strip_fillvalue(ds)
     return ds

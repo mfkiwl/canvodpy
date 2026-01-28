@@ -1,4 +1,4 @@
-# from canvod.readers.gnss_specs.constants import UREG
+"""Band registry and plotting helpers for GNSS signals."""
 
 import matplotlib.pyplot as plt
 from canvod.readers.gnss_specs.constellations import (
@@ -10,7 +10,7 @@ from canvod.readers.gnss_specs.constellations import (
     QZSS,
     SBAS,
 )
-from matplotlib import patches
+from matplotlib import gridspec, patches
 from pint import Quantity
 from pydantic import BaseModel
 
@@ -45,9 +45,13 @@ class Bands(BaseModel):
     SYSTEM_BANDS: dict[str, dict[str, str]]
     OVERLAPPING_GROUPS: dict[str, list[str]]
 
-    model_config = dict(arbitrary_types_allowed=True, frozen=True)
+    model_config = {"arbitrary_types_allowed": True, "frozen": True}
 
-    def __init__(self, aggregate_glonass_fdma: bool = True, **kwargs) -> None:
+    def __init__(
+        self,
+        aggregate_glonass_fdma: bool = True,  # noqa: FBT001, FBT002
+        **kwargs: object,
+    ) -> None:
         """Initialize bands registry."""
         # Combine all BAND_PROPERTIES from constellations
         combined_band_properties = {
@@ -96,6 +100,7 @@ class Bands(BaseModel):
         -------
         dict
             Dictionary with float values (magnitudes only).
+
         """
         result = {}
         for band, props in band_properties.items():
@@ -109,7 +114,7 @@ class Bands(BaseModel):
         return result
 
     @staticmethod
-    def _make_groups(aggregate_fdma: bool) -> dict[str, list[str]]:
+    def _make_groups(aggregate_fdma: bool) -> dict[str, list[str]]:  # noqa: FBT001
         """Build overlapping groups depending on FDMA aggregation."""
         if aggregate_fdma:
             return {
@@ -137,7 +142,7 @@ class Bands(BaseModel):
             "group_aux": ["X1"],
         }
 
-    def plot_bands(
+    def plot_bands(  # noqa: C901, PLR0912, PLR0915
         self,
         available_combinations: list[str] | None = None,
         figsize: tuple[int, int] = (16, 8),
@@ -163,9 +168,6 @@ class Bands(BaseModel):
             Tuple of (figure, (ax1, ax2)) containing the matplotlib figure and axes.
 
         """
-        import matplotlib.pyplot as plt
-        from matplotlib import gridspec
-
         if exclude_systems is None:
             exclude_systems = []
 
@@ -245,7 +247,11 @@ class Bands(BaseModel):
             ax.set_facecolor("black")
 
         # Plot function for each panel
-        def plot_panel(ax, combinations: list[str], panel_name: str) -> None:
+        def plot_panel(
+            ax: plt.Axes,
+            combinations: list[str],
+            panel_name: str,
+        ) -> None:
             """Plot frequency bands on a panel.
 
             Parameters
@@ -260,6 +266,7 @@ class Bands(BaseModel):
             Returns
             -------
             None
+
             """
             if not combinations:
                 return
@@ -315,10 +322,28 @@ class Bands(BaseModel):
 
             # Set panel limits
             if freqs_in_panel:
-                xmin = min(f - bw / 2
-                           for f, bw in zip(freqs_in_panel, bws_in_panel)) - 10
-                xmax = max(f + bw / 2
-                           for f, bw in zip(freqs_in_panel, bws_in_panel)) + 10
+                xmin = (
+                    min(
+                        f - bw / 2
+                        for f, bw in zip(
+                            freqs_in_panel,
+                            bws_in_panel,
+                            strict=False,
+                        )
+                    )
+                    - 10
+                )
+                xmax = (
+                    max(
+                        f + bw / 2
+                        for f, bw in zip(
+                            freqs_in_panel,
+                            bws_in_panel,
+                            strict=False,
+                        )
+                    )
+                    + 10
+                )
                 ax.set_xlim(xmin, xmax)
                 ax.set_ylim(-0.5, current_y + 0.5)
 
@@ -362,9 +387,10 @@ class Bands(BaseModel):
             "J": "J"
         }
 
-        for sys in sorted(all_systems):
-            legend_elements.append(
-                patches.Patch(color=colors[sys], label=system_names[sys]))
+        legend_elements = [
+            patches.Patch(color=colors[sys], label=system_names[sys])
+            for sys in sorted(all_systems)
+        ]
 
         # Place legend on the right panel
         legend = ax2.legend(handles=legend_elements,

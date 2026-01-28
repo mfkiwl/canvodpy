@@ -1,15 +1,9 @@
-from datetime import datetime
-import json
-from pathlib import Path
-import sys
-import warnings
 from typing import Any
 
 import icechunk
-from IPython.display import HTML, display
 import numpy as np
-import pandas as pd
 import zarr
+from IPython.display import HTML, display
 
 
 class RinexStoreViewer:
@@ -483,7 +477,7 @@ class RinexStoreViewer:
 
                 if item_name in groups:
                     # It's a group (site)
-                    html_parts.append(f'<div class="tree-item">')
+                    html_parts.append('<div class="tree-item">')
                     html_parts.append(
                         f'<span class="tree-connector">{prefix}{connector}</span>'
                     )
@@ -668,7 +662,7 @@ class RinexStoreViewer:
                                             pass
 
                                     html_parts.append(
-                                        f'<div class="site-header">')
+                                        '<div class="site-header">')
                                     html_parts.append(f'<span>🏢 {site}</span>')
                                     html_parts.append(
                                         '<span class="site-info">'

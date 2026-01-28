@@ -49,7 +49,7 @@ User config overrides package defaults for any specified values.
 
 # Metadata (written to output files)
 metadata:
-  author: Nicolas F. Bader
+  author: Nicolas François Bader
   email: nicolas.bader@tuwien.ac.at
   institution: TU Wien
   department: Department of Geodesy and Geoinformation  # Optional

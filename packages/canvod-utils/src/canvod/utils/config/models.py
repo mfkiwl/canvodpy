@@ -9,10 +9,9 @@ These models provide:
 """
 
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
-
 
 # ============================================================================
 # Processing Configuration
@@ -230,7 +229,7 @@ class StorageConfig(BaseModel):
         if path_str.startswith("/path/"):
             # This is a placeholder path from defaults - skip validation
             return v
-        
+
         # For real paths, create if it doesn't exist
         if not v.exists():
             try:
@@ -242,6 +241,7 @@ class StorageConfig(BaseModel):
                     f"Could not create stores directory {v}: {e}. "
                     "Please create it manually.",
                     UserWarning,
+                    stacklevel=2,
                 )
         return v
 
@@ -262,7 +262,7 @@ class ProcessingConfig(BaseModel):
     """
 
     metadata: MetadataConfig
-    credentials: Optional[CredentialsConfig] = Field(
+    credentials: CredentialsConfig | None = Field(
         None,
         description="[DEPRECATED] Use .env file for credentials instead",
     )
@@ -283,7 +283,7 @@ class ReceiverConfig(BaseModel):
 
     type: Literal["reference", "canopy"] = Field(..., description="Receiver type")
     directory: str = Field(..., description="Subdirectory for receiver data")
-    description: Optional[str] = Field(None, description="Human-readable description")
+    description: str | None = Field(None, description="Human-readable description")
 
 
 class VodAnalysisConfig(BaseModel):
@@ -291,7 +291,7 @@ class VodAnalysisConfig(BaseModel):
 
     canopy_receiver: str = Field(..., description="Canopy receiver name")
     reference_receiver: str = Field(..., description="Reference receiver name")
-    description: Optional[str] = Field(None, description="Analysis description")
+    description: str | None = Field(None, description="Analysis description")
 
 
 class SiteConfig(BaseModel):
@@ -299,7 +299,7 @@ class SiteConfig(BaseModel):
 
     base_dir: str = Field(..., description="Base directory for site data")
     receivers: dict[str, ReceiverConfig] = Field(..., description="Site receivers")
-    vod_analyses: Optional[dict[str, VodAnalysisConfig]] = Field(
+    vod_analyses: dict[str, VodAnalysisConfig] | None = Field(
         None,
         description="VOD analysis pairs",
     )
@@ -336,7 +336,7 @@ class SidsConfig(BaseModel):
         "all",
         description="SID selection mode",
     )
-    preset: Optional[str] = Field(None, description="Preset name when mode=preset")
+    preset: str | None = Field(None, description="Preset name when mode=preset")
     custom_sids: list[str] = Field(
         default_factory=list,
         description="Custom SID list when mode=custom",
@@ -344,7 +344,7 @@ class SidsConfig(BaseModel):
 
     @field_validator("preset")
     @classmethod
-    def validate_preset_when_mode_preset(cls, v: Optional[str], info) -> Optional[str]:
+    def validate_preset_when_mode_preset(cls, v: str | None, info) -> str | None:
         """Ensure preset is set when mode is preset."""
         mode = info.data.get("mode")
         if mode == "preset" and not v:
@@ -400,6 +400,6 @@ class CanvodConfig(BaseModel):
         return self.processing.credentials.gnss_root_dir
 
     @property
-    def cddis_mail(self) -> Optional[str]:
+    def cddis_mail(self) -> str | None:
         """Shortcut to CDDIS mail."""
         return self.processing.credentials.cddis_mail

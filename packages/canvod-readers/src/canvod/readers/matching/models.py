@@ -29,7 +29,7 @@ class MatchedDirs:
     --------
     >>> from pathlib import Path
     >>> from canvod.utils.tools import YYYYDOY
-    >>> 
+    >>>
     >>> md = MatchedDirs(
     ...     canopy_data_dir=Path("/data/02_canopy/25001"),
     ...     reference_data_dir=Path("/data/01_reference/25001"),

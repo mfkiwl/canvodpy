@@ -1,5 +1,4 @@
-"""
-Research site and Icechunk store configuration.
+"""Research site and Icechunk store configuration.
 
 This file contains all site-specific configuration including receiver
 setups, store paths, and analysis configurations. Pure configuration only -
@@ -21,7 +20,7 @@ _ENV_DIR = Path(__file__).parent.parent.parent
 # Load environment variables from .env file in _ENV_DIR
 try:
     from dotenv import load_dotenv
-    load_dotenv(_ENV_DIR / '.env')
+    load_dotenv(_ENV_DIR / ".env")
 except ImportError:
     # dotenv not available, skip loading
     pass
@@ -34,9 +33,9 @@ _GNSS_ROOT_DIR = Path(os.getenv("GNSS_ROOT_DIR", Path.cwd() / "data"))
 
 RESEARCH_SITES: dict[str, dict[str, Any]] = {
     "Rosalia": {
-        "base_dir": _GNSS_ROOT_DIR / '01_Rosalia',
-        "rinex_store_path": _GNSS_ROOT_DIR / '01_Rosalia' / '03_Rinex_Testing',
-        "vod_store_path": _GNSS_ROOT_DIR / '01_Rosalia' / '04_VOD_Testing',
+        "base_dir": _GNSS_ROOT_DIR / "01_Rosalia",
+        "rinex_store_path": _GNSS_ROOT_DIR / "01_Rosalia" / "03_Rinex_Testing",
+        "vod_store_path": _GNSS_ROOT_DIR / "01_Rosalia" / "04_VOD_Testing",
         "receivers": {
             "reference_01": {
                 "type": "reference",

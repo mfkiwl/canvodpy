@@ -40,7 +40,7 @@ def parse_clk_header(file_handle: TextIO) -> set[str]:
 
     for line in file_handle:
         if 'OF SOLN SATS' in line:
-            num_sats = int(line[4:6])
+            _ = int(line[4:6])
         elif 'PRN LIST' in line:
             # Parse PRN list line(s)
             parts = line.split()[2:]  # Skip 'PRN' and 'LIST'
@@ -143,9 +143,9 @@ def parse_clk_file(
     tuple[list[datetime.datetime], list[str], np.ndarray]
         (epochs, satellites, clock_offsets).
     """
-    with open(filepath) as f:
+    with filepath.open() as f:
         # Parse header (skip it, we get satellites from data anyway)
-        header_sats = parse_clk_header(f)
+        _ = parse_clk_header(f)
 
         # Parse data
         epochs, satellites, clock_offsets = parse_clk_data(f)

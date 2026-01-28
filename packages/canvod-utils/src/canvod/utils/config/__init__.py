@@ -20,9 +20,9 @@ from .models import (
     CanvodConfig,
     MetadataConfig,
     ProcessingConfig,
+    SidsConfig,
     SiteConfig,
     SitesConfig,
-    SidsConfig,
 )
 
 __all__ = [

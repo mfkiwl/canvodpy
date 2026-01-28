@@ -1,5 +1,4 @@
-"""
-Constants for RINEX readers.
+"""Constants for RINEX readers.
 
 This module contains only true physical/technical constants that should
 never change. User-configurable settings have been moved to the configuration
@@ -42,7 +41,7 @@ KEEP_RNX_VARS: list[str] = [
 
 # Metadata (defaults - TODO: move to config system)
 AUTHOR: str = "canVODpy"
-EMAIL: str = "climers@geo.tuwien.ac.at"
+EMAIL: str = "nicolas.bader@geo.tuwien.ac.at"
 INSTITUTION: str = "TU Wien"
 DEPARTMENT: str = "Department of Geodesy and Geoinformation"
 RESEARCH_GROUP: str = "Climate and Environmental Remote Sensing (CLIMERS)"

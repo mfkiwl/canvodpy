@@ -8,6 +8,9 @@ special cases like auxiliary observations.
 
 from canvod.readers.gnss_specs.bands import Bands
 
+OBS_CODE_LEN = 3
+SIGNAL_ID_PARTS = 3
+
 
 class SignalIDMapper:
     """Signal ID mapper with bandwidth-aware properties.
@@ -57,7 +60,10 @@ class SignalIDMapper:
 
     """
 
-    def __init__(self, aggregate_glonass_fdma: bool = True) -> None:
+    def __init__(
+        self,
+        aggregate_glonass_fdma: bool = True,  # noqa: FBT001, FBT002
+    ) -> None:
         """Initialize SignalIDMapper."""
         self.aggregate_glonass_fdma = aggregate_glonass_fdma
         self._bands = Bands(aggregate_glonass_fdma=self.aggregate_glonass_fdma)
@@ -119,8 +125,7 @@ class SignalIDMapper:
                 return f"{sv}|X1|X"  # Treat as auxiliary observation
 
             # Standard handling for 3-character observation codes
-            if len(observation_code) >= 3:
-                observation_type = observation_code[0]  # S, C, L, D
+            if len(observation_code) >= OBS_CODE_LEN:
                 band_num = observation_code[1]  # 1, 2, 5, etc.
                 code = observation_code[2]  # C, P, W, etc.
 
@@ -134,7 +139,7 @@ class SignalIDMapper:
                 return f"{sv}|{band_name}|{code}"
 
             # Fallback for unexpected observation code formats
-            return f"{sv}|{observation_code}|Unknown"
+            return f"{sv}|{observation_code}|Unknown"  # noqa: TRY300
 
         except (ValueError, IndexError) as e:
             # Fallback for malformed input
@@ -171,7 +176,7 @@ class SignalIDMapper:
 
         """
         parts = signal_id.split("|")
-        if len(parts) != 3:
+        if len(parts) != SIGNAL_ID_PARTS:
             print(f"Invalid signal ID format: {signal_id}")
             return "", "", ""
         return parts[0], parts[1], parts[2]

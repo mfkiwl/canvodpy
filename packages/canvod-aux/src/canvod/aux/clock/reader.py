@@ -8,10 +8,10 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
+from canvod.utils.tools import get_gps_week_from_filename
 from pydantic import ConfigDict
 from pydantic.dataclasses import dataclass
 
-from canvod.utils.tools import get_gps_week_from_filename
 from canvod.aux._internal.units import UREG
 from canvod.aux.clock.parser import parse_clk_file
 from canvod.aux.clock.validator import validate_clk_dataset

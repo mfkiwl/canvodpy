@@ -624,15 +624,14 @@ Handles serialization of HemiGrid structures with:
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
-import warnings
+from typing import Any
 
 import numpy as np
 import polars as pl
-from pydantic import BaseModel, Field, field_validator
-from scipy.spatial import cKDTree
 import xarray as xr
 import zarr
+from pydantic import BaseModel, Field, field_validator
+from scipy.spatial import cKDTree
 
 # Icechunk integration
 try:
@@ -744,23 +743,23 @@ class GridSpecificMetadata(BaseModel):
     -----
     This is a Pydantic model used to validate serialized metadata fields.
     """
-    htm_level: Optional[int] = Field(None,
+    htm_level: int | None = Field(None,
                                      ge=0,
                                      description="HTM subdivision level")
-    base_triangles: Optional[int] = Field(
+    base_triangles: int | None = Field(
         None, description="Number of base triangles")
-    n_theta_bands: Optional[int] = Field(
+    n_theta_bands: int | None = Field(
         None, ge=1, description="Number of latitude bands")
-    cells_per_band: Optional[list[int]] = Field(
+    cells_per_band: list[int] | None = Field(
         None, description="Cells per latitude band")
-    subdivision_frequency: Optional[int] = Field(
+    subdivision_frequency: int | None = Field(
         None, ge=1, description="Geodesic subdivision")
-    base_icosahedron: Optional[bool] = Field(
+    base_icosahedron: bool | None = Field(
         None, description="Based on icosahedron")
-    healpix_nside: Optional[int] = Field(None,
+    healpix_nside: int | None = Field(None,
                                          ge=1,
                                          description="HEALPix nside parameter")
-    fibonacci_n_points: Optional[int] = Field(
+    fibonacci_n_points: int | None = Field(
         None, ge=1, description="Number of Fibonacci spiral points")
 
 
@@ -769,7 +768,7 @@ class GridSpecificMetadata(BaseModel):
 # ==============================================================================
 
 
-def get_default_compressor() -> Union[Blosc, dict, None]:
+def get_default_compressor() -> Blosc | dict | None:
     """
     Get default compressor configuration.
 
@@ -786,8 +785,7 @@ def get_default_compressor() -> Union[Blosc, dict, None]:
 
 
 def configure_compressor(
-        compressor: Optional[Union[Blosc, dict,
-                                   str]]) -> Union[Blosc, dict, None]:
+        compressor: Blosc | dict | str | None) -> Blosc | dict | None:
     """
     Configure compressor from various input types.
 
@@ -882,7 +880,7 @@ class KDTreeCache:
         Cache directory. Defaults to ~/.cache/gnssvodpy/grids/.
     """
 
-    def __init__(self, cache_dir: Optional[Path] = None):
+    def __init__(self, cache_dir: Path | None = None):
         if cache_dir is None:
             cache_dir = Path.home() / '.cache' / 'gnssvodpy' / 'grids'
 
@@ -894,7 +892,7 @@ class KDTreeCache:
         """Get cache file path for a grid."""
         return self.cache_dir / f"{grid_name}_{grid_hash[:16]}.kdtree.pkl"
 
-    def load(self, grid_name: str, grid_hash: str) -> Optional[cKDTree]:
+    def load(self, grid_name: str, grid_hash: str) -> cKDTree | None:
         """
         Load KDTree from cache.
 
@@ -934,7 +932,7 @@ class KDTreeCache:
         except Exception as e:
             self._logger.warning(f"Failed to cache KDTree: {e}")
 
-    def clear(self, grid_name: Optional[str] = None) -> int:
+    def clear(self, grid_name: str | None = None) -> int:
         """
         Clear cache files.
 
@@ -993,9 +991,9 @@ class LoadedGrid:
                  grid_name: str,
                  cells: pl.DataFrame,
                  metadata: GridMetadata,
-                 vertices: Optional[pl.DataFrame] = None,
-                 neighbors: Optional[pl.DataFrame] = None,
-                 specific_metadata: Optional[Dict] = None):
+                 vertices: pl.DataFrame | None = None,
+                 neighbors: pl.DataFrame | None = None,
+                 specific_metadata: dict | None = None):
         self.grid_name = grid_name
         self.cells = cells
         self.vertices = vertices
@@ -1084,7 +1082,7 @@ class LoadedGrid:
 
         return self.cells['cell_id'][indices].to_numpy()
 
-    def get_cell_boundaries(self, cell_id: int) -> Optional[Dict[str, Any]]:
+    def get_cell_boundaries(self, cell_id: int) -> dict[str, Any] | None:
         """
         Get cell boundary information.
 
@@ -1106,7 +1104,7 @@ class LoadedGrid:
         except Exception:
             return None
 
-    def get_cell_vertices(self, cell_id: int) -> Optional[pl.DataFrame]:
+    def get_cell_vertices(self, cell_id: int) -> pl.DataFrame | None:
         """
         Get vertices for a specific cell.
 
@@ -1128,7 +1126,7 @@ class LoadedGrid:
         except Exception:
             return None
 
-    def get_cell_neighbors(self, cell_id: int) -> Optional[list]:
+    def get_cell_neighbors(self, cell_id: int) -> list | None:
         """
         Get neighbor cell IDs for a specific cell.
 
@@ -1270,11 +1268,11 @@ def write_grid_to_zarr(
     zarr_group: zarr.Group,
     grid_name: str,
     df_cells: pl.DataFrame,
-    df_vertices: Optional[pl.DataFrame] = None,
-    df_neighbors: Optional[pl.DataFrame] = None,
-    metadata: Optional[Dict[str, Any]] = None,
-    specific_metadata: Optional[Dict[str, Any]] = None,
-    compressor: Optional[Union[Blosc, dict, str]] = None,
+    df_vertices: pl.DataFrame | None = None,
+    df_neighbors: pl.DataFrame | None = None,
+    metadata: dict[str, Any] | None = None,
+    specific_metadata: dict[str, Any] | None = None,
+    compressor: Blosc | dict | str | None = None,
 ) -> str:
     """
     Write grid to zarr group.
@@ -1463,7 +1461,7 @@ def _build_cells_dataset(df_cells: pl.DataFrame) -> xr.Dataset:
 
     logger = get_logger()
 
-    dtype_overrides: Dict[str, Any] = {
+    dtype_overrides: dict[str, Any] = {
         'cell_id': np.int32,
         'is_boundary': np.bool_,
         'phi': np.float32,
@@ -1526,7 +1524,7 @@ def _build_vertices_dataset(
     counts_df = df.group_by('cell_id', maintain_order=True).len()
     offsets = _compute_offsets(df_cells, counts_df)
 
-    dtype_overrides: Dict[str, Any] = {
+    dtype_overrides: dict[str, Any] = {
         'cell_id': np.int32,
         'vertex_idx': np.int32,
         'phi': np.float32,
@@ -1573,10 +1571,10 @@ def _build_neighbors_dataset(
 def write_grid_to_icechunk(session,
                            grid_name: str,
                            df_cells: pl.DataFrame,
-                           df_vertices: Optional[pl.DataFrame] = None,
-                           df_neighbors: Optional[pl.DataFrame] = None,
-                           metadata: Optional[Dict[str, Any]] = None,
-                           specific_metadata: Optional[Dict[str, Any]] = None,
+                           df_vertices: pl.DataFrame | None = None,
+                           df_neighbors: pl.DataFrame | None = None,
+                           metadata: dict[str, Any] | None = None,
+                           specific_metadata: dict[str, Any] | None = None,
                            overwrite: bool = False) -> str:
     """
     Write grid definition to an Icechunk repository.
@@ -1726,7 +1724,7 @@ def load_grid_from_icechunk(session,
 
     # Reconstruct grid-type specific columns that rely on nested data
     if metadata.grid_type == 'htm' and df_vertices is not None:
-        vertex_map: Dict[int, list[list[float]]] = {}
+        vertex_map: dict[int, list[list[float]]] = {}
 
         for row in df_vertices.sort(['cell_id', 'vertex_idx'
                                      ]).iter_rows(named=True):
@@ -1773,7 +1771,7 @@ def load_grid_from_icechunk(session,
 # ==============================================================================
 
 
-def list_available_grids(zarr_group: zarr.Group) -> Dict[str, Dict[str, Any]]:
+def list_available_grids(zarr_group: zarr.Group) -> dict[str, dict[str, Any]]:
     """
     List all available grids in zarr store.
 
@@ -1843,7 +1841,7 @@ def delete_grid(zarr_group: zarr.Group, grid_name: str) -> bool:
         return False
 
 
-def validate_grid_integrity(loaded_grid: LoadedGrid) -> Dict[str, Any]:
+def validate_grid_integrity(loaded_grid: LoadedGrid) -> dict[str, Any]:
     """
     Validate grid integrity and compute diagnostics.
 

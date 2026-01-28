@@ -71,7 +71,7 @@ ds.attrs.update(SOFTWARE_ATTRS)
 ```yaml
 # config/processing.yaml
 metadata:
-  author: Nicolas F. Bader
+  author: Nicolas François Bader
   email: nicolas.bader@tuwien.ac.at
   institution: TU Wien
 

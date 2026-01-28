@@ -16,19 +16,19 @@ Moved user-configurable settings from `canvod/readers/gnss_specs/constants.py` t
 
 ### 🔄 Moved to Configuration
 
-| Old Location | New Location | Access |
-|--------------|--------------|--------|
-| `KEEP_RNX_VARS` | `config/processing.yaml` → `processing.keep_rnx_vars` | `config.processing.processing.keep_rnx_vars` |
-| `COMPRESSION` | `config/processing.yaml` → `compression` | `config.processing.compression.zlib`, `.complevel` |
-| `TIME_AGGR` | `config/processing.yaml` → `processing.time_aggregation_seconds` | `config.processing.processing.time_aggregation_seconds` |
-| `AGGREGATE_GLONASS_FDMA` | `config/processing.yaml` → `processing.aggregate_glonass_fdma` | `config.processing.processing.aggregate_glonass_fdma` |
-| `AUTHOR` | `config/processing.yaml` → `metadata.author` | `config.processing.metadata.author` |
-| `EMAIL` | `config/processing.yaml` → `metadata.email` | `config.processing.metadata.email` |
-| `INSTITUTION` | `config/processing.yaml` → `metadata.institution` | `config.processing.metadata.institution` |
-| `DEPARTMENT` | `config/processing.yaml` → `metadata.department` | `config.processing.metadata.department` |
-| `RESEARCH_GROUP` | `config/processing.yaml` → `metadata.research_group` | `config.processing.metadata.research_group` |
-| `WEBSITE` | `config/processing.yaml` → `metadata.website` | `config.processing.metadata.website` |
-| `SOFTWARE` | `canvod.utils._meta.SOFTWARE_ATTRS` | `from canvod.utils._meta import SOFTWARE_ATTRS` |
+| Old Location             | New Location                                                     | Access                                                  |
+| ------------------------ | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| `KEEP_RNX_VARS`          | `config/processing.yaml` → `processing.keep_rnx_vars`            | `config.processing.processing.keep_rnx_vars`            |
+| `COMPRESSION`            | `config/processing.yaml` → `compression`                         | `config.processing.compression.zlib`, `.complevel`      |
+| `TIME_AGGR`              | `config/processing.yaml` → `processing.time_aggregation_seconds` | `config.processing.processing.time_aggregation_seconds` |
+| `AGGREGATE_GLONASS_FDMA` | `config/processing.yaml` → `processing.aggregate_glonass_fdma`   | `config.processing.processing.aggregate_glonass_fdma`   |
+| `AUTHOR`                 | `config/processing.yaml` → `metadata.author`                     | `config.processing.metadata.author`                     |
+| `EMAIL`                  | `config/processing.yaml` → `metadata.email`                      | `config.processing.metadata.email`                      |
+| `INSTITUTION`            | `config/processing.yaml` → `metadata.institution`                | `config.processing.metadata.institution`                |
+| `DEPARTMENT`             | `config/processing.yaml` → `metadata.department`                 | `config.processing.metadata.department`                 |
+| `RESEARCH_GROUP`         | `config/processing.yaml` → `metadata.research_group`             | `config.processing.metadata.research_group`             |
+| `WEBSITE`                | `config/processing.yaml` → `metadata.website`                    | `config.processing.metadata.website`                    |
+| `SOFTWARE`               | `canvod.utils._meta.SOFTWARE_ATTRS`                              | `from canvod.utils._meta import SOFTWARE_ATTRS`         |
 
 ## Code Migration Examples
 
@@ -111,11 +111,11 @@ ds.attrs.update(SOFTWARE_ATTRS)
    from canvod.readers.gnss_specs.constants import (
        AUTHOR, EMAIL, KEEP_RNX_VARS, COMPRESSION, TIME_AGGR, AGGREGATE_GLONASS_FDMA
    )
-   
+
    # Add these imports
    from canvod.utils.config import load_config
    from canvod.utils._meta import SOFTWARE_ATTRS
-   
+
    # Load config once at module/function start
    config = load_config()
    ```
@@ -124,11 +124,11 @@ ds.attrs.update(SOFTWARE_ATTRS)
    ```bash
    canvodpy config edit processing
    ```
-   
+
    Add your metadata:
    ```yaml
    metadata:
-     author: Nicolas F. Bader
+     author: Nicolas François Bader
      email: nicolas.bader@tuwien.ac.at
      institution: TU Wien
      department: Department of Geodesy and Geoinformation
@@ -146,12 +146,12 @@ ds.attrs.update(SOFTWARE_ATTRS)
 
 ## Benefits
 
-✅ **User-friendly:** Settings in YAML, not buried in source code  
-✅ **Validation:** Pydantic validates all values (email format, paths, etc.)  
-✅ **Separation:** Constants vs configuration clearly separated  
-✅ **Version tracking:** Software version automatically included  
-✅ **No git conflicts:** User settings gitignored  
-✅ **API-ready:** Configuration serializable for future services  
+✅ **User-friendly:** Settings in YAML, not buried in source code
+✅ **Validation:** Pydantic validates all values (email format, paths, etc.)
+✅ **Separation:** Constants vs configuration clearly separated
+✅ **Version tracking:** Software version automatically included
+✅ **No git conflicts:** User settings gitignored
+✅ **API-ready:** Configuration serializable for future services
 
 ## Verification
 

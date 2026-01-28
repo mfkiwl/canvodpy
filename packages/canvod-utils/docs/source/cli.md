@@ -63,7 +63,7 @@ Validating configuration...
 ✓ Signal IDs configuration is valid
 
 Configuration summary:
-  Author: Nicolas F. Bader
+  Author: Nicolas François Bader
   Email: nicolas.bader@tuwien.ac.at
   GNSS Root: /path/to/gnss/data
   Stores Root: /path/to/stores
@@ -100,7 +100,7 @@ canvodpy config show
 ┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Setting           ┃ Value                        ┃
 ┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ Author            │ Nicolas F. Bader             │
+│ Author            │ Nicolas François Bader             │
 │ Email             │ nicolas.bader@tuwien.ac.at   │
 │ Institution       │ TU Wien                      │
 │ GNSS Root Dir     │ /path/to/gnss/data           │

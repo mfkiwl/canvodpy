@@ -200,36 +200,36 @@ class Sp3File(AuxFile):
         dt = np.median(time_diffs).astype('timedelta64[s]').astype(float)
 
         # Initialize velocity arrays
-        Vx = np.zeros_like(ds['X'].values)
-        Vy = np.zeros_like(ds['Y'].values)
-        Vz = np.zeros_like(ds['Z'].values)
+        vx = np.zeros_like(ds['X'].values)
+        vy = np.zeros_like(ds['Y'].values)
+        vz = np.zeros_like(ds['Z'].values)
 
         # Central difference for interior points
-        Vx[1:-1] = (ds['X'].values[2:] - ds['X'].values[:-2]) / (2 * dt)
-        Vy[1:-1] = (ds['Y'].values[2:] - ds['Y'].values[:-2]) / (2 * dt)
-        Vz[1:-1] = (ds['Z'].values[2:] - ds['Z'].values[:-2]) / (2 * dt)
+        vx[1:-1] = (ds['X'].values[2:] - ds['X'].values[:-2]) / (2 * dt)
+        vy[1:-1] = (ds['Y'].values[2:] - ds['Y'].values[:-2]) / (2 * dt)
+        vz[1:-1] = (ds['Z'].values[2:] - ds['Z'].values[:-2]) / (2 * dt)
 
         # Forward difference for first point
-        Vx[0] = (ds['X'].values[1] - ds['X'].values[0]) / dt
-        Vy[0] = (ds['Y'].values[1] - ds['Y'].values[0]) / dt
-        Vz[0] = (ds['Z'].values[1] - ds['Z'].values[0]) / dt
+        vx[0] = (ds['X'].values[1] - ds['X'].values[0]) / dt
+        vy[0] = (ds['Y'].values[1] - ds['Y'].values[0]) / dt
+        vz[0] = (ds['Z'].values[1] - ds['Z'].values[0]) / dt
 
         # Backward difference for last point
-        Vx[-1] = (ds['X'].values[-1] - ds['X'].values[-2]) / dt
-        Vy[-1] = (ds['Y'].values[-1] - ds['Y'].values[-2]) / dt
-        Vz[-1] = (ds['Z'].values[-1] - ds['Z'].values[-2]) / dt
+        vx[-1] = (ds['X'].values[-1] - ds['X'].values[-2]) / dt
+        vy[-1] = (ds['Y'].values[-1] - ds['Y'].values[-2]) / dt
+        vz[-1] = (ds['Z'].values[-1] - ds['Z'].values[-2]) / dt
 
         # Add units if needed
         if not self.dimensionless:
-            Vx = Vx * (UREG.meter / UREG.second)
-            Vy = Vy * (UREG.meter / UREG.second)
-            Vz = Vz * (UREG.meter / UREG.second)
+            vx = vx * (UREG.meter / UREG.second)
+            vy = vy * (UREG.meter / UREG.second)
+            vz = vz * (UREG.meter / UREG.second)
 
         # Add to dataset
         ds = ds.assign(
-            Vx=(('epoch', 'sv'), Vx),
-            Vy=(('epoch', 'sv'), Vy),
-            Vz=(('epoch', 'sv'), Vz),
+            Vx=(('epoch', 'sv'), vx),
+            Vy=(('epoch', 'sv'), vy),
+            Vz=(('epoch', 'sv'), vz),
         )
 
         # Add velocity attributes

@@ -4,13 +4,14 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from typing import Any
-import warnings
 
 import numpy as np
+import xarray as xr
 from pydantic import ConfigDict
 from pydantic.dataclasses import dataclass
-from scipy.interpolate import BarycentricInterpolator, CubicHermiteSpline, interp1d
-import xarray as xr
+from scipy.interpolate import CubicHermiteSpline, interp1d
+
+MIN_SEGMENT_LEN = 2
 
 
 class InterpolatorConfig:
@@ -28,9 +29,11 @@ class Sp3Config(InterpolatorConfig):
     Notes
     -----
     This is a Pydantic dataclass used for validation.
+
     """
+
     use_velocities: bool = True
-    fallback_method: str = 'linear'
+    fallback_method: str = "linear"
 
 
 @dataclass
@@ -40,7 +43,9 @@ class ClockConfig(InterpolatorConfig):
     Notes
     -----
     This is a Pydantic dataclass used for validation.
+
     """
+
     window_size: int = 9
     jump_threshold: float = 1e-6
 
@@ -52,7 +57,9 @@ class Interpolator(ABC):
     Notes
     -----
     This is a Pydantic dataclass and an abstract base class (ABC).
+
     """
+
     config: InterpolatorConfig
 
     @abstractmethod
@@ -62,13 +69,12 @@ class Interpolator(ABC):
         target_epochs: np.ndarray,
     ) -> xr.Dataset:
         """Interpolate dataset to match target epochs."""
-        pass
 
     def to_attrs(self) -> dict[str, Any]:
         """Convert interpolator to attrs-compatible dictionary."""
         return {
-            'interpolator_type': self.__class__.__name__,
-            'config': self.config.to_dict()
+            "interpolator_type": self.__class__.__name__,
+            "config": self.config.to_dict()
         }
 
 
@@ -79,7 +85,9 @@ class ClockInterpolationStrategy(Interpolator):
     Notes
     -----
     This is a Pydantic dataclass.
+
     """
+
     config: ClockConfig
 
     def interpolate(
@@ -89,50 +97,55 @@ class ClockInterpolationStrategy(Interpolator):
     ) -> xr.Dataset:
         """Optimized clock interpolation using vectorized operations."""
         result_ds = xr.Dataset(coords={
-            'epoch': target_epochs,
-            'sid': ds['sid']
+            "epoch": target_epochs,
+            "sid": ds["sid"]
         })
 
         # Convert epochs to seconds once
         t_source = (
-            ds['epoch'] -
-            ds['epoch'].values[0]  # ← Fix: .values[0] instead of [0]
-        ).values.astype('timedelta64[s]').astype(float)
+            ds["epoch"] -
+            ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
+        ).values.astype("timedelta64[s]").astype(float)
 
         t_target = (
             target_epochs -
-            ds['epoch'].values[0]  # ← Fix: .values[0] instead of [0]
-        ).astype('timedelta64[s]').astype(float)
+            ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
+        ).astype("timedelta64[s]").astype(float)
 
         # Find clock variables
         clock_vars = [
             var for var in ds.data_vars
             if any(c in var
-                   for c in ['clock', 'clk', 'Clock', 'CLK', 'clock_offset'])
+                   for c in ["clock", "clk", "Clock", "CLK", "clock_offset"])
         ]
 
         if not clock_vars:
-            raise ValueError("No clock variables found in dataset")
+            msg = "No clock variables found in dataset"
+            raise ValueError(msg)
 
         # Process each clock variable
         for var in clock_vars:
             data = ds[var].values
-            output = np.full((len(target_epochs), len(ds['sid'])), np.nan)
+            output = np.full((len(target_epochs), len(ds["sid"])), np.nan)
 
             # Process each sv in parallel
             with ThreadPoolExecutor() as executor:
-                futures = []
-                for sv_idx in range(len(ds['sid'])):
-                    futures.append(
-                        executor.submit(self._interpolate_sv_clock,
-                                        data[:, sv_idx], t_source, t_target,
-                                        self.config.jump_threshold))
+                futures = [
+                    executor.submit(
+                        self._interpolate_sv_clock,
+                        data[:, sv_idx],
+                        t_source,
+                        t_target,
+                        self.config.jump_threshold,
+                    )
+                    for sv_idx in range(len(ds["sid"]))
+                ]
 
                 # Collect results
                 for sv_idx, future in enumerate(futures):
                     output[:, sv_idx] = future.result()
 
-            result_ds[var] = (('epoch', 'sid'), output)
+            result_ds[var] = (("epoch", "sid"), output)
             if var in ds:
                 result_ds[var].attrs = ds[var].attrs
 
@@ -166,7 +179,7 @@ class ClockInterpolationStrategy(Interpolator):
         segments = np.split(np.arange(len(valid_time)), jumps + 1)
 
         for seg in segments:
-            if len(seg) < 2:
+            if len(seg) < MIN_SEGMENT_LEN:
                 continue
 
             seg_time = valid_time[seg]
@@ -194,7 +207,9 @@ class Sp3InterpolationStrategy(Interpolator):
     Notes
     -----
     This is a Pydantic dataclass.
+
     """
+
     config: Sp3Config
 
     def interpolate(
@@ -204,7 +219,7 @@ class Sp3InterpolationStrategy(Interpolator):
     ) -> xr.Dataset:
         """Optimized SP3 orbit interpolation."""
         if self.config.use_velocities and all(v in ds
-                                              for v in ['Vx', 'Vy', 'Vz']):
+                                              for v in ["Vx", "Vy", "Vz"]):
             return self._interpolate_with_velocities(ds, target_epochs)
         return self._interpolate_positions_only(ds, target_epochs)
 
@@ -215,46 +230,45 @@ class Sp3InterpolationStrategy(Interpolator):
     ) -> xr.Dataset:
         """Optimized Hermite interpolation using vectorized operations."""
         result_ds = xr.Dataset(coords={
-            'epoch': target_epochs,
-            'sid': ds['sid']
+            "epoch": target_epochs,
+            "sid": ds["sid"]
         })
 
         # Convert epochs to seconds once
         t_source = (
-            ds['epoch'] -
-            ds['epoch'].values[0]  # ← Fix: .values[0] instead of [0]
-        ).values.astype('timedelta64[s]').astype(float)
+            ds["epoch"] -
+            ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
+        ).values.astype("timedelta64[s]").astype(float)
 
         t_target = (
             target_epochs -
-            ds['epoch'].values[0]  # ← Fix: .values[0] instead of [0]
-        ).astype('timedelta64[s]').astype(float)
+            ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
+        ).astype("timedelta64[s]").astype(float)
 
         # Pre-allocate all arrays at once
         n_targets = len(target_epochs)
-        n_svs = len(ds['sid'])
+        n_svs = len(ds["sid"])
         coords = {
-            'X': np.empty((n_targets, n_svs)),
-            'Y': np.empty((n_targets, n_svs)),
-            'Z': np.empty((n_targets, n_svs))
+            "X": np.empty((n_targets, n_svs)),
+            "Y": np.empty((n_targets, n_svs)),
+            "Z": np.empty((n_targets, n_svs))
         }
 
-        if all(v in ds for v in ['Vx', 'Vy', 'Vz']):
+        if all(v in ds for v in ["Vx", "Vy", "Vz"]):
             vels = {
-                'Vx': np.empty((n_targets, n_svs)),
-                'Vy': np.empty((n_targets, n_svs)),
-                'Vz': np.empty((n_targets, n_svs))
+                "Vx": np.empty((n_targets, n_svs)),
+                "Vy": np.empty((n_targets, n_svs)),
+                "Vz": np.empty((n_targets, n_svs))
             }
 
         # Process each sv in parallel
-        from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor() as executor:
             futures = []
-            for i, sv in enumerate(ds['sid'].values):
+            for i, sv in enumerate(ds["sid"].values):
                 futures.append(
                     executor.submit(self._interpolate_sv, ds, sv, t_source,
                                     t_target, i, coords,
-                                    vels if 'Vx' in ds else None))
+                                    vels if "Vx" in ds else None))
 
             # Wait for all interpolations to complete
             for future in futures:
@@ -262,36 +276,19 @@ class Sp3InterpolationStrategy(Interpolator):
 
         # Assign all results at once
         for coord, data in coords.items():
-            result_ds[coord] = (('epoch', 'sid'), data)
+            result_ds[coord] = (("epoch", "sid"), data)
             if coord in ds:
                 result_ds[coord].attrs = ds[coord].attrs
 
-        if all(v in ds for v in ['Vx', 'Vy', 'Vz']):
+        if all(v in ds for v in ["Vx", "Vy", "Vz"]):
             for vel, data in vels.items():
-                result_ds[vel] = (('epoch', 'sid'), data)
+                result_ds[vel] = (("epoch", "sid"), data)
                 if vel in ds:
                     result_ds[vel].attrs = ds[vel].attrs
 
         return result_ds
 
-    # def _interpolate_sv(self, ds, sv, t_source, t_target, idx, coords, vels):
-    #     """Interpolate a single satellite's data."""
-    #     for coord, vel in [('X', 'Vx'), ('Y', 'Vy'), ('Z', 'Vz')]:
-    #         pos = ds[coord].sel(sid=sv).values
-    #         if vels is not None:
-    #             vel_data = ds[vel].sel(sid=sv).values
-    #             interpolator = CubicHermiteSpline(t_source, pos, vel_data)
-    #             coords[coord][:, idx] = interpolator(t_target)
-    #             vels[vel][:, idx] = interpolator.derivative()(t_target)
-    #         else:
-    #             # Use linear interpolation when no velocities available
-    #             interpolator = interp1d(t_source,
-    #                                     pos,
-    #                                     bounds_error=False,
-    #                                     fill_value='extrapolate')
-    #             coords[coord][:, idx] = interpolator(t_target)
-
-    def _interpolate_sv(
+    def _interpolate_sv(  # noqa: PLR0913
         self,
         ds: xr.Dataset,
         sv: str,
@@ -302,7 +299,7 @@ class Sp3InterpolationStrategy(Interpolator):
         vels: dict[str, np.ndarray] | None,
     ) -> None:
         """Interpolate a single satellite's data."""
-        for coord, vel in [('X', 'Vx'), ('Y', 'Vy'), ('Z', 'Vz')]:
+        for coord, vel in [("X", "Vx"), ("Y", "Vy"), ("Z", "Vz")]:
             pos = ds[coord].sel(sid=sv).values
 
             # Skip if pos is all-NaN
@@ -330,24 +327,29 @@ class Sp3InterpolationStrategy(Interpolator):
                 )
                 coords[coord][:, idx] = interpolator(t_target)
 
-    def _interpolate_positions_only(self, ds: xr.Dataset,
-                                    target_epochs: np.ndarray) -> xr.Dataset:
-        """Simple linear interpolation for positions only."""
-        return ds.interp(epoch=target_epochs,
-                         method=self.config.fallback_method)
+    def _interpolate_positions_only(
+        self,
+        ds: xr.Dataset,
+        target_epochs: np.ndarray,
+    ) -> xr.Dataset:
+        """Perform simple linear interpolation for positions only."""
+        return ds.interp(
+            epoch=target_epochs,
+            method=self.config.fallback_method,
+        )
 
 
 # Example of recreating interpolator from attrs:
 def create_interpolator_from_attrs(attrs: dict[str, Any]) -> Interpolator:
     """Recreate interpolator instance from dataset attributes."""
-    interpolator_type = attrs['interpolator_config']['interpolator_type']
-    config_dict = attrs['interpolator_config']['config']
+    interpolator_type = attrs["interpolator_config"]["interpolator_type"]
+    config_dict = attrs["interpolator_config"]["config"]
 
-    if interpolator_type == 'Sp3InterpolationStrategy':
+    if interpolator_type == "Sp3InterpolationStrategy":
         config = Sp3Config(**config_dict)
         return Sp3InterpolationStrategy(config=config)
-    elif interpolator_type == 'ClockInterpolationStrategy':
+    if interpolator_type == "ClockInterpolationStrategy":
         config = ClockConfig(**config_dict)
         return ClockInterpolationStrategy(config=config)
-    else:
-        raise ValueError(f"Unknown interpolator type: {interpolator_type}")
+    msg = f"Unknown interpolator type: {interpolator_type}"
+    raise ValueError(msg)

@@ -332,12 +332,12 @@ Apache License 2.0
 
 ## Author & Affiliation
 
-**Nicolas F. Bader**  
-Climate and Environmental Remote Sensing Research Unit (CLIMERS)  
-Department of Geodesy and Geoinformation  
-TU Wien (Vienna University of Technology)  
+**Nicolas François Bader**
+Climate and Environmental Remote Sensing Research Unit (CLIMERS)
+Department of Geodesy and Geoinformation
+TU Wien (Vienna University of Technology)
 
-Email: nicolas.bader@geo.tuwien.ac.at  
+Email: nicolas.bader@geo.tuwien.ac.at
 Web: [https://www.tuwien.at/en/mg/geo/climers](https://www.tuwien.at/en/mg/geo/climers)
 
 ## Citation

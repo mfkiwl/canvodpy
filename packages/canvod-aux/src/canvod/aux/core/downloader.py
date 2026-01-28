@@ -5,8 +5,8 @@ import shutil
 from abc import ABC, abstractmethod
 from ftplib import FTP_TLS, error_perm
 from pathlib import Path
-from urllib import request
 from typing import Any
+from urllib import request
 
 from tqdm import tqdm
 
@@ -207,7 +207,7 @@ class FtpDownloader(FileDownloader):
             )
 
         temp_path = destination.with_suffix(destination.suffix + ".tmp")
-        with open(temp_path, "wb") as f:
+        with temp_path.open("wb") as f:
             with tqdm(unit="B", unit_scale=True, desc=destination.name) as pbar:
 
                 def write_callback(data):
@@ -218,7 +218,7 @@ class FtpDownloader(FileDownloader):
                     size = ftps.size(filename)
                     if size:
                         pbar.total = size
-                except:
+                except (OSError, error_perm):
                     pass
 
                 print(f"Retrieving file: {filename}")
@@ -228,7 +228,7 @@ class FtpDownloader(FileDownloader):
 
         if filename.endswith(".gz"):
             with gzip.open(temp_path, "rb") as f_in:
-                with open(destination, "wb") as f_out:
+                with destination.open("wb") as f_out:
                     shutil.copyfileobj(f_in, f_out)
             temp_path.unlink()
         else:

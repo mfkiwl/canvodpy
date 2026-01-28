@@ -9,7 +9,7 @@
             "path": "packages/canvod-utils",
         },
         {
-            "name": "📡 canvod-readers",
+            "name": "🛰️ canvod-readers",
             "path": "packages/canvod-readers",
         },
         {
@@ -25,15 +25,15 @@
             "path": "packages/canvod-vod",
         },
         {
-            "name": "📦 canvod-store",
+            "name": "💾 canvod-store",
             "path": "packages/canvod-store",
         },
         {
-            "name": "📊 canvod-viz",
+            "name": "🖼️ canvod-viz",
             "path": "packages/canvod-viz",
         },
         {
-            "name": "🛰️ canvodpy",
+            "name": "🖥️ canvodpy",
             "path": "canvodpy",
         },
     ],
@@ -100,7 +100,7 @@
             "titleBar.activeBackground": "#215732",
             "titleBar.activeForeground": "#e7e7e7",
             "titleBar.inactiveBackground": "#21573299",
-            "titleBar.inactiveForeground": "#e7e7e799"
+            "titleBar.inactiveForeground": "#e7e7e799",
         },
     },
     "extensions": {

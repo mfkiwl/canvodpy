@@ -1,20 +1,18 @@
 import contextlib
-from datetime import datetime, timedelta, timezone
 import io
 import json
-from pathlib import Path
 import sys
-from typing import Any, Dict, List, Optional, Set, Union
 import warnings
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from typing import Any, Optional
 
 import icechunk
-from icechunk.xarray import to_icechunk
 import numpy as np
 import polars as pl
 import xarray as xr
 import zarr
-from zarr.dtype import VariableLengthUTF8
-
+from canvod.utils.tools import get_version_from_pyproject
 from canvodpy.globals import (
     ICECHUNK_CHUNK_STRATEGIES,
     ICECHUNK_COMPRESSION_ALGORITHM,
@@ -29,9 +27,11 @@ from canvodpy.globals import (
     RINEX_STORE_STRATEGY,
     VOD_STORE_STRATEGY,
 )
-from canvod.store.viewer import add_rich_display_to_store
 from canvodpy.logging.context import get_logger
-from canvod.utils.tools import get_version_from_pyproject
+from icechunk.xarray import to_icechunk
+from zarr.dtype import VariableLengthUTF8
+
+from canvod.store.viewer import add_rich_display_to_store
 
 
 @add_rich_display_to_store
@@ -1070,7 +1070,7 @@ class MyIcechunkStore:
             if isinstance(row.get("end"), str):
                 row["end"] = np.datetime64(row["end"])
             if "written_at" not in row:
-                row["written_at"] = datetime.now(timezone.utc).isoformat()
+                row["written_at"] = datetime.now(UTC).isoformat()
 
         # Prepare the Polars DataFrame
         df = pl.DataFrame(rows)
@@ -1362,7 +1362,7 @@ class MyIcechunkStore:
         set[str]
             Expired snapshot IDs.
         """
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        cutoff = datetime.now(UTC) - timedelta(days=days)
 
         # cutoff = datetime(2025, 10, 3, 16, 44, 1, tzinfo=timezone.utc)
         self._logger.info(
@@ -1638,8 +1638,8 @@ class MyIcechunkStore:
         # Unify chunks if inconsistent
         try:
             ds_original = ds_original.unify_chunks()
-            print(f"      ✓ Unified inconsistent chunks")
-        except:
+            print("      ✓ Unified inconsistent chunks")
+        except (TypeError, ValueError):
             pass  # Chunks are already consistent
 
         print(f"      ✓ Data shape: {dict(ds_original.sizes)}")
@@ -1647,7 +1647,7 @@ class MyIcechunkStore:
         self._logger.info(f"Original chunks: {ds_original.chunks}")
 
         # Rechunk
-        print(f"\n[4/7] Rechunking data...")
+        print("\n[4/7] Rechunking data...")
         ds_rechunked = ds_original.chunk(chunks)
         ds_rechunked = ds_rechunked.unify_chunks()
         print(f"      ✓ New chunks: {ds_rechunked.chunks}")
@@ -1662,11 +1662,11 @@ class MyIcechunkStore:
 
         # Write rechunked data first (overwrites entire group)
         print(f"\n[5/7] Writing rechunked data to branch '{temp_branch}'...")
-        print(f"      This may take several minutes for large datasets...")
+        print("      This may take several minutes for large datasets...")
         with self.writable_session(temp_branch) as session:
             to_icechunk(ds_rechunked, session, group=group_name, mode='w')
             session.commit(f"Wrote rechunked data for {group_name}")
-        print(f"      ✓ Data written successfully")
+        print("      ✓ Data written successfully")
 
         # Copy subgroups after writing rechunked data
         print(f"\n[6/7] Copying subgroups from '{group_name}'...")
@@ -1704,7 +1704,7 @@ class MyIcechunkStore:
                 print(f"      ✓ {subgroup_count} subgroups copied")
             else:
                 snapshot_id = next(self.repo.ancestry(branch=temp_branch)).id
-                print(f"      ✓ No subgroups to copy")
+                print("      ✓ No subgroups to copy")
 
         print(f"      ✓ Snapshot ID: {snapshot_id[:12]}")
         self._logger.info(
@@ -1729,10 +1729,10 @@ class MyIcechunkStore:
             if delete_temp_branch:
                 print(f"      ✓ Deleting temporary branch '{temp_branch}'...")
                 self.delete_branch(temp_branch)
-                print(f"      ✓ Temporary branch deleted")
+                print("      ✓ Temporary branch deleted")
                 self._logger.info(f"Deleted temporary branch '{temp_branch}'")
         else:
-            print(f"\n[7/7] Skipping promotion (promote_to_main=False)")
+            print("\n[7/7] Skipping promotion (promote_to_main=False)")
             print(f"      Rechunked data available on branch '{temp_branch}'")
 
         print(f"\n{'='*60}")
@@ -1783,7 +1783,7 @@ class MyIcechunkStore:
         import matplotlib.pyplot as plt
         import networkx as nx
 
-        G = nx.DiGraph()
+        graph = nx.DiGraph()
 
         # Collect all commits from ancestry
         commits = []
@@ -1801,32 +1801,32 @@ class MyIcechunkStore:
 
         # Add edges (parent → child)
         for c in commits:
-            G.add_node(c["id"], branch=c["branch"], message=c["message"])
+            graph.add_node(c["id"], branch=c["branch"], message=c["message"])
             if c["parent"]:
-                G.add_edge(c["parent"], c["id"])
+                graph.add_edge(c["parent"], c["id"])
 
         # Assign colors per branch
         branches = list(self.repo.list_branches())
         colors = {b: plt.cm.tab10(i % 10) for i, b in enumerate(branches)}
 
         # Layout (topological)
-        pos = nx.spring_layout(G, k=0.5, iterations=200)
+        pos = nx.spring_layout(graph, k=0.5, iterations=200)
 
         # Draw nodes
         for b in branches:
-            nodes = [n for n, d in G.nodes(data=True) if d["branch"] == b]
-            nx.draw_networkx_nodes(G,
+            nodes = [n for n, d in graph.nodes(data=True) if d["branch"] == b]
+            nx.draw_networkx_nodes(graph,
                                    pos,
                                    nodelist=nodes,
                                    node_color=[colors[b]],
                                    label=b)
 
         # Draw edges
-        nx.draw_networkx_edges(G, pos, alpha=0.4, arrows=True)
+        nx.draw_networkx_edges(graph, pos, alpha=0.4, arrows=True)
 
         # Annotate with short IDs
-        labels = {n: n[:6] for n in G.nodes}
-        nx.draw_networkx_labels(G, pos, labels=labels, font_size=8)
+        labels = {n: n[:6] for n in graph.nodes}
+        nx.draw_networkx_labels(graph, pos, labels=labels, font_size=8)
 
         plt.title("Icechunk Commit Graph")
         plt.legend()
@@ -1997,8 +1997,8 @@ class MyIcechunkStore:
 
         # Garbage collection
         if run_gc:
-            from datetime import datetime, timedelta, timezone
-            cutoff = datetime.now(timezone.utc) - timedelta(days=expire_days)
+            from datetime import datetime, timedelta
+            cutoff = datetime.now(UTC) - timedelta(days=expire_days)
             gc_summary = self.repo.garbage_collect(
                 delete_object_older_than=cutoff)
             results["gc_summary"] = {
@@ -2044,7 +2044,7 @@ class MyIcechunkStore:
         from icechunk.xarray import to_icechunk
 
         print(f"\n{'='*60}")
-        print(f"Starting store sanitization")
+        print("Starting store sanitization")
         print(f"{'='*60}\n")
 
         # Step 1: Get current snapshot
@@ -2057,19 +2057,19 @@ class MyIcechunkStore:
         try:
             self.repo.create_branch(temp_branch, current_snapshot)
             print(f"      ✓ Branch '{temp_branch}' created")
-        except Exception as e:
-            print(f"      ⚠ Branch exists, deleting and recreating...")
+        except Exception:
+            print("      ⚠ Branch exists, deleting and recreating...")
             self.delete_branch(temp_branch)
             self.repo.create_branch(temp_branch, current_snapshot)
             print(f"      ✓ Branch '{temp_branch}' created")
 
         # Step 3: Get all groups
-        print(f"\n[3/6] Discovering groups...")
+        print("\n[3/6] Discovering groups...")
         groups = self.list_groups()
         print(f"      ✓ Found {len(groups)} groups: {groups}")
 
         # Step 4: Sanitize each group
-        print(f"\n[4/6] Sanitizing groups...")
+        print("\n[4/6] Sanitizing groups...")
         sanitized_count = 0
 
         for group_name in groups:
@@ -2112,7 +2112,7 @@ class MyIcechunkStore:
                                 zarr.copy(source_group['metadata'],
                                           dest_group,
                                           name='metadata')
-                                print(f"        • Copied metadata subgroup")
+                                print("        • Copied metadata subgroup")
                     except Exception as e:
                         print(f"        ⚠ Could not copy metadata: {e}")
 
@@ -2131,7 +2131,7 @@ class MyIcechunkStore:
         print(f"\n      ✓ Sanitized {sanitized_count}/{len(groups)} groups")
 
         # Step 5: Get final snapshot
-        print(f"\n[5/6] Getting sanitized snapshot...")
+        print("\n[5/6] Getting sanitized snapshot...")
         sanitized_snapshot = next(self.repo.ancestry(branch=temp_branch)).id
         print(f"      ✓ Snapshot: {sanitized_snapshot[:12]}")
 
@@ -2146,13 +2146,13 @@ class MyIcechunkStore:
             if delete_temp_branch:
                 print(f"      ✓ Deleting temporary branch '{temp_branch}'...")
                 self.delete_branch(temp_branch)
-                print(f"      ✓ Temporary branch deleted")
+                print("      ✓ Temporary branch deleted")
         else:
-            print(f"\n[6/6] Skipping promotion (promote_to_main=False)")
+            print("\n[6/6] Skipping promotion (promote_to_main=False)")
             print(f"      Sanitized data available on branch '{temp_branch}'")
 
         print(f"\n{'='*60}")
-        print(f"✓ Sanitization complete")
+        print("✓ Sanitization complete")
         print(f"{'='*60}\n")
 
         return sanitized_snapshot

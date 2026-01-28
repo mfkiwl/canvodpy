@@ -1,4 +1,4 @@
-"""canvodpy: GNSS Vegetation Optical Depth Analysis
+"""canvodpy: GNSS Vegetation Optical Depth Analysis.
 
 A modern Python package for processing GNSS data and calculating
 vegetation optical depth (VOD) using the tau-omega model.
@@ -56,62 +56,55 @@ Calculate and visualize VOD:
     >>> vod = calculate_vod("Rosalia", "canopy_01", "reference_01", "2025001")
     >>> viz = HemisphereVisualizer()
     >>> fig = viz.plot_2d(vod)
+
 """
 
-__version__ = "0.1.0"
-
-# ============================================================================
-# Level 1 & 2 API: High-level user interface
-# ============================================================================
+import contextlib
 
 from canvodpy.api import (
-    # Classes
-    Site,
     Pipeline,
-    # Convenience functions
-    process_date,
+    Site,
     calculate_vod,
     preview_processing,
+    process_date,
 )
+from canvodpy.globals import KEEP_RNX_VARS
+from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
 
 # ============================================================================
 # Level 3 API: Re-export subpackages for advanced users
 # ============================================================================
 
 # Import subpackages (but don't expose everything in __all__)
-try:
-    from canvod import readers, aux, grids, vod, viz, store
-except ImportError:
-    # Subpackages not installed - that's okay
-    pass
+with contextlib.suppress(ImportError):
+    from canvod import aux, grids, readers, store, viz, vod
 
 # ============================================================================
-# Configuration and utilities
+# Version
 # ============================================================================
 
-from canvodpy.globals import KEEP_RNX_VARS
-from canvodpy.research_sites_config import RESEARCH_SITES, DEFAULT_RESEARCH_SITE
+__version__ = "0.1.0"
 
 # ============================================================================
 # Public API
 # ============================================================================
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     # Version
     "__version__",
-    
+
     # High-level API (most users)
     "Site",
     "Pipeline",
     "process_date",
     "calculate_vod",
     "preview_processing",
-    
+
     # Configuration (useful for all users)
     "KEEP_RNX_VARS",
     "RESEARCH_SITES",
     "DEFAULT_RESEARCH_SITE",
-    
+
     # Subpackages (advanced users)
     "readers",
     "aux",

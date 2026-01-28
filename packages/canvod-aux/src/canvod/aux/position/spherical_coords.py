@@ -61,15 +61,15 @@ def compute_spherical_coordinates(
     Examples
     --------
     >>> from canvod.aux.position import ECEFPosition, compute_spherical_coordinates
-    >>> 
+    >>>
     >>> # Receiver position
     >>> rx = ECEFPosition(x=4194304.0, y=176481.0, z=4780013.0)
-    >>> 
+    >>>
     >>> # Satellite positions (example)
     >>> sat_x = np.array([16364123.0, 10205789.0])
     >>> sat_y = np.array([12123456.0, -8901234.0])
     >>> sat_z = np.array([18456789.0, 21234567.0])
-    >>> 
+    >>>
     >>> r, theta, phi = compute_spherical_coordinates(sat_x, sat_y, sat_z, rx)
     >>> print(f"Distance: {r[0]/1e6:.2f} Mm")
     >>> print(f"Polar angle: {np.degrees(theta[0]):.1f}°")
@@ -142,7 +142,7 @@ def add_spherical_coords_to_dataset(
     --------
     >>> # After computing spherical coordinates
     >>> r, theta, phi = compute_spherical_coordinates(sat_x, sat_y, sat_z, rx_pos)
-    >>> 
+    >>>
     >>> # Add to RINEX dataset
     >>> augmented_ds = add_spherical_coords_to_dataset(rinex_ds, r, theta, phi)
     >>> print(augmented_ds.phi.attrs['description'])

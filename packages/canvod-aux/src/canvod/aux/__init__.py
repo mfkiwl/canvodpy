@@ -106,8 +106,10 @@ __all__ = [
 
 # Try to import pipeline (requires gnssvodpy)
 try:
-    from canvod.aux.pipeline import AuxDataPipeline
-    __all__.append("AuxDataPipeline")
+    from canvod.aux.pipeline import AuxDataPipeline as _AuxDataPipeline
+
+    __all__.append(_AuxDataPipeline.__name__)
+    globals()[_AuxDataPipeline.__name__] = _AuxDataPipeline
 except ImportError:
     pass
 
@@ -120,12 +122,16 @@ try:
         ClockCorrectionAugmentation,
         SphericalCoordinateAugmentation,
     )
-    __all__.extend([
-        "AuxDataAugmenter",
-        "AugmentationStep",
-        "AugmentationContext",
-        "SphericalCoordinateAugmentation",
-        "ClockCorrectionAugmentation",
-    ])
+
+    _AUGMENTATION_EXPORTS = (
+        AuxDataAugmenter,
+        AugmentationStep,
+        AugmentationContext,
+        SphericalCoordinateAugmentation,
+        ClockCorrectionAugmentation,
+    )
+    __all__.extend([obj.__name__ for obj in _AUGMENTATION_EXPORTS])
+    for obj in _AUGMENTATION_EXPORTS:
+        globals()[obj.__name__] = obj
 except ImportError:
     pass

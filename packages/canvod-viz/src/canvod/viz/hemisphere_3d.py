@@ -9,9 +9,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import plotly.graph_objects as go
-from plotly.colors import sample_colorscale
-
 from canvod.viz.styles import PlotStyle
+from plotly.colors import sample_colorscale
 
 if TYPE_CHECKING:
     from canvod.grids import HemiGrid
@@ -37,8 +36,9 @@ class HemisphereVisualizer3D:
     >>> viz = HemisphereVisualizer3D(grid)
     >>> fig = viz.plot_hemisphere_surface(data=vod_data, title="Interactive VOD")
     >>> fig.show()
+
     """
-    
+
     def __init__(self, grid: HemiGrid):
         """Initialize 3D hemisphere visualizer.
         
@@ -46,15 +46,16 @@ class HemisphereVisualizer3D:
         ----------
         grid : HemiGrid
             Hemisphere grid to visualize
+
         """
         self.grid = grid
-    
+
     def plot_hemisphere_surface(
         self,
         data: np.ndarray | None = None,
         style: PlotStyle | None = None,
         title: str | None = None,
-        colorscale: str = 'Viridis',
+        colorscale: str = "Viridis",
         opacity: float = 0.8,
         show_wireframe: bool = True,
         show_colorbar: bool = True,
@@ -101,6 +102,7 @@ class HemisphereVisualizer3D:
         ...     opacity=0.9
         ... )
         >>> fig.write_html("vod_3d.html")
+
         """
         # Initialize style
         if style is None:
@@ -108,76 +110,76 @@ class HemisphereVisualizer3D:
             colorscale = colorscale  # Use parameter
         else:
             colorscale = style.colorscale
-        
+
         # Get cell centers in 3D
         theta = np.array([cell.theta for cell in self.grid.cells])
         phi = np.array([cell.phi for cell in self.grid.cells])
-        
+
         # Convert to 3D Cartesian coordinates
         x = np.sin(theta) * np.cos(phi)
         y = np.sin(theta) * np.sin(phi)
         z = np.cos(theta)
-        
+
         # Prepare data values
         if data is None:
             values = np.ones(len(self.grid.cells)) * 0.5
         else:
             values = data
-        
+
         # Filter hemisphere only
         hemisphere_mask = theta <= np.pi / 2
         x = x[hemisphere_mask]
         y = y[hemisphere_mask]
         z = z[hemisphere_mask]
         values = values[hemisphere_mask]
-        
+
         # Create scatter3d trace
         trace = go.Scatter3d(
             x=x,
             y=y,
             z=z,
-            mode='markers',
+            mode="markers",
             marker=dict(
                 size=6,
                 color=values,
                 colorscale=colorscale,
                 opacity=opacity,
-                colorbar=dict(title='Value') if show_colorbar else None,
+                colorbar=dict(title="Value") if show_colorbar else None,
                 cmin=np.nanmin(values),
                 cmax=np.nanmax(values),
             ),
-            text=[f'Cell {i}<br>Value: {v:.3f}' for i, v in enumerate(values)],
-            hoverinfo='text',
+            text=[f"Cell {i}<br>Value: {v:.3f}" for i, v in enumerate(values)],
+            hoverinfo="text",
             **kwargs
         )
-        
+
         fig = go.Figure(data=[trace])
-        
+
         # Apply layout
         layout_config = style.to_plotly_layout() if style else {}
         layout_config.update({
-            'title': title or 'Hemisphere 3D',
-            'scene': dict(
-                aspectmode='data',
-                xaxis=dict(title='East', showbackground=False),
-                yaxis=dict(title='North', showbackground=False),
-                zaxis=dict(title='Up', showbackground=False),
-                bgcolor=layout_config.get('plot_bgcolor', 'white')
+            "title": title or "Hemisphere 3D",
+            "scene": dict(
+                aspectmode="data",
+                xaxis=dict(title="East", showbackground=False),
+                yaxis=dict(title="North", showbackground=False),
+                zaxis=dict(title="Up", showbackground=False),
+                bgcolor=layout_config.get("plot_bgcolor", "white")
             ),
-            'width': width,
-            'height': height,
-            'margin': dict(l=0, r=0, b=0, t=40),
+            "width": width,
+            "height": height,
+            "margin": dict(l=0, r=0, b=0, t=40),
         })
-        
+
         fig.update_layout(**layout_config)
-        
+
         return fig
-    
+
     def plot_hemisphere_scatter(
         self,
         data: np.ndarray | None = None,
         title: str | None = None,
-        colorscale: str = 'Viridis',
+        colorscale: str = "Viridis",
         marker_size: int | np.ndarray = 6,
         opacity: float = 0.8,
         width: int = 800,
@@ -206,6 +208,7 @@ class HemisphereVisualizer3D:
         -------
         plotly.graph_objects.Figure
             Interactive scatter plot
+
         """
         # Create figure using parent method, updating marker size
         fig = self.plot_hemisphere_surface(
@@ -216,18 +219,18 @@ class HemisphereVisualizer3D:
             width=width,
             height=height
         )
-        
+
         # Update marker size if different from default
         if marker_size != 6:
             fig.data[0].marker.size = marker_size
-        
+
         return fig
-    
+
     def plot_cell_mesh(
         self,
         data: np.ndarray | None = None,
         title: str | None = None,
-        colorscale: str = 'Viridis',
+        colorscale: str = "Viridis",
         opacity: float = 0.7,
         show_edges: bool = True,
         width: int = 800,
@@ -261,35 +264,36 @@ class HemisphereVisualizer3D:
         -----
         This method requires grid cells with vertex information.
         Currently supports HTM and geodesic grids.
+
         """
         traces = []
-        
+
         # Prepare data
         if data is None:
             values = np.ones(len(self.grid.cells)) * 0.5
         else:
             values = data
-        
+
         # Sample colorscale
         colors = sample_colorscale(
             colorscale,
             [v / (np.nanmax(values) - np.nanmin(values)) for v in values]
         )
-        
+
         # Create mesh for each cell
         for idx, cell in enumerate(self.grid.cells):
             if cell.htm_vertices is None:
                 continue
-            
+
             vertices = cell.htm_vertices
             if vertices.shape[0] != 3:
                 continue  # Skip non-triangular cells
-            
+
             # Check hemisphere
             z_coords = vertices[:, 2]
             if np.all(z_coords < 0):
                 continue
-            
+
             # Create triangle mesh
             trace = go.Mesh3d(
                 x=vertices[:, 0],
@@ -302,42 +306,42 @@ class HemisphereVisualizer3D:
                 opacity=opacity,
                 flatshading=True,
                 showscale=False,
-                hoverinfo='skip'
+                hoverinfo="skip"
             )
             traces.append(trace)
-        
+
         # Add colorbar trace
         if values is not None and len(traces) > 0:
             dummy_trace = go.Scatter3d(
                 x=[None],
                 y=[None],
                 z=[None],
-                mode='markers',
+                mode="markers",
                 marker=dict(
                     size=0.1,
                     color=[np.nanmin(values), np.nanmax(values)],
                     colorscale=colorscale,
-                    colorbar=dict(title='Value'),
+                    colorbar=dict(title="Value"),
                 ),
                 showlegend=False,
-                hoverinfo='skip'
+                hoverinfo="skip"
             )
             traces.append(dummy_trace)
-        
+
         fig = go.Figure(data=traces)
-        
+
         # Update layout
         fig.update_layout(
-            title=title or 'Hemisphere Mesh 3D',
+            title=title or "Hemisphere Mesh 3D",
             scene=dict(
-                aspectmode='data',
-                xaxis=dict(title='East', showbackground=False),
-                yaxis=dict(title='North', showbackground=False),
-                zaxis=dict(title='Up', showbackground=False),
+                aspectmode="data",
+                xaxis=dict(title="East", showbackground=False),
+                yaxis=dict(title="North", showbackground=False),
+                zaxis=dict(title="Up", showbackground=False),
             ),
             width=width,
             height=height,
             margin=dict(l=0, r=0, b=0, t=40),
         )
-        
+
         return fig

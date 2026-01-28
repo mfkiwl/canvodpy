@@ -30,11 +30,16 @@ Unified API::
     viz = HemisphereVisualizer(grid)
     fig_2d, ax_2d = viz.plot_2d(data=vod_data)
     fig_3d = viz.plot_3d(data=vod_data)
+
 """
 
 from canvod.viz.hemisphere_2d import HemisphereVisualizer2D, PolarPlotStyle
 from canvod.viz.hemisphere_3d import HemisphereVisualizer3D
-from canvod.viz.styles import PlotStyle, create_publication_style, create_interactive_style
+from canvod.viz.styles import (
+    PlotStyle,
+    create_interactive_style,
+    create_publication_style,
+)
 from canvod.viz.visualizer import HemisphereVisualizer
 
 __version__ = "0.1.0"

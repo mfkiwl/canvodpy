@@ -105,10 +105,10 @@ class Sp3InterpolationStrategy(Interpolator):
     Examples
     --------
     >>> from canvod.aux.interpolation import Sp3InterpolationStrategy, Sp3Config
-    >>> 
+    >>>
     >>> config = Sp3Config(use_velocities=True, fallback_method='linear')
     >>> interpolator = Sp3InterpolationStrategy(config=config)
-    >>> 
+    >>>
     >>> # Interpolate to RINEX epochs
     >>> sp3_interp = interpolator.interpolate(sp3_data, rinex_epochs)
     """
@@ -258,10 +258,10 @@ class ClockInterpolationStrategy(Interpolator):
     Examples
     --------
     >>> from canvod.aux.interpolation import ClockInterpolationStrategy, ClockConfig
-    >>> 
+    >>>
     >>> config = ClockConfig(window_size=9, jump_threshold=1e-6)
     >>> interpolator = ClockInterpolationStrategy(config=config)
-    >>> 
+    >>>
     >>> # Interpolate to RINEX epochs
     >>> clk_interp = interpolator.interpolate(clk_data, rinex_epochs)
     """
@@ -406,7 +406,7 @@ def create_interpolator_from_attrs(attrs: dict[str, Any]) -> Interpolator:
     --------
     >>> # Save interpolator config in dataset
     >>> ds.attrs['interpolator_config'] = interpolator.to_attrs()
-    >>> 
+    >>>
     >>> # Later, recreate interpolator
     >>> interpolator = create_interpolator_from_attrs(ds.attrs)
     """

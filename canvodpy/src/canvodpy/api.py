@@ -23,22 +23,21 @@ Level 3 - Low-level (full control):
     >>> from canvod.store import GnssResearchSite
     >>> from canvodpy.processor.pipeline_orchestrator import PipelineOrchestrator
     >>> # Direct access to internals
+
 """
 
 from __future__ import annotations
 
-from collections.abc import Generator
-from pathlib import Path
-from typing import TYPE_CHECKING, Literal
-
-import xarray as xr
+from typing import TYPE_CHECKING
 
 # Lazy imports to avoid circular dependencies
-if TYPE_CHECKING:
-    from canvod.store import GnssResearchSite as _GnssResearchSite
-    from canvod.vod import VODCalculator as _VODCalculator
-
 from canvodpy.globals import KEEP_RNX_VARS
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    import xarray as xr
+    from canvod.store import MyIcechunkStore
 
 
 class Site:
@@ -78,11 +77,12 @@ class Site:
 
     >>> # Access stores
     >>> site.rinex_store.list_groups()
+
     """
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str) -> None:  # noqa: D107
         # Lazy import to avoid circular dependency
-        from canvod.store import GnssResearchSite
+        from canvod.store import GnssResearchSite  # noqa: PLC0415
 
         # Use proven implementation
         self._site = GnssResearchSite(name)
@@ -104,12 +104,12 @@ class Site:
         return self._site.active_vod_analyses
 
     @property
-    def rinex_store(self):
+    def rinex_store(self) -> MyIcechunkStore:
         """Access RINEX data store."""
         return self._site.rinex_store
 
     @property
-    def vod_store(self):
+    def vod_store(self) -> MyIcechunkStore:
         """Access VOD results store."""
         return self._site.vod_store
 
@@ -118,7 +118,7 @@ class Site:
         keep_vars: list[str] | None = None,
         aux_agency: str = "COD",
         n_workers: int = 12,
-        dry_run: bool = False,
+        dry_run: bool = False,  # noqa: FBT001, FBT002
     ) -> Pipeline:
         """Create a processing pipeline for this site.
 
@@ -143,6 +143,7 @@ class Site:
         >>> site = Site("Rosalia")
         >>> pipeline = site.pipeline(aux_agency="ESA", n_workers=8)
         >>> data = pipeline.process_date("2025001")
+
         """
         return Pipeline(
             site=self,
@@ -152,12 +153,12 @@ class Site:
             dry_run=dry_run,
         )
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str:  # noqa: D105
         n_receivers = len(self.active_receivers)
         n_analyses = len(self.vod_analyses)
         return f"Site('{self.name}', receivers={n_receivers}, analyses={n_analyses})"
 
-    def __str__(self) -> str:
+    def __str__(self) -> str:  # noqa: D105
         return f"GNSS Site: {self.name}"
 
 
@@ -195,15 +196,16 @@ class Pipeline:
     >>> # Process range
     >>> for date, datasets in pipeline.process_range("2025001", "2025007"):
     ...     print(f"Processed {date}")
+
     """
-    
-    def __init__(
+
+    def __init__(  # noqa: D107
         self,
         site: Site | str,
         keep_vars: list[str] | None = None,
         aux_agency: str = "COD",
         n_workers: int = 12,
-        dry_run: bool = False,
+        dry_run: bool = False,  # noqa: FBT001, FBT002
     ) -> None:
         # Handle both Site object and string
         if isinstance(site, str):
@@ -216,15 +218,15 @@ class Pipeline:
         self.dry_run = dry_run
 
         # Lazy import to avoid circular dependency
-        from canvodpy.orchestrator import PipelineOrchestrator
+        from canvodpy.orchestrator import PipelineOrchestrator  # noqa: PLC0415
 
         # Use proven orchestrator implementation
         self._orchestrator = PipelineOrchestrator(
-            site=site._site,  # Pass internal GnssResearchSite
+            site=site._site,  # noqa: SLF001
             n_max_workers=n_workers,
             dry_run=dry_run,
         )
-    
+
     def process_date(self, date: str) -> dict[str, xr.Dataset]:
         """Process RINEX data for one date.
 
@@ -249,9 +251,10 @@ class Pipeline:
         >>> canopy_data = data['canopy_01']
         >>> print(canopy_data.dims)
         Dimensions: (epoch: 2880, sv: 32, ...)
+
         """
         # Use proven orchestrator logic
-        for date_key, datasets, _timing in self._orchestrator.process_by_date(
+        for _date_key, datasets, _timing in self._orchestrator.process_by_date(
             keep_vars=self.keep_vars,
             start_from=date,
             end_at=date,
@@ -287,6 +290,7 @@ class Pipeline:
         Processed 2025001: 3 receivers
         Processed 2025002: 3 receivers
         ...
+
         """
         # Use proven orchestrator logic
         for date_key, datasets, _timing in self._orchestrator.process_by_date(
@@ -324,18 +328,19 @@ class Pipeline:
         >>> vod = pipeline.calculate_vod("canopy_01", "reference_01", "2025001")
         >>> print(vod.vod.mean().values)
         0.42
+
         """
         # Load processed data from stores
         canopy_data = self.site.rinex_store.read_group(canopy, date=date)
         ref_data = self.site.rinex_store.read_group(reference, date=date)
-        
+
         # Lazy import to avoid circular dependency
-        from canvod.vod import VODCalculator
-        
+        from canvod.vod import VODCalculator  # noqa: PLC0415
+
         # Use proven VOD calculator
         calculator = VODCalculator()
         vod_results = calculator.compute(canopy_data, ref_data)
-        
+
         # Store results
         analysis_name = f"{canopy}_vs_{reference}"
         self.site.vod_store.write_group(analysis_name, vod_results)
@@ -355,10 +360,11 @@ class Pipeline:
         >>> pipeline = Pipeline("Rosalia")
         >>> plan = pipeline.preview()
         >>> print(f"Total files: {plan['total_files']}")
+
         """
         return self._orchestrator.preview_processing_plan()
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str:  # noqa: D105
         return (
             f"Pipeline(site='{self.site.name}', "
             f"keep_vars={len(self.keep_vars)} vars, "
@@ -407,7 +413,7 @@ def process_date(
     >>> data = process_date("Rosalia", "2025001")
     >>> print(data.keys())
     dict_keys(['canopy_01', 'canopy_02', 'reference_01'])
-    
+
     >>> # With custom settings
     >>> data = process_date(
     ...     "Rosalia",
@@ -415,6 +421,7 @@ def process_date(
     ...     keep_vars=["C1C", "L1C"],
     ...     aux_agency="ESA"
     ... )
+
     """
     pipeline = Pipeline(
         site=site,
@@ -425,7 +432,7 @@ def process_date(
     return pipeline.process_date(date)
 
 
-def calculate_vod(
+def calculate_vod(  # noqa: PLR0913
     site: str,
     canopy: str,
     reference: str,
@@ -469,6 +476,7 @@ def calculate_vod(
     ... )
     >>> print(vod.vod.mean().values)
     0.42
+
     """
     pipeline = Pipeline(
         site=site,
@@ -497,6 +505,7 @@ def preview_processing(site: str) -> dict:
     >>> plan = preview_processing("Rosalia")
     >>> print(f"Total files: {plan['total_files']}")
     Total files: 8640
+
     """
     pipeline = Pipeline(site, dry_run=True)
     return pipeline.preview()

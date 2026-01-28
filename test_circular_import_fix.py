@@ -5,8 +5,8 @@ from pathlib import Path
 
 # Add both packages to path
 root = Path(__file__).parent
-sys.path.insert(0, str(root / 'packages' / 'canvod-store' / 'src'))
-sys.path.insert(0, str(root / 'canvodpy' / 'src'))
+sys.path.insert(0, str(root / "packages" / "canvod-store" / "src"))
+sys.path.insert(0, str(root / "canvodpy" / "src"))
 
 print("Testing circular import fix...")
 print("=" * 60)
@@ -24,7 +24,7 @@ except ImportError as e:
 
 # Test 2: Only when we instantiate Site should it import canvod.store
 print("\n2. Check that canvod.store is NOT yet imported")
-if 'canvod.store' in sys.modules:
+if "canvod.store" in sys.modules:
     print("❌ canvod.store was imported too early (circular dependency still exists)")
     sys.exit(1)
 else:
@@ -37,7 +37,7 @@ try:
     # if the import statement itself works
     from canvodpy.api import Site
     print("✅ Site class can be imported")
-    
+
     # Try to create instance (will fail due to missing deps, but that's OK)
     try:
         site = Site("Rosalia")
@@ -48,7 +48,7 @@ try:
             print(f"⚠️  Site instantiation failed (expected due to missing deps): {type(e).__name__}")
         else:
             print(f"❌ Unexpected error: {e}")
-            
+
 except ImportError as e:
     if "circular import" in str(e).lower():
         print(f"❌ CIRCULAR IMPORT STILL EXISTS: {e}")

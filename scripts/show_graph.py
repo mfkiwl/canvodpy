@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Generate simple ASCII dependency graph."""
 
-import tomllib
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
+
+import tomllib
 
 root = Path(__file__).parent.parent
 packages_dir = root / "packages"
@@ -17,13 +18,13 @@ for pkg_dir in packages_dir.iterdir():
     pyproject = pkg_dir / "pyproject.toml"
     if not pyproject.exists():
         continue
-    
+
     with open(pyproject, "rb") as f:
         data = tomllib.load(f)
-    
+
     pkg_name = data.get("project", {}).get("name", pkg_dir.name)
     deps = data.get("project", {}).get("dependencies", [])
-    
+
     for dep in deps:
         dep_name = dep.split("[")[0].split(">")[0].split("=")[0].split("<")[0].strip()
         if dep_name.startswith("canvod-"):
@@ -36,7 +37,7 @@ print()
 
 # Foundation packages (no dependencies)
 foundation = [pkg for pkg in sorted(dependencies.keys()) if not dependencies[pkg]]
-foundation += [pkg_dir.name for pkg_dir in packages_dir.iterdir() 
+foundation += [pkg_dir.name for pkg_dir in packages_dir.iterdir()
                if pkg_dir.is_dir() and (pkg_dir / "pyproject.toml").exists()
                and pkg_dir.name not in dependencies]
 

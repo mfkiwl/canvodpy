@@ -8,9 +8,10 @@ must implement to ensure compatibility with downstream pipeline:
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import ClassVar
 
 import xarray as xr
 from pydantic import BaseModel, ConfigDict
@@ -25,6 +26,7 @@ class DatasetStructureValidator(BaseModel):
     Notes
     -----
     This is a Pydantic `BaseModel` with `arbitrary_types_allowed=True`.
+
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -42,11 +44,13 @@ class DatasetStructureValidator(BaseModel):
         ------
         ValueError
             If required dimensions (epoch, sid) are missing.
+
         """
         required_dims = {"epoch", "sid"}
         missing_dims = required_dims - set(self.dataset.dims)
         if missing_dims:
-            raise ValueError(f"Missing required dimensions: {missing_dims}")
+            msg = f"Missing required dimensions: {missing_dims}"
+            raise ValueError(msg)
 
     def validate_coordinates(self) -> None:
         """Validate required coordinates exist and have correct types.
@@ -59,6 +63,7 @@ class DatasetStructureValidator(BaseModel):
         ------
         ValueError
             If required coordinates are missing or have incorrect dtypes.
+
         """
         required_coords = {
             "epoch": "datetime64[ns]",
@@ -74,7 +79,8 @@ class DatasetStructureValidator(BaseModel):
 
         for coord, expected_dtype in required_coords.items():
             if coord not in self.dataset.coords:
-                raise ValueError(f"Missing required coordinate: {coord}")
+                msg = f"Missing required coordinate: {coord}"
+                raise ValueError(msg)
 
             actual_dtype = str(self.dataset[coord].dtype)
             if expected_dtype == "object":
@@ -82,12 +88,17 @@ class DatasetStructureValidator(BaseModel):
                 if actual_dtype not in [
                         "object"
                 ] and not actual_dtype.startswith("<U"):
-                    raise ValueError(f"Coordinate {coord} has wrong dtype: "
-                                     f"expected string, got {actual_dtype}")
+                    msg = (
+                        f"Coordinate {coord} has wrong dtype: "
+                        f"expected string, got {actual_dtype}"
+                    )
+                    raise ValueError(msg)
             elif expected_dtype not in actual_dtype:
-                raise ValueError(
+                msg = (
                     f"Coordinate {coord} has wrong dtype: "
-                    f"expected {expected_dtype}, got {actual_dtype}")
+                    f"expected {expected_dtype}, got {actual_dtype}"
+                )
+                raise ValueError(msg)
 
     def validate_data_variables(self, required_vars: list[str] | None = None
                                 ) -> None:
@@ -106,6 +117,7 @@ class DatasetStructureValidator(BaseModel):
         ------
         ValueError
             If required variables are missing or have incorrect dimensions.
+
         """
         if required_vars is None:
             # Minimum required for VOD calculation
@@ -113,17 +125,19 @@ class DatasetStructureValidator(BaseModel):
 
         missing_vars = set(required_vars) - set(self.dataset.data_vars)
         if missing_vars:
-            raise ValueError(
-                f"Missing required data variables: {missing_vars}")
+            msg = f"Missing required data variables: {missing_vars}"
+            raise ValueError(msg)
 
         # Validate all data vars have (epoch, sid) dimensions
         for var in self.dataset.data_vars:
             expected_dims = ("epoch", "sid")
             actual_dims = self.dataset[var].dims
             if actual_dims != expected_dims:
-                raise ValueError(
+                msg = (
                     f"Data variable {var} has wrong dimensions: "
-                    f"expected {expected_dims}, got {actual_dims}")
+                    f"expected {expected_dims}, got {actual_dims}"
+                )
+                raise ValueError(msg)
 
     def validate_attributes(self) -> None:
         """Validate required global attributes for storage.
@@ -137,6 +151,7 @@ class DatasetStructureValidator(BaseModel):
         ValueError
             If required attributes (Created, Software, Institution,
             RINEX File Hash) are missing.
+
         """
         required_attrs = {
             "Created",
@@ -147,7 +162,8 @@ class DatasetStructureValidator(BaseModel):
 
         missing_attrs = required_attrs - set(self.dataset.attrs.keys())
         if missing_attrs:
-            raise ValueError(f"Missing required attributes: {missing_attrs}")
+            msg = f"Missing required attributes: {missing_attrs}"
+            raise ValueError(msg)
 
     def validate_all(self, required_vars: list[str] | None = None) -> None:
         """Run all validations.
@@ -165,6 +181,7 @@ class DatasetStructureValidator(BaseModel):
         ------
         ValueError
             If any validation fails.
+
         """
         self.validate_dimensions()
         self.validate_coordinates()
@@ -201,6 +218,7 @@ class GNSSDataReader(ABC):
     -----
     This class uses ``ABC`` and defines abstract methods and properties
     for reader implementations.
+
     """
 
     # Note: fpath is not @abstractmethod because Pydantic models define it as a field
@@ -223,9 +241,11 @@ class GNSSDataReader(ABC):
         """
 
     @abstractmethod
-    def to_ds(self,
-              keep_rnx_data_vars: list[str] | None = None,
-              **kwargs: Any) -> xr.Dataset:
+    def to_ds(
+        self,
+        keep_rnx_data_vars: list[str] | None = None,
+        **kwargs: object,
+    ) -> xr.Dataset:
         """Convert data to xarray.Dataset.
 
         Must return Dataset with structure:
@@ -249,7 +269,7 @@ class GNSSDataReader(ABC):
         """
 
     @abstractmethod
-    def iter_epochs(self) -> Any:
+    def iter_epochs(self) -> Iterator[object]:
         """Iterate over epochs in the file.
 
         Returns
@@ -301,6 +321,7 @@ class GNSSDataReader(ABC):
         -------
         datetime
             First observation timestamp in the file.
+
         """
 
     @property
@@ -312,6 +333,7 @@ class GNSSDataReader(ABC):
         -------
         datetime
             Last observation timestamp in the file.
+
         """
 
     @property
@@ -335,6 +357,7 @@ class GNSSDataReader(ABC):
         -------
         int
             Total number of observation epochs.
+
         """
 
     @property
@@ -346,10 +369,11 @@ class GNSSDataReader(ABC):
         -------
         int
             Count of unique satellite vehicles across all systems.
+
         """
 
     def __repr__(self) -> str:
-        """String representation."""
+        """Return the string representation."""
         return (f"{self.__class__.__name__}("
                 f"file='{self.fpath.name}', "
                 f"systems={self.systems}, "
@@ -373,7 +397,7 @@ class ReaderFactory:
 
     """
 
-    _readers: dict[str, type] = {}
+    _readers: ClassVar[dict[str, type]] = {}
 
     @classmethod
     def register(cls, format_name: str, reader_class: type) -> None:
@@ -394,13 +418,19 @@ class ReaderFactory:
         ------
         TypeError
             If reader_class does not inherit from GNSSDataReader.
+
         """
         if not issubclass(reader_class, GNSSDataReader):
-            raise TypeError(f"{reader_class} must inherit from GNSSDataReader")
+            msg = f"{reader_class} must inherit from GNSSDataReader"
+            raise TypeError(msg)
         cls._readers[format_name] = reader_class
 
     @classmethod
-    def create(cls, fpath: Path | str, **kwargs) -> GNSSDataReader:
+    def create(
+        cls,
+        fpath: Path | str,
+        **kwargs: object,
+    ) -> GNSSDataReader:
         """Create appropriate reader for file.
 
         Parameters
@@ -424,15 +454,18 @@ class ReaderFactory:
         fpath = Path(fpath)
 
         if not fpath.exists():
-            raise FileNotFoundError(f"File not found: {fpath}")
+            msg = f"File not found: {fpath}"
+            raise FileNotFoundError(msg)
 
         # Detect format from file
         format_name = cls._detect_format(fpath)
 
         if format_name not in cls._readers:
-            raise ValueError(
+            msg = (
                 f"No reader registered for format: {format_name}. "
-                f"Available: {list(cls._readers.keys())}")
+                f"Available: {list(cls._readers.keys())}"
+            )
+            raise ValueError(msg)
 
         reader_class = cls._readers[format_name]
         return reader_class(fpath=fpath, **kwargs)
@@ -453,21 +486,27 @@ class ReaderFactory:
 
         """
         # Check RINEX version from first line
-        with open(fpath) as f:
+        with fpath.open() as f:
             first_line = f.readline()
 
         # RINEX version is in columns 1-9
         try:
             version_str = first_line[:9].strip()
             version = float(version_str)
-
-            if 3.0 <= version < 4.0:
-                return "rinex_v3"
-            if 2.0 <= version < 3.0:
-                return "rinex_v2"
-            raise ValueError(f"Unsupported RINEX version: {version}")
         except (ValueError, IndexError) as e:
-            raise ValueError(f"Cannot determine file format: {e}")
+            msg = f"Cannot determine file format: {e}"
+            raise ValueError(msg) from e
+
+        rinex_v2_min = 2.0
+        rinex_v3_min = 3.0
+        rinex_v4_min = 4.0
+
+        if rinex_v3_min <= version < rinex_v4_min:
+            return "rinex_v3"
+        if rinex_v2_min <= version < rinex_v3_min:
+            return "rinex_v2"
+        msg = f"Unsupported RINEX version: {version}"
+        raise ValueError(msg)
 
     @classmethod
     def list_formats(cls) -> list[str]:
@@ -477,6 +516,7 @@ class ReaderFactory:
         -------
         list of str
             Registered format identifiers.
+
         """
         return list(cls._readers.keys())
 
@@ -486,10 +526,9 @@ GNSSReader = GNSSDataReader
 RinexReader = GNSSDataReader
 
 __all__ = [
-    "GNSSDataReader",
     "DatasetStructureValidator",
-    "ReaderFactory",
-    # Backwards compatibility
+    "GNSSDataReader",
     "GNSSReader",
+    "ReaderFactory",
     "RinexReader",
 ]

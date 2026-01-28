@@ -5,7 +5,7 @@ description = "Umbrella package for canVOD ecosystem"
 readme = "README.md"
 requires-python = ">=3.13"
 authors = [
-    { name = "Nicolas F. Bader", email = "nicolas.bader@tuwien.ac.at" },
+    { name = "Nicolas François Bader", email = "nicolas.bader@tuwien.ac.at" },
 ]
 keywords = ["GNSS", "VOD", "vegetation", "remote sensing", "geodesy"]
 classifiers = [

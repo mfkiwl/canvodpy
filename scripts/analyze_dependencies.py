@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Dependency Graph Analyzer for canVODpy Monorepo
+"""Dependency Graph Analyzer for canVODpy Monorepo
 
 Analyzes package dependencies to:
 1. Generate visual dependency graphs (Mermaid, Graphviz)
@@ -16,10 +15,10 @@ Usage:
 """
 
 import argparse
-import tomllib
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+
+import tomllib
 
 
 class DependencyAnalyzer:
@@ -27,9 +26,9 @@ class DependencyAnalyzer:
 
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir
-        self.packages: Dict[str, Dict] = {}
-        self.dependencies: Dict[str, Set[str]] = defaultdict(set)
-        self.reverse_deps: Dict[str, Set[str]] = defaultdict(set)
+        self.packages: dict[str, dict] = {}
+        self.dependencies: dict[str, set[str]] = defaultdict(set)
+        self.reverse_deps: dict[str, set[str]] = defaultdict(set)
 
     def scan_packages(self) -> None:
         """Scan all packages in the monorepo."""
@@ -63,12 +62,12 @@ class DependencyAnalyzer:
                     self.dependencies[pkg_name].add(dep_name)
                     self.reverse_deps[dep_name].add(pkg_name)
 
-    def find_circular_dependencies(self) -> List[List[str]]:
+    def find_circular_dependencies(self) -> list[list[str]]:
         """Find circular dependency chains."""
         circles = []
         visited = set()
 
-        def dfs(node: str, path: List[str]) -> None:
+        def dfs(node: str, path: list[str]) -> None:
             if node in path:
                 # Found a circle
                 circle_start = path.index(node)
@@ -89,7 +88,7 @@ class DependencyAnalyzer:
 
         return circles
 
-    def calculate_metrics(self) -> Dict[str, Dict]:
+    def calculate_metrics(self) -> dict[str, dict]:
         """Calculate independence metrics for each package."""
         metrics = {}
 

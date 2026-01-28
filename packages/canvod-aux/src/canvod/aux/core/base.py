@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Any
 
 import xarray as xr
+from canvod.utils.tools import YYYYDOY
 from pydantic import ConfigDict, Field
 from pydantic.dataclasses import dataclass
 
-from canvod.utils.tools import YYYYDOY
 from canvod.aux.core.downloader import FileDownloader, FtpDownloader
 from canvod.aux.interpolation import Interpolator
 

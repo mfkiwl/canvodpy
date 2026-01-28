@@ -49,10 +49,11 @@ class PolarPlotStyle:
         Show degree labels on radial axis
     theta_labels : list of int, default [0, 30, 60, 90]
         Elevation angles for labels (degrees)
+
     """
-    
-    cmap: str = 'viridis'
-    edgecolor: str = 'black'
+
+    cmap: str = "viridis"
+    edgecolor: str = "black"
     linewidth: float = 0.5
     alpha: float = 1.0
     vmin: float | None = None
@@ -60,13 +61,13 @@ class PolarPlotStyle:
     title: str | None = None
     figsize: tuple[float, float] = (10, 10)
     dpi: int = 100
-    colorbar_label: str = 'Value'
+    colorbar_label: str = "Value"
     colorbar_shrink: float = 0.8
     colorbar_pad: float = 0.1
     colorbar_fontsize: int = 11
     show_grid: bool = True
     grid_alpha: float = 0.3
-    grid_linestyle: str = '--'
+    grid_linestyle: str = "--"
     show_degree_labels: bool = True
     theta_labels: list[int] = field(default_factory=lambda: [0, 30, 60, 90])
 
@@ -107,14 +108,15 @@ class PlotStyle:
         3D wireframe transparency
     dark_mode : bool, default False
         Use dark theme
+
     """
-    
-    colormap: str = 'viridis'
-    colorscale: str = 'Viridis'
-    background_color: str = 'white'
-    text_color: str = 'black'
-    grid_color: str = 'lightgray'
-    font_family: str = 'sans-serif'
+
+    colormap: str = "viridis"
+    colorscale: str = "Viridis"
+    background_color: str = "white"
+    text_color: str = "black"
+    grid_color: str = "lightgray"
+    font_family: str = "sans-serif"
     font_size: int = 11
     title_size: int = 14
     label_size: int = 12
@@ -124,7 +126,7 @@ class PlotStyle:
     line_width: int = 1
     wireframe_opacity: float = 0.2
     dark_mode: bool = False
-    
+
     def to_polar_style(self) -> PolarPlotStyle:
         """Convert to PolarPlotStyle for 2D matplotlib plots.
         
@@ -132,15 +134,16 @@ class PlotStyle:
         -------
         PolarPlotStyle
             Equivalent 2D styling configuration
+
         """
         return PolarPlotStyle(
             cmap=self.colormap,
-            edgecolor='white' if self.dark_mode else self.text_color,
+            edgecolor="white" if self.dark_mode else self.text_color,
             linewidth=self.edge_linewidth,
             alpha=1.0,
             colorbar_fontsize=self.font_size,
         )
-    
+
     def to_plotly_layout(self) -> dict[str, Any]:
         """Convert to plotly layout configuration.
         
@@ -148,29 +151,29 @@ class PlotStyle:
         -------
         dict
             Plotly layout settings
+
         """
         if self.dark_mode:
             return {
-                'template': 'plotly_dark',
-                'paper_bgcolor': '#111111',
-                'plot_bgcolor': '#111111',
-                'font': {
-                    'family': self.font_family,
-                    'size': self.font_size,
-                    'color': 'white'
+                "template": "plotly_dark",
+                "paper_bgcolor": "#111111",
+                "plot_bgcolor": "#111111",
+                "font": {
+                    "family": self.font_family,
+                    "size": self.font_size,
+                    "color": "white"
                 }
             }
-        else:
-            return {
-                'template': 'plotly',
-                'paper_bgcolor': self.background_color,
-                'plot_bgcolor': self.background_color,
-                'font': {
-                    'family': self.font_family,
-                    'size': self.font_size,
-                    'color': self.text_color
-                }
+        return {
+            "template": "plotly",
+            "paper_bgcolor": self.background_color,
+            "plot_bgcolor": self.background_color,
+            "font": {
+                "family": self.font_family,
+                "size": self.font_size,
+                "color": self.text_color
             }
+        }
 
 
 def create_publication_style() -> PlotStyle:
@@ -185,13 +188,14 @@ def create_publication_style() -> PlotStyle:
     --------
     >>> style = create_publication_style()
     >>> viz.plot_2d(data=vod_data, style=style)
+
     """
     return PlotStyle(
-        colormap='viridis',
-        colorscale='Viridis',
-        background_color='white',
-        text_color='black',
-        font_family='sans-serif',
+        colormap="viridis",
+        colorscale="Viridis",
+        background_color="white",
+        text_color="black",
+        font_family="sans-serif",
         font_size=12,
         title_size=16,
         label_size=14,
@@ -218,13 +222,14 @@ def create_interactive_style(dark_mode: bool = True) -> PlotStyle:
     --------
     >>> style = create_interactive_style(dark_mode=True)
     >>> viz.plot_3d(data=vod_data, style=style)
+
     """
     return PlotStyle(
-        colormap='plasma' if dark_mode else 'viridis',
-        colorscale='Plasma' if dark_mode else 'Viridis',
-        background_color='#111111' if dark_mode else 'white',
-        text_color='white' if dark_mode else 'black',
-        font_family='Open Sans, sans-serif',
+        colormap="plasma" if dark_mode else "viridis",
+        colorscale="Plasma" if dark_mode else "Viridis",
+        background_color="#111111" if dark_mode else "white",
+        text_color="white" if dark_mode else "black",
+        font_family="Open Sans, sans-serif",
         font_size=11,
         title_size=14,
         label_size=12,

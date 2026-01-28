@@ -11,6 +11,7 @@ Provides commands for:
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -31,16 +32,18 @@ config_app = typer.Typer(
 )
 
 console = Console()
+DEFAULT_CONFIG_DIR = Path.cwd() / "config"
+CONFIG_DIR_OPTION = typer.Option(
+    DEFAULT_CONFIG_DIR,
+    "--config-dir",
+    "-c",
+    help="Configuration directory",
+)
 
 
 @config_app.command()
 def init(
-    config_dir: Path = typer.Option(
-        Path.cwd() / "config",
-        "--config-dir",
-        "-c",
-        help="Configuration directory",
-    ),
+    config_dir: Annotated[Path, CONFIG_DIR_OPTION] = DEFAULT_CONFIG_DIR,
     force: bool = typer.Option(
         False,
         "--force",
@@ -124,12 +127,7 @@ def init(
 
 @config_app.command()
 def validate(
-    config_dir: Path = typer.Option(
-        Path.cwd() / "config",
-        "--config-dir",
-        "-c",
-        help="Configuration directory",
-    ),
+    config_dir: Annotated[Path, CONFIG_DIR_OPTION] = DEFAULT_CONFIG_DIR,
 ) -> None:
     """
     Validate configuration files.
@@ -175,17 +173,12 @@ def validate(
         console.print("[red]❌ Validation failed:[/red]\n")
         console.print(str(e))
         console.print()
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @config_app.command()
 def show(
-    config_dir: Path = typer.Option(
-        Path.cwd() / "config",
-        "--config-dir",
-        "-c",
-        help="Configuration directory",
-    ),
+    config_dir: Annotated[Path, CONFIG_DIR_OPTION] = DEFAULT_CONFIG_DIR,
     section: str = typer.Option(
         None,
         "--section",
@@ -209,7 +202,7 @@ def show(
         config = load_config(config_dir)
     except Exception as e:
         console.print(f"\n[red]❌ Error loading config:[/red] {e}\n")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
     console.print("\n[bold]Current Configuration[/bold]\n")
 
@@ -231,12 +224,7 @@ def edit(
         ...,
         help="Config file to edit (processing, sites, sids)",
     ),
-    config_dir: Path = typer.Option(
-        Path.cwd() / "config",
-        "--config-dir",
-        "-c",
-        help="Configuration directory",
-    ),
+    config_dir: Annotated[Path, CONFIG_DIR_OPTION] = DEFAULT_CONFIG_DIR,
 ) -> None:
     """
     Open configuration file in editor.

@@ -1,13 +1,6 @@
 """Metadata table helpers for Icechunk-backed stores."""
 
-from datetime import datetime
-import json
 from typing import Any
-
-import numpy as np
-import polars as pl
-import zarr
-from zarr.dtype import VariableLengthUTF8
 
 from canvodpy.logging.context import get_logger
 

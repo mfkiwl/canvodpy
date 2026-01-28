@@ -13,6 +13,8 @@ from natsort import natsorted
 
 from .models import MatchedDirs, PairMatchedDirs
 
+DATE_DIR_LEN = 5
+
 
 class DataDirMatcher:
     """Match RINEX data directories for canopy and reference receivers.
@@ -39,7 +41,7 @@ class DataDirMatcher:
     ...     reference_pattern=Path("01_reference/01_GNSS/01_raw"),
     ...     canopy_pattern=Path("02_canopy/01_GNSS/01_raw")
     ... )
-    >>> 
+    >>>
     >>> # Iterate over matched directories
     >>> for matched_dirs in matcher:
     ...     print(matched_dirs.yyyydoy)
@@ -177,9 +179,8 @@ class DataDirMatcher:
 
         """
         if not path.exists():
-            raise FileNotFoundError(
-                f"{name} directory not found: {path}"
-            )
+            msg = f"{name} directory not found: {path}"
+            raise FileNotFoundError(msg)
 
 
 class PairDataDirMatcher:
@@ -217,13 +218,13 @@ class PairDataDirMatcher:
     ...         "reference_receiver": "reference_01"
     ...     }
     ... }
-    >>> 
+    >>>
     >>> matcher = PairDataDirMatcher(
     ...     base_dir=Path("/data/01_Rosalia"),
     ...     receivers=receivers,
     ...     analysis_pairs=pairs
     ... )
-    >>> 
+    >>>
     >>> for matched in matcher:
     ...     print(f"{matched.yyyydoy}: {matched.pair_name}")
     ...     print(f"  Canopy: {matched.canopy_data_dir}")
@@ -264,9 +265,10 @@ class PairDataDirMatcher:
         mapping = {}
         for receiver_name, config in self.receivers.items():
             if "directory" not in config:
-                raise ValueError(
+                msg = (
                     f"Receiver '{receiver_name}' missing 'directory' in config"
                 )
+                raise ValueError(msg)
             mapping[receiver_name] = config["directory"]
         return mapping
 
@@ -305,7 +307,7 @@ class PairDataDirMatcher:
         """
         all_dates = set()
 
-        for receiver_name in self.receivers.keys():
+        for receiver_name in self.receivers:
             receiver_dir = self.receiver_dirs[receiver_name]
             subpath = self.subpath_template.format(receiver_dir=receiver_dir)
             receiver_base = self.base_dir / subpath
@@ -319,7 +321,10 @@ class PairDataDirMatcher:
                     continue
 
                 # Check if directory name is 5 digits
-                if len(date_dir.name) != 5 or not date_dir.name.isdigit():
+                if (
+                    len(date_dir.name) != DATE_DIR_LEN
+                    or not date_dir.name.isdigit()
+                ):
                     continue
 
                 # Skip placeholder directories

@@ -20,7 +20,7 @@ from canvodpy.orchestrator.pipeline import (
 from canvodpy.orchestrator.processor import RinexDataProcessor
 
 __all__ = [
-    'PipelineOrchestrator',
-    'SingleReceiverProcessor',
-    'RinexDataProcessor',
+    "PipelineOrchestrator",
+    "RinexDataProcessor",
+    "SingleReceiverProcessor",
 ]

@@ -1,4 +1,4 @@
-"""RINEX v3.04 Validation Constants
+"""RINEX v3.04 validation constants.
 
 Observation codes, valid ranges, and system-specific constraints
 based on RINEX Version 3.04 specification (November 23, 2018).

@@ -1,9 +1,11 @@
+"""Processing pipeline orchestration for site-level workflows."""
+
 from collections import defaultdict
 from collections.abc import Generator
 from pathlib import Path
 
 import xarray as xr
-from canvod.readers import PairDataDirMatcher, PairMatchedDirs
+from canvod.readers import MatchedDirs, PairDataDirMatcher
 from canvod.store import GnssResearchSite
 from canvod.utils.tools import YYYYDOY
 
@@ -12,8 +14,7 @@ from canvodpy.orchestrator.processor import RinexDataProcessor
 
 
 class PipelineOrchestrator:
-    """
-    Orchestrate RINEX processing pipeline for all receiver pairs at a site.
+    """Orchestrate RINEX processing pipeline for all receiver pairs at a site.
 
     Processes each unique receiver once per day, regardless of how many
     pairs it's involved in.
@@ -28,15 +29,16 @@ class PipelineOrchestrator:
         Maximum parallel workers per day
     dry_run : bool
         If True, only simulate processing without executing
+
     """
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         site: GnssResearchSite,
         receiver_subpath_template: str = "{receiver_dir}/01_GNSS/01_raw",
         n_max_workers: int = 12,
-        dry_run: bool = False,
-    ):
+        dry_run: bool = False,  # noqa: FBT001, FBT002
+    ) -> None:
         self.site = site
         self.n_max_workers = n_max_workers
         self.dry_run = dry_run
@@ -49,19 +51,22 @@ class PipelineOrchestrator:
             receiver_subpath_template=receiver_subpath_template)
 
         self._logger.info(
-            f"Initialized pipeline for site '{site.site_name}' "
-            f"with {len(site.active_vod_analyses)} analysis pairs"
-            f"{' [DRY RUN]' if dry_run else ''}")
+            "Initialized pipeline for site '%s' with %s analysis pairs%s",
+            site.site_name,
+            len(site.active_vod_analyses),
+            " [DRY RUN]" if dry_run else "",
+        )
 
     def _group_by_date_and_receiver(
-        self, ) -> dict[str, dict[str, tuple[Path, str]]]:
-        """
-        Group receivers by date to avoid duplicate processing.
+        self,
+    ) -> dict[str, dict[str, tuple[Path, str]]]:
+        """Group receivers by date to avoid duplicate processing.
 
         Returns
         -------
         dict[str, dict[str, tuple[Path, str]]]
             {date: {receiver_name: (data_dir, receiver_type)}}
+
         """
         grouped = defaultdict(dict)
 
@@ -71,52 +76,52 @@ class PipelineOrchestrator:
             # Add canopy receiver if not already present
             if pair_dirs.canopy_receiver not in grouped[date_key]:
                 grouped[date_key][pair_dirs.canopy_receiver] = (
-                    pair_dirs.canopy_data_dir, 'canopy')
+                    pair_dirs.canopy_data_dir, "canopy")
 
             # Add reference receiver if not already present
             if pair_dirs.reference_receiver not in grouped[date_key]:
                 grouped[date_key][pair_dirs.reference_receiver] = (
-                    pair_dirs.reference_data_dir, 'reference')
+                    pair_dirs.reference_data_dir, "reference")
 
         return grouped
 
     def preview_processing_plan(self) -> dict:
-        """
-        Preview what would be processed without executing.
+        """Preview what would be processed without executing.
 
         Returns
         -------
         dict
             Summary of dates, receivers, and files to process
+
         """
         grouped = self._group_by_date_and_receiver()
 
         plan = {
-            'site': self.site.site_name,
-            'dates': [],
-            'total_receivers': 0,
-            'total_files': 0
+            "site": self.site.site_name,
+            "dates": [],
+            "total_receivers": 0,
+            "total_files": 0
         }
 
         for date_key, receivers in sorted(grouped.items()):
-            date_info = {'date': date_key, 'receivers': []}
+            date_info = {"date": date_key, "receivers": []}
 
             for receiver_name, (data_dir,
                                 receiver_type) in sorted(receivers.items()):
                 files = list(data_dir.glob("*.2*o"))
 
                 receiver_info = {
-                    'name': receiver_name,
-                    'type': receiver_type,
-                    'files': len(files),
-                    'dir': str(data_dir)
+                    "name": receiver_name,
+                    "type": receiver_type,
+                    "files": len(files),
+                    "dir": str(data_dir)
                 }
 
-                date_info['receivers'].append(receiver_info)
-                plan['total_files'] += len(files)
+                date_info["receivers"].append(receiver_info)
+                plan["total_files"] += len(files)
 
-            plan['dates'].append(date_info)
-            plan['total_receivers'] += len(receivers)
+            plan["dates"].append(date_info)
+            plan["total_receivers"] += len(receivers)
 
         return plan
 
@@ -131,9 +136,9 @@ class PipelineOrchestrator:
         print(f"Total RINEX files: {plan['total_files']}")
         print(f"{'='*70}\n")
 
-        for date_info in plan['dates']:
+        for date_info in plan["dates"]:
             print(f"Date: {date_info['date']}")
-            for receiver_info in date_info['receivers']:
+            for receiver_info in date_info["receivers"]:
                 print(f"  {receiver_info['name']} ({receiver_info['type']}): "
                       f"{receiver_info['files']} files")
                 print(f"    {receiver_info['dir']}")
@@ -144,9 +149,9 @@ class PipelineOrchestrator:
         keep_vars: list[str] | None = None,
         start_from: str | None = None,
         end_at: str | None = None,
-    ) -> Generator[tuple[str, dict[str, xr.Dataset]], None, None]:
-        """
-        Process all receivers grouped by date.
+    ) -> Generator[tuple[str, dict[str, xr.Dataset], dict[str, float]],
+                   None, None]:
+        """Process all receivers grouped by date.
 
         Each unique receiver is processed once per day with its actual name
         as the Icechunk group name.
@@ -164,6 +169,7 @@ class PipelineOrchestrator:
         ------
         tuple[str, dict[str, xr.Dataset]]
             Date string and dict of {receiver_name: dataset}
+
         """
         if self.dry_run:
             self._logger.info(
@@ -176,15 +182,25 @@ class PipelineOrchestrator:
         for date_key, receivers in sorted(grouped.items()):
             # Filter dates before processing
             if start_from and date_key < start_from:
-                self._logger.info(f"Skipping {date_key} - before {start_from}")
+                self._logger.info(
+                    "Skipping %s - before %s",
+                    date_key,
+                    start_from,
+                )
                 continue
 
             if end_at and date_key > end_at:
-                self._logger.info(f"Stopping at {date_key} - after {end_at}")
+                self._logger.info(
+                    "Stopping at %s - after %s",
+                    date_key,
+                    end_at,
+                )
                 break
 
             self._logger.info(
-                f"Processing date {date_key} with {len(receivers)} unique receivers"
+                "Processing date %s with %s unique receivers",
+                date_key,
+                len(receivers),
             )
 
             # Build receiver_configs for this date
@@ -195,9 +211,6 @@ class PipelineOrchestrator:
             ]
 
             # Convert to MatchedDirs for aux data (use any dir, aux is date-based)
-            from canvod.readers import MatchedDirs
-            from canvod.utils.tools import YYYYDOY
-
             first_data_dir = receiver_configs[0][2]
             matched_dirs = MatchedDirs(
                 canopy_data_dir=first_data_dir,
@@ -214,7 +227,9 @@ class PipelineOrchestrator:
             except RuntimeError as e:
                 if "Failed to download" in str(e):
                     self._logger.warning(
-                        f"Skipping {date_key} - auxiliary files not available: {e}"
+                        "Skipping %s - auxiliary files not available: %s",
+                        date_key,
+                        e,
                     )
                     continue
                 else:
@@ -224,23 +239,27 @@ class PipelineOrchestrator:
             datasets = {}
             timings = {}
             try:
-                for receiver_name, ds, proc_time in processor.parsed_rinex_data_gen(
-                        keep_vars=keep_vars,
-                        receiver_configs=receiver_configs):
+                for receiver_name, ds, proc_time in (
+                        processor.parsed_rinex_data_gen(
+                            keep_vars=keep_vars,
+                            receiver_configs=receiver_configs
+                        )
+                ):
                     # Receiver name is already correct from the generator.
                     datasets[receiver_name] = ds
                     timings[receiver_name] = proc_time
-            except Exception as e:
-                self._logger.error(
-                    f"Error processing RINEX data for date {date_key}: {e}")
+            except (OSError, RuntimeError, ValueError):
+                self._logger.exception(
+                    "Error processing RINEX data for date %s",
+                    date_key,
+                )
                 continue
 
             yield date_key, datasets, timings
 
 
 class SingleReceiverProcessor:
-    """
-    Process a single receiver for one day.
+    """Process a single receiver for one day.
 
     Parameters
     ----------
@@ -256,15 +275,18 @@ class SingleReceiverProcessor:
         Research site
     n_max_workers : int
         Maximum parallel workers
+
     """
 
-    def __init__(self,
-                 receiver_name: str,
-                 receiver_type: str,
-                 data_dir: Path,
-                 yyyydoy: YYYYDOY,
-                 site: GnssResearchSite,
-                 n_max_workers: int = 12) -> None:
+    def __init__(  # noqa: D107, PLR0913
+        self,
+        receiver_name: str,
+        receiver_type: str,
+        data_dir: Path,
+        yyyydoy: YYYYDOY,
+        site: GnssResearchSite,
+        n_max_workers: int = 12,
+    ) -> None:
         self.receiver_name = receiver_name
         self.receiver_type = receiver_type
         self.data_dir = data_dir
@@ -278,12 +300,10 @@ class SingleReceiverProcessor:
 
     def _get_rinex_files(self) -> list[Path]:
         """Get sorted list of RINEX files."""
-        files = sorted(self.data_dir.glob("*.2*o"))
-        return files
+        return sorted(self.data_dir.glob("*.2*o"))
 
     def process(self, keep_vars: list[str] | None = None) -> xr.Dataset:
-        """
-        Process all RINEX files for this receiver and write to Icechunk.
+        """Process all RINEX files for this receiver and write to Icechunk.
 
         Parameters
         ----------
@@ -294,16 +314,20 @@ class SingleReceiverProcessor:
         -------
         xr.Dataset
             Final daily dataset for this receiver
+
         """
         rinex_files = self._get_rinex_files()
 
         if not rinex_files:
-            raise ValueError(f"No RINEX files found in {self.data_dir}")
+            msg = f"No RINEX files found in {self.data_dir}"
+            raise ValueError(msg)
 
-        self._logger.info(f"Processing {len(rinex_files)} RINEX files")
+        self._logger.info(
+            "Processing %s RINEX files",
+            len(rinex_files),
+        )
 
         # Create matched dirs for aux data (using first available dir as dummy)
-        from canvod.readers import MatchedDirs
         matched_dirs = MatchedDirs(
             canopy_data_dir=self.data_dir,
             reference_data_dir=self.data_dir,  # Dummy, aux data is date-based
@@ -316,32 +340,14 @@ class SingleReceiverProcessor:
 
         # Process with actual receiver name (NOT type)
         # This requires modifying RinexDataProcessor to accept receiver_name parameter
-        ds = processor._process_receiver(
+        return processor._process_receiver(  # noqa: SLF001
             rinex_files=rinex_files,
             receiver_name=self.receiver_name,  # Use actual name as group
             receiver_type=self.receiver_type,
             keep_vars=keep_vars)
 
-        return ds
-
 
 if __name__ == "__main__":
-
-    # from pathlib import Path
-
-    # from canvodpy.globals import KEEP_RNX_VARS
-
-    # # from canvodpy.orchestrator.pipeline_orchestrator import PipelineOrchestrator
-
-    # # Initialize site
-    # site = GnssResearchSite(site_name="Rosalia")
-
-    # # # Process only 1 file per receiver
-    # orchestrator = PipelineOrchestrator(site=site)
-    # # orchestrator.print_preview()
-    # for pair_dirs, datasets in orchestrator.process_all_pairs():
-    #     print(f"Processed: {pair_dirs.pair_name}")
-
     from canvod.store import GnssResearchSite
 
     from canvodpy.globals import KEEP_RNX_VARS

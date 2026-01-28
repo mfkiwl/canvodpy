@@ -564,7 +564,7 @@ def example_augmentation_pipeline():
     aux_pipeline.load_all()
 
     # Create augmenter
-    augmenter = AuxDataAugmenter(aux_pipeline)
+    _ = AuxDataAugmenter(aux_pipeline)
 
     print("\nProcessing multiple RINEX files...")
 

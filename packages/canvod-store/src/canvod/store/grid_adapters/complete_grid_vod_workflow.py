@@ -2,18 +2,20 @@
 Storage integration helpers for working with `HemiGrid` via composition.
 """
 
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Optional, Dict, Any
 import warnings
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import polars as pl
 import zarr
-
-from gnssvodpy.hemigrid.storage.grid_storage import (write_grid_to_icechunk,
-                                                     load_grid_from_icechunk,
-                                                     LoadedGrid, GridMetadata)
+from gnssvodpy.hemigrid.storage.grid_storage import (
+    GridMetadata,
+    LoadedGrid,
+    load_grid_from_icechunk,
+    write_grid_to_icechunk,
+)
 from gnssvodpy.utils.tools import get_version_from_pyproject
 
 
@@ -38,7 +40,7 @@ class HemiGridStorageAdapter:
     def to_icechunk(
         self,
         session: Any,
-        grid_name: Optional[str] = None,
+        grid_name: str | None = None,
         include_vertices: bool = True,
         include_neighbors: bool = True,
         overwrite: bool = False,
@@ -228,7 +230,7 @@ class HemiGridStorageAdapter:
         df = df.select(existing + remaining)
         return df
 
-    def _prepare_vertices_dataframe(self) -> Optional[pl.DataFrame]:
+    def _prepare_vertices_dataframe(self) -> pl.DataFrame | None:
         """
         Prepare vertices DataFrame for storage.
 
@@ -339,7 +341,7 @@ class HemiGridStorageAdapter:
 
         return pl.DataFrame(records)
 
-    def _prepare_neighbors_dataframe(self) -> Optional[pl.DataFrame]:
+    def _prepare_neighbors_dataframe(self) -> pl.DataFrame | None:
         """
         Prepare neighbors DataFrame for storage.
 
@@ -367,7 +369,7 @@ class HemiGridStorageAdapter:
                 return None
             return converter()
 
-    def _prepare_metadata(self) -> Dict[str, Any]:
+    def _prepare_metadata(self) -> dict[str, Any]:
         """Prepare grid metadata."""
         cutoff_rad = float(np.deg2rad(self._grid.cutoff_theta))
         return {
@@ -375,12 +377,12 @@ class HemiGridStorageAdapter:
             'angular_resolution': float(self._grid.angular_resolution),
             'cutoff_theta': cutoff_rad,
             'ncells': int(self._grid.ncells),
-            'creation_timestamp': datetime.now(timezone.utc).isoformat(),
+            'creation_timestamp': datetime.now(UTC).isoformat(),
             'creation_software': f"gnssvodpy=={get_version_from_pyproject()}",
             'immutable': True,
         }
 
-    def _prepare_specific_metadata(self) -> Dict[str, Any]:
+    def _prepare_specific_metadata(self) -> dict[str, Any]:
         """
         Prepare grid-type-specific metadata.
 
@@ -419,7 +421,7 @@ class HemiGridStorageAdapter:
 
         return metadata
 
-    def _get_neighbors_dataframe(self) -> Optional[pl.DataFrame]:
+    def _get_neighbors_dataframe(self) -> pl.DataFrame | None:
         return self._prepare_neighbors_dataframe()
 
 
@@ -468,11 +470,11 @@ class StoredHemiGrid:
         return self._loaded.cells
 
     @property
-    def vertices(self) -> Optional[pl.DataFrame]:
+    def vertices(self) -> pl.DataFrame | None:
         return self._loaded.vertices
 
     @property
-    def neighbors(self) -> Optional[pl.DataFrame]:
+    def neighbors(self) -> pl.DataFrame | None:
         return self._loaded.neighbors
 
     def query_point(self, phi: float, theta: float) -> int:
@@ -494,7 +496,7 @@ class StoredHemiGrid:
 
 def store_grid_to_vod_store(grid,
                             store_path: Path,
-                            grid_name: Optional[str] = None,
+                            grid_name: str | None = None,
                             branch: str = "main",
                             *,
                             include_vertices: bool = True,
@@ -654,6 +656,7 @@ def list_available_grids(store_path: Path, branch: str = "main") -> list[str]:
 
 if __name__ == "__main__":
     from pathlib import Path
+
     from gnssvodpy.hemigrid.core.hemigrid import create_hemigrid
 
     # Create a grid

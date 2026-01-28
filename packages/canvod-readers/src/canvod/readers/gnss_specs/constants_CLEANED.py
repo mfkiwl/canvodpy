@@ -1,5 +1,4 @@
-"""
-Constants for RINEX readers.
+"""Constants for RINEX readers.
 
 This module contains only true physical/technical constants that should
 never change. User-configurable settings have been moved to the configuration
@@ -57,3 +56,6 @@ IGS_RNX_DUMP_INTERVALS: list[pint.Quantity] = [
     6 * UREG.hour,
     24 * UREG.hour,
 ]
+"""Cleaned constants for GNSS specs (legacy snapshot)."""
+
+# ruff: noqa: N999

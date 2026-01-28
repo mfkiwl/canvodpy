@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, field_validator
 import xarray as xr
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class VODCalculator(ABC, BaseModel):

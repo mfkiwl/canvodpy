@@ -1,5 +1,6 @@
-"""
-Diagnostic script for canvodpy - analogon to gnssvodpy
+# ruff: noqa: DTZ005, ERA001, PLC0415, BLE001
+"""Diagnostic script for canvodpy - analogon to gnssvodpy.
+
 timing_diagnostics_script.py.
 
 This script processes RINEX data using the new canvodpy architecture.
@@ -8,10 +9,8 @@ Compare results with gnssvodpy to verify correct implementation.
 import gc
 import time
 from datetime import datetime
-from pathlib import Path
 
 from canvod.store import GnssResearchSite
-from dask.tests.test_base import da
 
 from canvodpy.globals import KEEP_RNX_VARS
 from canvodpy.orchestrator import PipelineOrchestrator
@@ -21,8 +20,7 @@ def diagnose_processing(
     start_from: str | None = None,
     end_at: str | None = None,
 ) -> None:
-    """
-    Run diagnostic processing with canvodpy pipeline.
+    """Run diagnostic processing with canvodpy pipeline.
 
     This is the analogon to gnssvodpy's timing_diagnostics_script.py.
     Use this to verify that the new implementation produces the same results.
@@ -46,8 +44,8 @@ def diagnose_processing(
 
     >>> # Process a specific range
     >>> diagnose_processing(start_from="2025278", end_at="2025280")
-    """
 
+    """
     print("=" * 80)
     print("CANVODPY DIAGNOSTIC PROCESSING")
     print("=" * 80)
@@ -71,8 +69,6 @@ def diagnose_processing(
     for date_key, datasets, receiver_times in orchestrator.process_by_date(
             keep_vars=KEEP_RNX_VARS, start_from=start_from, end_at=end_at):
 
-        day_start_time = datetime.now()
-
         print(f"\n{'='*80}")
         print(f"Processing {date_key}")
         print(f"{'='*80}\n")
@@ -84,12 +80,9 @@ def diagnose_processing(
                 print(f"{receiver_name.upper()} PROCESSING")
                 print(f"{'─'*80}")
                 print(f"  Dataset shape: {dict(ds.sizes)}")
-                print(
-                    "  Processing time: "
-                    f"{receiver_times[receiver_name]:.2f}s"
-                )
+                print("  Processing time: "
+                      f"{receiver_times[receiver_name]:.2f}s")
 
-            day_end_time = datetime.now()
             # Calculate actual total from receiver times
             total_time = sum(receiver_times.values())
 
@@ -98,10 +91,8 @@ def diagnose_processing(
             print("SUMMARY")
             print(f"{'='*80}")
             for receiver_name, ds in datasets.items():
-                print(
-                    f"{receiver_name}: {dict(ds.sizes)} "
-                    f"({receiver_times[receiver_name]:.2f}s)"
-                )
+                print(f"{receiver_name}: {dict(ds.sizes)} "
+                      f"({receiver_times[receiver_name]:.2f}s)")
             print(f"Total time: {total_time:.2f}s")
             print(f"\n✓ Successfully processed {date_key}")
 
@@ -126,11 +117,11 @@ def diagnose_processing(
 
         # Garbage collection every 5 days
         if garbage_collect % 5 == 0:
-            print(f"\n💤 Pausing for 60s before garbage collection...")
+            print("\n💤 Pausing for 60s before garbage collection...")
             time.sleep(60)
-            print(f"\n🗑️  Running garbage collection...")
+            print("\n🗑️  Running garbage collection...")
             gc.collect()
-            print(f"✓ Garbage collection done")
+            print("✓ Garbage collection done")
 
         # Optional: Stop after N days for diagnostics
         # if counter == 30:
@@ -165,6 +156,6 @@ if __name__ == "__main__":
 
     # Main processing loop
 
-    for date_key, datasets, receiver_times in orchestrator.process_by_date(
+    for date_key, _datasets, _receiver_times in orchestrator.process_by_date(
             keep_vars=KEEP_RNX_VARS, start_from=None, end_at=None):
         print(date_key)

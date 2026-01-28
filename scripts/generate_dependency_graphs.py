@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Generate comprehensive dependency graphs for canVODpy using pydeps.
+"""Generate comprehensive dependency graphs for canVODpy using pydeps.
 
 This script creates two levels of analysis:
 1. Package-level: Internal class/module dependencies within each package
@@ -15,7 +14,6 @@ Usage:
 import argparse
 import subprocess
 from pathlib import Path
-from typing import List
 
 
 class DependencyGraphGenerator:
@@ -33,26 +31,25 @@ class DependencyGraphGenerator:
         cluster: bool = True
     ) -> None:
         """Generate internal dependency graph for a package."""
-        
         print(f"\n🔍 Analyzing {package_name}...")
-        
+
         # Convert package-name to module path (e.g., canvod-readers → canvod/readers)
         module_name = package_name.replace("-", "/")
-        
+
         # Find package source directory with actual module
         pkg_dir = self.root_dir / "packages" / package_name / "src" / module_name.replace("/", ".")
-        
+
         # Try alternative structure if first doesn't exist
         if not pkg_dir.exists():
             pkg_dir = self.root_dir / "packages" / package_name / "src" / "canvod" / package_name.split("-")[1]
-        
+
         if not pkg_dir.exists():
             print(f"⚠️  Package directory not found: {pkg_dir}")
             return
 
         # Output file
         output_file = self.output_dir / f"{package_name}-internal.svg"
-        
+
         # Build pydeps command (use uv run to access installed pydeps)
         cmd = [
             str(Path.home() / ".local/bin/uv"), "run", "pydeps",
@@ -63,7 +60,7 @@ class DependencyGraphGenerator:
             "-o", str(output_file),
             "--exclude", "*test*,test*",  # Exclude tests
         ]
-        
+
         try:
             subprocess.run(cmd, check=True, capture_output=True, text=True)
             print(f"✅ Created {output_file.name}")
@@ -73,21 +70,20 @@ class DependencyGraphGenerator:
 
     def generate_api_graph(self) -> None:
         """Generate API orchestration graph showing umbrella package."""
-        
-        print(f"\n🔍 Analyzing API orchestration (umbrella package)...")
-        
+        print("\n🔍 Analyzing API orchestration (umbrella package)...")
+
         # Find umbrella package
         api_dir = self.root_dir / "canvodpy" / "src"
         if not api_dir.exists():
             api_dir = self.root_dir / "canvodpy"
-        
+
         if not api_dir.exists():
             print(f"⚠️  Umbrella package not found at {api_dir}")
             return
 
         # Output file
         output_file = self.output_dir / "api-orchestration.svg"
-        
+
         # Build pydeps command - show how umbrella uses all packages (use uv run)
         cmd = [
             str(Path.home() / ".local/bin/uv"), "run", "pydeps",
@@ -98,27 +94,26 @@ class DependencyGraphGenerator:
             "-o", str(output_file),
             "--exclude", "test*,*test*",  # Exclude tests
         ]
-        
+
         try:
             subprocess.run(cmd, check=True, capture_output=True, text=True)
             print(f"✅ Created {output_file.name}")
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to generate API graph")
+            print("❌ Failed to generate API graph")
             print(f"   Error: {e.stderr}")
 
     def generate_config_flow_graph(self) -> None:
         """Generate graph showing config flow through the system."""
-        
-        print(f"\n🔍 Analyzing configuration flow...")
-        
+        print("\n🔍 Analyzing configuration flow...")
+
         # Focus on canvod-utils (config package)
         utils_dir = self.root_dir / "packages" / "canvod-utils" / "src"
         if not utils_dir.exists():
-            print(f"⚠️  Utils package not found")
+            print("⚠️  Utils package not found")
             return
 
         output_file = self.output_dir / "config-flow.svg"
-        
+
         cmd = [
             str(Path.home() / ".local/bin/uv"), "run", "pydeps",
             str(utils_dir),
@@ -129,24 +124,23 @@ class DependencyGraphGenerator:
             "--noshow",
             "-o", str(output_file),
         ]
-        
+
         try:
             subprocess.run(cmd, check=True, capture_output=True, text=True)
             print(f"✅ Created {output_file.name}")
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to generate config flow graph")
+            print("❌ Failed to generate config flow graph")
             print(f"   Error: {e.stderr}")
 
-    def generate_all_packages(self, package_names: List[str]) -> None:
+    def generate_all_packages(self, package_names: list[str]) -> None:
         """Generate graphs for all packages."""
         for pkg_name in package_names:
             self.generate_package_graph(pkg_name)
 
-    def generate_summary(self, package_names: List[str]) -> None:
+    def generate_summary(self, package_names: list[str]) -> None:
         """Generate a summary document."""
-        
         output_file = self.output_dir / "README.md"
-        
+
         lines = [
             "# Dependency Graphs",
             "",
@@ -157,7 +151,7 @@ class DependencyGraphGenerator:
             "Shows how classes and modules import each other within each package:",
             "",
         ]
-        
+
         for pkg_name in package_names:
             graph_file = f"{pkg_name}-internal.svg"
             if (self.output_dir / graph_file).exists():
@@ -165,7 +159,7 @@ class DependencyGraphGenerator:
                 lines.append("")
                 lines.append(f"![{pkg_name} internal dependencies]({graph_file})")
                 lines.append("")
-        
+
         lines.extend([
             "## API Orchestration",
             "",
@@ -200,7 +194,7 @@ class DependencyGraphGenerator:
             "",
             "**Generated:** Auto-updated during development",
         ])
-        
+
         output_file.write_text("\n".join(lines))
         print(f"\n✅ Created {output_file.name}")
 
@@ -255,16 +249,16 @@ def main():
         generator.generate_config_flow_graph()
         generator.generate_summary(packages)
         print("\n✨ All graphs generated in docs/dependency-graphs/")
-    
+
     elif args.package:
         generator.generate_package_graph(args.package)
-    
+
     elif args.api:
         generator.generate_api_graph()
-    
+
     elif args.config:
         generator.generate_config_flow_graph()
-    
+
     else:
         parser.print_help()
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Comprehensive Dependency Visualization using pydeps
+"""Comprehensive Dependency Visualization using pydeps
 
 Generates three types of dependency graphs:
 1. Per-package internal dependencies (classes/modules within package)
@@ -18,7 +17,6 @@ Usage:
 import argparse
 import subprocess
 from pathlib import Path
-from typing import List, Literal
 
 
 class DependencyGraphGenerator:
@@ -30,7 +28,7 @@ class DependencyGraphGenerator:
         self.graphs_dir = root_dir / "dependency-graphs"
         self.graphs_dir.mkdir(exist_ok=True)
 
-    def get_packages(self) -> List[str]:
+    def get_packages(self) -> list[str]:
         """Get list of all packages."""
         packages = []
         for pkg_dir in self.packages_dir.iterdir():
@@ -39,8 +37,7 @@ class DependencyGraphGenerator:
         return sorted(packages)
 
     def generate_package_internal(self, package_name: str) -> Path:
-        """
-        Generate internal dependency graph for a single package.
+        """Generate internal dependency graph for a single package.
         Shows how modules/classes within the package depend on each other.
         """
         pkg_dir = self.packages_dir / package_name
@@ -87,8 +84,7 @@ class DependencyGraphGenerator:
             return None
 
     def generate_cross_package(self) -> Path:
-        """
-        Generate cross-package dependency graph.
+        """Generate cross-package dependency graph.
         Shows how packages import from each other.
         """
         output_file = self.graphs_dir / "cross-package-dependencies.svg"
@@ -132,8 +128,7 @@ class DependencyGraphGenerator:
             return None
 
     def generate_api_orchestration(self) -> Path:
-        """
-        Generate API orchestration graph.
+        """Generate API orchestration graph.
         Shows how the umbrella package (canvodpy) uses all other packages.
         """
         output_file = self.graphs_dir / "api-orchestration.svg"

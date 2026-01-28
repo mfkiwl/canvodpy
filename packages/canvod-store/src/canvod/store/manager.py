@@ -9,9 +9,9 @@ Module: src/gnssvodpy/icechunk_manager/manager.py
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import xarray as xr
@@ -20,13 +20,13 @@ if TYPE_CHECKING:
     from canvod.vod import VODCalculator
 
 from canvodpy.globals import RINEX_STORE_STRATEGY
+from canvodpy.logging.context import get_logger
+from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
+
 from canvod.store.store import (
-    MyIcechunkStore,
     create_rinex_store,
     create_vod_store,
 )
-from canvodpy.logging.context import get_logger
-from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
 
 
 class GnssResearchSite:
@@ -107,7 +107,7 @@ class GnssResearchSite:
     def from_rinex_store_path(
         cls,
         rinex_store_path: Path,
-    ) -> "GnssResearchSite":
+    ) -> GnssResearchSite:
         """
         Create a GnssResearchSite instance from a RINEX store path.
 
@@ -431,7 +431,7 @@ class GnssResearchSite:
         -------
         xr.Dataset
             VOD dataset
-            
+
         Note
         ----
         Requires canvod-vod to be installed.
@@ -445,7 +445,7 @@ class GnssResearchSite:
                     "canvod-vod package required for VOD calculation. "
                     "Install with: pip install canvod-vod"
                 ) from e
-        
+
         canopy_ds, reference_ds = self.prepare_vod_input_data(
             analysis_name, time_range)
 
@@ -491,9 +491,8 @@ class GnssResearchSite:
         str
             Snapshot ID
         """
-        from icechunk.xarray import to_icechunk
-
         from gnssvodpy.utils.tools import get_version_from_pyproject
+        from icechunk.xarray import to_icechunk
 
         canopy_hash = vod_ds.attrs.get("canopy_hash", "unknown")
         reference_hash = vod_ds.attrs.get("reference_hash", "unknown")
@@ -716,7 +715,6 @@ def create_default_site() -> GnssResearchSite:
 
 # Example usage and testing
 if __name__ == "__main__":
-    import tempfile
 
     from gnssvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
 

@@ -1,5 +1,4 @@
-"""
-Application settings management.
+"""Application settings management.
 
 This module provides centralized configuration management for gnssvodpy,
 including FTP server credentials and other environment-based settings.
@@ -15,7 +14,7 @@ from typing import Any
 try:
     from dotenv import load_dotenv
     # From canvodpy/src/canvodpy/settings.py go up 4 levels to reach repo root
-    _env_path = Path(__file__).parent.parent.parent.parent / '.env'
+    _env_path = Path(__file__).parent.parent.parent.parent / ".env"
     if _env_path.exists():
         load_dotenv(_env_path)
 except ImportError:
@@ -23,8 +22,7 @@ except ImportError:
 
 
 class AppSettings:
-    """
-    Application settings loaded from environment variables.
+    """Application settings loaded from environment variables.
 
     This class handles configuration for:
     - CDDIS FTP authentication (optional, enables NASA CDDIS fallback)
@@ -52,7 +50,7 @@ class AppSettings:
 
     ```bash
     # In .env file (copy from .env.example):
-    
+
     # Optional: Enable NASA CDDIS fallback (requires registration)
     CDDIS_MAIL=your.email@example.com
 
@@ -75,16 +73,17 @@ class AppSettings:
         CDDIS authentication email address.
     gnss_root_dir : str | None
         Root directory for GNSS data.
+
     """
 
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # noqa: D107
         self.cddis_mail: str | None = self._load_email()
-        self.gnss_root_dir: str | None = os.getenv('GNSS_ROOT_DIR')
+        self.gnss_root_dir: str | None = os.getenv("GNSS_ROOT_DIR")
 
     def _load_email(self) -> str | None:
         """Load and validate email from environment."""
-        email = os.getenv('CDDIS_MAIL')
-        if email and '@' in email:
+        email = os.getenv("CDDIS_MAIL")
+        if email and "@" in email:
             return email
         return None
 
@@ -102,24 +101,27 @@ class AppSettings:
         return Path.cwd() / "data"
 
     def get_user_email(self) -> str | None:
-        """
-        Get user email for FTP authentication.
+        """Get user email for FTP authentication.
 
         Returns
         -------
         str | None
             Email string if configured and valid, None otherwise.
+
         """
         return self.cddis_mail
 
-    def log_configuration_status(self, logger: Any | None = None) -> None:
-        """
-        Log the current configuration status.
+    def log_configuration_status(
+        self,
+        logger: Any | None = None,  # noqa: ANN401
+    ) -> None:
+        """Log the current configuration status.
 
         Parameters
         ----------
         logger : Any | None, optional
             Logger instance. If None, uses print().
+
         """
         log_fn = logger.info if logger else print
 
@@ -127,7 +129,7 @@ class AppSettings:
             log_fn(f"✓ CDDIS credentials configured: {self.cddis_mail}")
             log_fn("  NASA CDDIS fallback enabled")
         else:
-            log_fn("ℹ No CDDIS credentials configured")
+            log_fn("ℹ No CDDIS credentials configured")  # noqa: RUF001
             log_fn("  Using ESA FTP server exclusively (no authentication required)")
             log_fn(
                 "  To enable NASA CDDIS fallback, set CDDIS_MAIL environment "
@@ -141,23 +143,22 @@ _settings: AppSettings | None = None
 
 
 def get_settings() -> AppSettings:
-    """
-    Get the global settings instance (singleton pattern).
+    """Get the global settings instance (singleton pattern).
 
     Returns
     -------
     AppSettings
         Instance loaded from environment.
+
     """
-    global _settings
+    global _settings  # noqa: PLW0603
     if _settings is None:
         _settings = AppSettings()
     return _settings
 
 
 def reload_settings() -> AppSettings:
-    """
-    Force reload settings from environment.
+    """Force reload settings from environment.
 
     Useful for testing or when environment variables change.
 
@@ -165,17 +166,18 @@ def reload_settings() -> AppSettings:
     -------
     AppSettings
         New settings instance.
+
     """
-    global _settings
+    global _settings  # noqa: PLW0603
     # Reload .env file
     try:
-        from dotenv import load_dotenv
+        from dotenv import load_dotenv  # noqa: PLC0415
         # From canvodpy/src/canvodpy/settings.py go up 4 levels to reach repo root
-        _env_path = Path(__file__).parent.parent.parent.parent / '.env'
+        _env_path = Path(__file__).parent.parent.parent.parent / ".env"
         if _env_path.exists():
             load_dotenv(_env_path, override=True)
     except ImportError:
         pass
-    
+
     _settings = AppSettings()
     return _settings

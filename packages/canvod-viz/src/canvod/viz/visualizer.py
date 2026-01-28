@@ -8,19 +8,21 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-
 from canvod.viz.hemisphere_2d import HemisphereVisualizer2D
 from canvod.viz.hemisphere_3d import HemisphereVisualizer3D
-from canvod.viz.styles import PlotStyle, PolarPlotStyle, create_interactive_style, create_publication_style
+from canvod.viz.styles import (
+    PlotStyle,
+    PolarPlotStyle,
+    create_interactive_style,
+    create_publication_style,
+)
 
 if TYPE_CHECKING:
+    import numpy as np
+    from canvod.grids import HemiGrid
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
-    import numpy as np
-    
-    from canvod.grids import HemiGrid
 
 
 class HemisphereVisualizer:
@@ -70,8 +72,9 @@ class HemisphereVisualizer:
         int_style = create_interactive_style(dark_mode=True)
         viz.set_style(int_style)
         fig = viz.plot_3d(data=vod_data)
+
     """
-    
+
     def __init__(self, grid: HemiGrid):
         """Initialize unified visualizer.
         
@@ -79,16 +82,17 @@ class HemisphereVisualizer:
         ----------
         grid : HemiGrid
             Hemisphere grid to visualize
+
         """
         self.grid = grid
-        
+
         # Initialize specialized visualizers
         self.viz_2d = HemisphereVisualizer2D(grid)
         self.viz_3d = HemisphereVisualizer3D(grid)
-        
+
         # Default styling
         self.style = PlotStyle()
-    
+
     def set_style(self, style: PlotStyle):
         """Set unified styling for both 2D and 3D plots.
         
@@ -102,9 +106,10 @@ class HemisphereVisualizer:
         >>> pub_style = create_publication_style()
         >>> viz.set_style(pub_style)
         >>> fig, ax = viz.plot_2d(data=vod_data)
+
         """
         self.style = style
-    
+
     def plot_2d(
         self,
         data: np.ndarray | None = None,
@@ -147,13 +152,14 @@ class HemisphereVisualizer:
         ...     save_path="output.png",
         ...     dpi=300
         ... )
+
         """
         if style is None:
             style = self.style.to_polar_style()
-        
+
         if title:
             style.title = title
-        
+
         return self.viz_2d.plot_grid_patches(
             data=data,
             style=style,
@@ -161,7 +167,7 @@ class HemisphereVisualizer:
             save_path=save_path,
             **kwargs
         )
-    
+
     def plot_3d(
         self,
         data: np.ndarray | None = None,
@@ -198,17 +204,18 @@ class HemisphereVisualizer:
         ... )
         >>> fig.show()
         >>> fig.write_html("interactive.html")
+
         """
         if style is None:
             style = self.style
-        
+
         return self.viz_3d.plot_hemisphere_surface(
             data=data,
             style=style,
             title=title,
             **kwargs
         )
-    
+
     def plot_3d_mesh(
         self,
         data: np.ndarray | None = None,
@@ -238,13 +245,14 @@ class HemisphereVisualizer:
         ...     title="VOD Mesh View",
         ...     opacity=0.7
         ... )
+
         """
         return self.viz_3d.plot_cell_mesh(
             data=data,
             title=title,
             **kwargs
         )
-    
+
     def create_comparison_plot(
         self,
         data: np.ndarray | None = None,
@@ -284,6 +292,7 @@ class HemisphereVisualizer:
         ... )
         >>> plt.show()  # Show 2D
         >>> fig_3d.show()  # Show 3D
+
         """
         # Create 2D plot
         fig_2d, ax_2d = self.plot_2d(
@@ -291,21 +300,21 @@ class HemisphereVisualizer:
             title=title_2d,
             save_path=save_2d
         )
-        
+
         # Create 3D plot
         fig_3d = self.plot_3d(
             data=data,
             title=title_3d
         )
-        
+
         # Save 3D if requested
         if save_3d:
             save_3d = Path(save_3d)
             save_3d.parent.mkdir(parents=True, exist_ok=True)
             fig_3d.write_html(str(save_3d))
-        
+
         return (fig_2d, ax_2d), fig_3d
-    
+
     def create_publication_figure(
         self,
         data: np.ndarray | None = None,
@@ -344,24 +353,25 @@ class HemisphereVisualizer:
         ...     save_path="paper_figure_3.png",
         ...     dpi=600
         ... )
+
         """
         # Use publication style and convert to PolarPlotStyle
         pub_plot_style = create_publication_style()
         polar_style = pub_plot_style.to_polar_style()
         polar_style.title = title
         polar_style.dpi = dpi
-        
+
         # Override with kwargs
         for key, value in kwargs.items():
             if hasattr(polar_style, key):
                 setattr(polar_style, key, value)
-        
+
         return self.plot_2d(
             data=data,
             style=polar_style,
             save_path=save_path
         )
-    
+
     def create_interactive_explorer(
         self,
         data: np.ndarray | None = None,
@@ -396,20 +406,21 @@ class HemisphereVisualizer:
         ...     save_html="explorer.html"
         ... )
         >>> fig.show()
+
         """
         # Use interactive style
         int_style = create_interactive_style(dark_mode=dark_mode)
-        
+
         fig = self.plot_3d(
             data=data,
             title=title,
             style=int_style
         )
-        
+
         # Save if requested
         if save_html:
             save_html = Path(save_html)
             save_html.parent.mkdir(parents=True, exist_ok=True)
             fig.write_html(str(save_html))
-        
+
         return fig

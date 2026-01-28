@@ -235,9 +235,9 @@ If you use canvod-aux in your research, please cite:
 
 ## Author & Affiliation
 
-**Nicolas F. Bader**  
-Climate and Environmental Remote Sensing Research Unit (CLIMERS)  
-Department of Geodesy and Geoinformation  
-TU Wien (Vienna University of Technology)  
-Email: nicolas.bader@geo.tuwien.ac.at  
+**Nicolas François Bader**
+Climate and Environmental Remote Sensing Research Unit (CLIMERS)
+Department of Geodesy and Geoinformation
+TU Wien (Vienna University of Technology)
+Email: nicolas.bader@geo.tuwien.ac.at
 [https://www.tuwien.at/en/mg/geo/climers](https://www.tuwien.at/en/mg/geo/climers)

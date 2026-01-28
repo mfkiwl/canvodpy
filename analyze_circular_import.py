@@ -1,7 +1,7 @@
 """Test that circular import is fixed - minimal version."""
 
-import sys
 import ast
+import sys
 from pathlib import Path
 
 root = Path(__file__).parent
@@ -10,7 +10,7 @@ print("Analyzing import structure for circular dependencies...")
 print("=" * 70)
 
 # Read the api.py file
-api_file = root / 'canvodpy' / 'src' / 'canvodpy' / 'api.py'
+api_file = root / "canvodpy" / "src" / "canvodpy" / "api.py"
 with open(api_file) as f:
     api_content = f.read()
 
@@ -24,18 +24,18 @@ for node in ast.walk(tree):
     if isinstance(node, (ast.Import, ast.ImportFrom)):
         # Check if this import is at module level or inside a function/class
         # Top-level imports have col_offset == 0
-        if hasattr(node, 'lineno'):
-            line = api_content.split('\n')[node.lineno - 1]
+        if hasattr(node, "lineno"):
+            line = api_content.split("\n")[node.lineno - 1]
             indent = len(line) - len(line.lstrip())
-            
+
             if isinstance(node, ast.ImportFrom):
-                module = node.module or ''
+                module = node.module or ""
                 names = [alias.name for alias in node.names]
                 import_info = f"from {module} import {', '.join(names)}"
             else:
                 names = [alias.name for alias in node.names]
                 import_info = f"import {', '.join(names)}"
-            
+
             if indent == 0:
                 top_level_imports.append(import_info)
             else:
@@ -44,9 +44,9 @@ for node in ast.walk(tree):
 print("\n📦 TOP-LEVEL IMPORTS (loaded immediately):")
 print("-" * 70)
 for imp in top_level_imports:
-    if 'canvod.store' in imp or 'canvod.vod' in imp:
+    if "canvod.store" in imp or "canvod.vod" in imp:
         print(f"  ❌ {imp} (CIRCULAR DEPENDENCY RISK!)")
-    elif 'TYPE_CHECKING' in imp:
+    elif "TYPE_CHECKING" in imp:
         print(f"  ✅ {imp} (type hints only, safe)")
     else:
         print(f"  ✅ {imp}")
@@ -54,21 +54,21 @@ for imp in top_level_imports:
 print("\n📦 LAZY IMPORTS (loaded when function/class is used):")
 print("-" * 70)
 for indent, imp in lazy_imports:
-    spaces = ' ' * indent
-    if 'canvod.store' in imp or 'canvod.vod' in imp:
+    spaces = " " * indent
+    if "canvod.store" in imp or "canvod.vod" in imp:
         print(f"  ✅ {spaces}{imp} (LAZY - breaks circular dependency!)")
     else:
         print(f"  ⚠️  {spaces}{imp}")
 
 # Check for problematic patterns
 has_top_level_circular = any(
-    'canvod.store' in imp or 'canvod.vod' in imp or 'PipelineOrchestrator' in imp
+    "canvod.store" in imp or "canvod.vod" in imp or "PipelineOrchestrator" in imp
     for imp in top_level_imports
-    if 'TYPE_CHECKING' not in imp
+    if "TYPE_CHECKING" not in imp
 )
 
 has_lazy_imports = any(
-    'canvod.store' in imp or 'canvod.vod' in imp or 'PipelineOrchestrator' in imp
+    "canvod.store" in imp or "canvod.vod" in imp or "PipelineOrchestrator" in imp
     for _, imp in lazy_imports
 )
 

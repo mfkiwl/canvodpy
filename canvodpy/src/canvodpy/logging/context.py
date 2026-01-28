@@ -2,7 +2,6 @@
 
 import contextvars
 from pathlib import Path
-from typing import Any
 
 from canvodpy.logging.logging_config import LOGGER, get_file_logger
 
@@ -10,14 +9,13 @@ from canvodpy.logging.logging_config import LOGGER, get_file_logger
 CURRENT_LOGGER = contextvars.ContextVar("CURRENT_LOGGER", default=LOGGER)
 
 
-def get_logger() -> Any:
+def get_logger() -> object:
     """Return the logger bound to the current context."""
     return CURRENT_LOGGER.get()
 
 
 def set_file_context(fname: Path) -> contextvars.Token:
-    """
-    Set the current logger context to a file-specific logger.
+    """Set the current logger context to a file-specific logger.
 
     Parameters
     ----------
@@ -28,6 +26,7 @@ def set_file_context(fname: Path) -> contextvars.Token:
     -------
     contextvars.Token
         Token used to restore the previous context.
+
     """
     flog = get_file_logger(fname)
     return CURRENT_LOGGER.set(flog)

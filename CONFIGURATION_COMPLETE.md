@@ -19,7 +19,7 @@ Successfully migrated user settings from hardcoded constants to a proper configu
 ```yaml
 # config/processing.yaml
 metadata:
-  author: Nicolas F. Bader
+  author: Nicolas François Bader
   email: nicolas.bader@tuwien.ac.at
   institution: TU Wien
   department: Department of Geodesy and Geoinformation
@@ -70,7 +70,7 @@ stores_root_dir/
 - **Usage:**
   ```python
   from canvod.utils._meta import SOFTWARE_ATTRS
-  
+
   ds.attrs.update(SOFTWARE_ATTRS)
   # Adds: software, software_url, version
   ```
@@ -141,7 +141,7 @@ canvodpy config edit processing
 Set these values:
 ```yaml
 metadata:
-  author: Nicolas F. Bader
+  author: Nicolas François Bader
   email: nicolas.bader@tuwien.ac.at
   institution: TU Wien
   department: Department of Geodesy and Geoinformation
@@ -219,14 +219,14 @@ All Python files compile successfully:
 
 ## 📋 Benefits
 
-✅ **User-friendly:** Settings in YAML, not buried in code  
-✅ **Validation:** Email format, paths, ranges all validated  
-✅ **Separation:** Constants vs configuration clearly separated  
-✅ **Version tracking:** Software version automatically included  
-✅ **No git conflicts:** User settings gitignored  
-✅ **API-ready:** Configuration serializable for future services  
-✅ **Type-safe:** Full IDE autocomplete and type hints  
-✅ **CLI tools:** Easy management with `canvodpy config` commands  
+✅ **User-friendly:** Settings in YAML, not buried in code
+✅ **Validation:** Email format, paths, ranges all validated
+✅ **Separation:** Constants vs configuration clearly separated
+✅ **Version tracking:** Software version automatically included
+✅ **No git conflicts:** User settings gitignored
+✅ **API-ready:** Configuration serializable for future services
+✅ **Type-safe:** Full IDE autocomplete and type hints
+✅ **CLI tools:** Easy management with `canvodpy config` commands
 
 ---
 

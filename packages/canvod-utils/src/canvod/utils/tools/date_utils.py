@@ -3,7 +3,6 @@
 import datetime
 from functools import total_ordering
 from pathlib import Path
-from typing import Self
 
 from pydantic import Field
 from pydantic.dataclasses import dataclass

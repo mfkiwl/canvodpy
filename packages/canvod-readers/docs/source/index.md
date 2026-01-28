@@ -72,7 +72,7 @@ graph LR
     B --> C[canvod-vod]
     C --> D[canvod-store]
     D --> E[canvod-grids]
-    
+
     style B fill:#e1f5ff
 ```
 
@@ -139,8 +139,8 @@ print(ds)
 
 # Filter GPS L1 C/A signals
 gps_l1_ca = ds.where(
-    (ds.system == 'G') & 
-    (ds.band == 'L1') & 
+    (ds.system == 'G') &
+    (ds.band == 'L1') &
     (ds.code == 'C'),
     drop=True
 )
@@ -197,7 +197,7 @@ If you use canvod-readers in your research, please cite:
 
 ```bibtex
 @software{canvodpy2025,
-  author = {Nicolás Fabián Beber},
+  author = {Nicolas François Bader},
   title = {canVODpy: GNSS-based Vegetation Optical Depth Analysis},
   year = {2025},
   publisher = {TU Wien},

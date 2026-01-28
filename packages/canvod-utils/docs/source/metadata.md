@@ -57,7 +57,7 @@ User metadata is configured in `config/processing.yaml`:
 
 ```yaml
 metadata:
-  author: Nicolas F. Bader
+  author: Nicolas François Bader
   email: nicolas.bader@tuwien.ac.at
   institution: TU Wien
   department: Department of Geodesy and Geoinformation  # Optional
@@ -73,7 +73,7 @@ from canvod.utils.config import load_config
 config = load_config()
 metadata = config.processing.metadata
 
-print(metadata.author)        # "Nicolas F. Bader"
+print(metadata.author)        # "Nicolas François Bader"
 print(metadata.email)         # "nicolas.bader@tuwien.ac.at"
 print(metadata.institution)   # "TU Wien"
 ```
@@ -86,7 +86,7 @@ attrs_dict = metadata.to_attrs_dict()
 
 # Result:
 # {
-#     "author": "Nicolas F. Bader",
+#     "author": "Nicolas François Bader",
 #     "author_email": "nicolas.bader@tuwien.ac.at",
 #     "institution": "TU Wien",
 #     "department": "Department of Geodesy and Geoinformation",
@@ -142,7 +142,7 @@ ds.to_netcdf("output.nc")
 
 NetCDF file attributes:
 ```
-:author = "Nicolas F. Bader" ;
+:author = "Nicolas François Bader" ;
 :author_email = "nicolas.bader@tuwien.ac.at" ;
 :institution = "TU Wien" ;
 :department = "Department of Geodesy and Geoinformation" ;
@@ -270,16 +270,16 @@ def add_full_metadata(
     processing_info: dict | None = None
 ) -> xr.Dataset:
     """Add complete metadata including processing details."""
-    
+
     # User metadata
     ds.attrs.update(config.processing.metadata.to_attrs_dict())
-    
+
     # Software metadata
     ds.attrs.update(SOFTWARE_ATTRS)
-    
+
     # Timestamps
     ds.attrs["creation_date"] = datetime.now(timezone.utc).isoformat()
-    
+
     # Processing info
     if processing_info:
         ds.attrs.update(processing_info)
@@ -287,7 +287,7 @@ def add_full_metadata(
         ds.attrs["time_aggregation"] = config.processing.processing.time_aggregation_seconds
         ds.attrs["agency"] = config.processing.aux_data.agency
         ds.attrs["product_type"] = config.processing.aux_data.product_type
-    
+
     return ds
 ```
 
@@ -299,10 +299,10 @@ For CF-compliant NetCDF files:
 ds.attrs.update({
     # User metadata
     **config.processing.metadata.to_attrs_dict(),
-    
+
     # Software metadata
     **SOFTWARE_ATTRS,
-    
+
     # CF conventions
     "Conventions": "CF-1.8",
     "title": "GNSS Vegetation Optical Depth",
@@ -311,7 +311,7 @@ ds.attrs.update({
     "source": "GNSS receivers",
     "processing_level": "3",
     "date_created": datetime.now(timezone.utc).isoformat(),
-    
+
     # Spatial coverage (if applicable)
     "geospatial_lat_min": lat_min,
     "geospatial_lat_max": lat_max,

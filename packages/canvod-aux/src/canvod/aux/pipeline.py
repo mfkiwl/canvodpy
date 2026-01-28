@@ -9,8 +9,10 @@ import os
 import threading
 from pathlib import Path
 
+import numpy as np
 import xarray as xr
 from canvod.readers.matching import MatchedDirs
+from canvod.readers.matching.dir_matcher import DataDirMatcher
 from canvod.store.preprocessing import IcechunkPreprocessor
 from canvod.utils.tools import YYYYDOY
 from canvodpy.globals import (
@@ -26,14 +28,6 @@ from canvod.aux._internal import get_logger
 from canvod.aux.clock import ClkFile
 from canvod.aux.core.base import AuxFile
 from canvod.aux.ephemeris import Sp3File
-"""
-Auxiliary Data Pipeline for GNSS Processing
-
-Manages downloading, reading, preprocessing, and caching of auxiliary files
-(ephemerides, clock, atmospheric corrections, etc.) for RINEX processing.
-"""
-
-import numpy as np
 
 
 class AuxDataPipeline:
@@ -64,9 +58,18 @@ class AuxDataPipeline:
         Logger instance for this pipeline.
     """
 
-    def __init__(self, matched_dirs: MatchedDirs):
-        """Initialize the auxiliary data pipeline."""
+    def __init__(self, matched_dirs: MatchedDirs, keep_sids: list[str] | None = None):
+        """Initialize the auxiliary data pipeline.
+
+        Parameters
+        ----------
+        matched_dirs : MatchedDirs
+            Matched directories for this processing day.
+        keep_sids : list[str] | None
+            Optional list of specific SIDs to keep. If None, keeps all possible SIDs.
+        """
         self.matched_dirs = matched_dirs
+        self.keep_sids = keep_sids
         self._registry: dict[str, dict] = {}
         self._cache: dict[str, xr.Dataset] = {}
         self._lock = threading.Lock()
@@ -135,8 +138,10 @@ class AuxDataPipeline:
                 # Stage 1: Download & read raw dataset
                 raw_ds = handler.data
 
-                # Stage 2: Preprocess (sv → sid mapping)
-                preprocessed_ds = IcechunkPreprocessor.prep_aux_ds(raw_ds)
+                # Stage 2: Preprocess (sv → sid mapping) with keep_sids filter
+                preprocessed_ds = IcechunkPreprocessor.prep_aux_ds(
+                    raw_ds, keep_sids=self.keep_sids
+                )
 
                 # Cache the preprocessed version
                 with self._lock:
@@ -308,6 +313,7 @@ class AuxDataPipeline:
         product_type: str = None,
         ftp_server: str = None,
         user_email: str = None,
+        keep_sids: list[str] | None = None,
     ) -> "AuxDataPipeline":
         """Factory method to create a standard pipeline with ephemerides and
         clock.
@@ -330,6 +336,8 @@ class AuxDataPipeline:
             FTP server URL. If None, uses FTP_SERVER from globals.
         user_email : str, optional
             Email for authenticated FTP. If None, uses CDDIS_MAIL env var.
+        keep_sids : list[str] | None, optional
+            List of specific SIDs to keep. If None, keeps all possible SIDs.
 
         Returns
         -------
@@ -373,7 +381,7 @@ class AuxDataPipeline:
             clk_dir = aux_file_path / CLK_FILE_PATH
 
         # Initialize pipeline
-        pipeline = cls(matched_dirs=matched_dirs)
+        pipeline = cls(matched_dirs=matched_dirs, keep_sids=keep_sids)
 
         # Register ephemerides (REQUIRED)
         sp3_file = Sp3File.from_datetime_date(

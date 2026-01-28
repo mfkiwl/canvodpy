@@ -10,7 +10,6 @@ new modular implementation.
 from typing import Any
 
 import xarray as xr
-
 from canvod.aux.preprocessing import (
     add_future_datavars,
     map_aux_sv_to_sid,
@@ -158,6 +157,7 @@ class IcechunkPreprocessor:
         aux_ds: xr.Dataset,
         fill_value: float = None,
         aggregate_glonass_fdma: bool = True,
+        keep_sids: list[str] | None = None,
     ) -> xr.Dataset:
         """
         Preprocess auxiliary dataset before writing to Icechunk.
@@ -166,7 +166,7 @@ class IcechunkPreprocessor:
 
         Performs complete 4-step preprocessing:
         1. Convert sv → sid dimension
-        2. Pad to global sid list
+        2. Pad to global sid list or filter to keep_sids
         3. Normalize sid dtype to object
         4. Strip _FillValue attributes
 
@@ -178,6 +178,8 @@ class IcechunkPreprocessor:
             Fill value for missing entries (default: np.nan)
         aggregate_glonass_fdma : bool, default True
             Whether to aggregate GLONASS FDMA bands
+        keep_sids : list[str] | None, default None
+            List of specific SIDs to keep. If None, keeps all possible SIDs.
 
         Returns
         -------
@@ -188,4 +190,4 @@ class IcechunkPreprocessor:
 
         if fill_value is None:
             fill_value = np.nan
-        return prep_aux_ds(aux_ds, fill_value, aggregate_glonass_fdma)
+        return prep_aux_ds(aux_ds, fill_value, aggregate_glonass_fdma, keep_sids)

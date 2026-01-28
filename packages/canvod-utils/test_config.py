@@ -16,8 +16,8 @@ try:
     from canvod.utils.config.models import (
         CanvodConfig,
         ProcessingConfig,
-        SitesConfig,
         SidsConfig,
+        SitesConfig,
     )
     print("✓ All imports successful")
 except ImportError as e:
@@ -29,7 +29,6 @@ try:
     from canvod.utils.config.models import (
         AuxDataConfig,
         CredentialsConfig,
-        ProcessingParams,
     )
 
     # Create test config

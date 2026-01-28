@@ -1,3 +1,5 @@
+"""GNSS constellation definitions and frequency lookup tables."""
+
 from __future__ import annotations
 
 import json
@@ -5,19 +7,24 @@ import re
 import sqlite3
 import threading
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING, ClassVar, NoReturn
 
 import pandas as pd
-import pint
 import requests
 from canvod.readers.gnss_specs.constants import FREQ_UNIT, UREG
 from natsort import natsorted
 
+if TYPE_CHECKING:
+    import pint
+
 # Register SQLite adapters for datetime (Python 3.12+ compatibility)
 sqlite3.register_adapter(datetime, lambda dt: dt.isoformat())
-sqlite3.register_converter("DATETIME",
-                           lambda s: datetime.fromisoformat(s.decode()))
+sqlite3.register_converter(
+    "DATETIME",
+    lambda s: datetime.fromisoformat(s.decode()),
+)
 
 
 # ================================================================
@@ -30,7 +37,10 @@ class WikipediaCache:
     ----------
     cache_hours : int, optional
         How long cache entries are considered valid. Default is 6.
+
     """
+
+    REQUEST_TIMEOUT: ClassVar[float] = 10.0
 
     def __init__(self, cache_hours: int = 6) -> None:
         """Initialize the shared Wikipedia cache."""
@@ -59,7 +69,9 @@ class WikipediaCache:
         conn.close()
 
     def _get_lock(self, constellation: str) -> threading.Lock:
-        """Parameters
+        """Return the per-constellation lock.
+
+        Parameters
         ----------
         constellation : str
             Constellation identifier (e.g., "GPS").
@@ -88,11 +100,14 @@ class WikipediaCache:
             List of SV PRNs if cache is valid, else None.
 
         """
-        conn = sqlite3.connect(self.cache_file,
-                               detect_types=sqlite3.PARSE_DECLTYPES)
-        cutoff = datetime.now() - timedelta(hours=self.cache_hours)
+        conn = sqlite3.connect(
+            self.cache_file,
+            detect_types=sqlite3.PARSE_DECLTYPES,
+        )
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=self.cache_hours)
         cursor = conn.execute(
-            "SELECT svs_data FROM satellite_cache WHERE constellation = ? AND fetched_at > ?",
+            "SELECT svs_data FROM satellite_cache WHERE constellation = ? "
+            "AND fetched_at > ?",
             (constellation, cutoff),
         )
         result = cursor.fetchone()
@@ -113,17 +128,20 @@ class WikipediaCache:
             List of SV PRNs if present in cache, else None.
 
         """
-        conn = sqlite3.connect(self.cache_file,
-                               detect_types=sqlite3.PARSE_DECLTYPES)
+        conn = sqlite3.connect(
+            self.cache_file,
+            detect_types=sqlite3.PARSE_DECLTYPES,
+        )
         cursor = conn.execute(
-            "SELECT svs_data FROM satellite_cache WHERE constellation = ? ORDER BY fetched_at DESC LIMIT 1",
+            "SELECT svs_data FROM satellite_cache WHERE constellation = ? "
+            "ORDER BY fetched_at DESC LIMIT 1",
             (constellation, ),
         )
         result = cursor.fetchone()
         conn.close()
         return json.loads(result[0]) if result else None
 
-    def fetch_and_cache(
+    def fetch_and_cache(  # noqa: PLR0913
         self,
         constellation: str,
         url: str,
@@ -132,8 +150,7 @@ class WikipediaCache:
         status_filter: dict[str, str] | None = None,
         re_pattern: str = r"\b[A-Z]\d{2}\b",
     ) -> list[str]:
-        """Fetch constellation satellite list from Wikipedia, clean it,
-        and cache results.
+        r"""Fetch constellation satellite list from Wikipedia, clean it, cache.
 
         Parameters
         ----------
@@ -164,17 +181,26 @@ class WikipediaCache:
                 return cached
 
             try:
-                response = requests.get(url, headers=self.headers)
+                response = requests.get(
+                    url,
+                    headers=self.headers,
+                    timeout=self.REQUEST_TIMEOUT,
+                )
                 response.raise_for_status()
                 tables = pd.read_html(response.content)
                 if not tables or len(tables) <= table_index:
-                    raise ValueError(
-                        f"No suitable table found at index {table_index}")
+                    msg = f"No suitable table found at index {table_index}"
+                    self._raise_value_error(msg)
                 df = tables[table_index]
 
                 if status_filter:
-                    df = df[df[status_filter["column"]].str.contains(
-                        status_filter["value"], case=True, na=False)]
+                    df = df[
+                        df[status_filter["column"]].str.contains(
+                            status_filter["value"],
+                            case=True,
+                            na=False,
+                        )
+                    ]
 
                 if prn_column not in df.columns:
                     potential_cols = [
@@ -183,9 +209,11 @@ class WikipediaCache:
                     if potential_cols:
                         prn_column = potential_cols[0]
                     else:
-                        raise ValueError(
-                            f"PRN column '{prn_column}' not found in {df.columns}"
+                        msg = (
+                            f"PRN column '{prn_column}' not found in "
+                            f"{df.columns}"
                         )
+                        self._raise_value_error(msg)
 
                 prn_data: list[str] = list(df[prn_column])
                 clean_list: list[str] = [
@@ -193,28 +221,48 @@ class WikipediaCache:
                     if (m := re.search(re_pattern, item))
                 ]
                 if not clean_list:
-                    raise ValueError("No valid PRN data found after cleaning")
+                    msg = "No valid PRN data found after cleaning"
+                    self._raise_value_error(msg)
 
-                conn = sqlite3.connect(self.cache_file,
-                                       detect_types=sqlite3.PARSE_DECLTYPES)
+                conn = sqlite3.connect(
+                    self.cache_file,
+                    detect_types=sqlite3.PARSE_DECLTYPES,
+                )
                 conn.execute(
                     """
                     INSERT OR REPLACE INTO satellite_cache
                     (constellation, svs_data, raw_data, fetched_at, url)
                     VALUES (?, ?, ?, ?, ?)
                     """,
-                    (constellation, json.dumps(sorted(set(clean_list))),
-                     df.to_json(), datetime.now().isoformat(), url),
+                    (
+                        constellation,
+                        json.dumps(sorted(set(clean_list))),
+                        df.to_json(),
+                        datetime.now(timezone.utc).isoformat(),
+                        url,
+                    ),
                 )
                 conn.commit()
                 conn.close()
 
                 return sorted(set(clean_list))
-            except Exception:
+            except (
+                requests.RequestException,
+                ValueError,
+                KeyError,
+                IndexError,
+                TypeError,
+                pd.errors.ParserError,
+            ):
                 stale = self.get_stale_cache(constellation)
                 if stale:
                     return stale
                 raise
+
+    @staticmethod
+    def _raise_value_error(message: str) -> NoReturn:
+        """Raise a ValueError with a formatted message."""
+        raise ValueError(message)
 
 
 # Shared instance
@@ -234,7 +282,7 @@ OBS_TYPE_PATTERN = re.compile(
 # -------------------- Base Class --------------------
 # ================================================================
 class ConstellationBase(ABC):
-    """Abstract base class for GNSS constellations.
+    r"""Abstract base class for GNSS constellations.
 
     Notes
     -----
@@ -260,14 +308,15 @@ class ConstellationBase(ABC):
         Provide a static list of SVs if not using Wikipedia.
     aggregate_fdma : bool, optional
         If True, aggregate FDMA bands when supported (default True).
+
     """
 
-    BANDS: dict[str, str] = {}
-    BAND_CODES: dict[str, list[str]] = {}
-    BAND_PROPERTIES: dict[str, dict[str, pint.Quantity]] = {}
-    AUX_FREQ: pint.Quantity = 1575.42 * UREG.MHz  # Default auxiliary band (X1)
+    BANDS: ClassVar[dict[str, str]] = {}
+    BAND_CODES: ClassVar[dict[str, list[str]]] = {}
+    BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {}
+    AUX_FREQ: ClassVar[pint.Quantity] = 1575.42 * UREG.MHz
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         constellation: str,
         url: str | None = None,
@@ -275,9 +324,9 @@ class ConstellationBase(ABC):
         table_index: int = 0,
         prn_column: str = "PRN",
         status_filter: dict[str, str] | None = None,
-        use_wiki: bool = True,
+        use_wiki: bool = True,  # noqa: FBT001, FBT002
         static_svs: list[str] | None = None,
-        aggregate_fdma: bool = True,
+        aggregate_fdma: bool = True,  # noqa: FBT001, FBT002
     ) -> None:
         """Initialize the constellation base."""
         self.constellation: str = constellation
@@ -348,11 +397,11 @@ class ConstellationBase(ABC):
 class GALILEO(ConstellationBase):
     """Galileo constellation model.
 
-    - Band numbers and codes from RINEX v3.04 Guide: \
-        http://acc.igs.org/misc/rinex304.pdf , Table 6
-
-    - Band frequencies and bandwidths from Galileo ICD: \
-        https://galileognss.eu/wp-content/uploads/2021/01/Galileo_OS_SIS_ICD_v2.0.pdf, Tables 2 & 3
+    - Band numbers and codes from RINEX v3.04 Guide:
+      http://acc.igs.org/misc/rinex304.pdf (Table 6).
+    - Band frequencies and bandwidths from Galileo ICD:
+      https://galileognss.eu/wp-content/uploads/2021/01/Galileo_OS_SIS_ICD_v2.0.pdf
+      (Tables 2 & 3).
 
     Might need adaptation for future Galileo signals and RINEX versions.
 
@@ -367,17 +416,24 @@ class GALILEO(ConstellationBase):
     Notes
     -----
     This class fetches the current satellite list from Wikipedia.
+
     """
 
-    BANDS = {"1": "E1", "5": "E5a", "7": "E5b", "6": "E6", "8": "E5"}
-    BAND_CODES = {
+    BANDS: ClassVar[dict[str, str]] = {
+        "1": "E1",
+        "5": "E5a",
+        "7": "E5b",
+        "6": "E6",
+        "8": "E5",
+    }
+    BAND_CODES: ClassVar[dict[str, list[str]]] = {
         "E1": ["A", "B", "C", "X", "Z"],
         "E5a": ["I", "Q", "X"],
         "E5b": ["I", "Q", "X"],
         "E5": ["I", "Q", "X"],
         "E6": ["A", "B", "C", "X", "Z"],
     }
-    BAND_PROPERTIES = {
+    BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "E1": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 24.552 * UREG.MHz,
@@ -413,6 +469,8 @@ class GALILEO(ConstellationBase):
             re_pattern=r"\bE\d{2}\b",
             table_index=1,
             prn_column="PRN",
+            use_wiki=False,
+            static_svs=[f"E{x:02d}" for x in range(1, 37)],  # E01-E36
         )
 
     @property
@@ -423,6 +481,7 @@ class GALILEO(ConstellationBase):
         -------
         dict
             Keys of format "SV|*1C" mapped to frequencies
+
         """
         out = {
             f"{sv}|{obs}": freq
@@ -436,33 +495,35 @@ class GALILEO(ConstellationBase):
 class GPS(ConstellationBase):
     """GPS constellation model.
 
-    - Band numbers and codes from RINEX v3.04 Guide: \
-        http://acc.igs.org/misc/rinex304.pdf , Table 4
-
-    - L1/L2 frequencies and bandwidths from GPS L1/L2 ICD: \
-        https://www.gps.gov/technical/icwg/IS-GPS-200N.pdf , "3.3.1.1 Frequency Plan"
-
-    - L5 frequency and bandwidth from GPS L5 ICD: \
-        https://www.gps.gov/technical/icwg/IS-GPS-705J.pdf , "3.3.1.1 Frequency Plan"
+    - Band numbers and codes from RINEX v3.04 Guide:
+      http://acc.igs.org/misc/rinex304.pdf (Table 4).
+    - L1/L2 frequencies and bandwidths from GPS L1/L2 ICD:
+      https://www.gps.gov/technical/icwg/IS-GPS-200N.pdf (3.3.1.1 Frequency
+      Plan).
+    - L5 frequency and bandwidth from GPS L5 ICD:
+      https://www.gps.gov/technical/icwg/IS-GPS-705J.pdf (3.3.1.1 Frequency
+      Plan).
 
     Note:
     ----
-    L1/L2 bandwidth technically depends on the GPS Block. Blocks IIR, IIR-M and IIF have a bandwidth of 20.46 MHz, \
-        while Block III and IIIF has a bandwidth of 30.69 MHz. We assume the larger bandwidth here.
+    L1/L2 bandwidth technically depends on the GPS Block. Blocks IIR, IIR-M and
+    IIF have a bandwidth of 20.46 MHz, while Block III and IIIF has a bandwidth
+    of 30.69 MHz. We assume the larger bandwidth here.
 
     Parameters
     ----------
     use_wiki : bool, default False
         If False, uses static list G01-G32. If True, fetches from Wikipedia.
+
     """
 
-    BANDS = {"1": "L1", "2": "L2", "5": "L5"}
-    BAND_CODES = {
+    BANDS: ClassVar[dict[str, str]] = {"1": "L1", "2": "L2", "5": "L5"}
+    BAND_CODES: ClassVar[dict[str, list[str]]] = {
         "L1": ["C", "S", "L", "X", "P", "W", "Y", "M", "N"],
         "L2": ["C", "D", "S", "L", "X", "P", "W", "Y", "M", "N"],
         "L5": ["I", "Q", "X"],
     }
-    BAND_PROPERTIES = {
+    BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "L1": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 30.69 * UREG.MHz,
@@ -480,7 +541,7 @@ class GPS(ConstellationBase):
         },
     }
 
-    def __init__(self, use_wiki: bool = False) -> None:
+    def __init__(self, use_wiki: bool = False) -> None:  # noqa: FBT001, FBT002
         """Initialize GPS constellation."""
         super().__init__(
             constellation="GPS",
@@ -511,39 +572,43 @@ class GPS(ConstellationBase):
 class BEIDOU(ConstellationBase):
     """BeiDou constellation model.
 
-    - Band numbers and codes from RINEX v3.04 Guide: \
-        http://acc.igs.org/misc/rinex304.pdf , Table 9
-
-    - B1I (Rinex: B1-2) frequency and bandwidth from B1I ICD: \
-        http://en.beidou.gov.cn/SYSTEMS/ICD/201902/P020190227702348791891.pdf , 4.2.1 Carrier Frequency, 4.2.7 Signal Bandwidth
-
-    - B1C (Rinex: B1) frequency and bandwidth from B1C ICD: \
-        http://en.beidou.gov.cn/SYSTEMS/ICD/201806/P020180608519640359959.pdf , 4 Signal Characteristics
-
-    - B2b frequency and bandwidth from B2b ICD: \
-        http://en.beidou.gov.cn/SYSTEMS/ICD/202008/P020231201537880833625.pdf , 4 Signal Characteristics
-
-    - B2a frequency and bandwidth from B2a ICD: \
-        http://en.beidou.gov.cn/SYSTEMS/ICD/201806/P020180608518432765621.pdf , 4 Signal Characteristics
-
-    - B3I (Rinex B3) frequency and bandwidth from B3I ICD: \
-        http://en.beidou.gov.cn/SYSTEMS/ICD/201806/P020180608516798097666.pdf , 4.2.1 Carrier Frequency, 4.2.7 Signal Bandwidth
+    - Band numbers and codes from RINEX v3.04 Guide:
+      http://acc.igs.org/misc/rinex304.pdf (Table 9).
+    - B1I (Rinex: B1-2) frequency and bandwidth from B1I ICD:
+      http://en.beidou.gov.cn/SYSTEMS/ICD/201902/P020190227702348791891.pdf
+      (4.2.1 Carrier Frequency, 4.2.7 Signal Bandwidth).
+    - B1C (Rinex: B1) frequency and bandwidth from B1C ICD:
+      http://en.beidou.gov.cn/SYSTEMS/ICD/201806/P020180608519640359959.pdf
+      (4 Signal Characteristics).
+    - B2b frequency and bandwidth from B2b ICD:
+      http://en.beidou.gov.cn/SYSTEMS/ICD/202008/P020231201537880833625.pdf
+      (4 Signal Characteristics).
+    - B2a frequency and bandwidth from B2a ICD:
+      http://en.beidou.gov.cn/SYSTEMS/ICD/201806/P020180608518432765621.pdf
+      (4 Signal Characteristics).
+    - B3I (Rinex B3) frequency and bandwidth from B3I ICD:
+      http://en.beidou.gov.cn/SYSTEMS/ICD/201806/P020180608516798097666.pdf
+      (4.2.1 Carrier Frequency, 4.2.7 Signal Bandwidth).
 
     Note 1:
     -------
-    Band names used here do not refer to the Rinex band names, but to the BeiDou signal names.
+    Band names used here do not refer to the Rinex band names, but to the
+    BeiDou signal names.
 
     Note 2:
     -------
-    No ICD for the combined B2 band was found. The center frequency is taken from the Rinex v3.04 Guide, perfectly centered \
-        between B2a and B2b. The bandwidth is speculative, assumed to cover both B2a and B2b signals and their bandwidths.
+    No ICD for the combined B2 band was found. The center frequency is taken
+    from the Rinex v3.04 Guide, perfectly centered between B2a and B2b. The
+    bandwidth is speculative, assumed to cover both B2a and B2b signals and
+    their bandwidths.
 
     Notes
     -----
     This class fetches the current satellite list from Wikipedia.
+
     """
 
-    BANDS = {
+    BANDS: ClassVar[dict[str, str]] = {
         "2": "B1I",
         "1": "B1C",
         "5": "B2a",
@@ -551,7 +616,7 @@ class BEIDOU(ConstellationBase):
         "6": "B3I",
         "8": "B2",
     }
-    BAND_CODES = {
+    BAND_CODES: ClassVar[dict[str, list[str]]] = {
         "B1I": ["I", "Q", "X"],
         "B1C": ["D", "P", "X", "A", "N"],
         "B2a": ["D", "P", "X"],
@@ -559,7 +624,7 @@ class BEIDOU(ConstellationBase):
         "B3I": ["I", "Q", "X", "A"],
         "B2": ["D", "P", "X"],
     }
-    BAND_PROPERTIES = {
+    BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "B1I": {
             "freq": 1561.098 * UREG.MHz,
             "bandwidth": 4.092 * UREG.MHz,
@@ -604,6 +669,8 @@ class BEIDOU(ConstellationBase):
                 "column": "Status[8][9]",
                 "value": "Operational"
             },
+            use_wiki=False,
+            static_svs=[f"C{x:02d}" for x in range(1, 64)],  # C01-C63
         )
 
     @property
@@ -624,27 +691,28 @@ class GLONASS(ConstellationBase):
     Parameters
     ----------
     glonass_channel_pth : Path, optional
-        Path to GLONASS channel assignment file (default: "GLONASS_channels.txt" in the same directory as this file).
+        Path to GLONASS channel assignment file (default:
+        "GLONASS_channels.txt" in the same directory as this file).
     aggregate_fdma : bool, optional
         If True, aggregate all FDMA sub-bands into single G1 and G2 bands
         (default: True). If False, only the FDMA sub-bands are available
 
-    - Band numbers, codes, frequencies and FDMA equations from RINEX v3.04 Guide: \
-        http://acc.igs.org/misc/rinex304.pdf , Table 5
-
-    - Bandwidths from (old, but publicly available) GLONASS ICD: \
-        https://www.unavco.org/help/glossary/docs/ICD_GLONASS_4.0_(1998)_en.pdf , 3.3.1.4 Spurious emissions
-
-    - GLONASS channel assignment from: \
+    - Band numbers, codes, frequencies and FDMA equations from RINEX v3.04
+      Guide: http://acc.igs.org/misc/rinex304.pdf (Table 5).
+    - Bandwidths from (old, but publicly available) GLONASS ICD:
+      https://www.unavco.org/help/glossary/docs/ICD_GLONASS_4.0_(1998)_en.pdf
+      (3.3.1.4 Spurious emissions).
+    - GLONASS channel assignment from: see included channel file.
 
 
     Note on G1 & G2:
     --------
-    G1/G2 is treated a single band here, although it consists of sub-bands accroding to FDMA \
-        (see `GLONASS.band_G1_equation()` below). The center frequency of this "cumulative"\
-        band is the average of all sub-band frequencies. Its bandwidth here is defined as\
-        stretching across all sub-band including their sub-band bandwidths. Therefore the\
-        center frequency slightly differs from the one given in the FDMA base frequency.
+    G1/G2 is treated a single band here, although it consists of sub-bands
+    according to FDMA (see `GLONASS.band_G1_equation()` below). The center
+    frequency of this "cumulative" band is the average of all sub-band
+    frequencies. Its bandwidth here is defined as stretching across all
+    sub-band including their sub-band bandwidths. Therefore the center
+    frequency slightly differs from the one given in the FDMA base frequency.
 
     Parameters
     ----------
@@ -658,17 +726,18 @@ class GLONASS(ConstellationBase):
     ------
     FileNotFoundError
         If GLONASS channel file does not exist.
+
     """
 
-    BANDS = {"3": "G3", "4": "G1a", "6": "G2a"}
-    BAND_CODES = {
+    BANDS: ClassVar[dict[str, str]] = {"3": "G3", "4": "G1a", "6": "G2a"}
+    BAND_CODES: ClassVar[dict[str, list[str]]] = {
         "G1": ["C", "P"],
         "G2": ["C", "P"],
         "G3": ["I", "Q", "X"],
         "G1a": ["A", "B", "X"],
         "G2a": ["A", "B", "X"]
     }
-    BAND_PROPERTIES = {
+    BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "G1a": {
             "freq": 1600.995 * UREG.MHz,
             "bandwidth": 7.875 * UREG.MHz,
@@ -686,16 +755,18 @@ class GLONASS(ConstellationBase):
         },
     }
 
-    AGGR_BANDS = {
+    AGGR_BANDS: ClassVar[dict[str, str]] = {
         "1": "G1",
         "2": "G2",
     }
-    AGGR_BAND_CODES = {
+    AGGR_BAND_CODES: ClassVar[dict[str, list[str]]] = {
         "G1": ["C", "P"],
         "G2": ["C", "P"],
     }
 
-    AGGR_G1_G2_BAND_PROPERTIES = {
+    AGGR_G1_G2_BAND_PROPERTIES: ClassVar[
+        dict[str, dict[str, pint.Quantity]]
+    ] = {
         "G1": {
             "freq": 1602.28125 * UREG.MHz,  # see Note on G1 & G2
             "bandwidth": 8.3345 * UREG.MHz,  # see Note on G1 & G2
@@ -708,18 +779,21 @@ class GLONASS(ConstellationBase):
         },
     }
 
-    SV_DEPENDENT_BANDS: list[str] = ["*1C", "*1P", "*2C", "*2P"]
-    G1_G2_subband_bandwidth: pint.Quantity = 1.022 * UREG.MHz  # ICD 3.3.1.4 Spurious emissions
+    SV_DEPENDENT_BANDS: ClassVar[list[str]] = ["*1C", "*1P", "*2C", "*2P"]
+    G1_G2_subband_bandwidth: ClassVar[pint.Quantity] = (
+        1.022 * UREG.MHz
+    )
 
     def __init__(
         self,
         glonass_channel_pth: Path | None = Path(__file__).parent /
         "GLONASS_channels.txt",
-        aggregate_fdma: bool = True,
+        aggregate_fdma: bool = True,  # noqa: FBT001, FBT002
     ) -> None:
         """Initialize GLONASS constellation with FDMA channel assignments."""
         if not glonass_channel_pth.exists():
-            raise FileNotFoundError(f"{glonass_channel_pth} does not exist")
+            msg = f"{glonass_channel_pth} does not exist"
+            raise FileNotFoundError(msg)
         self.pth = glonass_channel_pth
         self.svs: list[str] = [f"R{i:02d}" for i in range(1, 25)]
         self.x1 = {"X1": self.AUX_FREQ}
@@ -758,8 +832,10 @@ class GLONASS(ConstellationBase):
                 }
             }
 
-    def get_channel_used_by_SV(self, sv: str) -> int:
-        """Parameters
+    def get_channel_used_by_SV(self, sv: str) -> int:  # noqa: N802
+        """Return the GLONASS channel number for a satellite.
+
+        Parameters
         ----------
         sv : str
             GLONASS satellite identifier (e.g., "R01").
@@ -784,7 +860,7 @@ class GLONASS(ConstellationBase):
 
         """
         slot_channel_dict: dict[int, int] = {}
-        with open(self.pth) as file:
+        with self.pth.open() as file:
             lines = file.readlines()
             for i in range(len(lines)):
                 if "slot" in lines[i] and "Channel" in lines[i + 1]:
@@ -799,18 +875,20 @@ class GLONASS(ConstellationBase):
                                 channel.strip())
         return slot_channel_dict
 
-    def band_G1_equation(self, sv: str) -> pint.Quantity:
+    def band_G1_equation(self, sv: str) -> pint.Quantity:  # noqa: N802
         """Compute L1 frequency for a given SV."""
         return ((1602 + self.get_channel_used_by_SV(sv) * 9 / 16) *
                 UREG.MHz).to(FREQ_UNIT)
 
-    def band_G2_equation(self, sv: str) -> pint.Quantity:
+    def band_G2_equation(self, sv: str) -> pint.Quantity:  # noqa: N802
         """Compute L2 frequency for a given SV."""
         return ((1246 + self.get_channel_used_by_SV(sv) * 7 / 16) *
                 UREG.MHz).to(FREQ_UNIT)
 
-    def freqs_G1_G2_lut(self) -> dict[str, pint.Quantity]:
-        """Returns
+    def freqs_G1_G2_lut(self) -> dict[str, pint.Quantity]:  # noqa: N802
+        """Build the FDMA-dependent L1/L2 frequency LUT.
+
+        Returns
         -------
         dict
             SV|obs_code → frequency for FDMA-dependent L1/L2 bands.
@@ -831,7 +909,9 @@ class GLONASS(ConstellationBase):
         Returns
         -------
         dict
-            Keys of format "SV|*1C" mapped to frequencies, including FDMA-dependent L1/L2
+            Keys of format "SV|*1C" mapped to frequencies, including
+            FDMA-dependent L1/L2.
+
         """
         out = {
             f"{sv}|{obs}": freq
@@ -854,23 +934,27 @@ class GLONASS(ConstellationBase):
 class SBAS(ConstellationBase):
     """SBAS constellation model (WAAS, EGNOS, GAGAN, MSAS, SDCM).
 
-    - Band numbers and codes from RINEX v3.04 Guide: \
-        http://acc.igs.org/misc/rinex304.pdf , Table 7
-
-    - L5 frequency and bandwidth from GPS L5 ICD: \
-        https://www.gps.gov/technical/icwg/IS-GPS-705J.pdf , 3.3.1.1 Frequency Plan
-
-    - L1 frequency and bandwidth from GPS L1/L2 ICD: \
-        https://www.gps.gov/technical/icwg/IS-GPS-200N.pdf , 3.3.1.1 Frequency Plan
+    - Band numbers and codes from RINEX v3.04 Guide:
+      http://acc.igs.org/misc/rinex304.pdf (Table 7).
+    - L5 frequency and bandwidth from GPS L5 ICD:
+      https://www.gps.gov/technical/icwg/IS-GPS-705J.pdf (3.3.1.1 Frequency
+      Plan).
+    - L1 frequency and bandwidth from GPS L1/L2 ICD:
+      https://www.gps.gov/technical/icwg/IS-GPS-200N.pdf (3.3.1.1 Frequency
+      Plan).
 
     Notes
     -----
     Uses a static list S01-S36 as PRNs are region-specific.
+
     """
 
-    BANDS = {"1": "L1", "5": "L5"}
-    BAND_CODES = {"L1": ["C"], "L5": ["I", "Q", "X"]}
-    BAND_PROPERTIES = {
+    BANDS: ClassVar[dict[str, str]] = {"1": "L1", "5": "L5"}
+    BAND_CODES: ClassVar[dict[str, list[str]]] = {
+        "L1": ["C"],
+        "L5": ["I", "Q", "X"],
+    }
+    BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "L1": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 30.69 * UREG.MHz,
@@ -897,6 +981,7 @@ class SBAS(ConstellationBase):
 
     @property
     def freqs_lut(self) -> dict[str, pint.Quantity]:
+        """See base class."""
         out = {
             f"{sv}|{obs}": freq
             for obs, freq in self.bands_freqs.items()
@@ -915,22 +1000,25 @@ class IRNSS(ConstellationBase):
     """IRNSS (NavIC) constellation model.
 
     - Band numbers and codes from RINEX v3.04 Guide:
-        http://acc.igs.org/misc/rinex304.pdf , Table 10
-
+      http://acc.igs.org/misc/rinex304.pdf (Table 10).
     - L5 frequencies and bandwidths from NavIC ICD:
-        https://www.isro.gov.in/media_isro/pdf/Publications/Vispdf/Pdf2017/1a_messgingicd_receiver_incois_approved_ver_1.2.pdf , Table 1
-
-    - S band frequency and bandwidth from Navipedia:\
-        https://gssc.esa.int/navipedia/index.php/IRNSS_Signal_Plan#cite_note-IRNSS_ICD-2
+      https://www.isro.gov.in/media_isro/pdf/Publications/Vispdf/Pdf2017/1a_messgingicd_receiver_incois_approved_ver_1.2.pdf
+      (Table 1).
+    - S band frequency and bandwidth from Navipedia:
+      https://gssc.esa.int/navipedia/index.php/IRNSS_Signal_Plan#cite_note-IRNSS_ICD-2
 
     Notes
     -----
     This class fetches the current satellite list from Wikipedia.
+
     """
 
-    BANDS = {"5": "L5", "9": "S"}
-    BAND_CODES = {"L5": ["A", "B", "C", "X"], "S": ["A", "B", "C", "X"]}
-    BAND_PROPERTIES = {
+    BANDS: ClassVar[dict[str, str]] = {"5": "L5", "9": "S"}
+    BAND_CODES: ClassVar[dict[str, list[str]]] = {
+        "L5": ["A", "B", "C", "X"],
+        "S": ["A", "B", "C", "X"],
+    }
+    BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "L5": {
             "freq": 1176.45 * UREG.MHz,
             "bandwidth": 24.0 * UREG.MHz,
@@ -956,6 +1044,8 @@ class IRNSS(ConstellationBase):
                 "column": "Status",
                 "value": "Operational"
             },
+            use_wiki=False,
+            static_svs=[f"I{x:02d}" for x in range(1, 15)],  # I01-I14
         )
 
     @property
@@ -973,32 +1063,38 @@ class IRNSS(ConstellationBase):
 class QZSS(ConstellationBase):
     """QZSS constellation model (GPS-compatible + unique L6).
 
-    - Band numbers and codes from RINEX v3.04 Guide: \
-        http://acc.igs.org/misc/rinex304.pdf , Table 8
-
-    - L1, L2, L5 frequencies and bandwidths from QZSS ICD: \
-        https://qzss.go.jp/en/technical/download/pdf/ps-is-qzss/is-qzss-pnt-006.pdf?t=1757949673838 , Table 3.1.2-1
-
-    - L6 frequency and bandwidth from Navipedia: \
-        https://gssc.esa.int/navipedia/index.php?title=QZSS_Signal_Plan
+    - Band numbers and codes from RINEX v3.04 Guide:
+      http://acc.igs.org/misc/rinex304.pdf (Table 8).
+    - L1, L2, L5 frequencies and bandwidths from QZSS ICD:
+      https://qzss.go.jp/en/technical/download/pdf/ps-is-qzss/is-qzss-pnt-006.pdf?t=1757949673838
+      (Table 3.1.2-1).
+    - L6 frequency and bandwidth from Navipedia:
+      https://gssc.esa.int/navipedia/index.php?title=QZSS_Signal_Plan
 
     Note:
     ----
-    Bandwidth technically depends on the GPS Block. Like with `GPS`, we assume the larger bandwidth here.
+    Bandwidth technically depends on the GPS Block. Like with `GPS`, we assume
+    the larger bandwidth here.
 
-    Notes
+    Notes:
     -----
     Uses a static list J01-J10.
+
     """
 
-    BANDS = {"1": "L1", "2": "L2", "5": "L5", "6": "L6"}
-    BAND_CODES = {
+    BANDS: ClassVar[dict[str, str]] = {
+        "1": "L1",
+        "2": "L2",
+        "5": "L5",
+        "6": "L6",
+    }
+    BAND_CODES: ClassVar[dict[str, list[str]]] = {
         "L1": ["C", "S", "L", "X", "Z"],
         "L2": ["S", "L", "X"],
         "L5": ["I", "Q", "X", "D", "P", "Z"],
         "L6": ["S", "L", "X", "E", "Z"],
     }
-    BAND_PROPERTIES = {
+    BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "L1": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 30.69 * UREG.MHz,
@@ -1035,6 +1131,7 @@ class QZSS(ConstellationBase):
 
     @property
     def freqs_lut(self) -> dict[str, pint.Quantity]:
+        """See base class."""
         out = {
             f"{sv}|{obs}": freq
             for obs, freq in self.bands_freqs.items()
@@ -1081,8 +1178,10 @@ if __name__ == "__main__":
         print(f"{k}: {v}")
 
     print(len(glonass_freqs), len(glonass_freqs2))
-    print(len(set([x.magnitude for x in glonass_freqs.values()])),
-          len(set([x.magnitude for x in glonass_freqs2.values()])))
+    print(
+        len({x.magnitude for x in glonass_freqs.values()}),
+        len({x.magnitude for x in glonass_freqs2.values()}),
+    )
 
-    print(set([x.magnitude for x in glonass_freqs.values()]))
-    print(set([x.magnitude for x in glonass_freqs2.values()]))
+    print({x.magnitude for x in glonass_freqs.values()})
+    print({x.magnitude for x in glonass_freqs2.values()})

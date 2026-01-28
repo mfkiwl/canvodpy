@@ -26,6 +26,7 @@ Simple tracking table for files updated with docstrings and typing.
 | packages/canvod-readers/src/canvod/readers/rinex/v3_04.py | yes | yes |
 | packages/canvod-readers/src/canvod/readers/rinex/__init__.py | yes | no |
 | packages/canvod-readers/src/canvod/readers/__init__.py | yes | no |
+| packages/canvod-aux/src/canvod/aux/__init__.py | yes | no |
 | packages/canvod-aux/src/canvod/aux/core/base.py | yes | yes |
 | packages/canvod-aux/src/canvod/aux/core/downloader.py | yes | yes |
 | packages/canvod-aux/src/canvod/aux/container.py | yes | no |

@@ -36,7 +36,7 @@ def get_version_from_pyproject(pyproject_path: Path | None = None) -> str:
         # Auto-find pyproject.toml (3 levels up from this file)
         pyproject_path = Path(__file__).resolve().parents[4] / "pyproject.toml"
 
-    with open(pyproject_path, "rb") as f:
+    with pyproject_path.open("rb") as f:
         data = tomllib.load(f)
 
     return data["project"]["version"]
@@ -75,8 +75,7 @@ def rinex_file_hash(path: Path, chunk_size: int = 8192) -> str:
         for chunk in iter(lambda: f.read(chunk_size), b""):
             h.update(chunk)
 
-    digest = h.hexdigest()[:16]
-    return digest
+    return h.hexdigest()[:16]
 
 
 def isfloat(value: str) -> bool:
@@ -104,6 +103,6 @@ def isfloat(value: str) -> bool:
     """
     try:
         float(value)
-        return True
+        return True  # noqa: TRY300
     except ValueError:
         return False

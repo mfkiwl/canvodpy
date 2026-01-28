@@ -31,14 +31,14 @@ class DatasetMatcher:
     Examples
     --------
     >>> from canvod.aux.matching import DatasetMatcher
-    >>> 
+    >>>
     >>> matcher = DatasetMatcher()
     >>> matched = matcher.match_datasets(
     ...     rinex_ds,
     ...     ephemerides=sp3_data,
     ...     clock=clk_data
     ... )
-    >>> 
+    >>>
     >>> # Auxiliary datasets now aligned to RINEX epochs
     >>> len(matched['ephemerides'].epoch) == len(rinex_ds.epoch)
     True

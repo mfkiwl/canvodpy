@@ -50,6 +50,7 @@ class AttributeOverrideError(RinexError):
     """
 
     def __init__(self, attribute: str) -> None:
+        """Initialize with the protected attribute name."""
         super().__init__(
             f"Overriding attribute '{attribute}' is not allowed after initialization."
         )
@@ -73,6 +74,7 @@ class MissingEpochError(RinexError):
     """
 
     def __init__(self, message: str) -> None:
+        """Initialize with a descriptive message."""
         super().__init__(message)
 
 
@@ -94,6 +96,7 @@ class CorruptedFileError(RinexError):
     """
 
     def __init__(self, message: str) -> None:
+        """Initialize with a descriptive message."""
         super().__init__(message)
 
 
@@ -115,6 +118,7 @@ class IncompleteEpochError(RinexError):
     """
 
     def __init__(self, message: str) -> None:
+        """Initialize with a descriptive message."""
         super().__init__(message)
 
 
@@ -135,6 +139,7 @@ class InvalidEpochError(RinexError):
     """
 
     def __init__(self, message: str) -> None:
+        """Initialize with a descriptive message."""
         super().__init__(message)
 
 
@@ -153,4 +158,5 @@ class FileNotExistError(RinexError):
     """
 
     def __init__(self, message: str) -> None:
+        """Initialize with a descriptive message."""
         super().__init__(message)

@@ -58,20 +58,15 @@ from canvod.utils.tools import YYYYDOY
 __version__ = "0.1.0"
 
 __all__ = [
-    # Abstract interfaces
-    "GNSSDataReader",
-    "DatasetStructureValidator",
-    "ReaderFactory",
-    # Backwards compatibility aliases
-    "GNSSReader",
-    "RinexReader",
-    # Concrete implementations
-    "Rnxv3Obs",
-    # Directory matching
-    "DataDirMatcher",
-    "PairDataDirMatcher",
-    "MatchedDirs",
-    "PairMatchedDirs",
-    # Utilities
     "YYYYDOY",
+    "DataDirMatcher",
+    "DatasetStructureValidator",
+    "GNSSDataReader",
+    "GNSSReader",
+    "MatchedDirs",
+    "PairDataDirMatcher",
+    "PairMatchedDirs",
+    "ReaderFactory",
+    "RinexReader",
+    "Rnxv3Obs",
 ]

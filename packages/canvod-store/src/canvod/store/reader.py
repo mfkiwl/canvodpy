@@ -1,14 +1,11 @@
 """Icechunk-backed readers for RINEX datasets."""
 
 import gc
-import os
 import time
 from collections.abc import Generator
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
-from turtle import st
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import xarray as xr
@@ -16,11 +13,13 @@ from canvod.readers import MatchedDirs, Rnxv3Obs
 from canvod.utils.tools import get_version_from_pyproject
 from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY
 from canvodpy.logging.context import get_logger, reset_context, set_file_context
+from canvodpy.orchestrator import RinexDataProcessor
 from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE
 from natsort import natsorted
 from tqdm import tqdm
 
 from canvod.store.manager import GnssResearchSite
+from canvod.store.preprocessing import IcechunkPreprocessor
 
 
 # Module-level function for ProcessPoolExecutor (must be pickleable).
@@ -452,7 +451,6 @@ class IcechunkDataReader:
                 f"Processing {len(rinex_files)} RINEX files for {receiver_type}"
             )
 
-            n_workers = min(self.n_max_workers, 16)
             groups = self._site.rinex_store.list_groups() or []
 
             # --- one pool per receiver type ---
