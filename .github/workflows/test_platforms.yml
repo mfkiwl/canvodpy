@@ -31,4 +31,13 @@ jobs:
               run: uv sync --locked --dev
 
             - name: Run Tests
-              run: uv run pytest --verbose --color=yes
+              run: |
+                  echo "Running tests per package to avoid namespace collisions..."
+                  uv run pytest test_configuration.py --verbose --color=yes
+                  uv run pytest canvodpy/tests/ --verbose --color=yes
+                  uv run pytest packages/canvod-aux/tests/ --verbose --color=yes
+                  uv run pytest packages/canvod-readers/tests/ --verbose --color=yes
+                  uv run pytest packages/canvod-store/tests/ --verbose --color=yes
+                  uv run pytest packages/canvod-grids/tests/ --verbose --color=yes
+                  uv run pytest packages/canvod-viz/tests/ --verbose --color=yes
+                  uv run pytest packages/canvod-vod/tests/ --verbose --color=yes
