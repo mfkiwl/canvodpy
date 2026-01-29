@@ -6,10 +6,10 @@
 
 GNSS Vegetation Optical Depth (VOD) analysis package - Modern monorepo architecture.
 
-> [!IMPORTANT]
-> This project uses `uv` for package management and `Just` for task automation.
-> - Install `uv`: [uv documentation](https://docs.astral.sh/uv/getting-started/installation/)
-> - Install `Just`: [Just documentation](https://github.com/casey/just)
+!!! important
+    This project uses `uv` for package management and `Just` for task automation.
+    - Install `uv`: [uv documentation](https://docs.astral.sh/uv/getting-started/installation/)
+    - Install `Just`: [Just documentation](https://github.com/casey/just)
 
 ## Overview
 

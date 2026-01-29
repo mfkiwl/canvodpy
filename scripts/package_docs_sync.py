@@ -198,10 +198,33 @@ def _transform_markdown(text: str) -> str:
     in_grid = False
     in_tabset = False
     in_code_fence = False
+    in_callout = False
 
     while i < len(lines):
         line = lines[i].rstrip()
         stripped = line.strip()
+
+        if stripped.startswith("> [!") and stripped.endswith("]"):
+            label = stripped[4:-1].strip().lower()
+            out.append(f"!!! {label}")
+            in_callout = True
+            i += 1
+            continue
+
+        if in_callout:
+            if stripped == ">":
+                out.append("")
+                i += 1
+                continue
+            if stripped.startswith("> "):
+                out.append(f"    {stripped[2:]}")
+                i += 1
+                continue
+            if stripped == "":
+                out.append("")
+                i += 1
+                continue
+            in_callout = False
 
         if stripped == "```{toctree}":
             _, i = _parse_fenced_block(lines, i)

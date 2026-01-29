@@ -16,8 +16,6 @@ theme:
     - navigation.indexes
     - content.code.copy
 
-extra_css:
-  - docs/assets/canvod-style.css
 
 nav:
   - Overview:
@@ -85,6 +83,11 @@ markdown_extensions:
   - admonition
   - footnotes
   - tables
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - toc:
       permalink: true
 
@@ -103,7 +106,6 @@ plugins:
             - packages/canvod-viz/src
             - canvodpy/src
           options:
-            members: true
             members_order: source
             show_root_heading: true
             show_root_full_path: false
