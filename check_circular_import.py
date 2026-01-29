@@ -1,12 +1,6 @@
 """Test that circular import is fixed."""
 
 import sys
-from pathlib import Path
-
-# Add both packages to path
-root = Path(__file__).parent
-sys.path.insert(0, str(root / "packages" / "canvod-store" / "src"))
-sys.path.insert(0, str(root / "canvodpy" / "src"))
 
 print("Testing circular import fix...")
 print("=" * 60)

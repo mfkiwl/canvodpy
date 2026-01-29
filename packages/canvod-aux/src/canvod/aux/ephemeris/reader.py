@@ -30,7 +30,7 @@ class Sp3File(AuxFile):
     -----
     This is a Pydantic dataclass with `arbitrary_types_allowed=True`.
 
-    Parameters
+    Attributes
     ----------
     date : str
         String in YYYYDOY format.

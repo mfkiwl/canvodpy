@@ -156,9 +156,29 @@ build-package PACKAGE:
 # Documentation
 # ============================================================================
 
-# preview the documentation locally (serve the myst website)
-docs:
-    uv run myst
+# sync documentation sources into docs-site/
+docs-sync:
+    uv run python scripts/package_docs_sync.py
+
+# preview the documentation locally (serve the zensical website)
+docs: docs-sync
+    uv run zensical serve
+
+# build the documentation (zensical)
+docs-build: docs-sync
+    uv run zensical build
+
+# preview package documentation locally (MyST) for a specific package
+package-docs PACKAGE:
+    cd packages/{{PACKAGE}} && uv run myst
+
+# serve package documentation locally (MyST) for a specific package
+package-docs-serve PACKAGE:
+    cd packages/{{PACKAGE}} && uv run myst start
+
+# build package documentation (MyST) for a specific package
+package-docs-build PACKAGE:
+    cd packages/{{PACKAGE}} && uv run myst build --html
 
 # ============================================================================
 # Dependency Analysis

@@ -59,15 +59,12 @@ class YYYYDOY:
     -----
     This is a Pydantic dataclass and uses ``total_ordering`` for comparisons.
 
-    Parameters
+    Attributes
     ----------
     year : int
         The year (e.g., 2025).
     doy : int
         Day of year (1-366).
-
-    Attributes
-    ----------
     date : datetime.date
         Calculated calendar date.
     yydoy : str

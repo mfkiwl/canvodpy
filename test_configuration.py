@@ -9,7 +9,10 @@ This script tests:
 """
 
 import os
+import sys
 import tempfile
+from pathlib import Path
+from unittest.mock import patch
 
 
 def test_no_env():
@@ -18,21 +21,46 @@ def test_no_env():
     print("TEST 1: Settings without .env (ESA-only mode)")
     print("=" * 70)
 
-    from canvodpy.settings import get_settings
+    # Save original environment
+    orig_cddis = os.environ.get("CDDIS_MAIL")
+    orig_gnss = os.environ.get("GNSS_ROOT_DIR")
+    
+    try:
+        # Clear credentials from environment
+        os.environ.pop("CDDIS_MAIL", None)
+        os.environ.pop("GNSS_ROOT_DIR", None)
+        
+        # Remove settings module from cache to force reimport
+        if 'canvodpy.settings' in sys.modules:
+            del sys.modules['canvodpy.settings']
+        
+        # Mock Path.exists to make it think .env doesn't exist
+        with patch.object(Path, 'exists', return_value=False):
+            from canvodpy.settings import AppSettings
+            settings = AppSettings()
 
-    settings = get_settings()
+        assert not settings.has_cddis_credentials, (
+            "Should not have CDDIS credentials"
+        )
+        assert settings.cddis_mail is None, "CDDIS mail should be None"
 
-    assert not settings.has_cddis_credentials, "Should not have CDDIS credentials"
-    assert settings.cddis_mail is None, "CDDIS mail should be None"
-
-    print("✅ Settings loaded successfully")
-    print(f"   CDDIS configured: {settings.has_cddis_credentials}")
-    print(f"   CDDIS mail: {settings.cddis_mail or 'Not configured'}")
-    print(f"   GNSS root dir: {settings.gnss_root_dir or 'Not configured'}")
-    print(f"   GNSS root path: {settings.gnss_root_path}")
-    print()
-    print("✅ ESA-only mode working correctly!")
-    print()
+        print("✅ Settings loaded successfully")
+        print(f"   CDDIS configured: {settings.has_cddis_credentials}")
+        print(f"   CDDIS mail: {settings.cddis_mail or 'Not configured'}")
+        print(f"   GNSS root dir: {settings.gnss_root_dir or 'Not configured'}")
+        print(f"   GNSS root path: {settings.gnss_root_path}")
+        print()
+        print("✅ ESA-only mode working correctly!")
+        print()
+    finally:
+        # Restore original environment
+        if orig_cddis:
+            os.environ["CDDIS_MAIL"] = orig_cddis
+        if orig_gnss:
+            os.environ["GNSS_ROOT_DIR"] = orig_gnss
+        # Remove from cache again for clean slate
+        if 'canvodpy.settings' in sys.modules:
+            del sys.modules['canvodpy.settings']
 
 
 def test_with_env():
@@ -41,20 +69,24 @@ def test_with_env():
     print("TEST 2: Settings with .env (NASA + ESA mode)")
     print("=" * 70)
 
-    # Create temporary .env file
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".env", delete=False) as f:
-        f.write("CDDIS_MAIL=test@example.com\n")
-        f.write("GNSS_ROOT_DIR=/tmp/test_gnss\n")
-        env_path = f.name
-
+    # Save original environment
+    orig_cddis = os.environ.get("CDDIS_MAIL")
+    orig_gnss = os.environ.get("GNSS_ROOT_DIR")
+    
     try:
-        # Load .env
-        from dotenv import load_dotenv
-        load_dotenv(env_path, override=True)
-
-        # Reload settings
-        from canvodpy.settings import reload_settings
-        settings = reload_settings()
+        # Set test credentials in environment
+        os.environ["CDDIS_MAIL"] = "test@example.com"
+        os.environ["GNSS_ROOT_DIR"] = "/tmp/test_gnss"
+        
+        # Remove settings module from cache to force reimport
+        if 'canvodpy.settings' in sys.modules:
+            del sys.modules['canvodpy.settings']
+        
+        # Mock Path.exists to make it think .env doesn't exist
+        # (we're testing environment variable loading, not file loading)
+        with patch.object(Path, 'exists', return_value=False):
+            from canvodpy.settings import AppSettings
+            settings = AppSettings()
 
         assert settings.has_cddis_credentials, "Should have CDDIS credentials"
         assert settings.cddis_mail == "test@example.com", "CDDIS mail mismatch"
@@ -68,15 +100,19 @@ def test_with_env():
         print()
         print("✅ NASA + ESA mode working correctly!")
         print()
-
     finally:
-        # Cleanup
-        os.unlink(env_path)
-        # Reset to no .env mode
-        os.environ.pop("CDDIS_MAIL", None)
-        os.environ.pop("GNSS_ROOT_DIR", None)
-        from canvodpy.settings import reload_settings
-        reload_settings()
+        # Restore original environment
+        if orig_cddis:
+            os.environ["CDDIS_MAIL"] = orig_cddis
+        else:
+            os.environ.pop("CDDIS_MAIL", None)
+        if orig_gnss:
+            os.environ["GNSS_ROOT_DIR"] = orig_gnss
+        else:
+            os.environ.pop("GNSS_ROOT_DIR", None)
+        # Remove from cache again for clean slate
+        if 'canvodpy.settings' in sys.modules:
+            del sys.modules['canvodpy.settings']
 
 
 def test_aux_integration():

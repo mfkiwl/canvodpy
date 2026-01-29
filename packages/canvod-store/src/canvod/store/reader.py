@@ -13,7 +13,6 @@ from canvod.readers import MatchedDirs, Rnxv3Obs
 from canvod.utils.tools import get_version_from_pyproject
 from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY
 from canvodpy.logging.context import get_logger, reset_context, set_file_context
-from canvodpy.orchestrator import RinexDataProcessor
 from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE
 from natsort import natsorted
 from tqdm import tqdm
@@ -231,6 +230,8 @@ class IcechunkDataReader:
         )
 
         # --- 1) Cache auxiliaries once per day ---
+        from canvodpy.orchestrator import RinexDataProcessor
+        
         processor = RinexDataProcessor(matched_data_dirs=self.matched_dirs,
                                        icechunk_reader=self)
 

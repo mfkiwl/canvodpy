@@ -16,7 +16,7 @@ class GnssData:
     -----
     This is a Pydantic dataclass with `arbitrary_types_allowed=True`.
 
-    Parameters
+    Attributes
     ----------
     dataset : xr.Dataset
         Primary dataset.
@@ -36,7 +36,7 @@ class FileMetadata:
     -----
     This is a standard dataclass.
 
-    Parameters
+    Attributes
     ----------
     date : str
         Date in YYYYDOY format.

@@ -53,6 +53,7 @@ from canvod.readers.gnss_specs.metadata import (
 )
 from canvod.readers.gnss_specs.models import (
     Observation,
+    RINEX304ComplianceValidator,
     RnxObsFileModel,
     Rnxv3ObsEpochRecord,
     Rnxv3ObsEpochRecordCompletenessModel,
@@ -62,7 +63,6 @@ from canvod.readers.gnss_specs.models import (
 )
 from canvod.readers.gnss_specs.signals import SignalIDMapper
 from canvod.readers.gnss_specs.utils import get_version_from_pyproject
-from canvod.readers.gnss_specs.validators import RINEX304Validator
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -663,7 +663,7 @@ class Rnxv3Header(BaseModel):
 class Rnxv3Obs(GNSSDataReader, BaseModel):
     """RINEX v3.04 observation reader.
 
-    Parameters
+    Attributes
     ----------
     fpath : Path
         Path to the RINEX observation file.
@@ -1738,12 +1738,12 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             header_dict["SYS / PHASE SHIFT"] = self.header.phase_shift
 
         # Run validation
-        results = RINEX304Validator.validate_all(ds=ds,
-                                                 header_dict=header_dict,
-                                                 strict=strict)
+        results = RINEX304ComplianceValidator.validate_all(
+            ds=ds, header_dict=header_dict, strict=strict
+        )
 
         if print_report:
-            RINEX304Validator.print_validation_report(results)
+            RINEX304ComplianceValidator.print_validation_report(results)
 
         return results
 

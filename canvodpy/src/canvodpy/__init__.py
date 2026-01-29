@@ -59,8 +59,6 @@ Calculate and visualize VOD:
 
 """
 
-import contextlib
-
 from canvodpy.api import (
     Pipeline,
     Site,
@@ -75,9 +73,27 @@ from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
 # Level 3 API: Re-export subpackages for advanced users
 # ============================================================================
 
-# Import subpackages (but don't expose everything in __all__)
-with contextlib.suppress(ImportError):
-    from canvod import aux, grids, readers, store, viz, vod
+# Lazy import subpackages on access to avoid circular dependencies
+def __getattr__(name: str):
+    """Lazy import subpackages when accessed."""
+    _subpackages = {
+        "aux": "canvod.aux",
+        "grids": "canvod.grids", 
+        "readers": "canvod.readers",
+        "store": "canvod.store",
+        "viz": "canvod.viz",
+        "vod": "canvod.vod",
+    }
+    
+    if name in _subpackages:
+        import importlib
+        import sys
+        module = importlib.import_module(_subpackages[name])
+        # Cache the imported module (can't use globals() as it's shadowed by canvodpy.globals)
+        setattr(sys.modules[__name__], name, module)
+        return module
+    
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 # ============================================================================
 # Version

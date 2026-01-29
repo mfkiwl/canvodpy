@@ -105,15 +105,18 @@ class TestRINEXIntegration:
         assert "freq_min" in ds.coords
         assert "freq_max" in ds.coords
 
-        # Check frequencies are valid
+        # Check frequencies are valid (excluding NaN values from padded sids)
         freq_center = ds.freq_center.values
-        assert np.all(freq_center > 0), "All frequencies should be positive"
-        assert np.all(freq_center < 3000), "Frequencies should be < 3000 MHz"
+        valid_freqs = freq_center[~np.isnan(freq_center)]
+        assert len(valid_freqs) > 0, "Should have some valid frequencies"
+        assert np.all(valid_freqs > 0), "All valid frequencies should be positive"
+        assert np.all(valid_freqs < 3000), "Frequencies should be < 3000 MHz"
 
-        # Check frequency ranges
+        # Check frequency ranges (excluding NaN values)
         freq_min = ds.freq_min.values
         freq_max = ds.freq_max.values
-        assert np.all(freq_min < freq_max), "freq_min should be < freq_max"
+        valid_mask = ~(np.isnan(freq_min) | np.isnan(freq_max))
+        assert np.all(freq_min[valid_mask] < freq_max[valid_mask]), "freq_min should be < freq_max"
 
     def test_band_coordinate_in_dataset(self, rinex_file):
         """Test band coordinate is correctly set."""
@@ -135,10 +138,15 @@ class TestRINEXIntegration:
 
         assert "system" in ds.coords
 
-        # Check each system matches the signal ID
+        # Check each system matches the signal ID (skip padded sids with no data)
         for i, sid in enumerate(ds.sid.values):
             sv_system = str(sid).split("|")[0][0]
             dataset_system = str(ds.system.values[i])
+            
+            # Skip NaN values from padded sids
+            if dataset_system == 'nan':
+                continue
+                
             assert sv_system == dataset_system, \
                 f"System mismatch: SID has {sv_system}, dataset has {dataset_system}"
 

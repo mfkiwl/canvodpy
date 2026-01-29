@@ -31,7 +31,7 @@ class InterpolatorConfig:
 class Sp3Config(InterpolatorConfig):
     """Configuration for SP3 ephemeris interpolation.
 
-    Parameters
+    Attributes
     ----------
     use_velocities : bool, default True
         Use Hermite splines with satellite velocities if available.
@@ -46,7 +46,7 @@ class Sp3Config(InterpolatorConfig):
 class ClockConfig(InterpolatorConfig):
     """Configuration for clock correction interpolation.
 
-    Parameters
+    Attributes
     ----------
     window_size : int, default 9
         Window size for discontinuity detection.

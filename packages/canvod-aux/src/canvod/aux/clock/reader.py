@@ -39,7 +39,7 @@ class ClkFile(AuxFile):
     -----
     This is a Pydantic dataclass with `arbitrary_types_allowed=True`.
 
-    Parameters
+    Attributes
     ----------
     date : str
         String in YYYYDOY format representing the start date.

@@ -688,36 +688,27 @@ class BEIDOU(ConstellationBase):
 class GLONASS(ConstellationBase):
     """GLONASS constellation model (uses FDMA for L1/L2).
 
-    Parameters
+    Notes
+    -----
+    References
+      - Band numbers, codes, frequencies and FDMA equations from RINEX v3.04
+        Guide: http://acc.igs.org/misc/rinex304.pdf (Table 5).
+      - Bandwidths from GLONASS ICD:
+        https://www.unavco.org/help/glossary/docs/
+        ICD_GLONASS_4.0_(1998)_en.pdf (3.3.1.4 Spurious emissions).
+      - GLONASS channel assignment from: see included channel file.
+
+    G1/G2 is treated as a single band here, although it consists of sub-bands
+    according to FDMA (see `GLONASS.band_G1_equation()`). The center frequency
+    is the average of all sub-band frequencies. The bandwidth spans all
+    sub-band widths, so the center frequency differs slightly from the FDMA
+    base value.
+
+    Attributes
     ----------
     glonass_channel_pth : Path, optional
         Path to GLONASS channel assignment file (default:
         "GLONASS_channels.txt" in the same directory as this file).
-    aggregate_fdma : bool, optional
-        If True, aggregate all FDMA sub-bands into single G1 and G2 bands
-        (default: True). If False, only the FDMA sub-bands are available
-
-    - Band numbers, codes, frequencies and FDMA equations from RINEX v3.04
-      Guide: http://acc.igs.org/misc/rinex304.pdf (Table 5).
-    - Bandwidths from (old, but publicly available) GLONASS ICD:
-      https://www.unavco.org/help/glossary/docs/ICD_GLONASS_4.0_(1998)_en.pdf
-      (3.3.1.4 Spurious emissions).
-    - GLONASS channel assignment from: see included channel file.
-
-
-    Note on G1 & G2:
-    --------
-    G1/G2 is treated a single band here, although it consists of sub-bands
-    according to FDMA (see `GLONASS.band_G1_equation()` below). The center
-    frequency of this "cumulative" band is the average of all sub-band
-    frequencies. Its bandwidth here is defined as stretching across all
-    sub-band including their sub-band bandwidths. Therefore the center
-    frequency slightly differs from the one given in the FDMA base frequency.
-
-    Parameters
-    ----------
-    glonass_channel_pth : Path, optional
-        Path to GLONASS channel assignment file.
     aggregate_fdma : bool, default True
         If True, aggregate FDMA sub-bands into single G1/G2 bands.
         If False, maintain individual FDMA channel frequencies.

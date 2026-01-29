@@ -12,6 +12,7 @@ members = ["packages/*", "canvodpy"]
 [dependency-groups]
 dev = [
     "ipykernel>=7.1.0",
+    "mkdocstrings-python>=2.0.1",
     "mystmd>=1.6.6",
     "pydeps>=3.0.2",
     "pytest>=9.0.1",
@@ -19,6 +20,7 @@ dev = [
     "pytest-mock>=3.12.0",
     "ruff>=0.14.5",
     "ty>=0.0.1a27",
+    "zensical>=0.0.18",
 ]
 
 # ============================================================================
