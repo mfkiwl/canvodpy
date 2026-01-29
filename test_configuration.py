@@ -143,9 +143,22 @@ def test_aux_integration():
 
 def test_processing_yaml():
     """Test processing.yaml loads correctly."""
+    import pytest
+    from pathlib import Path
+    
     print("=" * 70)
     print("TEST 4: Processing config from YAML")
     print("=" * 70)
+
+    # Check if config files exist (they're user-specific)
+    config_dir = Path("config")
+    sites_yaml = config_dir / "sites.yaml"
+    
+    if not sites_yaml.exists():
+        pytest.skip(
+            "Config files not found (user-specific). "
+            "Run 'canvodpy config init' to create them."
+        )
 
     from canvod.utils.config import load_config
 
