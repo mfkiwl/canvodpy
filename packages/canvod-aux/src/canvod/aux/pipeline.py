@@ -11,9 +11,9 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
+from canvod.aux.preprocessing import prep_aux_ds
 from canvod.readers.matching import MatchedDirs
 from canvod.readers.matching.dir_matcher import DataDirMatcher
-from canvod.store.preprocessing import IcechunkPreprocessor
 from canvod.utils.tools import YYYYDOY
 from canvodpy.globals import (
     AGENCY,
@@ -139,7 +139,7 @@ class AuxDataPipeline:
                 raw_ds = handler.data
 
                 # Stage 2: Preprocess (sv → sid mapping) with keep_sids filter
-                preprocessed_ds = IcechunkPreprocessor.prep_aux_ds(
+                preprocessed_ds = prep_aux_ds(
                     raw_ds, keep_sids=self.keep_sids
                 )
 

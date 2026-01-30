@@ -320,3 +320,7 @@ config/sids.yaml
 
 # Templates (DO commit!)
 !config/*.example
+
+# Prevent config directory in packages
+canvodpy/config/
+packages/*/config/

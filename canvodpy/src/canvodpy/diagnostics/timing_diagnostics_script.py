@@ -6,14 +6,78 @@ timing_diagnostics_script.py.
 This script processes RINEX data using the new canvodpy architecture.
 Compare results with gnssvodpy to verify correct implementation.
 """
+import csv
 import gc
 import time
 from datetime import datetime
+from pathlib import Path
 
 from canvod.store import GnssResearchSite
 
-from canvodpy.globals import KEEP_RNX_VARS
+from canvodpy.globals import KEEP_RNX_VARS, LOG_DIR, RINEX_STORE_STRATEGY
 from canvodpy.orchestrator import PipelineOrchestrator
+
+
+class TimingLogger:
+    """CSV logger for timing data with append support."""
+
+    def __init__(self, filename=None, expected_receivers=None):
+        # Default to .logs directory in project root
+        if filename is None:
+            filename = LOG_DIR / "timing_log.csv"
+        self.filename = filename
+        self.file_exists = Path(filename).exists()
+
+        # Define all possible receivers upfront
+        if expected_receivers is None:
+            expected_receivers = [
+                'canopy_01', 'canopy_02', 'reference_01', 'reference_02'
+            ]
+        self.expected_receivers = sorted(expected_receivers)
+
+        # Fixed fieldnames for consistent CSV structure
+        self.fieldnames = ['day', 'start_time', 'end_time'] + \
+                         [f'{name}_seconds' for name in self.expected_receivers] + \
+                         ['total_seconds']
+
+    def log(self, day, start_time, end_time, receiver_times, total_time):
+        """Log a day's processing times."""
+
+        row = {
+            'day': day,
+            'start_time': start_time.isoformat(),
+            'end_time': end_time.isoformat(),
+            'total_seconds': round(total_time, 2)
+        }
+
+        # Add all expected receivers (0.0 if not present this day)
+        for receiver_name in self.expected_receivers:
+            col_name = f'{receiver_name}_seconds'
+            row[col_name] = round(receiver_times.get(receiver_name, 0.0), 2)
+
+        # Write with consistent fieldnames
+        mode = 'a' if self.file_exists else 'w'
+        write_header = not self.file_exists
+
+        try:
+            with open(self.filename, mode, newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=self.fieldnames)
+
+                if write_header:
+                    writer.writeheader()
+
+                writer.writerow(row)
+
+            self.file_exists = True
+            print(f"📊 Logged timing for {day}")
+            print(f"   File: {Path(self.filename).absolute()}")
+
+        except Exception as e:
+            print(f"✗ Failed to log timing: {e}")
+
+    def save(self):
+        """Compatibility method - does nothing since we write immediately."""
+        pass
 
 
 def diagnose_processing(
@@ -47,9 +111,10 @@ def diagnose_processing(
 
     """
     print("=" * 80)
-    print("CANVODPY DIAGNOSTIC PROCESSING")
+    print("TIMING DIAGNOSTIC WITH GENERALIZED PIPELINE")
     print("=" * 80)
     print(f"Start time: {datetime.now()}")
+    print(f"RINEX_STORE_STRATEGY: {RINEX_STORE_STRATEGY}")
     print(f"KEEP_RNX_VARS: {KEEP_RNX_VARS}")
     if start_from:
         print(f"Starting from: {start_from}")
@@ -59,6 +124,9 @@ def diagnose_processing(
 
     # Initialize site and orchestrator
     site = GnssResearchSite(site_name="Rosalia")
+    # Get all configured receivers
+    all_receivers = sorted(site.active_receivers.keys())
+    timing_log = TimingLogger(expected_receivers=all_receivers)
     orchestrator = PipelineOrchestrator(site=site, dry_run=False)
 
     counter = 0
@@ -68,6 +136,8 @@ def diagnose_processing(
     # Main processing loop
     for date_key, datasets, receiver_times in orchestrator.process_by_date(
             keep_vars=KEEP_RNX_VARS, start_from=start_from, end_at=end_at):
+
+        day_start_time = datetime.now()  # Capture start time
 
         print(f"\n{'='*80}")
         print(f"Processing {date_key}")
@@ -83,6 +153,7 @@ def diagnose_processing(
                 print("  Processing time: "
                       f"{receiver_times[receiver_name]:.2f}s")
 
+            day_end_time = datetime.now()  # Capture end time
             # Calculate actual total from receiver times
             total_time = sum(receiver_times.values())
 
@@ -95,6 +166,15 @@ def diagnose_processing(
                       f"({receiver_times[receiver_name]:.2f}s)")
             print(f"Total time: {total_time:.2f}s")
             print(f"\n✓ Successfully processed {date_key}")
+
+            # LOG TO CSV with actual receiver times
+            timing_log.log(
+                day=date_key,
+                start_time=day_start_time,
+                end_time=day_end_time,
+                receiver_times=receiver_times,
+                total_time=total_time
+            )
 
             days_since_rechunk += 1
 
@@ -135,7 +215,7 @@ def diagnose_processing(
 
 if __name__ == "__main__":
     # Process everything
-    # diagnose_processing()
+    diagnose_processing()
 
     # Start from a specific date
     # diagnose_processing(start_from="2024183")  # July 1, 2024
@@ -145,17 +225,3 @@ if __name__ == "__main__":
 
     # Process specific test range (Oct 26, 2025)
     # diagnose_processing(start_from="2025299", end_at="2025300")
-
-    # Initialize site and orchestrator
-    site = GnssResearchSite(site_name="Rosalia")
-    orchestrator = PipelineOrchestrator(site=site, dry_run=False)
-
-    counter = 0
-    garbage_collect = 0
-    days_since_rechunk = 0
-
-    # Main processing loop
-
-    for date_key, _datasets, _receiver_times in orchestrator.process_by_date(
-            keep_vars=KEEP_RNX_VARS, start_from=None, end_at=None):
-        print(date_key)

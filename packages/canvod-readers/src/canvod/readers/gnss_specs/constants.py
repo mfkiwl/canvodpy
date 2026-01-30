@@ -15,10 +15,14 @@ Removed and moved to config:
 
 import pint
 
-# Initialize unit registry
-UREG: pint.UnitRegistry = pint.UnitRegistry()
-UREG.define("dBHz = 10 * log10(hertz)")
-UREG.define("dB = 10 * log10(ratio)")
+# Initialize unit registry - use application registry to avoid redefinition warnings
+# in multiprocessing contexts
+UREG: pint.UnitRegistry = pint.get_application_registry()
+
+# Define custom units only if not already defined (idempotent)
+# Note: 'dB' (decibel) already exists in pint by default, so we don't redefine it
+if "dBHz" not in UREG:
+    UREG.define("dBHz = 10 * log10(hertz)")
 
 # Physical constants
 SPEEDOFLIGHT: pint.Quantity = 299792458 * UREG.meter / UREG.second

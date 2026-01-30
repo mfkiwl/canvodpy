@@ -1164,7 +1164,9 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             second=int(epch.info.seconds),
             tzinfo=timezone.utc,
         )
-        return np.datetime64(dt, "ns")
+        # np.datetime64 doesn't support timezone info, but datetime is already UTC
+        # Convert to naive datetime (UTC) to avoid warning
+        return np.datetime64(dt.replace(tzinfo=None), "ns")
 
     def _epoch_datetimes(self) -> list[datetime]:
         """Extract epoch datetimes from the file.

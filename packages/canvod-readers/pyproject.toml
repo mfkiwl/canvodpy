@@ -33,6 +33,7 @@ dependencies = [
     "tomli>=2.0.0; python_version < '3.11'",
     "ipykernel>=7.1.0",
     "plotly>=6.5.1",
+    "marimo>=0.19.7",
 ]
 
 [dependency-groups]

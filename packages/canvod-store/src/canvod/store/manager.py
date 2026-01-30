@@ -68,12 +68,22 @@ class GnssResearchSite:
         self.site_config = RESEARCH_SITES[site_name]
         self._logger = get_logger().bind(site=site_name)
 
-        # Initialize stores
-        self.rinex_store = create_rinex_store(
-            self.site_config["rinex_store_path"])
-        self.vod_store = create_vod_store(self.site_config["vod_store_path"])
+        # Load store paths from processing config (not from research_sites_config)
+        from canvod.utils.config import load_config
+        config = load_config()
+        
+        rinex_store_path = config.processing.storage.get_rinex_store_path(site_name)
+        vod_store_path = config.processing.storage.get_vod_store_path(site_name)
+        
+        # Initialize stores using paths from processing.yaml
+        self.rinex_store = create_rinex_store(rinex_store_path)
+        self.vod_store = create_vod_store(vod_store_path)
 
-        self._logger.info(f"Initialized GNSS research site: {site_name}")
+        self._logger.info(
+            f"Initialized GNSS research site: {site_name}",
+            rinex_store=str(rinex_store_path),
+            vod_store=str(vod_store_path),
+        )
 
     @property
     def receivers(self) -> dict[str, dict[str, Any]]:
@@ -126,8 +136,14 @@ class GnssResearchSite:
         ValueError
             If no matching site is found for the given path.
         """
-        for site_name, config in RESEARCH_SITES.items():
-            if Path(config["rinex_store_path"]) == rinex_store_path:
+        # Load config to get store paths
+        from canvod.utils.config import load_config
+        config = load_config()
+        
+        # Try to match against each site's expected rinex store path
+        for site_name in RESEARCH_SITES.keys():
+            expected_path = config.processing.storage.get_rinex_store_path(site_name)
+            if expected_path == rinex_store_path:
                 return cls(site_name)
 
         raise ValueError(f"No research site found for RINEX store path: "

@@ -17,6 +17,41 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+
+def find_monorepo_root() -> Path:
+    """Find the monorepo root by looking for .git directory.
+    
+    Returns
+    -------
+    Path
+        Monorepo root directory
+        
+    Raises
+    ------
+    RuntimeError
+        If monorepo root cannot be found
+    """
+    current = Path.cwd().resolve()
+    
+    # Walk up directory tree looking for .git
+    for parent in [current] + list(current.parents):
+        if (parent / ".git").exists():
+            return parent
+    
+    # Fallback: if this file is in packages/canvod-utils/src/canvod/utils/config/cli.py
+    # then monorepo root is 7 levels up
+    try:
+        cli_file = Path(__file__).resolve()
+        # cli.py -> config -> utils -> canvod -> src -> canvod-utils -> packages -> root
+        monorepo_root = cli_file.parent.parent.parent.parent.parent.parent.parent
+        if (monorepo_root / ".git").exists():
+            return monorepo_root
+    except Exception:
+        pass
+    
+    raise RuntimeError("Cannot find monorepo root (no .git directory found)")
+
+
 # Main app
 main_app = typer.Typer(
     name="canvodpy",
@@ -32,9 +67,16 @@ config_app = typer.Typer(
 )
 
 console = Console()
-DEFAULT_CONFIG_DIR = Path.cwd() / "config"
+
+# Always use monorepo root config directory
+try:
+    MONOREPO_ROOT = find_monorepo_root()
+    DEFAULT_CONFIG_DIR = MONOREPO_ROOT / "config"
+except RuntimeError:
+    # Fallback if we can't find monorepo root
+    DEFAULT_CONFIG_DIR = Path.cwd() / "config"
+
 CONFIG_DIR_OPTION = typer.Option(
-    DEFAULT_CONFIG_DIR,
     "--config-dir",
     "-c",
     help="Configuration directory",
@@ -64,13 +106,16 @@ def init(
     # Create config directory
     config_dir.mkdir(parents=True, exist_ok=True)
 
-    # Get template directory (from repository root)
-    # Path: packages/canvod-utils/src/canvod/utils/config/cli.py
-    # Go up 7 levels to repo root, then down to config/
-    template_dir = (
-        Path(__file__).parent.parent.parent.parent.parent.parent.parent /
-        "config"
-    )
+    # Get template directory (from monorepo root)
+    try:
+        monorepo_root = find_monorepo_root()
+        template_dir = monorepo_root / "config"
+    except RuntimeError:
+        # Fallback to path calculation if monorepo root not found
+        template_dir = (
+            Path(__file__).parent.parent.parent.parent.parent.parent.parent /
+            "config"
+        )
 
     if not template_dir.exists():
         console.print(

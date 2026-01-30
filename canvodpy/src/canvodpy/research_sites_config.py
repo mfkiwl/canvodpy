@@ -14,8 +14,10 @@ import os
 from pathlib import Path
 from typing import Any
 
-# Get the directory two levels up from this file for the env file
-_ENV_DIR = Path(__file__).parent.parent.parent
+# Get the monorepo root (one more level up than before)
+# research_sites_config.py is at: canvodpy/src/canvodpy/research_sites_config.py
+# So we need 4 parents to reach the monorepo root
+_ENV_DIR = Path(__file__).parent.parent.parent.parent
 
 # Load environment variables from .env file in _ENV_DIR
 try:
@@ -27,15 +29,16 @@ except ImportError:
 
 # Get GNSS_ROOT_DIR from environment or use relative default
 # User must set this in .env file for their local environment
-_GNSS_ROOT_DIR = Path(os.getenv("GNSS_ROOT_DIR", Path.cwd() / "data"))
+_GNSS_ROOT_DIR = Path(os.getenv("GNSS_ROOT_DIR", _ENV_DIR / "data"))
 
 # ----------------------------- Research Sites Configuration --------------------
 
 RESEARCH_SITES: dict[str, dict[str, Any]] = {
     "Rosalia": {
         "base_dir": _GNSS_ROOT_DIR / "01_Rosalia",
-        "rinex_store_path": _GNSS_ROOT_DIR / "01_Rosalia" / "03_Rinex_Testing",
-        "vod_store_path": _GNSS_ROOT_DIR / "01_Rosalia" / "04_VOD_Testing",
+        # Store paths now come from processing.yaml (storage.stores_root_dir)
+        # They are: {stores_root_dir}/{site_name}/rinex/
+        #           {stores_root_dir}/{site_name}/vod/
         "receivers": {
             "reference_01": {
                 "type": "reference",

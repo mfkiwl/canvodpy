@@ -116,8 +116,31 @@ def preprocess_with_hermite_aux(  # noqa: PLR0913
         # 3. Select only the epochs matching this RINEX file (fast slice operation)
         # The aux data is already properly interpolated with Hermite splines
         aux_slice = aux_store.sel(epoch=ds.epoch, method="nearest")
+        
+        # 4. Find common SIDs between RINEX and aux data (inner join)
+        # Some satellites in RINEX may not have ephemeris data, and vice versa
+        rinex_sids = set(ds.sid.values)
+        aux_sids = set(aux_slice.sid.values)
+        common_sids = sorted(rinex_sids.intersection(aux_sids))
+        
+        if not common_sids:
+            raise ValueError(
+                f"No common SIDs found between RINEX ({len(rinex_sids)} sids) "
+                f"and aux data ({len(aux_sids)} sids)"
+            )
+        
+        # Filter both datasets to common SIDs
+        ds = ds.sel(sid=common_sids)
+        aux_slice = aux_slice.sel(sid=common_sids)
+        
+        log.info(
+            "SID filtering: RINEX had %d, aux had %d, using %d common",
+            len(rinex_sids),
+            len(aux_sids), 
+            len(common_sids),
+        )
 
-        # 4. Compute spherical coordinates (φ, θ, r) from ephemerides
+        # 5. Compute spherical coordinates (φ, θ, r) from ephemerides
         ds_augmented = _compute_spherical_coords_fast(
             ds,
             aux_slice,

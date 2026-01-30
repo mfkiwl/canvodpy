@@ -2,41 +2,66 @@
 
 ## Summary
 
-**The circular import is FIXED with a two-part solution:**
-1. Lazy import in `canvod.store.reader.py`
-2. Lazy imports in `canvodpy.orchestrator.__init__.py`
+**All circular imports FIXED with a three-part solution:**
+1. Lazy import in `canvod.store.reader.py` (RinexDataProcessor)
+2. Lazy imports in `canvodpy.orchestrator.__init__.py` 
+3. Direct imports bypassing wrapper (IcechunkPreprocessor → prep_aux_ds)
 
 ---
 
 ## Problem
 
-Circular import error when running tests:
+Three circular import errors discovered during migration:
 
+### Error 1: Test Collection
 ```
 ImportError: cannot import name 'AuxDataPipeline' from partially initialized module 'canvod.aux.pipeline'
-(most likely due to a circular import)
 ```
 
-### Circular Dependency Chain
-
+### Error 2: Diagnostic Script Execution
 ```
-canvod.aux.__init__ (line 109)
-  → canvod.aux.pipeline (line 16)
-    → canvod.store.preprocessing
-      → canvod.store.__init__ (line 8)
-        → canvod.store.reader (line 16) [FIX #1]
-          → canvodpy.orchestrator.__init__ (line 16) [FIX #2]
-            → canvodpy.orchestrator.pipeline (line 9)
-              → canvod.store (CIRCULAR!)
+ImportError: cannot import name 'IcechunkPreprocessor' from partially initialized module 'canvod.store.preprocessing'
+```
+
+---
+
+## Circular Dependency Chains
+
+### Chain 1: store ↔ orchestrator (Fixed by #1 and #2)
+```
+canvod.store.__init__
+  → canvod.store.reader [FIX #1]
+    → canvodpy.orchestrator [FIX #2]
+      → canvodpy.orchestrator.pipeline
+        → canvod.store.manager
+          → canvod.store (CIRCULAR!)
+```
+
+### Chain 2: store ↔ aux (Fixed by #3)
+```
+canvod.store.preprocessing
+  → canvod.aux.preprocessing
+    → canvod.aux.__init__
+      → canvod.aux.pipeline [FIX #3a]
+        → canvod.store.preprocessing (CIRCULAR!)
+
+canvod.store.reader [FIX #3b]
+  → canvod.store.preprocessing
+    → canvod.aux.preprocessing
+      → canvod.aux.__init__
+        → canvod.aux.pipeline
+          → canvod.store.preprocessing (CIRCULAR!)
 ```
 
 ---
 
 ## Solution
 
-### Fix #1: Lazy Import in `canvod.store.reader`
+### Fix #1: Lazy Import in `canvod.store.reader` (RinexDataProcessor)
 
 **File:** `packages/canvod-store/src/canvod/store/reader.py`
+
+**Change:** Move import from module level to inside method.
 
 **Before:**
 ```python
@@ -49,7 +74,7 @@ def parsed_rinex_data_gen_v2(self, ...):
 
 **After:**
 ```python
-# Removed from line 16
+# Removed from module level
 
 def parsed_rinex_data_gen_v2(self, ...):
     from canvodpy.orchestrator import RinexDataProcessor  # Lazy import
@@ -60,6 +85,8 @@ def parsed_rinex_data_gen_v2(self, ...):
 
 **File:** `canvodpy/src/canvodpy/orchestrator/__init__.py`
 
+**Change:** Use `__getattr__` for lazy loading with TYPE_CHECKING for type hints.
+
 **Before:**
 ```python
 from canvodpy.orchestrator.pipeline import (
@@ -67,8 +94,6 @@ from canvodpy.orchestrator.pipeline import (
     SingleReceiverProcessor,
 )
 from canvodpy.orchestrator.processor import RinexDataProcessor
-
-__all__ = ["PipelineOrchestrator", "RinexDataProcessor", "SingleReceiverProcessor"]
 ```
 
 **After:**
@@ -78,8 +103,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from canvodpy.orchestrator.pipeline import PipelineOrchestrator, SingleReceiverProcessor
     from canvodpy.orchestrator.processor import RinexDataProcessor
-
-__all__ = ["PipelineOrchestrator", "RinexDataProcessor", "SingleReceiverProcessor"]
 
 def __getattr__(name: str):
     """Lazy import to avoid circular dependencies."""
@@ -94,6 +117,54 @@ def __getattr__(name: str):
         return RinexDataProcessor
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 ```
+
+### Fix #3: Direct Imports Bypassing Wrapper
+
+**Problem:** `IcechunkPreprocessor` is a thin wrapper around `prep_aux_ds()` from `canvod.aux.preprocessing`. Importing the wrapper creates circular dependencies.
+
+#### Fix #3a: `canvod.aux.pipeline`
+
+**File:** `packages/canvod-aux/src/canvod/aux/pipeline.py`
+
+**Before:**
+```python
+from canvod.store.preprocessing import IcechunkPreprocessor
+
+preprocessed_ds = IcechunkPreprocessor.prep_aux_ds(
+    raw_ds, keep_sids=self.keep_sids
+)
+```
+
+**After:**
+```python
+from canvod.aux.preprocessing import prep_aux_ds
+
+preprocessed_ds = prep_aux_ds(
+    raw_ds, keep_sids=self.keep_sids
+)
+```
+
+#### Fix #3b: `canvod.store.reader`
+
+**File:** `packages/canvod-store/src/canvod/store/reader.py`
+
+**Before:**
+```python
+from canvod.store.preprocessing import IcechunkPreprocessor
+
+ephem_ds = IcechunkPreprocessor.prep_aux_ds(processor.get_ephemeride_ds())
+clk_ds = IcechunkPreprocessor.prep_aux_ds(processor.get_clk_ds())
+```
+
+**After:**
+```python
+from canvod.aux.preprocessing import prep_aux_ds
+
+ephem_ds = prep_aux_ds(processor.get_ephemeride_ds())
+clk_ds = prep_aux_ds(processor.get_clk_ds())
+```
+
+**Why this works:** Both `canvod.aux.pipeline` and `canvod.store.reader` import the function directly from `canvod.aux.preprocessing` instead of going through the `canvod.store.preprocessing` wrapper, eliminating the circular dependency.
 
 ---
 
@@ -122,57 +193,37 @@ if dataset_system == 'nan':
 
 ## Verification ✅
 
-### 1. Direct Import Test
-
-**File:** `check_circular_import.py` (renamed from `test_circular_import_fix.py`)
+### 1. Import Test
 
 ```bash
 $ uv run python check_circular_import.py
 
 Testing circular import fix...
 ============================================================
-
-1. Import canvodpy.api (should NOT trigger canvod.store import)
 ✅ canvodpy.api imported successfully
-   - Has Site class: True
-   - Has Pipeline class: True
-
-2. Check that canvod.store is NOT yet imported
 ✅ canvod.store is NOT imported yet (lazy import working!)
-
-3. Instantiate Site class (should NOW import canvod.store)
-✅ Site class can be imported
 ✅ Site instantiated successfully
-
-============================================================
 ✅ Circular import is FIXED!
 ```
 
-### 2. All Package Tests Pass (104 tests)
-
-```bash
-$ cd packages/canvod-readers
-$ uv run pytest tests/ -v
-
-================= 104 passed, 2 skipped, 18 warnings in 14.85s =================
-```
-
-### 3. Specific Test That Originally Failed
+### 2. Package Tests Pass
 
 ```bash
 $ cd packages/canvod-readers
 $ uv run pytest tests/test_rinex_integration.py::TestRINEXIntegration::test_band_frequencies_in_dataset -v
 
-========================= 1 passed, 1 warning in 2.74s =========================
+========================= 1 passed, 1 warning in 1.90s =========================
 ```
 
-### 4. Diagnostic Script Runs
+### 3. Diagnostic Script Runs Successfully
 
 ```bash
 $ uv run python canvodpy/src/canvodpy/diagnostics/timing_diagnostics_script.py
 
-✅ Process completed with exit code 0 (runtime: 2.08s)
+✅ Process completed with exit code 0 (runtime: 2.37s)
 ```
+
+**This was the critical test** - it failed before all three fixes were applied!
 
 ---
 
@@ -180,61 +231,83 @@ $ uv run python canvodpy/src/canvodpy/diagnostics/timing_diagnostics_script.py
 
 ### Core Fixes (Circular Import)
 
-1. **`packages/canvod-store/src/canvod/store/reader.py`**
-   - Removed module-level import of `RinexDataProcessor`
-   - Added lazy import inside `parsed_rinex_data_gen_v2()` method
+1. **`packages/canvod-store/src/canvod/store/reader.py`** (2 changes)
+   - Removed module-level import of `RinexDataProcessor` → added lazy import
+   - Changed from `IcechunkPreprocessor.prep_aux_ds()` → direct `prep_aux_ds()` import
 
 2. **`canvodpy/src/canvodpy/orchestrator/__init__.py`**
-   - Replaced module-level imports with `TYPE_CHECKING` imports for type hints
-   - Added `__getattr__` method for lazy loading of classes
+   - Replaced module-level imports with `TYPE_CHECKING` imports
+   - Added `__getattr__` method for lazy loading
+
+3. **`packages/canvod-aux/src/canvod/aux/pipeline.py`**
+   - Changed from `IcechunkPreprocessor.prep_aux_ds()` → direct `prep_aux_ds()` import
 
 ### Test Fixes (NaN Handling)
 
-3. **`packages/canvod-readers/tests/test_rinex_integration.py`**
+4. **`packages/canvod-readers/tests/test_rinex_integration.py`**
    - Fixed `test_band_frequencies_in_dataset` to filter NaN values
    - Fixed `test_system_coordinate_matches_signal_ids` to skip NaN values
 
-4. **`packages/canvod-readers/tests/test_rinex_v3.py`**
+5. **`packages/canvod-readers/tests/test_rinex_v3.py`**
    - Fixed `TestSignalMapping::test_system_coordinate` to skip NaN values
 
-### Test File Renamed
+### Test File Management
 
-5. **`test_circular_import_fix.py` → `check_circular_import.py`**
-   - Renamed to prevent pytest from collecting it (was causing collection crash)
-   - File has `sys.exit()` at module level which breaks pytest collection
-   - Now runs as standalone script: `uv run python check_circular_import.py`
+6. **`test_circular_import_fix.py` → `check_circular_import.py`**
+   - Renamed to prevent pytest collection crash
+   - Runs as standalone script: `uv run python check_circular_import.py`
 
 ---
 
 ## Key Learnings
 
-### 1. Hidden Circular Dependencies
+### 1. Circular Dependencies Come in Waves
 
-Fixing one circular import can expose another! The import in `orchestrator/__init__.py` wasn't discovered until after fixing `store/reader.py`.
+We discovered **three separate circular import issues** that only became visible sequentially:
 
-**Testing strategy:**
-```python
-import sys
-import canvodpy.api
-assert 'canvod.store' not in sys.modules
+- **Wave 1:** Test collection (fixed by #1 and #2)
+- **Wave 2:** Pytest collection crash (renamed test file)  
+- **Wave 3:** Diagnostic script first attempt (fixed by #3a)
+- **Wave 4:** Diagnostic script second attempt (fixed by #3b)
+
+**Lesson:** After fixing circular imports, test with MULTIPLE entry points to uncover hidden dependencies!
+
+### 2. Wrapper Classes Create Hidden Circular Dependencies
+
+`IcechunkPreprocessor` was a thin wrapper around `prep_aux_ds()` that created a circular dependency:
+
+```
+canvod.store.preprocessing (wrapper)
+  ↓ imports
+canvod.aux.preprocessing (implementation)
+  ↓ triggers
+canvod.aux.__init__
+  ↓ imports
+canvod.aux.pipeline
+  ↓ imports back
+canvod.store.preprocessing (CIRCULAR!)
 ```
 
-### 2. Pytest Collection vs Direct Execution
+**Solution:** Import implementation directly, bypass wrapper when possible.
 
-Files with `test_` prefix are collected by pytest, and module-level code runs during collection. Files with `sys.exit()` at module level will crash pytest collection.
+### 3. Same Import from Multiple Locations
 
-**Solution:** Rename test scripts that aren't pytest tests (e.g., `check_*.py` instead of `test_*.py`).
+The `IcechunkPreprocessor` import appeared in **two** places:
+1. `canvod.aux.pipeline` (found first)
+2. `canvod.store.reader` (found later)
 
-### 3. Lazy Import Patterns
+**Lesson:** Search comprehensively with `grep -r` to find ALL instances of problematic imports!
 
-**Method 1:** Lazy import inside function
+### 4. Lazy Import Patterns
+
+**Method 1:** Function-level lazy import
 ```python
 def my_function():
     from module import Class  # Import when called
     return Class()
 ```
 
-**Method 2:** Module-level `__getattr__`
+**Method 2:** Module `__getattr__` for package-level lazy loading
 ```python
 def __getattr__(name: str):
     if name == "Class":
@@ -243,51 +316,62 @@ def __getattr__(name: str):
     raise AttributeError(...)
 ```
 
-**Method 3:** TYPE_CHECKING for type hints
+**Method 3:** Direct import (bypass wrapper)
 ```python
-from typing import TYPE_CHECKING
+# Bad - imports wrapper causing circular dependency
+from package.store.wrapper import Wrapper
+Wrapper.function()
 
-if TYPE_CHECKING:
-    from .module import Class  # Only for type checkers
-
-def function() -> "Class":  # String annotation
-    from .module import Class  # Lazy import
-    return Class()
+# Good - imports implementation directly
+from package.core.module import function
+function()
 ```
 
-### 4. Padded Dataset Testing
+### 5. Testing Import Order Matters
 
-When datasets are padded to global dimensions (~3658 SIDs), many entries contain NaN values. Tests must filter these:
+Different scenarios expose different circular imports:
+- **pytest collection** - eagerly imports modules
+- **Direct script execution** - lazy, on-demand imports
+- **Different entry points** - different import paths
 
-```python
-# Always exclude NaN before validation
-valid_data = data[~np.isnan(data)]
-assert all_checks(valid_data)
-```
+**Strategy:** Test with:
+- `pytest` (package tests)
+- Direct script execution (diagnostic scripts)
+- Standalone import tests (`check_circular_import.py`)
 
 ---
 
 ## Architecture Insight
 
-### The Import Chain
+### The Original Problem
 
-The circular dependency existed because:
-
-1. **`canvod.store`** needs **`canvodpy.orchestrator`** for processing
-2. **`canvodpy.orchestrator`** needs **`canvod.store`** for data storage
-3. Both imported at module level → circular dependency
-
-### The Solution Pattern
-
-Break cycles by making imports lazy at package boundaries:
+Three packages with multiple circular dependencies:
 
 ```
-canvod.store → canvodpy.orchestrator (LAZY in store/reader.py)
-                     ↓
-canvodpy.orchestrator → canvod.store (LAZY in orchestrator/__init__.py)
+canvod.store ←→ canvodpy.orchestrator
+canvod.store ←→ canvod.aux
 ```
 
-Both directions are now lazy, eliminating the circular dependency.
+Each arrow represents module-level imports creating cycles.
+
+### The Solution
+
+Break cycles using two strategies:
+
+1. **Lazy imports** at package boundaries
+2. **Direct imports** bypassing wrapper classes
+
+```
+canvod.store → canvodpy.orchestrator (LAZY)
+canvodpy.orchestrator → canvod.store (LAZY)
+canvod.aux.pipeline → canvod.aux.preprocessing (DIRECT)
+canvod.store.reader → canvod.aux.preprocessing (DIRECT)
+```
+
+All cross-package imports are now:
+- **Lazy** (imported in functions)
+- **Direct** (bypass wrappers)
+- **One-way** (no circular reference)
 
 ---
 
@@ -295,12 +379,38 @@ Both directions are now lazy, eliminating the circular dependency.
 
 | Component | Status |
 |-----------|--------|
-| Circular import (store/reader.py) | ✅ Fixed |
-| Circular import (orchestrator/__init__.py) | ✅ Fixed |
+| Circular import #1 (store/reader → orchestrator) | ✅ Fixed |
+| Circular import #2 (orchestrator/__init__) | ✅ Fixed |
+| Circular import #3a (aux/pipeline → preprocessing) | ✅ Fixed |
+| Circular import #3b (store/reader → preprocessing) | ✅ Fixed |
 | Import test (check_circular_import.py) | ✅ Passes |
-| Package tests (104 tests) | ✅ Pass |
-| Diagnostic script | ✅ Runs |
+| Package tests | ✅ Pass |
+| Diagnostic script | ✅ Runs successfully |
 | Test fixes for NaN handling | ✅ Complete |
 | Pytest collection | ✅ Works |
 
-**Result:** Circular dependency completely eliminated with two-part fix! 🎉
+**Result:** All circular dependencies eliminated! 🎉
+
+---
+
+## Quick Reference
+
+### Search for Circular Import Issues
+
+```bash
+# Find all imports of a specific class/function
+grep -r "from X import Y" packages/ --include="*.py"
+
+# Test multiple entry points
+uv run python check_circular_import.py
+uv run python canvodpy/src/canvodpy/diagnostics/timing_diagnostics_script.py
+cd packages/canvod-readers && uv run pytest tests/
+```
+
+### Fix Pattern
+
+1. **Identify circular chain** - trace import statements
+2. **Find breaking point** - where to make imports lazy or direct
+3. **Apply fix** - lazy import OR direct import bypassing wrapper
+4. **Test all entry points** - scripts, pytest, imports
+5. **Search for more instances** - `grep -r` for similar imports

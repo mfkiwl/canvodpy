@@ -12,6 +12,7 @@ members = ["packages/*", "canvodpy"]
 [dependency-groups]
 dev = [
     "ipykernel>=7.1.0",
+    "marimo>=0.19.5",
     "mkdocstrings-python>=2.0.1",
     "mystmd>=1.6.6",
     "pydeps>=3.0.2",

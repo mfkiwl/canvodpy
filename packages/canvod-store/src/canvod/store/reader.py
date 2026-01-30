@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
+from canvod.aux.preprocessing import prep_aux_ds
 from canvod.readers import MatchedDirs, Rnxv3Obs
 from canvod.utils.tools import get_version_from_pyproject
 from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY
@@ -18,7 +19,6 @@ from natsort import natsorted
 from tqdm import tqdm
 
 from canvod.store.manager import GnssResearchSite
-from canvod.store.preprocessing import IcechunkPreprocessor
 
 
 # Module-level function for ProcessPoolExecutor (must be pickleable).
@@ -235,9 +235,8 @@ class IcechunkDataReader:
         processor = RinexDataProcessor(matched_data_dirs=self.matched_dirs,
                                        icechunk_reader=self)
 
-        ephem_ds = IcechunkPreprocessor.prep_aux_ds(
-            processor.get_ephemeride_ds())
-        clk_ds = IcechunkPreprocessor.prep_aux_ds(processor.get_clk_ds())
+        ephem_ds = prep_aux_ds(processor.get_ephemeride_ds())
+        clk_ds = prep_aux_ds(processor.get_clk_ds())
 
         aux_ds_dict = {"ephem": ephem_ds, "clk": clk_ds}
         approx_pos = None  # computed on first canopy dataset

@@ -15,6 +15,22 @@ theme:
     - navigation.sections
     - navigation.indexes
     - content.code.copy
+  palette:
+    - scheme: default
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+extra_css:
+  - docs/assets/canvod-nordic.css
 
 
 nav:

@@ -1,107 +1,139 @@
-# Timing Diagnostics Script - Side-by-Side Comparison
+# Timing Diagnostics Script - Comprehensive Comparison
 
-**Purpose:** Verify canvodpy produces identical results to gnssvodpy
+## Overview
 
----
-
-## File Locations
-
-| Original | New |
-|----------|-----|
-| `/Users/work/Developer/GNSS/gnssvodpy/src/gnssvodpy/processor/timing_diagnostics_script.py` | `/Users/work/Developer/GNSS/canvodpy/canvodpy/src/canvodpy/diagnostics/timing_diagnostics_script.py` |
+Comparing:
+- **Original:** `/Users/work/Developer/GNSS/gnssvodpy/src/gnssvodpy/processor/timing_diagnostics_script.py`
+- **New:** `/Users/work/Developer/GNSS/canvodpy/canvodpy/src/canvodpy/diagnostics/timing_diagnostics_script.py`
 
 ---
 
-## Import Mapping
+## Critical Differences Found
 
-### gnssvodpy (Original)
+### ❌ 1. TimingLogger Class - MISSING in canvodpy
+
+**Original (gnssvodpy):**
+```python
+class TimingLogger:
+    """CSV logger for timing data with append support."""
+    
+    def __init__(self, filename=None, expected_receivers=None):
+        if filename is None:
+            from gnssvodpy.globals import LOG_DIR
+            filename = LOG_DIR / "timing_log.csv"
+        # ... rest of implementation
+    
+    def log(self, day, start_time, end_time, receiver_times, total_time):
+        """Log a day's processing times."""
+        # Writes CSV with timing data
+```
+
+**New (canvodpy):**
+```python
+# MISSING - No TimingLogger class at all!
+```
+
+**Impact:** ❌ **Critical** - No CSV logging of timing data for visualization/analysis
+
+---
+
+### ❌ 2. Timing Data Capture - INCOMPLETE in canvodpy
+
+**Original (gnssvodpy):**
+```python
+for date_key, datasets, receiver_times in orchestrator.process_by_date(...):
+    day_start_time = datetime.now()  # ← Capture start
+    
+    try:
+        # ... processing ...
+        day_end_time = datetime.now()  # ← Capture end
+        
+        # LOG TO CSV with actual receiver times
+        timing_log.log(
+            day=date_key,
+            start_time=day_start_time,
+            end_time=day_end_time,
+            receiver_times=receiver_times,
+            total_time=total_time
+        )
+```
+
+**New (canvodpy):**
+```python
+for date_key, datasets, receiver_times in orchestrator.process_by_date(...):
+    # ❌ No day_start_time capture
+    
+    try:
+        # ... processing ...
+        # ❌ No day_end_time capture
+        # ❌ No CSV logging at all!
+```
+
+**Impact:** ❌ **Critical** - Cannot track timing data over multiple days
+
+---
+
+### ⚠️ 3. RINEX_STORE_STRATEGY Reporting - MISSING in canvodpy
+
+**Original (gnssvodpy):**
 ```python
 from gnssvodpy.globals import KEEP_RNX_VARS, RINEX_STORE_STRATEGY
-from gnssvodpy.icechunk_manager.manager import GnssResearchSite
-from gnssvodpy.processor.pipeline_orchestrator import PipelineOrchestrator
+
+def diagnose_processing(...):
+    print("=" * 80)
+    print("TIMING DIAGNOSTIC WITH GENERALIZED PIPELINE")
+    print("=" * 80)
+    print(f"Start time: {datetime.now()}")
+    print(f"RINEX_STORE_STRATEGY: {RINEX_STORE_STRATEGY}")  # ← Reports strategy
 ```
 
-### canvodpy (New)
+**New (canvodpy):**
 ```python
 from canvodpy.globals import KEEP_RNX_VARS
-from canvod.store import GnssResearchSite
-from canvodpy.orchestrator import PipelineOrchestrator
+# ❌ RINEX_STORE_STRATEGY not imported
+
+def diagnose_processing(...):
+    print("=" * 80)
+    print("CANVODPY DIAGNOSTIC PROCESSING")
+    print("=" * 80)
+    print(f"Start time: {datetime.now()}")
+    print(f"KEEP_RNX_VARS: {KEEP_RNX_VARS}")
+    # ❌ No RINEX_STORE_STRATEGY printed
 ```
 
-### Changes Summary
-
-| Item | Old Path | New Path | Status |
-|------|----------|----------|--------|
-| `KEEP_RNX_VARS` | `gnssvodpy.globals` | `canvodpy.globals` | ✅ Migrated |
-| `RINEX_STORE_STRATEGY` | `gnssvodpy.globals` | *(removed)* | ⚠️ Not in new version |
-| `GnssResearchSite` | `gnssvodpy.icechunk_manager.manager` | `canvod.store` | ✅ Migrated |
-| `PipelineOrchestrator` | `gnssvodpy.processor.pipeline_orchestrator` | `canvodpy.orchestrator` | ✅ Migrated |
+**Impact:** ⚠️ **Minor** - Less diagnostic information, but doesn't affect processing
 
 ---
 
-## Code Structure Comparison
+### ⚠️ 4. Expected Receivers Registration - MISSING in canvodpy
 
-### Removed in canvodpy Version
-
-1. **TimingLogger class** - Not needed for basic comparison
-2. **RINEX_STORE_STRATEGY reference** - Doesn't exist in new architecture
-3. **CSV logging** - Simplified for verification
-4. **LOG_DIR reference** - Not needed
-
-### Preserved in canvodpy Version
-
-1. ✅ **diagnose_processing() function** - Identical logic
-2. ✅ **Processing loop** - Same structure
-3. ✅ **Date filtering** - Same start_from/end_at parameters
-4. ✅ **Garbage collection** - Same 60s pause + gc.collect() every 5 days
-5. ✅ **Rechunking placeholder** - Same commented-out structure
-6. ✅ **Exception handling** - Same try/except pattern
-7. ✅ **Print statements** - Same diagnostic output format
-
----
-
-## Line-by-Line Function Comparison
-
-### Function Signature
-
-**Both versions:**
-```python
-def diagnose_processing(start_from: str | None = None,
-                        end_at: str | None = None):
-```
-
-**Status:** ✅ Identical
-
----
-
-### Initialization Block
-
-**gnssvodpy:**
+**Original (gnssvodpy):**
 ```python
 site = GnssResearchSite(site_name="Rosalia")
+# Get all configured receivers
 all_receivers = sorted(site.active_receivers.keys())
-timing_log = TimingLogger(expected_receivers=all_receivers)
-orchestrator = PipelineOrchestrator(site=site, dry_run=False)
+timing_log = TimingLogger(expected_receivers=all_receivers)  # ← Pre-register
 ```
 
-**canvodpy:**
+**New (canvodpy):**
 ```python
 site = GnssResearchSite(site_name="Rosalia")
 orchestrator = PipelineOrchestrator(site=site, dry_run=False)
+# ❌ No receiver pre-registration
 ```
 
-**Changes:** Removed TimingLogger (not needed for comparison)
+**Impact:** ⚠️ **Minor** - Only relevant for TimingLogger (which is missing)
 
 ---
 
-### Main Processing Loop
+## Similarities (✅ Correct)
 
-**Both versions:**
+### ✅ 1. Main Processing Loop
+
+**Both implementations are identical:**
 ```python
 for date_key, datasets, receiver_times in orchestrator.process_by_date(
         keep_vars=KEEP_RNX_VARS, start_from=start_from, end_at=end_at):
-    
-    day_start_time = datetime.now()
     
     print(f"\n{'='*80}")
     print(f"Processing {date_key}")
@@ -116,7 +148,7 @@ for date_key, datasets, receiver_times in orchestrator.process_by_date(
             print(f"  Dataset shape: {dict(ds.sizes)}")
             print(f"  Processing time: {receiver_times[receiver_name]:.2f}s")
         
-        day_end_time = datetime.now()
+        # Calculate total
         total_time = sum(receiver_times.values())
         
         # Summary
@@ -126,239 +158,340 @@ for date_key, datasets, receiver_times in orchestrator.process_by_date(
         for receiver_name, ds in datasets.items():
             print(f"{receiver_name}: {dict(ds.sizes)} ({receiver_times[receiver_name]:.2f}s)")
         print(f"Total time: {total_time:.2f}s")
-        print(f"\n✓ Successfully processed {date_key}")
 ```
 
-**Status:** ✅ Identical (only difference: canvodpy doesn't log to CSV)
+✅ **Identical logic** - Processing works the same way
 
 ---
 
-### Garbage Collection
+### ✅ 2. Error Handling
 
-**Both versions:**
+**Both implementations:**
+```python
+try:
+    # ... processing ...
+except Exception as e:
+    print(f"\n✗ Failed {date_key}: {e}")
+    import traceback
+    traceback.print_exc()
+```
+
+✅ **Identical** - Same error handling
+
+---
+
+### ✅ 3. Counters and State
+
+**Both implementations:**
+```python
+counter = 0
+garbage_collect = 0
+days_since_rechunk = 0
+
+# In loop:
+finally:
+    counter += 1
+    garbage_collect += 1
+    # ... rechunk logic (commented out in both) ...
+```
+
+✅ **Identical** - Same state management
+
+---
+
+### ✅ 4. Garbage Collection
+
+**Both implementations:**
 ```python
 if garbage_collect % 5 == 0:
-    print(f"\n💤 Pausing for 60s before garbage collection...")
+    print("\n💤 Pausing for 60s before garbage collection...")
     time.sleep(60)
-    print(f"\n🗑️  Running garbage collection...")
+    print("\n🗑️  Running garbage collection...")
     gc.collect()
-    print(f"✓ Garbage collection done")
+    print("✓ Garbage collection done")
 ```
 
-**Status:** ✅ Identical
+✅ **Identical** - Same GC strategy
 
 ---
 
-## Expected Output Format
+### ✅ 5. Commented-Out Rechunking Logic
 
-### gnssvodpy Output
-```
-================================================================================
-TIMING DIAGNOSTIC WITH GENERALIZED PIPELINE
-================================================================================
-Start time: 2026-01-25 14:55:00.000000
-RINEX_STORE_STRATEGY: single_group
-Starting from: 2025001
+**Both have rechunking commented out in the same way**
 
-================================================================================
-Processing 2025001
-================================================================================
-
-────────────────────────────────────────────────────────────────────────────────
-CANOPY_01 PROCESSING
-────────────────────────────────────────────────────────────────────────────────
-  Dataset shape: {'epoch': 180, 'sid': 205}
-  Processing time: 15.23s
-
-────────────────────────────────────────────────────────────────────────────────
-REFERENCE_01 PROCESSING
-────────────────────────────────────────────────────────────────────────────────
-  Dataset shape: {'epoch': 180, 'sid': 205}
-  Processing time: 14.87s
-
-================================================================================
-SUMMARY
-================================================================================
-canopy_01: {'epoch': 180, 'sid': 205} (15.23s)
-reference_01: {'epoch': 180, 'sid': 205} (14.87s)
-Total time: 30.10s
-
-✓ Successfully processed 2025001
-📊 Logged timing for 2025001
-   File: /path/to/timing_log.csv
-```
-
-### canvodpy Output
-```
-================================================================================
-CANVODPY DIAGNOSTIC PROCESSING
-================================================================================
-Start time: 2026-01-25 14:55:00.000000
-KEEP_RNX_VARS: ['SNR']
-Starting from: 2025001
-
-================================================================================
-Processing 2025001
-================================================================================
-
-────────────────────────────────────────────────────────────────────────────────
-CANOPY_01 PROCESSING
-────────────────────────────────────────────────────────────────────────────────
-  Dataset shape: {'epoch': 180, 'sid': 205}
-  Processing time: 15.23s
-
-────────────────────────────────────────────────────────────────────────────────
-REFERENCE_01 PROCESSING
-────────────────────────────────────────────────────────────────────────────────
-  Dataset shape: {'epoch': 180, 'sid': 205}
-  Processing time: 14.87s
-
-================================================================================
-SUMMARY
-================================================================================
-canopy_01: {'epoch': 180, 'sid': 205} (15.23s)
-reference_01: {'epoch': 180, 'sid': 205} (14.87s)
-Total time: 30.10s
-
-✓ Successfully processed 2025001
-```
-
-### Differences in Output
-
-| Item | gnssvodpy | canvodpy | Match? |
-|------|-----------|----------|--------|
-| Title | "TIMING DIAGNOSTIC WITH GENERALIZED PIPELINE" | "CANVODPY DIAGNOSTIC PROCESSING" | Different (cosmetic) |
-| RINEX_STORE_STRATEGY line | Shows strategy | Not shown | Different (doesn't exist) |
-| CSV logging line | Shows "📊 Logged timing" | Not shown | Different (not implemented) |
-| Dataset shapes | `{'epoch': 180, 'sid': 205}` | `{'epoch': 180, 'sid': 205}` | ✅ MUST MATCH |
-| Processing times | ~15s per receiver | ~15s per receiver | Should be similar |
-| Receivers processed | canopy_01, reference_01 | canopy_01, reference_01 | ✅ MUST MATCH |
+✅ **Identical** - Same structure (though disabled)
 
 ---
 
-## Running the Scripts
+## Import Comparison
 
-### Run gnssvodpy Version
-
-```bash
-cd /Users/work/Developer/GNSS/gnssvodpy
-
-# Run full processing
-python src/gnssvodpy/processor/timing_diagnostics_script.py
-
-# Or process specific range
-python -c "
-from gnssvodpy.processor.timing_diagnostics_script import diagnose_processing
-diagnose_processing(start_from='2025001', end_at='2025007')
-"
-```
-
-### Run canvodpy Version
-
-```bash
-cd /Users/work/Developer/GNSS/canvodpy
-
-# Run full processing
-uv run python canvodpy/src/canvodpy/diagnostics/timing_diagnostics_script.py
-
-# Or process specific range
-uv run python -c "
-from canvodpy.diagnostics import diagnose_processing
-diagnose_processing(start_from='2025001', end_at='2025007')
-"
-```
-
----
-
-## Verification Checklist
-
-### Must Match Exactly
-
-- [ ] **Dataset shapes** - `{'epoch': N, 'sid': M}` must be identical
-- [ ] **Receiver names** - Same receivers processed (e.g., canopy_01, reference_01)
-- [ ] **Processing dates** - Same dates succeed/fail
-- [ ] **Number of receivers** - Same count per day
-- [ ] **Error messages** - Fail on same dates with similar errors
-
-### May Differ (Acceptable)
-
-- ⚠️ **Processing times** - Can vary ±10% due to system load
-- ⚠️ **Timestamps** - Different run times
-- ⚠️ **Title text** - Cosmetic difference
-- ⚠️ **CSV logging** - Only gnssvodpy logs to CSV
-
-### Unacceptable Differences
-
-- ✗ **Dataset shapes differ** - Bug in migration
-- ✗ **Different receivers** - Bug in migration
-- ✗ **Different dates processed** - Bug in migration
-- ✗ **Data values differ** - Bug in migration
-
----
-
-## Debugging Differences
-
-If you find differences in results:
-
-### Step 1: Identify the Difference
+### Original (gnssvodpy)
 ```python
-# Run both scripts on same date range
-# Compare outputs line by line
+import csv  # ← Used by TimingLogger
+from datetime import datetime
+import gc
+from pathlib import Path  # ← Used by TimingLogger
+import time
+
+from gnssvodpy.globals import KEEP_RNX_VARS, RINEX_STORE_STRATEGY
+from gnssvodpy.icechunk_manager.manager import GnssResearchSite
+from gnssvodpy.processor.pipeline_orchestrator import PipelineOrchestrator
 ```
 
-### Step 2: Check Dataset Details
+### New (canvodpy)
 ```python
-from canvod.store import IcechunkDataReader
+# ruff: noqa: DTZ005, ERA001, PLC0415, BLE001
+import gc
+import time
+from datetime import datetime
 
-# Old data
-reader_old = IcechunkDataReader(site_name="Rosalia", store_path="gnssvodpy_store")
-ds_old = reader_old.read_receiver(receiver="canopy_01", date="2025001")
+from canvod.store import GnssResearchSite
 
-# New data
-reader_new = IcechunkDataReader(site_name="Rosalia")
-ds_new = reader_new.read_receiver(receiver="canopy_01", date="2025001")
+from canvodpy.globals import KEEP_RNX_VARS  # ← Missing RINEX_STORE_STRATEGY
+from canvodpy.orchestrator import PipelineOrchestrator
 
-# Compare
-import xarray as xr
-xr.testing.assert_identical(ds_old, ds_new)
+# ❌ Missing: csv, Path
+# ❌ Missing: RINEX_STORE_STRATEGY
 ```
-
-### Step 3: Check Processing Steps
-- Verify YYYYDOY API compatibility (should be 100%)
-- Check auxiliary file loading
-- Compare RINEX parsing
-- Verify coordinate transformations
 
 ---
 
-## Quick Test
+## Function Signature Comparison
 
-Run this to test a single day:
-
-```bash
-cd /Users/work/Developer/GNSS/canvodpy
-
-uv run python -c "
-from canvodpy.diagnostics import diagnose_processing
-diagnose_processing(start_from='2025001', end_at='2025001')
-"
+### Original (gnssvodpy)
+```python
+def diagnose_processing(start_from: str | None = None,
+                        end_at: str | None = None):
+    """Run diagnostic timing with generalized pipeline."""
 ```
 
-**Expected:** Should complete successfully and show dataset shapes.
+### New (canvodpy)
+```python
+def diagnose_processing(
+    start_from: str | None = None,
+    end_at: str | None = None,
+) -> None:  # ← Added return type hint
+    """Run diagnostic processing with canvodpy pipeline.
+    
+    This is the analogon to gnssvodpy's timing_diagnostics_script.py.
+    Use this to verify that the new implementation produces the same results.
+    """
+```
+
+✅ **Functionally identical** - Return type hint is an improvement
 
 ---
 
-## Summary
+## __main__ Block Comparison
 
-| Aspect | Status |
-|--------|--------|
-| File created | ✅ `canvodpy/src/canvodpy/diagnostics/timing_diagnostics_script.py` |
-| Imports updated | ✅ All imports migrated |
-| Core logic preserved | ✅ Processing loop identical |
-| API compatibility | ✅ PipelineOrchestrator API unchanged |
-| Garbage collection | ✅ Identical logic |
-| TimingLogger | ⚠️ Removed (not needed for comparison) |
-| CSV logging | ⚠️ Removed (not needed for comparison) |
-| Ready for testing | ✅ Yes |
+### Original (gnssvodpy)
+```python
+if __name__ == "__main__":
+    # Process everything
+    diagnose_processing()
 
-**Next Step:** Run both scripts on same data and compare dataset shapes.
+    # Start from a specific date
+    # diagnose_processing(start_from="2024183")  #July 1, 2024
+
+    # diagnose_processing(start_from="2025299", end_at="2025300")  #Oct 26, 2025
+
+    # Process a specific range
+    # diagnose_processing(start_from="2025278", end_at="2025280")
+```
+
+### New (canvodpy)
+```python
+if __name__ == "__main__":
+    # Process everything
+    diagnose_processing()
+
+    # Start from a specific date
+    # diagnose_processing(start_from="2024183")  # July 1, 2024
+
+    # Process a specific range
+    # diagnose_processing(start_from="2025278", end_at="2025280")
+
+    # Process specific test range (Oct 26, 2025)
+    # diagnose_processing(start_from="2025299", end_at="2025300")
+
+    # ... additional commented-out code ...
+```
+
+✅ **Essentially identical** - Same examples, just formatted differently
+
+---
+
+## Summary of Differences
+
+| Feature | gnssvodpy | canvodpy | Impact |
+|---------|-----------|----------|--------|
+| **TimingLogger class** | ✅ Full CSV logging | ❌ Missing | **CRITICAL** |
+| **day_start_time capture** | ✅ Captured | ❌ Missing | **CRITICAL** |
+| **day_end_time capture** | ✅ Captured | ❌ Missing | **CRITICAL** |
+| **CSV timing log** | ✅ Written | ❌ Missing | **CRITICAL** |
+| **RINEX_STORE_STRATEGY print** | ✅ Printed | ❌ Missing | Minor |
+| **Expected receivers** | ✅ Pre-registered | ❌ Missing | Minor |
+| **Import csv** | ✅ Imported | ❌ Missing | Minor |
+| **Import Path** | ✅ Imported | ❌ Missing | Minor |
+| **Core processing logic** | ✅ | ✅ | **IDENTICAL** |
+| **Error handling** | ✅ | ✅ | **IDENTICAL** |
+| **GC strategy** | ✅ | ✅ | **IDENTICAL** |
+| **State management** | ✅ | ✅ | **IDENTICAL** |
+
+---
+
+## Core Processing Logic Analysis
+
+### ✅ Data Flow is IDENTICAL
+
+Both scripts follow the exact same flow:
+
+1. **Initialize**
+   ```python
+   site = GnssResearchSite(site_name="Rosalia")
+   orchestrator = PipelineOrchestrator(site=site, dry_run=False)
+   ```
+
+2. **Main Loop**
+   ```python
+   for date_key, datasets, receiver_times in orchestrator.process_by_date(
+           keep_vars=KEEP_RNX_VARS, start_from=start_from, end_at=end_at):
+   ```
+
+3. **Process Each Receiver**
+   ```python
+   for receiver_name, ds in datasets.items():
+       print(f"  Dataset shape: {dict(ds.sizes)}")
+       print(f"  Processing time: {receiver_times[receiver_name]:.2f}s")
+   ```
+
+4. **Calculate Totals**
+   ```python
+   total_time = sum(receiver_times.values())
+   ```
+
+5. **Print Summary**
+   ```python
+   for receiver_name, ds in datasets.items():
+       print(f"{receiver_name}: {dict(ds.sizes)} ({receiver_times[receiver_name]:.2f}s)")
+   print(f"Total time: {total_time:.2f}s")
+   ```
+
+**Conclusion:** ✅ **Processing logic is identical** - Both will produce the same data processing results
+
+---
+
+## What's Missing in canvodpy
+
+### 1. TimingLogger Class (Critical)
+
+The entire `TimingLogger` class needs to be added:
+- CSV file management
+- Structured logging with fixed fieldnames
+- Append support
+- All expected receivers pre-registered
+
+### 2. Timing Capture (Critical)
+
+Need to add:
+```python
+day_start_time = datetime.now()  # Before processing
+# ... processing ...
+day_end_time = datetime.now()  # After processing
+```
+
+### 3. CSV Logging Call (Critical)
+
+Need to add:
+```python
+timing_log.log(
+    day=date_key,
+    start_time=day_start_time,
+    end_time=day_end_time,
+    receiver_times=receiver_times,
+    total_time=total_time
+)
+```
+
+### 4. RINEX_STORE_STRATEGY (Minor)
+
+Need to import and print:
+```python
+from canvodpy.globals import RINEX_STORE_STRATEGY
+# ... then print it ...
+print(f"RINEX_STORE_STRATEGY: {RINEX_STORE_STRATEGY}")
+```
+
+---
+
+## Verification: Do They Produce Identical Results?
+
+### ✅ Processing Results: YES
+
+Both scripts:
+1. Use identical `PipelineOrchestrator.process_by_date()` method
+2. Process same variables (`KEEP_RNX_VARS`)
+3. Apply same logic to `datasets` and `receiver_times`
+4. Calculate totals identically
+5. Handle errors identically
+
+**The actual data processing will produce IDENTICAL results.**
+
+### ❌ Diagnostic Output: NO
+
+The original provides:
+- CSV timing logs for analysis
+- RINEX_STORE_STRATEGY reporting
+- Structured timing data
+
+The new version:
+- Only prints to console
+- No persistent timing data
+- Less diagnostic info
+
+**The diagnostic/logging capabilities are NOT equivalent.**
+
+---
+
+## Recommendation
+
+**To make canvodpy fully equivalent to gnssvodpy, you MUST:**
+
+1. ✅ **Add TimingLogger class** - Copy from gnssvodpy with path adjustments
+2. ✅ **Add timing capture** - Add day_start_time and day_end_time
+3. ✅ **Add CSV logging** - Call timing_log.log() in the try block
+4. ⚠️ **Add RINEX_STORE_STRATEGY reporting** - Import and print (optional but recommended)
+
+**Without these additions:**
+- ✅ Processing results will be identical
+- ❌ Diagnostic capabilities will be incomplete
+- ❌ No persistent timing data for analysis/visualization
+
+---
+
+## Action Items
+
+### Required (Critical)
+- [ ] Port `TimingLogger` class to canvodpy
+- [ ] Add `day_start_time` and `day_end_time` capture
+- [ ] Add `timing_log.log()` call
+- [ ] Add necessary imports (`csv`, `Path`)
+
+### Recommended (Minor)
+- [ ] Add `RINEX_STORE_STRATEGY` import and print
+- [ ] Add `all_receivers = sorted(site.active_receivers.keys())`
+- [ ] Update title from "CANVODPY DIAGNOSTIC" to match original
+
+### Once Fixed
+- [ ] Verify CSV output matches format
+- [ ] Verify timing data is correctly logged
+- [ ] Compare CSV files from both versions
+
+---
+
+## Conclusion
+
+**Core Processing:** ✅ **IDENTICAL** - Both produce same results  
+**Diagnostic Features:** ❌ **INCOMPLETE** - Missing timing logger
+
+The new canvodpy version correctly implements the processing logic but is missing the diagnostic/logging infrastructure that makes the script useful for timing analysis and performance tracking.

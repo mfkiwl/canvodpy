@@ -16,6 +16,42 @@ from pydantic import ValidationError
 from .models import CanvodConfig, ProcessingConfig, SidsConfig, SitesConfig
 
 
+def find_monorepo_root() -> Path:
+    """Find the monorepo root by looking for .git directory.
+    
+    Returns
+    -------
+    Path
+        Monorepo root directory
+        
+    Raises
+    ------
+    RuntimeError
+        If monorepo root cannot be found
+    """
+    current = Path.cwd().resolve()
+    
+    # Walk up directory tree looking for .git DIRECTORY (not file, which indicates submodule)
+    for parent in [current] + list(current.parents):
+        git_path = parent / ".git"
+        if git_path.exists() and git_path.is_dir():
+            return parent
+    
+    # Fallback: if this file is in packages/canvod-utils/src/canvod/utils/config/loader.py
+    # then monorepo root is 7 levels up
+    try:
+        loader_file = Path(__file__).resolve()
+        # loader.py -> config -> utils -> canvod -> src -> canvod-utils -> packages -> root
+        monorepo_root = loader_file.parent.parent.parent.parent.parent.parent.parent
+        git_path = monorepo_root / ".git"
+        if git_path.exists() and git_path.is_dir():
+            return monorepo_root
+    except Exception:
+        pass
+    
+    raise RuntimeError("Cannot find monorepo root (no .git directory found)")
+
+
 class ConfigLoader:
     """
     Load and merge configuration from YAML files.
@@ -23,11 +59,19 @@ class ConfigLoader:
     Parameters
     ----------
     config_dir : Path | None, optional
-        Directory containing config files (default: ./config).
+        Directory containing config files. If None, uses monorepo_root/config.
     """
 
     def __init__(self, config_dir: Path | None = None) -> None:
-        self.config_dir = Path(config_dir or Path.cwd() / "config")
+        if config_dir is None:
+            try:
+                monorepo_root = find_monorepo_root()
+                config_dir = monorepo_root / "config"
+            except RuntimeError:
+                # Fallback if monorepo root cannot be found
+                config_dir = Path.cwd() / "config"
+        
+        self.config_dir = Path(config_dir)
         self.defaults_dir = Path(__file__).parent / "defaults"
 
     def load(self) -> CanvodConfig:
@@ -171,7 +215,8 @@ def load_config(config_dir: Path | None = None) -> CanvodConfig:
     Parameters
     ----------
     config_dir : Path | None, optional
-        Directory containing config files (default: ./config).
+        Directory containing config files. If None, automatically finds
+        monorepo root and uses {monorepo_root}/config.
 
     Returns
     -------
