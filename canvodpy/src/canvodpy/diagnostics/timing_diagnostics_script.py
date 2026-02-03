@@ -168,13 +168,11 @@ def diagnose_processing(
             print(f"\n✓ Successfully processed {date_key}")
 
             # LOG TO CSV with actual receiver times
-            timing_log.log(
-                day=date_key,
-                start_time=day_start_time,
-                end_time=day_end_time,
-                receiver_times=receiver_times,
-                total_time=total_time
-            )
+            timing_log.log(day=date_key,
+                           start_time=day_start_time,
+                           end_time=day_end_time,
+                           receiver_times=receiver_times,
+                           total_time=total_time)
 
             days_since_rechunk += 1
 
@@ -215,7 +213,7 @@ def diagnose_processing(
 
 if __name__ == "__main__":
     # Process everything
-    diagnose_processing()
+    diagnose_processing()  #tart_from="20250806")
 
     # Start from a specific date
     # diagnose_processing(start_from="2024183")  # July 1, 2024
