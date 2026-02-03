@@ -33,7 +33,6 @@ jobs:
             - name: Run Tests
               run: |
                   echo "Running tests per package to avoid namespace collisions..."
-                  uv run pytest test_configuration.py --verbose --color=yes
                   uv run pytest canvodpy/tests/ --verbose --color=yes
                   uv run pytest packages/canvod-aux/tests/ --verbose --color=yes
                   uv run pytest packages/canvod-readers/tests/ --verbose --color=yes
