@@ -1,12 +1,13 @@
 """2D hemisphere visualization using matplotlib for publication-quality plots.
 
-Provides polar projection plotting of hemispherical grids with various rendering methods.
+Provides polar projection plotting of hemispherical grids with various
+rendering methods.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,7 +44,7 @@ class HemisphereVisualizer2D:
 
     """
 
-    def __init__(self, grid: HemiGrid):
+    def __init__(self, grid: HemiGrid) -> None:
         """Initialize 2D hemisphere visualizer.
         
         Parameters
@@ -62,7 +63,7 @@ class HemisphereVisualizer2D:
         style: PolarPlotStyle | None = None,
         ax: Axes | None = None,
         save_path: Path | str | None = None,
-        **style_kwargs,
+        **style_kwargs: Any,
     ) -> tuple[Figure, Axes]:
         """Plot hemisphere grid as colored patches in polar projection.
         
@@ -143,7 +144,12 @@ class HemisphereVisualizer2D:
         self._apply_polar_styling(ax, style)
 
         # Add colorbar
-        cbar = fig.colorbar(pc, ax=ax, shrink=style.colorbar_shrink, pad=style.colorbar_pad)
+        cbar = fig.colorbar(
+            pc,
+            ax=ax,
+            shrink=style.colorbar_shrink,
+            pad=style.colorbar_pad,
+        )
         cbar.set_label(style.colorbar_label, fontsize=style.colorbar_fontsize)
 
         # Set title
@@ -205,9 +211,14 @@ class HemisphereVisualizer2D:
         patches = []
         cell_indices = []
 
-        for idx, cell in enumerate(self.grid.cells):
-            phi_min, phi_max = cell.phi_lims
-            theta_min, theta_max = cell.theta_lims
+        # Access the grid DataFrame from GridData
+        grid_df = self.grid.grid
+
+        for idx, row in enumerate(grid_df.iter_rows(named=True)):
+            phi_min = row["phi_min"]
+            phi_max = row["phi_max"]
+            theta_min = row["theta_min"]
+            theta_max = row["theta_max"]
 
             # Skip cells beyond hemisphere
             if theta_min > np.pi / 2:
@@ -235,36 +246,124 @@ class HemisphereVisualizer2D:
         patches = []
         cell_indices = []
 
-        for idx, cell in enumerate(self.grid.cells):
-            # Get 3D vertices
-            vertices_3d = cell.htm_vertices
-            if vertices_3d is None:
+        # Access the grid DataFrame from GridData
+        grid_df = self.grid.grid
+
+        for idx, row in enumerate(grid_df.iter_rows(named=True)):
+            try:
+                # HTM stores vertices as columns htm_vertex_0, htm_vertex_1,
+                # htm_vertex_2.
+                v0 = np.array(row["htm_vertex_0"], dtype=float)
+                v1 = np.array(row["htm_vertex_1"], dtype=float)
+                v2 = np.array(row["htm_vertex_2"], dtype=float)
+
+                vertices_3d = np.array([v0, v1, v2])
+                x, y, z = (
+                    vertices_3d[:, 0],
+                    vertices_3d[:, 1],
+                    vertices_3d[:, 2],
+                )
+
+                # Convert to spherical coordinates
+                r = np.sqrt(x**2 + y**2 + z**2)
+                theta = np.arccos(np.clip(z / r, -1, 1))
+                phi = np.arctan2(y, x)
+                phi = np.mod(phi, 2 * np.pi)
+
+                # Skip if beyond hemisphere
+                if np.all(theta > np.pi / 2):
+                    continue
+
+                # Convert to polar coordinates (rho = sin(theta))
+                rho = np.sin(theta)
+                vertices_2d = np.column_stack([phi, rho])
+
+                patches.append(Polygon(vertices_2d, closed=True))
+                cell_indices.append(idx)
+
+            except (KeyError, TypeError):
+                # Skip cells that don't have proper HTM vertex data
                 continue
-
-            # Convert to spherical coordinates
-            x, y, z = vertices_3d[:, 0], vertices_3d[:, 1], vertices_3d[:, 2]
-            r = np.sqrt(x**2 + y**2 + z**2)
-            theta = np.arccos(np.clip(z / r, -1, 1))
-            phi = np.arctan2(y, x)
-            phi = np.mod(phi, 2 * np.pi)
-
-            # Skip if beyond hemisphere
-            if np.all(theta > np.pi / 2):
-                continue
-
-            # Convert to polar coordinates
-            rho = np.sin(theta)
-            vertices_2d = np.column_stack([phi, rho])
-
-            patches.append(Polygon(vertices_2d, closed=True))
-            cell_indices.append(idx)
 
         return patches, np.array(cell_indices)
 
     def _extract_geodesic_patches(self) -> tuple[list[Polygon], np.ndarray]:
         """Extract patches from geodesic grid."""
-        # Similar to HTM but may have different vertex structure
-        return self._extract_htm_patches()
+        patches = []
+        cell_indices = []
+
+        grid_df = self.grid.grid
+
+        # Check if grid has geodesic vertex data
+        if "geodesic_vertices" in grid_df.columns:
+            # Vertices stored as list/array in grid
+            for idx, row in enumerate(grid_df.iter_rows(named=True)):
+                try:
+                    vertices_3d = np.array(row["geodesic_vertices"], dtype=float)
+
+                    if len(vertices_3d) < 3:
+                        continue
+
+                    x, y, z = vertices_3d[:, 0], vertices_3d[:, 1], vertices_3d[:, 2]
+
+                    # Convert to spherical
+                    r = np.sqrt(x**2 + y**2 + z**2)
+                    theta = np.arccos(np.clip(z / r, -1, 1))
+                    phi = np.arctan2(y, x)
+                    phi = np.mod(phi, 2 * np.pi)
+
+                    # Skip if beyond hemisphere
+                    if np.all(theta > np.pi / 2):
+                        continue
+
+                    # Convert theta to rho
+                    rho = np.sin(theta)
+
+                    vertices_2d = np.column_stack([phi, rho])
+                    patches.append(Polygon(vertices_2d, closed=True))
+                    cell_indices.append(idx)
+
+                except (KeyError, TypeError, ValueError):
+                    continue
+
+        elif self.grid.vertices is not None:
+            # Separate vertices DataFrame (from GridData)
+            vertices_3d = self.grid.vertices
+            n_cells = len(grid_df)
+
+            # Assume vertices are arranged per cell
+            # This is a simplified approach - adjust based on actual storage
+            for cell_id in range(n_cells):
+                try:
+                    # Extract cell vertices (implementation depends on vertex storage)
+                    # This is a placeholder - needs actual implementation
+                    cell_verts_3d = vertices_3d[cell_id * 3:(cell_id + 1) * 3]
+
+                    if len(cell_verts_3d) < 3:
+                        continue
+
+                    x, y, z = (
+                        cell_verts_3d[:, 0],
+                        cell_verts_3d[:, 1],
+                        cell_verts_3d[:, 2],
+                    )
+                    r = np.sqrt(x**2 + y**2 + z**2)
+                    theta = np.arccos(np.clip(z / r, -1, 1))
+                    phi = np.arctan2(y, x)
+                    phi = np.mod(phi, 2 * np.pi)
+
+                    rho = np.sin(theta)
+                    vertices_2d = np.column_stack([phi, rho])
+                    patches.append(Polygon(vertices_2d, closed=True))
+                    cell_indices.append(cell_id)
+
+                except (IndexError, ValueError):
+                    continue
+        else:
+            # Fallback: use HTM-like approach if no vertex data
+            return self._extract_htm_patches()
+
+        return patches, np.array(cell_indices)
 
     def _extract_healpix_patches(self) -> tuple[list[Polygon], np.ndarray]:
         """Extract patches from HEALPix grid (placeholder)."""
@@ -276,7 +375,11 @@ class HemisphereVisualizer2D:
         # Fibonacci grid uses point-based representation
         raise NotImplementedError("Fibonacci 2D visualization not yet implemented")
 
-    def _map_data_to_patches(self, data: np.ndarray | None, cell_indices: np.ndarray) -> np.ndarray:
+    def _map_data_to_patches(
+        self,
+        data: np.ndarray | None,
+        cell_indices: np.ndarray,
+    ) -> np.ndarray:
         """Map data values to patches.
         
         Parameters
@@ -297,7 +400,11 @@ class HemisphereVisualizer2D:
 
         return data[cell_indices]
 
-    def _apply_polar_styling(self, ax: Axes, style: PolarPlotStyle):
+    def _apply_polar_styling(
+        self,
+        ax: Axes,
+        style: PolarPlotStyle,
+    ) -> None:
         """Apply styling to polar axes.
         
         Parameters
@@ -332,3 +439,225 @@ class HemisphereVisualizer2D:
             )
         else:
             ax.grid(False)
+
+
+# =============================================================================
+# Convenience Functions
+# =============================================================================
+
+
+def visualize_grid(
+    grid: HemiGrid,
+    data: np.ndarray | None = None,
+    style: PolarPlotStyle | None = None,
+    **kwargs: Any,
+) -> tuple[Figure, Axes]:
+    """Visualize hemispherical grid in 2D polar projection.
+    
+    Convenience function providing simple interface to 2D visualization.
+    
+    Parameters
+    ----------
+    grid : HemiGrid
+        Grid to visualize
+    data : np.ndarray, optional
+        Data values per cell. If None, plots uniform grid.
+    style : PolarPlotStyle, optional
+        Styling configuration. If None, uses defaults.
+    **kwargs
+        Additional style parameter overrides
+    
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure object
+    ax : matplotlib.axes.Axes
+        Polar axes object
+    
+    Examples
+    --------
+    >>> from canvod.grids import create_hemigrid
+    >>> from canvod.viz import visualize_grid
+    >>> 
+    >>> grid = create_hemigrid(grid_type='equal_area', angular_resolution=10.0)
+    >>> fig, ax = visualize_grid(grid, data=vod_data, cmap='viridis')
+    >>> plt.savefig("vod_plot.png", dpi=300)
+    
+    """
+    viz = HemisphereVisualizer2D(grid)
+    return viz.plot_grid_patches(data=data, style=style, **kwargs)
+
+
+def add_tissot_indicatrix(
+    ax: Axes,
+    grid: HemiGrid,
+    radius_deg: float | None = None,
+    n_sample: int | None = None,
+    facecolor: str = "gold",
+    alpha: float = 0.6,
+    edgecolor: str = "black",
+    linewidth: float = 0.5,
+) -> Axes:
+    """Add Tissot's indicatrix circles to existing polar plot.
+    
+    Adds equal-sized circles to visualize grid distortion. In equal-area grids,
+    circles should appear roughly equal-sized. Variation indicates distortion.
+    
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Existing polar axis to add circles to
+    grid : HemiGrid
+        Grid instance
+    radius_deg : float, optional
+        Angular radius of circles in degrees. If None, auto-calculated
+        as angular_resolution / 8.
+    n_sample : int, optional
+        Subsample cells (use every nth cell) for performance.
+        If None, shows all cells.
+    facecolor : str, default 'gold'
+        Fill color for circles
+    alpha : float, default 0.6
+        Transparency (0=transparent, 1=opaque)
+    edgecolor : str, default 'black'
+        Edge color for circles
+    linewidth : float, default 0.5
+        Edge line width
+    
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        Modified axis with Tissot circles added
+    
+    Examples
+    --------
+    >>> fig, ax = visualize_grid(grid, data=vod_data)
+    >>> add_tissot_indicatrix(ax, grid, radius_deg=3, n_sample=5)
+    >>> plt.savefig("vod_with_tissot.png")
+    
+    """
+    from matplotlib.patches import Ellipse
+
+    # Auto-calculate radius if not provided
+    if radius_deg is None:
+        if hasattr(grid, "angular_resolution"):
+            radius_deg = grid.angular_resolution / 8
+        else:
+            theta_vals = grid.grid["theta"].to_numpy()
+            theta_spacing = np.median(np.diff(np.sort(np.unique(theta_vals))))
+            radius_deg = np.rad2deg(theta_spacing) / 8
+
+    radius_rad = np.deg2rad(radius_deg)
+
+    # Generate circle points on sphere
+    n_circle_points = 32
+    circle_angles = np.linspace(0, 2 * np.pi, n_circle_points, endpoint=False)
+
+    cell_count = 0
+    grid_df = grid.grid
+
+    # Different handling for triangular vs rectangular grids
+    if grid.grid_type in ["htm", "geodesic"]:
+        # For triangular grids: create circles on sphere surface and project
+        for i, row in enumerate(grid_df.iter_rows(named=True)):
+            if n_sample is not None and i % n_sample != 0:
+                continue
+
+            phi_center = row["phi"]
+            theta_center = row["theta"]
+
+            if theta_center > np.pi / 2:
+                continue
+
+            # Convert cell center to 3D Cartesian
+            x_c = np.sin(theta_center) * np.cos(phi_center)
+            y_c = np.sin(theta_center) * np.sin(phi_center)
+            z_c = np.cos(theta_center)
+            center_3d = np.array([x_c, y_c, z_c])
+
+            # Create tangent vectors
+            if theta_center < 0.01:
+                tangent_1 = np.array([1, 0, 0])
+                tangent_2 = np.array([0, 1, 0])
+            else:
+                tangent_phi = np.array([-np.sin(phi_center), np.cos(phi_center), 0])
+                tangent_phi = tangent_phi / np.linalg.norm(tangent_phi)
+
+                tangent_theta = np.array([
+                    np.cos(theta_center) * np.cos(phi_center),
+                    np.cos(theta_center) * np.sin(phi_center),
+                    -np.sin(theta_center),
+                ])
+                tangent_theta = tangent_theta / np.linalg.norm(tangent_theta)
+
+                tangent_1 = tangent_phi
+                tangent_2 = tangent_theta
+
+            # Create circle on sphere surface
+            circle_3d = []
+            for angle in circle_angles:
+                offset = radius_rad * (
+                    np.cos(angle) * tangent_1 + np.sin(angle) * tangent_2
+                )
+                point_3d = center_3d + offset
+                norm = np.linalg.norm(point_3d)
+                if norm > 1e-10:
+                    point_3d = point_3d / norm
+                circle_3d.append(point_3d)
+
+            circle_3d = np.array(circle_3d)
+
+            # Project to 2D polar coordinates
+            x_2d, y_2d, z_2d = circle_3d[:, 0], circle_3d[:, 1], circle_3d[:, 2]
+            theta_2d = np.arccos(np.clip(z_2d, -1, 1))
+            phi_2d = np.arctan2(y_2d, x_2d)
+
+            # Convert to polar plot coordinates (rho = sin(theta))
+            rho_2d = np.sin(theta_2d)
+            angle_2d = phi_2d
+
+            vertices_2d = np.column_stack([angle_2d, rho_2d])
+
+            poly = Polygon(
+                vertices_2d,
+                facecolor=facecolor,
+                alpha=alpha,
+                edgecolor=edgecolor,
+                linewidth=linewidth,
+            )
+            ax.add_patch(poly)
+            cell_count += 1
+
+    else:
+        # Rectangular grids: use simple ellipses at grid centers
+        for i, row in enumerate(grid_df.iter_rows(named=True)):
+            if n_sample is not None and i % n_sample != 0:
+                continue
+
+            phi_center = row["phi"]
+            theta_center = row["theta"]
+
+            if theta_center <= np.pi / 2:
+                # Convert to polar plot coordinates
+                rho_center = np.sin(theta_center)
+
+                ell = Ellipse(
+                    (phi_center, rho_center),
+                    width=2 * radius_rad,
+                    height=2 * radius_rad * np.sin(theta_center),  # Scale by projection
+                    facecolor=facecolor,
+                    alpha=alpha,
+                    edgecolor=edgecolor,
+                    linewidth=linewidth,
+                )
+                ax.add_patch(ell)
+                cell_count += 1
+
+    # Update title
+    current_title = ax.get_title()
+    if current_title:
+        ax.set_title(f"{current_title} + Tissot ({cell_count} circles)")
+    else:
+        ax.set_title(f"Tissot's Indicatrix - {grid.grid_type} ({cell_count} circles)")
+
+    return ax

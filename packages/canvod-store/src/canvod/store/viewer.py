@@ -24,7 +24,7 @@ from html import escape
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    pass
+    from canvod.store.store import MyIcechunkStore
 
 
 @lru_cache(None)
@@ -50,7 +50,14 @@ class IcechunkStoreViewer:
         The Icechunk store to visualize.
     """
 
-    def __init__(self, store) -> None:
+    def __init__(self, store: MyIcechunkStore) -> None:
+        """Initialize the viewer.
+
+        Parameters
+        ----------
+        store : MyIcechunkStore
+            Store to visualize.
+        """
         self.store = store
 
     def _get_custom_css(self) -> str:
@@ -442,7 +449,7 @@ class IcechunkStoreViewer:
                 metadata_df = self.store.load_metadata(
                     session.store, group_name
                 )
-                
+
                 # Try to use marimo interactive table if available
                 try:
                     import marimo as mo
@@ -454,7 +461,7 @@ class IcechunkStoreViewer:
                 except (ImportError, AttributeError):
                     # Fallback to Polars HTML for Jupyter
                     table_html = metadata_df._repr_html_()
-                
+
                 content_parts.append(f"""
                 <div class="content-section">
                     <div class="content-section-title">
@@ -497,13 +504,16 @@ class IcechunkStoreViewer:
             # Default to checked for "main" branch
             checked = ' checked' if branch == "main" else ''
 
+            receiver_label = "receiver" if len(groups) == 1 else "receivers"
+            receiver_count = len(groups)
+
             return f"""
             <div class="branch-section">
                 <input id="{branch_id}" type="checkbox"{checked} />
                 <label for="{branch_id}" class="branch-toggle">
                     🌿 <strong>{escape(branch)}</strong>
                     <span class="count-badge">
-                        ({len(groups)} {'receiver' if len(groups) == 1 else 'receivers'})
+                        ({receiver_count} {receiver_label})
                     </span>
                 </label>
                 <div class="branch-content">
@@ -545,7 +555,14 @@ class IcechunkStoreViewer:
         else:
             # Use configured site name (or fallback to store path name)
             site_name = self.store.site_name
-            
+
+            branch_label = (
+                "branch" if summary["branches"] == 1 else "branches"
+            )
+            receiver_label = (
+                "receiver" if summary["groups"] == 1 else "receivers"
+            )
+
             header = f"""
             <div class="icechunk-header">
                 <div class="icechunk-title">
@@ -554,10 +571,10 @@ class IcechunkStoreViewer:
                 <div class="icechunk-path">{escape(summary['path'])}</div>
                 <div class="icechunk-stats">
                     <span class="stat-badge">
-                        📊 {summary['branches']} {'branch' if summary['branches'] == 1 else 'branches'}
+                        📊 {summary['branches']} {branch_label}
                     </span>
                     <span class="stat-badge">
-                        📡 {summary['groups']} {'receiver' if summary['groups'] == 1 else 'receivers'}
+                        📡 {summary['groups']} {receiver_label}
                     </span>
                     <span class="stat-badge">
                         💾 {summary['store_type']}
@@ -591,10 +608,10 @@ class IcechunkStoreViewer:
             <div class="icechunk-summary">
                 <div class="summary-grid">
                     <div class="summary-item">
-                        {summary['branches']} {'branch' if summary['branches'] == 1 else 'branches'}
+                        {summary['branches']} {branch_label}
                     </div>
                     <div class="summary-item">
-                        {summary['groups']} {'receiver' if summary['groups'] == 1 else 'receivers'}
+                        {summary['groups']} {receiver_label}
                     </div>
                     <div class="summary-item">
                         {summary['store_type']} storage
@@ -644,8 +661,13 @@ def add_rich_display_to_store(store_class: type) -> type:
         viewer = IcechunkStoreViewer(self)
         return viewer._repr_html_()
 
-    def show_tree(self):
-        """Display interactive tree view in notebook."""
+    def show_tree(self) -> None:
+        """Display an interactive tree view in a notebook.
+
+        Returns
+        -------
+        None
+        """
         try:
             from IPython.display import HTML, display
 
@@ -653,8 +675,13 @@ def add_rich_display_to_store(store_class: type) -> type:
         except ImportError:
             print(self)
 
-    def preview(self):
-        """Show store preview (alias for show_tree)."""
+    def preview(self) -> None:
+        """Show a store preview (alias for show_tree).
+
+        Returns
+        -------
+        None
+        """
         self.show_tree()
 
     # Marimo-specific methods
@@ -664,7 +691,7 @@ def add_rich_display_to_store(store_class: type) -> type:
         branch: str = "main",
         pagination: bool = True,
         page_size: int = 50,
-    ):
+    ) -> Any:
         """
         Get metadata as interactive marimo table.
 
@@ -681,8 +708,8 @@ def add_rich_display_to_store(store_class: type) -> type:
 
         Returns
         -------
-        marimo.ui.table
-            Interactive table widget (marimo-only)
+        Any
+            Interactive table widget (marimo-only).
 
         Raises
         ------

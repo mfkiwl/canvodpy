@@ -1,364 +1,265 @@
-"""Tests for canvod-grids package."""
-
-import numpy as np
+"""Tests for grid implementations."""
 import pytest
+import numpy as np
+import polars as pl
 
-# ============================================================================
-# Import Tests
-# ============================================================================
-
-def test_imports():
-    """Test that all modules can be imported."""
-    from canvod.grids import GridCell, HemiGrid, create_hemigrid
-
-    assert GridCell is not None
-    assert HemiGrid is not None
-    assert create_hemigrid is not None
-
-
-def test_version():
-    """Test that package has version."""
-    from canvod.grids import __version__
-    assert __version__ == "0.1.0"
+from canvod.grids import (
+    create_hemigrid,
+    EqualAreaBuilder,
+    EqualAngleBuilder,
+    EquirectangularBuilder,
+    GeodesicBuilder,
+    HTMBuilder,
+    GridData,
+)
 
 
-# ============================================================================
-# GridCell Tests
-# ============================================================================
-
-class TestGridCell:
-    """Tests for GridCell dataclass."""
-
-    def test_grid_cell_creation(self):
-        """Test creating a grid cell."""
-        from canvod.grids import GridCell
-
-        cell = GridCell(
-            phi=np.pi / 4,
-            theta=np.pi / 6,
-            phi_lims=(0, np.pi / 2),
-            theta_lims=(0, np.pi / 4),
-            htm_vertices=None
-        )
-
-        assert cell.phi == np.pi / 4
-        assert cell.theta == np.pi / 6
-        assert cell.phi_lims == (0, np.pi / 2)
-        assert cell.theta_lims == (0, np.pi / 4)
-        assert cell.htm_vertices is None
-
-    def test_grid_cell_with_vertices(self):
-        """Test grid cell with HTM vertices."""
-        from canvod.grids import GridCell
-
-        vertices = np.array([
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1]
-        ])
-
-        cell = GridCell(
-            phi=np.pi / 4,
-            theta=np.pi / 6,
-            phi_lims=(0, np.pi / 2),
-            theta_lims=(0, np.pi / 4),
-            htm_vertices=vertices
-        )
-
-        assert cell.htm_vertices is not None
-        assert cell.htm_vertices.shape == (3, 3)
-        np.testing.assert_array_equal(cell.htm_vertices, vertices)
-
-
-# ============================================================================
-# HemiGrid Tests
-# ============================================================================
-
-class TestHemiGrid:
-    """Tests for HemiGrid class."""
-
-    def test_hemi_grid_creation(self):
-        """Test creating a hemisphere grid."""
-        from canvod.grids import GridCell, HemiGrid
-
-        cells = [
-            GridCell(0, 0, (0, 1), (0, 1), None),
-            GridCell(1, 1, (1, 2), (1, 2), None),
-        ]
-
-        grid = HemiGrid(cells=cells, grid_type="test")
-
-        assert grid.ncells == 2
-        assert grid.grid_type == "test"
-        assert len(grid.cells) == 2
-
-    def test_hemi_grid_repr(self):
-        """Test grid representation."""
-        from canvod.grids import GridCell, HemiGrid
-
-        cells = [GridCell(0, 0, (0, 1), (0, 1), None)]
-        grid = HemiGrid(cells=cells, grid_type="equal_area")
-
-        repr_str = repr(grid)
-        assert "HemiGrid" in repr_str
-        assert "equal_area" in repr_str
-        assert "ncells=1" in repr_str
-
-
-# ============================================================================
-# Factory Function Tests
-# ============================================================================
-
-class TestCreateHemigrid:
-    """Tests for create_hemigrid factory function."""
+class TestGridCreation:
+    """Test basic grid creation."""
 
     def test_equal_area_grid(self):
-        """Test creating equal area grid."""
-        from canvod.grids import create_hemigrid
-
+        """Test equal area grid creation."""
         grid = create_hemigrid("equal_area", angular_resolution=10.0)
-
+        
+        assert isinstance(grid, GridData)
         assert grid.grid_type == "equal_area"
         assert grid.ncells > 0
-        assert len(grid.cells) == grid.ncells
+        assert len(grid.grid) == grid.ncells
+        
+        # Check required columns
+        assert "phi" in grid.grid.columns
+        assert "theta" in grid.grid.columns
+        assert "phi_min" in grid.grid.columns
+        assert "phi_max" in grid.grid.columns
+        assert "theta_min" in grid.grid.columns
+        assert "theta_max" in grid.grid.columns
+        assert "cell_id" in grid.grid.columns
+
+    def test_equal_angle_grid(self):
+        """Test equal angle grid creation."""
+        grid = create_hemigrid("equal_angle", angular_resolution=15.0)
+        
+        assert grid.grid_type == "equal_angle"
+        assert grid.ncells > 0
 
     def test_rectangular_grid(self):
-        """Test creating rectangular grid (alias for equal_area)."""
-        from canvod.grids import create_hemigrid
-
-        grid = create_hemigrid("rectangular", angular_resolution=15.0)
-
-        assert grid.grid_type == "equal_area"
-        assert grid.ncells > 0
-
-    def test_htm_grid(self):
-        """Test creating HTM grid."""
-        from canvod.grids import create_hemigrid
-
-        grid = create_hemigrid("HTM", subdivision_level=2)
-
-        assert grid.grid_type == "HTM"
-        assert grid.ncells > 0
-
-        # Check that cells have vertices
-        assert all(cell.htm_vertices is not None for cell in grid.cells)
-        assert all(cell.htm_vertices.shape == (3, 3) for cell in grid.cells)
+        """Test rectangular grid creation."""
+        grid1 = create_hemigrid("rectangular", angular_resolution=20.0)
+        grid2 = create_hemigrid("equirectangular", angular_resolution=20.0)
+        
+        assert grid1.grid_type == "equirectangular"
+        assert grid2.grid_type == "equirectangular"
+        assert grid1.ncells == grid2.ncells
 
     def test_geodesic_grid(self):
-        """Test creating geodesic grid."""
-        from canvod.grids import create_hemigrid
-
-        grid = create_hemigrid("geodesic", subdivision_level=2)
-
-        assert grid.grid_type == "HTM"  # Currently uses HTM approximation
+        """Test geodesic grid creation."""
+        grid = create_hemigrid("geodesic", angular_resolution=15.0)
+        
+        assert grid.grid_type == "geodesic"
         assert grid.ncells > 0
+        
+        # Check for geodesic-specific columns
+        assert "geodesic_vertices" in grid.grid.columns
+        assert "geodesic_subdivision" in grid.grid.columns
 
-    def test_healpix_not_implemented(self):
-        """Test that HEALPix raises NotImplementedError."""
-        from canvod.grids import create_hemigrid
+    def test_htm_grid(self):
+        """Test HTM grid creation."""
+        grid = create_hemigrid("HTM", angular_resolution=10.0)
+        
+        assert grid.grid_type == "htm"
+        assert grid.ncells > 0
+        
+        # Check for HTM-specific columns
+        assert "htm_id" in grid.grid.columns
+        assert "htm_level" in grid.grid.columns
+        assert "htm_vertex_0" in grid.grid.columns
 
-        with pytest.raises(NotImplementedError, match="HEALPix"):
-            create_hemigrid("healpix")
-
-    def test_fibonacci_not_implemented(self):
-        """Test that Fibonacci raises NotImplementedError."""
-        from canvod.grids import create_hemigrid
-
-        with pytest.raises(NotImplementedError, match="Fibonacci"):
-            create_hemigrid("fibonacci")
-
-    def test_unknown_grid_type(self):
-        """Test that unknown grid type raises ValueError."""
-        from canvod.grids import create_hemigrid
-
+    def test_invalid_grid_type(self):
+        """Test that invalid grid type raises error."""
         with pytest.raises(ValueError, match="Unknown grid type"):
             create_hemigrid("invalid_type")
 
-    def test_case_insensitive_grid_type(self):
-        """Test that grid type is case insensitive."""
-        from canvod.grids import create_hemigrid
 
-        grid1 = create_hemigrid("equal_area", angular_resolution=10.0)
-        grid2 = create_hemigrid("EQUAL_AREA", angular_resolution=10.0)
-        grid3 = create_hemigrid("Equal_Area", angular_resolution=10.0)
+class TestGridBuilder:
+    """Test grid builder classes directly."""
 
-        assert grid1.grid_type == grid2.grid_type == grid3.grid_type
+    def test_equal_area_builder(self):
+        """Test EqualAreaBuilder."""
+        builder = EqualAreaBuilder(angular_resolution=10.0)
+        grid = builder.build()
+        
+        assert grid.grid_type == "equal_area"
+        assert grid.ncells > 0
+
+    def test_builder_with_cutoff(self):
+        """Test builder with theta cutoff."""
+        builder = EqualAreaBuilder(angular_resolution=10.0, cutoff_theta=10.0)
+        grid = builder.build()
+        
+        # All cells should have theta_max >= cutoff
+        # (theta_min can be 0 for the zenith cell that spans the cutoff)
+        min_theta_max = grid.grid["theta_max"].min()
+        assert min_theta_max >= np.deg2rad(10.0) * 0.95  # Allow small tolerance
+
+    def test_builder_with_rotation(self):
+        """Test builder with phi rotation."""
+        builder = EqualAreaBuilder(angular_resolution=10.0, phi_rotation=45.0)
+        grid = builder.build()
+        
+        assert grid.ncells > 0
 
 
-# ============================================================================
-# Equal Area Grid Tests
-# ============================================================================
+class TestGridProperties:
+    """Test grid properties and methods."""
 
-class TestEqualAreaGrid:
-    """Tests for equal area grid generation."""
+    def test_grid_coords(self):
+        """Test coords property."""
+        grid = create_hemigrid("equal_area", angular_resolution=15.0)
+        coords = grid.coords
+        
+        assert isinstance(coords, pl.DataFrame)
+        assert "phi" in coords.columns
+        assert "theta" in coords.columns
+        assert len(coords) == grid.ncells
 
-    def test_resolution_affects_cell_count(self):
-        """Test that resolution affects number of cells."""
-        from canvod.grids import create_hemigrid
+    def test_solid_angles(self):
+        """Test solid angle calculation."""
+        grid = create_hemigrid("equal_area", angular_resolution=15.0)
+        solid_angles = grid.get_solid_angles()
+        
+        assert len(solid_angles) == grid.ncells
+        assert np.all(solid_angles > 0)
+        
+        # Total solid angle should be approximately 2π (hemisphere)
+        # Note: Will be less than 2π due to not covering to exact horizon
+        total = np.sum(solid_angles)
+        expected = 2 * np.pi
+        # Allow 20% tolerance due to discretization and horizon cutoff
+        assert total > expected * 0.8
+        assert total < expected * 1.05
 
+    def test_grid_stats(self):
+        """Test grid statistics."""
+        grid = create_hemigrid("equal_area", angular_resolution=10.0)
+        stats = grid.get_grid_stats()
+        
+        assert "total_cells" in stats
+        assert "grid_type" in stats
+        assert "solid_angle_mean_sr" in stats
+        assert "solid_angle_std_sr" in stats
+        assert "hemisphere_solid_angle_sr" in stats
+        
+        assert stats["total_cells"] == grid.ncells
+        assert stats["grid_type"] == "equal_area"
+        assert np.isclose(stats["hemisphere_solid_angle_sr"], 2 * np.pi)
+
+
+class TestGridResolution:
+    """Test grid resolution scaling."""
+
+    def test_resolution_scaling(self):
+        """Test that finer resolution creates more cells."""
         grid_coarse = create_hemigrid("equal_area", angular_resolution=20.0)
         grid_fine = create_hemigrid("equal_area", angular_resolution=10.0)
-
-        # Finer resolution should have more cells
+        
         assert grid_fine.ncells > grid_coarse.ncells
 
-    def test_cells_within_hemisphere(self):
-        """Test that all cells are within hemisphere bounds."""
-        from canvod.grids import create_hemigrid
+    def test_htm_level_scaling(self):
+        """Test HTM level scaling."""
+        grid_level1 = create_hemigrid("HTM", htm_level=1)
+        grid_level2 = create_hemigrid("HTM", htm_level=2)
+        
+        # Each level multiplies triangles by 4
+        assert grid_level2.ncells > grid_level1.ncells
 
+    def test_geodesic_subdivision_scaling(self):
+        """Test geodesic subdivision scaling."""
+        grid_sub1 = create_hemigrid("geodesic", subdivision_level=1)
+        grid_sub2 = create_hemigrid("geodesic", subdivision_level=2)
+        
+        assert grid_sub2.ncells > grid_sub1.ncells
+
+
+class TestGridCoordinates:
+    """Test grid coordinate conventions."""
+
+    def test_phi_range(self):
+        """Test phi is in [0, 2π)."""
         grid = create_hemigrid("equal_area", angular_resolution=10.0)
+        
+        phi_vals = grid.grid["phi"]
+        assert phi_vals.min() >= 0
+        assert phi_vals.max() < 2 * np.pi
 
-        for cell in grid.cells:
-            # Check phi in [0, 2π]
-            assert 0 <= cell.phi <= 2 * np.pi
-            # Check theta in [0, π/2]
-            assert 0 <= cell.theta <= np.pi / 2
+    def test_theta_range(self):
+        """Test theta is in [0, π/2]."""
+        grid = create_hemigrid("equal_area", angular_resolution=10.0)
+        
+        theta_vals = grid.grid["theta"]
+        assert theta_vals.min() >= 0
+        assert theta_vals.max() <= np.pi / 2
 
-    def test_cell_limits_consistent(self):
-        """Test that cell centers are within limits."""
-        from canvod.grids import create_hemigrid
-
-        grid = create_hemigrid("equal_area", angular_resolution=15.0)
-
-        for cell in grid.cells:
-            phi_min, phi_max = cell.phi_lims
-            theta_min, theta_max = cell.theta_lims
-
-            # Center should be within limits
-            assert phi_min <= cell.phi <= phi_max
-            assert theta_min <= cell.theta <= theta_max
-
-
-# ============================================================================
-# HTM Grid Tests
-# ============================================================================
-
-class TestHTMGrid:
-    """Tests for HTM grid generation."""
-
-    def test_subdivision_affects_cell_count(self):
-        """Test that subdivision level affects cell count."""
-        from canvod.grids import create_hemigrid
-
-        grid_l1 = create_hemigrid("HTM", subdivision_level=1)
-        grid_l2 = create_hemigrid("HTM", subdivision_level=2)
-        grid_l3 = create_hemigrid("HTM", subdivision_level=3)
-
-        # Higher subdivision = more cells (4x per level)
-        assert grid_l2.ncells > grid_l1.ncells
-        assert grid_l3.ncells > grid_l2.ncells
-
-    def test_htm_cells_have_vertices(self):
-        """Test that HTM cells have valid vertices."""
-        from canvod.grids import create_hemigrid
-
-        grid = create_hemigrid("HTM", subdivision_level=2)
-
-        for cell in grid.cells:
-            assert cell.htm_vertices is not None
-            assert cell.htm_vertices.shape == (3, 3)  # 3 vertices, 3D coords
-
-            # Vertices should be on unit sphere (approximately)
-            for vertex in cell.htm_vertices:
-                radius = np.linalg.norm(vertex)
-                np.testing.assert_almost_equal(radius, 1.0, decimal=5)
-
-    def test_htm_cells_in_hemisphere(self):
-        """Test that HTM cells are in northern hemisphere."""
-        from canvod.grids import create_hemigrid
-
-        grid = create_hemigrid("HTM", subdivision_level=2)
-
-        for cell in grid.cells:
-            # All vertices should have z >= 0 (northern hemisphere)
-            # Actually some might be slightly below due to subdivision
-            # But center should definitely be above
-            assert cell.theta <= np.pi / 2
+    def test_cell_bounds(self):
+        """Test cell bounds are consistent."""
+        grid = create_hemigrid("equal_area", angular_resolution=10.0)
+        
+        for row in grid.grid.iter_rows(named=True):
+            # phi bounds
+            assert row["phi_min"] <= row["phi"] <= row["phi_max"]
+            # theta bounds
+            assert row["theta_min"] <= row["theta"] <= row["theta_max"]
 
 
-# ============================================================================
-# Integration Tests
-# ============================================================================
+class TestSpecializedGrids:
+    """Test specialized grid types."""
 
-class TestGridIntegration:
-    """Integration tests with multiple grid types."""
+    @pytest.mark.parametrize("grid_type", ["geodesic", "HTM"])
+    def test_triangular_grids(self, grid_type):
+        """Test triangular grid types."""
+        grid = create_hemigrid(grid_type, angular_resolution=15.0)
+        
+        assert grid.ncells > 0
+        assert grid.grid_type in ["geodesic", "htm"]
 
-    def test_grid_types_have_consistent_interface(self):
-        """Test that all grid types have consistent interface."""
-        from canvod.grids import create_hemigrid
+    def test_htm_with_custom_level(self):
+        """Test HTM with custom level."""
+        grid = create_hemigrid("HTM", htm_level=3)
+        builder = HTMBuilder(htm_level=3)
+        
+        assert grid.grid_type == "htm"
+        info = builder.get_htm_info()
+        assert info["htm_level"] == 3
 
-        grid_types = ["equal_area", "rectangular", "HTM", "geodesic"]
-
-        for grid_type in grid_types:
-            if grid_type in ["HTM", "geodesic"]:
-                grid = create_hemigrid(grid_type, subdivision_level=1)
-            else:
-                grid = create_hemigrid(grid_type, angular_resolution=20.0)
-
-            # All should have these attributes
-            assert hasattr(grid, "ncells")
-            assert hasattr(grid, "cells")
-            assert hasattr(grid, "grid_type")
-            assert grid.ncells > 0
-            assert len(grid.cells) == grid.ncells
-
-            # All cells should have required attributes
-            for cell in grid.cells:
-                assert hasattr(cell, "phi")
-                assert hasattr(cell, "theta")
-                assert hasattr(cell, "phi_lims")
-                assert hasattr(cell, "theta_lims")
-                assert hasattr(cell, "htm_vertices")
-
-    def test_grids_compatible_with_viz(self):
-        """Test that grids work with viz package expectations."""
-        from canvod.grids import create_hemigrid
-
-        grid = create_hemigrid("equal_area", angular_resolution=15.0)
-
-        # Viz expects these to work
-        assert grid.ncells == len(grid.cells)
-        assert isinstance(grid.grid_type, str)
-
-        # Viz iterates over cells
-        for cell in grid.cells:
-            # These must exist for viz
-            assert isinstance(cell.phi, (int, float, np.number))
-            assert isinstance(cell.theta, (int, float, np.number))
-            assert isinstance(cell.phi_lims, tuple)
-            assert isinstance(cell.theta_lims, tuple)
-            assert len(cell.phi_lims) == 2
-            assert len(cell.theta_lims) == 2
+    def test_geodesic_with_custom_subdivision(self):
+        """Test geodesic with custom subdivision."""
+        grid = create_hemigrid("geodesic", subdivision_level=2)
+        
+        assert grid.grid_type == "geodesic"
+        # Check subdivision level is stored
+        if grid.grid.height > 0:
+            assert grid.grid["geodesic_subdivision"][0] == 2
 
 
-# ============================================================================
-# Performance Tests
-# ============================================================================
+class TestEdgeCases:
+    """Test edge cases and error handling."""
 
-class TestPerformance:
-    """Basic performance tests."""
-
-    @pytest.mark.slow
-    def test_large_equal_area_grid(self):
-        """Test creating large equal area grid."""
-        from canvod.grids import create_hemigrid
-
-        grid = create_hemigrid("equal_area", angular_resolution=5.0)
-
-        # Should have many cells with 5° resolution
+    def test_very_fine_resolution(self):
+        """Test very fine angular resolution."""
+        # Should work but create many cells
+        grid = create_hemigrid("equal_area", angular_resolution=2.0)
         assert grid.ncells > 100
-        assert all(hasattr(cell, "phi") for cell in grid.cells)
 
-    @pytest.mark.slow
-    def test_deep_htm_subdivision(self):
-        """Test deep HTM subdivision."""
-        from canvod.grids import create_hemigrid
+    def test_very_coarse_resolution(self):
+        """Test very coarse angular resolution."""
+        grid = create_hemigrid("equal_area", angular_resolution=45.0)
+        assert grid.ncells > 0
+        assert grid.ncells < 50
 
-        grid = create_hemigrid("HTM", subdivision_level=4)
-
-        # Level 4 should have many cells
-        assert grid.ncells > 100
-        assert all(cell.htm_vertices is not None for cell in grid.cells)
+    def test_zero_cutoff(self):
+        """Test zero cutoff (default)."""
+        grid = create_hemigrid("equal_area", cutoff_theta=0.0)
+        # Should include cells near zenith
+        assert grid.grid["theta"].min() < 0.1
 
 
 if __name__ == "__main__":

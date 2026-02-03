@@ -112,37 +112,95 @@ class YYYYDOY:
         self.yydoy = f"{str(self.year)[-2:]}{self.doy}"
 
     def __repr__(self) -> str:
+        """Return the developer-focused representation.
+
+        Returns
+        -------
+        str
+            Detailed representation of the date.
+        """
         return (f"YYYYDOY(year={self.year}, doy={self.doy}, date={self.date}, "
                 f"yydoy={self.yydoy}, gps_week={self.gps_week}, "
                 f"gps_day_of_week={self.gps_day_of_week})")
 
     def __str__(self) -> str:
+        """Return the user-facing date string.
+
+        Returns
+        -------
+        str
+            Date string in YYYYDDD format.
+        """
         return self.to_str()
 
     def __eq__(self, other: object) -> bool:
-        """Equality based on date string."""
+        """Compare equality based on the date string.
+
+        Parameters
+        ----------
+        other : object
+            Object to compare with.
+
+        Returns
+        -------
+        bool
+            True if the other object is an equal YYYYDOY instance.
+        """
         if not isinstance(other, YYYYDOY):
             return False
         return self.to_str() == other.to_str()
 
     def __lt__(self, other: object) -> bool:
-        """Less than comparison for sorting."""
+        """Compare ordering for sorting.
+
+        Parameters
+        ----------
+        other : object
+            Object to compare with.
+
+        Returns
+        -------
+        bool
+            True if this date is earlier than the other date.
+        """
         if not isinstance(other, YYYYDOY):
             return NotImplemented
         return self.date < other.date
 
     def __hash__(self) -> int:
-        """Make hashable for use in sets and dicts."""
+        """Return the hash of the date string.
+
+        Returns
+        -------
+        int
+            Hash value for use in sets and dicts.
+        """
         return hash(self.to_str())
 
     def _calculate_date(self) -> datetime.date:
-        """Calculate calendar date from year and DOY."""
+        """Calculate the calendar date from year and DOY.
+
+        Returns
+        -------
+        datetime.date
+            Calculated calendar date.
+        """
         return datetime.date(self.year, 1,
                              1) + datetime.timedelta(days=int(self.doy) - 1)
 
     @staticmethod
     def _validate_doy(doy: int) -> None:
-        """Validate day of year is in range [1, 366]."""
+        """Validate day of year is in range [1, 366].
+
+        Parameters
+        ----------
+        doy : int
+            Day of year value to validate.
+
+        Returns
+        -------
+        None
+        """
         if not 1 <= doy <= 366:
             raise ValueError(
                 f"Day of year (DOY) must be in range [1, 366], got {doy}")

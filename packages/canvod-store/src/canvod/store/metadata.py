@@ -15,6 +15,13 @@ class MetadataManager:
     """
 
     def __init__(self, logger: Any | None = None) -> None:
+        """Initialize the metadata manager.
+
+        Parameters
+        ----------
+        logger : Any | None, optional
+            Logger-like object to use.
+        """
         self._logger = logger or get_logger()
 
     # TODO: Future refactor of MyIcechunkStore.

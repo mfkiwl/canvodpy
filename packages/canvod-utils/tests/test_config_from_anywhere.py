@@ -4,6 +4,17 @@
 import subprocess
 from pathlib import Path
 
+# Find monorepo root (has pyproject.toml)
+def find_monorepo_root(start_path: Path) -> Path:
+    current = start_path
+    while current != current.parent:
+        if (current / "pyproject.toml").exists():
+            return current
+        current = current.parent
+    raise RuntimeError("Could not find monorepo root")
+
+monorepo_root = find_monorepo_root(Path(__file__).parent)
+
 # Test directories (relative to monorepo root)
 test_dirs = [
     ".",
@@ -13,7 +24,6 @@ test_dirs = [
     "packages/canvod-utils/src/canvod/utils/config",
 ]
 
-monorepo_root = Path(__file__).parent
 print("=" * 70)
 print("Testing config loader from multiple directories")
 print("=" * 70)
@@ -21,6 +31,11 @@ print("=" * 70)
 failed = []
 for test_dir in test_dirs:
     full_path = monorepo_root / test_dir
+    if not full_path.exists():
+        print(f"\n📁 Testing from: {test_dir}")
+        print(f"   ⏭️  SKIPPED (directory doesn't exist)")
+        continue
+        
     print(f"\n📁 Testing from: {test_dir}")
     
     result = subprocess.run(

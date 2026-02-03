@@ -10,8 +10,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class VODCalculator(ABC, BaseModel):
-    """
-    Abstract base class for VOD calculation from RINEX store data.
+    """Abstract base class for VOD calculation from RINEX store data.
 
     Notes
     -----
@@ -22,9 +21,26 @@ class VODCalculator(ABC, BaseModel):
     canopy_ds: xr.Dataset
     sky_ds: xr.Dataset
 
-    @field_validator('canopy_ds', 'sky_ds')
+    @field_validator("canopy_ds", "sky_ds")
     @classmethod
     def validate_datasets(cls, v: xr.Dataset) -> xr.Dataset:
+        """Validate dataset inputs.
+
+        Parameters
+        ----------
+        v : xr.Dataset
+            Dataset to validate.
+
+        Returns
+        -------
+        xr.Dataset
+            Validated dataset.
+
+        Raises
+        ------
+        ValueError
+            If the input is not an xarray Dataset or lacks SNR.
+        """
         if not isinstance(v, xr.Dataset):
             raise ValueError("Must be xr.Dataset")
         if "SNR" not in v.data_vars:
@@ -33,7 +49,13 @@ class VODCalculator(ABC, BaseModel):
 
     @abstractmethod
     def calculate_vod(self) -> xr.Dataset:
-        """Calculate VOD and return dataset with VOD, phi, theta."""
+        """Calculate VOD and return a dataset with VOD, phi, theta.
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset containing VOD and angular coordinates.
+        """
         raise NotImplementedError
 
     @classmethod
@@ -44,8 +66,7 @@ class VODCalculator(ABC, BaseModel):
         sky_group: str = "reference_01",
         **open_kwargs: Any,
     ) -> xr.Dataset:
-        """
-        Convenience method to calculate VOD directly from an IcechunkStore.
+        """Convenience method to calculate VOD directly from an IcechunkStore.
 
         Parameters
         ----------
@@ -62,7 +83,7 @@ class VODCalculator(ABC, BaseModel):
         Returns
         -------
         xr.Dataset
-            VOD dataset
+            VOD dataset.
 
         Notes
         -----
@@ -82,9 +103,11 @@ class VODCalculator(ABC, BaseModel):
             canopy_ds = xr.open_zarr(store=session.store, group=canopy_group)
             sky_ds = xr.open_zarr(store=session.store, group=sky_group)
 
-        return cls.from_datasets(canopy_ds=canopy_ds,
-                                 sky_ds=sky_ds,
-                                 align=True)
+        return cls.from_datasets(
+            canopy_ds=canopy_ds,
+            sky_ds=sky_ds,
+            align=True,
+        )
 
     @classmethod
     def from_datasets(
@@ -93,8 +116,7 @@ class VODCalculator(ABC, BaseModel):
         sky_ds: xr.Dataset,
         align: bool = True,
     ) -> xr.Dataset:
-        """
-        Convenience method to calculate VOD directly from datasets.
+        """Convenience method to calculate VOD directly from datasets.
 
         Parameters
         ----------
@@ -111,34 +133,62 @@ class VODCalculator(ABC, BaseModel):
             VOD dataset.
         """
         if align:
-            canopy_ds, sky_ds = xr.align(canopy_ds, sky_ds, join='inner')
+            canopy_ds, sky_ds = xr.align(canopy_ds, sky_ds, join="inner")
 
         calculator = cls(canopy_ds=canopy_ds, sky_ds=sky_ds)
         return calculator.calculate_vod()
 
 
 class TauOmegaZerothOrder(VODCalculator):
-    """
-    Calculate VOD using the zeroth-order approximation of the Tau-Omega model.
+    """Calculate VOD using the zeroth-order Tau-Omega approximation.
 
     Based on Humphrey, V., & Frankenberg, C. (2022).
     """
 
     def get_delta_snr(self) -> xr.DataArray:
-        """Calculate delta SNR = SNR_canopy - SNR_sky."""
+        """Calculate delta SNR = SNR_canopy - SNR_sky.
+
+        Returns
+        -------
+        xr.DataArray
+            Delta SNR in decibels.
+        """
         return self.canopy_ds["SNR"] - self.sky_ds["SNR"]
 
     def decibel2linear(self, delta_snr_db: xr.DataArray) -> xr.DataArray:
-        """Convert decibel values to linear values."""
+        """Convert decibel values to linear values.
+
+        Parameters
+        ----------
+        delta_snr_db : xr.DataArray
+            Delta SNR in decibels.
+
+        Returns
+        -------
+        xr.DataArray
+            Linear-scale values.
+        """
         return np.power(10, delta_snr_db / 10)
 
     def calculate_vod(self) -> xr.Dataset:
-        """Calculate VOD using the zeroth-order approximation."""
+        """Calculate VOD using the zeroth-order approximation.
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset containing VOD and angular coordinates.
+
+        Raises
+        ------
+        ValueError
+            If all delta SNR values are NaN.
+        """
         delta_snr = self.get_delta_snr()
 
         if delta_snr.isnull().all():
             raise ValueError(
-                "All delta_snr values are NaN - check data alignment")
+                "All delta_snr values are NaN - check data alignment",
+            )
 
         canopy_transmissivity = self.decibel2linear(delta_snr)
 
@@ -157,8 +207,9 @@ class TauOmegaZerothOrder(VODCalculator):
             {
                 "VOD": vod,
                 "phi": self.canopy_ds["phi"],
-                "theta": self.canopy_ds["theta"]
+                "theta": self.canopy_ds["theta"],
             },
-            coords=self.canopy_ds.coords)
+            coords=self.canopy_ds.coords,
+        )
 
         return vod_ds

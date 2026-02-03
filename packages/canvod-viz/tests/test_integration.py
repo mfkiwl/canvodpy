@@ -16,10 +16,10 @@ import pytest
 pytest.importorskip("matplotlib")
 pytest.importorskip("plotly")
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def temp_output_dir():
@@ -31,32 +31,60 @@ def temp_output_dir():
 
 @pytest.fixture
 def mock_equal_area_grid():
-    """Create mock equal-area grid with proper structure."""
-    grid = Mock()
-    grid.ncells = 72  # 8 latitude bands x 9 longitude divisions (simplified)
-    grid.grid_type = "equal_area"
+    """Create mock equal-area grid with proper GridData structure."""
+    import polars as pl
 
-    cells = []
+    # Create grid parameters
     n_theta = 8
     n_phi = 9
+    ncells = n_theta * n_phi
 
+    # Build grid data rows
+    rows = []
+    cell_id = 0
     for i_theta in range(n_theta):
         theta_min = (i_theta / n_theta) * (np.pi / 2)
         theta_max = ((i_theta + 1) / n_theta) * (np.pi / 2)
+        theta_center = (theta_min + theta_max) / 2
 
         for i_phi in range(n_phi):
             phi_min = (i_phi / n_phi) * (2 * np.pi)
             phi_max = ((i_phi + 1) / n_phi) * (2 * np.pi)
+            phi_center = (phi_min + phi_max) / 2
 
-            cell = Mock()
-            cell.phi = (phi_min + phi_max) / 2
-            cell.theta = (theta_min + theta_max) / 2
-            cell.phi_lims = (phi_min, phi_max)
-            cell.theta_lims = (theta_min, theta_max)
-            cell.htm_vertices = None
-            cells.append(cell)
+            rows.append({
+                "cell_id": cell_id,
+                "phi": phi_center,
+                "theta": theta_center,
+                "phi_min": phi_min,
+                "phi_max": phi_max,
+                "theta_min": theta_min,
+                "theta_max": theta_max,
+            })
+            cell_id += 1
 
-    grid.cells = cells
+    # Create Polars DataFrame
+    df_grid = pl.DataFrame(rows)
+
+    # Create mock GridData object
+    class MockGridData:
+
+        def __init__(self, ncells, grid_type, grid, metadata):
+            self.ncells = ncells
+            self.grid_type = grid_type
+            self.grid = grid
+            self.metadata = metadata
+
+    grid = MockGridData(
+        ncells=ncells,
+        grid_type="equal_area",
+        grid=df_grid,  # The Polars DataFrame
+        metadata={
+            "angular_resolution": 20.0,
+            "cutoff_theta": np.pi / 2
+        },
+    )
+
     return grid
 
 
@@ -76,10 +104,12 @@ def sample_vod_data(mock_equal_area_grid):
 # 2D Visualization Tests
 # ============================================================================
 
+
 class TestVisualizer2DOutput:
     """Test 2D visualizer with actual matplotlib output."""
 
-    def test_create_basic_2d_plot(self, mock_equal_area_grid, sample_vod_data, temp_output_dir):
+    def test_create_basic_2d_plot(self, mock_equal_area_grid, sample_vod_data,
+                                  temp_output_dir):
         """Test creating basic 2D plot."""
         import matplotlib
         from canvod.viz import HemisphereVisualizer2D
@@ -89,11 +119,9 @@ class TestVisualizer2DOutput:
         viz = HemisphereVisualizer2D(mock_equal_area_grid)
 
         output_file = temp_output_dir / "test_2d_basic.png"
-        fig, ax = viz.plot_grid_patches(
-            data=sample_vod_data,
-            title="Test 2D Plot",
-            save_path=output_file
-        )
+        fig, ax = viz.plot_grid_patches(data=sample_vod_data,
+                                        title="Test 2D Plot",
+                                        save_path=output_file)
 
         # Verify file was created
         assert output_file.exists()
@@ -101,9 +129,9 @@ class TestVisualizer2DOutput:
 
         plt.close(fig)
 
-    def test_create_2d_plot_with_custom_style(
-        self, mock_equal_area_grid, sample_vod_data, temp_output_dir
-    ):
+    def test_create_2d_plot_with_custom_style(self, mock_equal_area_grid,
+                                              sample_vod_data,
+                                              temp_output_dir):
         """Test 2D plot with custom styling."""
         import matplotlib
         from canvod.viz import HemisphereVisualizer2D, PolarPlotStyle
@@ -112,28 +140,23 @@ class TestVisualizer2DOutput:
 
         viz = HemisphereVisualizer2D(mock_equal_area_grid)
 
-        custom_style = PolarPlotStyle(
-            cmap="plasma",
-            figsize=(8, 8),
-            dpi=150,
-            colorbar_label="VOD",
-            edgecolor="darkgray",
-            linewidth=0.3
-        )
+        custom_style = PolarPlotStyle(cmap="plasma",
+                                      figsize=(8, 8),
+                                      dpi=150,
+                                      colorbar_label="VOD",
+                                      edgecolor="darkgray",
+                                      linewidth=0.3)
 
         output_file = temp_output_dir / "test_2d_custom.png"
-        fig, ax = viz.plot_grid_patches(
-            data=sample_vod_data,
-            style=custom_style,
-            save_path=output_file
-        )
+        fig, ax = viz.plot_grid_patches(data=sample_vod_data,
+                                        style=custom_style,
+                                        save_path=output_file)
 
         assert output_file.exists()
         plt.close(fig)
 
-    def test_create_2d_plot_without_data(
-        self, mock_equal_area_grid, temp_output_dir
-    ):
+    def test_create_2d_plot_without_data(self, mock_equal_area_grid,
+                                         temp_output_dir):
         """Test 2D plot without data (uniform color)."""
         import matplotlib
         from canvod.viz import HemisphereVisualizer2D
@@ -143,18 +166,15 @@ class TestVisualizer2DOutput:
         viz = HemisphereVisualizer2D(mock_equal_area_grid)
 
         output_file = temp_output_dir / "test_2d_no_data.png"
-        fig, ax = viz.plot_grid_patches(
-            data=None,
-            title="Grid Structure",
-            save_path=output_file
-        )
+        fig, ax = viz.plot_grid_patches(data=None,
+                                        title="Grid Structure",
+                                        save_path=output_file)
 
         assert output_file.exists()
         plt.close(fig)
 
-    def test_high_dpi_export(
-        self, mock_equal_area_grid, sample_vod_data, temp_output_dir
-    ):
+    def test_high_dpi_export(self, mock_equal_area_grid, sample_vod_data,
+                             temp_output_dir):
         """Test high-resolution export."""
         import matplotlib
         from canvod.viz import HemisphereVisualizer2D, PolarPlotStyle
@@ -166,11 +186,9 @@ class TestVisualizer2DOutput:
         high_dpi_style = PolarPlotStyle(dpi=300)
 
         output_file = temp_output_dir / "test_2d_high_dpi.png"
-        fig, ax = viz.plot_grid_patches(
-            data=sample_vod_data,
-            style=high_dpi_style,
-            save_path=output_file
-        )
+        fig, ax = viz.plot_grid_patches(data=sample_vod_data,
+                                        style=high_dpi_style,
+                                        save_path=output_file)
 
         assert output_file.exists()
         # High DPI file should be larger
@@ -182,6 +200,7 @@ class TestVisualizer2DOutput:
 # 3D Visualization Tests
 # ============================================================================
 
+
 class TestVisualizer3DOutput:
     """Test 3D visualizer with actual plotly output."""
 
@@ -191,27 +210,22 @@ class TestVisualizer3DOutput:
 
         viz = HemisphereVisualizer3D(mock_equal_area_grid)
 
-        fig = viz.plot_hemisphere_surface(
-            data=sample_vod_data,
-            title="Test 3D Plot"
-        )
+        fig = viz.plot_hemisphere_surface(data=sample_vod_data,
+                                          title="Test 3D Plot")
 
         # Verify figure has data
         assert len(fig.data) > 0
         assert fig.layout.title.text == "Test 3D Plot"
 
-    def test_create_3d_plot_html_export(
-        self, mock_equal_area_grid, sample_vod_data, temp_output_dir
-    ):
+    def test_create_3d_plot_html_export(self, mock_equal_area_grid,
+                                        sample_vod_data, temp_output_dir):
         """Test 3D plot HTML export."""
         from canvod.viz import HemisphereVisualizer3D
 
         viz = HemisphereVisualizer3D(mock_equal_area_grid)
 
-        fig = viz.plot_hemisphere_surface(
-            data=sample_vod_data,
-            title="Test 3D HTML Export"
-        )
+        fig = viz.plot_hemisphere_surface(data=sample_vod_data,
+                                          title="Test 3D HTML Export")
 
         output_file = temp_output_dir / "test_3d.html"
         fig.write_html(str(output_file))
@@ -229,28 +243,23 @@ class TestVisualizer3DOutput:
 
         viz = HemisphereVisualizer3D(mock_equal_area_grid)
 
-        fig = viz.plot_hemisphere_scatter(
-            data=sample_vod_data,
-            title="3D Scatter",
-            marker_size=8
-        )
+        fig = viz.plot_hemisphere_scatter(data=sample_vod_data,
+                                          title="3D Scatter",
+                                          marker_size=8)
 
         assert len(fig.data) > 0
         assert fig.layout.title.text == "3D Scatter"
 
-    def test_3d_plot_with_custom_colorscale(
-        self, mock_equal_area_grid, sample_vod_data
-    ):
+    def test_3d_plot_with_custom_colorscale(self, mock_equal_area_grid,
+                                            sample_vod_data):
         """Test 3D plot with custom colorscale."""
         from canvod.viz import HemisphereVisualizer3D
 
         viz = HemisphereVisualizer3D(mock_equal_area_grid)
 
-        fig = viz.plot_hemisphere_surface(
-            data=sample_vod_data,
-            colorscale="Plasma",
-            opacity=0.9
-        )
+        fig = viz.plot_hemisphere_surface(data=sample_vod_data,
+                                          colorscale="Plasma",
+                                          opacity=0.9)
 
         assert len(fig.data) > 0
 
@@ -259,12 +268,12 @@ class TestVisualizer3DOutput:
 # Unified Visualizer Tests
 # ============================================================================
 
+
 class TestUnifiedVisualizerOutput:
     """Test unified visualizer with actual output."""
 
-    def test_publication_figure_workflow(
-        self, mock_equal_area_grid, sample_vod_data, temp_output_dir
-    ):
+    def test_publication_figure_workflow(self, mock_equal_area_grid,
+                                         sample_vod_data, temp_output_dir):
         """Test complete publication figure workflow."""
         import matplotlib
         from canvod.viz import HemisphereVisualizer
@@ -274,32 +283,27 @@ class TestUnifiedVisualizerOutput:
         viz = HemisphereVisualizer(mock_equal_area_grid)
 
         output_file = temp_output_dir / "publication.png"
-        fig, ax = viz.create_publication_figure(
-            data=sample_vod_data,
-            title="VOD Distribution",
-            save_path=output_file,
-            dpi=300
-        )
+        fig, ax = viz.create_publication_figure(data=sample_vod_data,
+                                                title="VOD Distribution",
+                                                save_path=output_file,
+                                                dpi=300)
 
         assert output_file.exists()
         assert output_file.stat().st_size > 0
         plt.close(fig)
 
-    def test_interactive_explorer_workflow(
-        self, mock_equal_area_grid, sample_vod_data, temp_output_dir
-    ):
+    def test_interactive_explorer_workflow(self, mock_equal_area_grid,
+                                           sample_vod_data, temp_output_dir):
         """Test complete interactive explorer workflow."""
         from canvod.viz import HemisphereVisualizer
 
         viz = HemisphereVisualizer(mock_equal_area_grid)
 
         output_file = temp_output_dir / "explorer.html"
-        fig = viz.create_interactive_explorer(
-            data=sample_vod_data,
-            title="VOD Explorer",
-            dark_mode=True,
-            save_html=output_file
-        )
+        fig = viz.create_interactive_explorer(data=sample_vod_data,
+                                              title="VOD Explorer",
+                                              dark_mode=True,
+                                              save_html=output_file)
 
         assert output_file.exists()
         assert output_file.stat().st_size > 0
@@ -307,9 +311,8 @@ class TestUnifiedVisualizerOutput:
         content = output_file.read_text()
         assert "VOD Explorer" in content
 
-    def test_comparison_plot_workflow(
-        self, mock_equal_area_grid, sample_vod_data, temp_output_dir
-    ):
+    def test_comparison_plot_workflow(self, mock_equal_area_grid,
+                                      sample_vod_data, temp_output_dir):
         """Test comparison plot workflow."""
         import matplotlib
         from canvod.viz import HemisphereVisualizer
@@ -321,19 +324,17 @@ class TestUnifiedVisualizerOutput:
         output_2d = temp_output_dir / "comparison_2d.png"
         output_3d = temp_output_dir / "comparison_3d.html"
 
-        (fig_2d, ax_2d), fig_3d = viz.create_comparison_plot(
-            data=sample_vod_data,
-            save_2d=output_2d,
-            save_3d=output_3d
-        )
+        (fig_2d,
+         ax_2d), fig_3d = viz.create_comparison_plot(data=sample_vod_data,
+                                                     save_2d=output_2d,
+                                                     save_3d=output_3d)
 
         assert output_2d.exists()
         assert output_3d.exists()
         plt.close(fig_2d)
 
-    def test_style_switching(
-        self, mock_equal_area_grid, sample_vod_data, temp_output_dir
-    ):
+    def test_style_switching(self, mock_equal_area_grid, sample_vod_data,
+                             temp_output_dir):
         """Test switching between publication and interactive styles."""
         import matplotlib
         from canvod.viz import (
@@ -351,10 +352,8 @@ class TestUnifiedVisualizerOutput:
         viz.set_style(pub_style)
 
         output_pub = temp_output_dir / "publication_style.png"
-        fig_pub, ax_pub = viz.plot_2d(
-            data=sample_vod_data,
-            save_path=output_pub
-        )
+        fig_pub, ax_pub = viz.plot_2d(data=sample_vod_data,
+                                      save_path=output_pub)
         assert output_pub.exists()
         plt.close(fig_pub)
 
@@ -372,6 +371,7 @@ class TestUnifiedVisualizerOutput:
 # Data Edge Cases
 # ============================================================================
 
+
 class TestDataEdgeCases:
     """Test visualization with edge case data."""
 
@@ -386,10 +386,7 @@ class TestDataEdgeCases:
         data = np.full(mock_equal_area_grid.ncells, np.nan)
 
         output_file = temp_output_dir / "all_nan.png"
-        fig, ax = viz.plot_grid_patches(
-            data=data,
-            save_path=output_file
-        )
+        fig, ax = viz.plot_grid_patches(data=data, save_path=output_file)
 
         assert output_file.exists()
         plt.close(fig)
@@ -405,10 +402,7 @@ class TestDataEdgeCases:
         data = np.full(mock_equal_area_grid.ncells, 0.5)
 
         output_file = temp_output_dir / "constant.png"
-        fig, ax = viz.plot_grid_patches(
-            data=data,
-            save_path=output_file
-        )
+        fig, ax = viz.plot_grid_patches(data=data, save_path=output_file)
 
         assert output_file.exists()
         plt.close(fig)
@@ -423,18 +417,14 @@ class TestDataEdgeCases:
         viz = HemisphereVisualizer2D(mock_equal_area_grid)
         data = np.full(mock_equal_area_grid.ncells, np.nan)
         # Only 10% of cells have data
-        valid_indices = np.random.choice(
-            mock_equal_area_grid.ncells,
-            size=mock_equal_area_grid.ncells // 10,
-            replace=False
-        )
+        valid_indices = np.random.choice(mock_equal_area_grid.ncells,
+                                         size=mock_equal_area_grid.ncells //
+                                         10,
+                                         replace=False)
         data[valid_indices] = np.random.rand(len(valid_indices))
 
         output_file = temp_output_dir / "sparse.png"
-        fig, ax = viz.plot_grid_patches(
-            data=data,
-            save_path=output_file
-        )
+        fig, ax = viz.plot_grid_patches(data=data, save_path=output_file)
 
         assert output_file.exists()
         plt.close(fig)
@@ -444,6 +434,7 @@ class TestDataEdgeCases:
 # Performance Integration Tests
 # ============================================================================
 
+
 class TestPerformanceIntegration:
     """Integration tests for performance with real plots."""
 
@@ -451,34 +442,40 @@ class TestPerformanceIntegration:
     def test_large_grid_visualization(self, temp_output_dir):
         """Test visualization with large grid (marked as slow)."""
         import matplotlib
+        import polars as pl
         from canvod.viz import HemisphereVisualizer2D
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
-        # Create large grid
-        grid = Mock()
-        grid.ncells = 1000
-        grid.grid_type = "equal_area"
+        # Create large grid with proper structure
+        ncells = 1000
+        rows = []
+        for i in range(ncells):
+            phi = np.random.uniform(0, 2 * np.pi)
+            theta = np.random.uniform(0, np.pi / 2)
+            rows.append({
+                "cell_id": i,
+                "phi": phi,
+                "theta": theta,
+                "phi_min": phi - 0.01,
+                "phi_max": phi + 0.01,
+                "theta_min": theta - 0.01,
+                "theta_max": theta + 0.01,
+            })
 
-        cells = []
-        for i in range(1000):
-            cell = Mock()
-            cell.phi = np.random.uniform(0, 2 * np.pi)
-            cell.theta = np.random.uniform(0, np.pi / 2)
-            cell.phi_lims = (cell.phi - 0.01, cell.phi + 0.01)
-            cell.theta_lims = (cell.theta - 0.01, cell.theta + 0.01)
-            cell.htm_vertices = None
-            cells.append(cell)
-        grid.cells = cells
+        df_grid = pl.DataFrame(rows)
+
+        grid = Mock()
+        grid.ncells = ncells
+        grid.grid_type = "equal_area"
+        grid.grid = df_grid
+        grid.metadata = {}
 
         viz = HemisphereVisualizer2D(grid)
-        data = np.random.rand(1000)
+        data = np.random.rand(ncells)
 
         output_file = temp_output_dir / "large_grid.png"
-        fig, ax = viz.plot_grid_patches(
-            data=data,
-            save_path=output_file
-        )
+        fig, ax = viz.plot_grid_patches(data=data, save_path=output_file)
 
         assert output_file.exists()
         plt.close(fig)

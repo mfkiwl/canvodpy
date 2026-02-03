@@ -17,32 +17,36 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from .models import ProcessingConfig, SidsConfig, SitesConfig
+
 
 def find_monorepo_root() -> Path:
-    """Find the monorepo root by looking for .git directory.
-    
+    """Find the monorepo root by looking for a .git directory.
+
     Returns
     -------
     Path
-        Monorepo root directory
-        
+        Monorepo root directory.
+
     Raises
     ------
     RuntimeError
-        If monorepo root cannot be found
+        If the monorepo root cannot be found.
     """
     current = Path.cwd().resolve()
-    
+
     # Walk up directory tree looking for .git
     for parent in [current] + list(current.parents):
         if (parent / ".git").exists():
             return parent
-    
-    # Fallback: if this file is in packages/canvod-utils/src/canvod/utils/config/cli.py
-    # then monorepo root is 7 levels up
+
+    # Fallback: if this file is in
+    # packages/canvod-utils/src/canvod/utils/config/cli.py then monorepo root is
+    # 7 levels up.
     try:
         cli_file = Path(__file__).resolve()
-        # cli.py -> config -> utils -> canvod -> src -> canvod-utils -> packages -> root
+        # cli.py -> config -> utils -> canvod -> src -> canvod-utils ->
+        # packages -> root.
         monorepo_root = cli_file.parent.parent.parent.parent.parent.parent.parent
         if (monorepo_root / ".git").exists():
             return monorepo_root
@@ -93,13 +97,23 @@ def init(
         help="Overwrite existing files",
     ),
 ) -> None:
-    """
-    Initialize configuration files from templates.
+    """Initialize configuration files from templates.
 
     Creates:
       - config/processing.yaml
       - config/sites.yaml
       - config/sids.yaml
+
+    Parameters
+    ----------
+    config_dir : Path
+        Directory where configuration files are created.
+    force : bool
+        Overwrite existing files.
+
+    Returns
+    -------
+    None
     """
     console.print("\n[bold]Initializing canvodpy configuration...[/bold]\n")
 
@@ -113,8 +127,8 @@ def init(
     except RuntimeError:
         # Fallback to path calculation if monorepo root not found
         template_dir = (
-            Path(__file__).parent.parent.parent.parent.parent.parent.parent /
-            "config"
+            Path(__file__).parent.parent.parent.parent.parent.parent.parent
+            / "config"
         )
 
     if not template_dir.exists():
@@ -174,13 +188,16 @@ def init(
 def validate(
     config_dir: Annotated[Path, CONFIG_DIR_OPTION] = DEFAULT_CONFIG_DIR,
 ) -> None:
-    """
-    Validate configuration files.
+    """Validate configuration files.
 
     Parameters
     ----------
     config_dir : Path
         Directory containing config files.
+
+    Returns
+    -------
+    None
     """
     from .loader import load_config
 
@@ -210,7 +227,10 @@ def validate(
             else:
                 console.print("  [yellow]⊘ NASA CDDIS disabled (ESA only)[/yellow]")
         except ImportError:
-            console.print("  [yellow]⊘ Settings not available (install canvodpy package)[/yellow]")
+            console.print(
+                "  [yellow]⊘ Settings not available "
+                "(install canvodpy package)[/yellow]"
+            )
 
         console.print()
 
@@ -231,8 +251,7 @@ def show(
         help="Show specific section (processing, sites, sids)",
     ),
 ) -> None:
-    """
-    Display current configuration.
+    """Display current configuration.
 
     Parameters
     ----------
@@ -240,6 +259,10 @@ def show(
         Directory containing config files.
     section : str
         Optional section name (processing, sites, sids).
+
+    Returns
+    -------
+    None
     """
     from .loader import load_config
 
@@ -271,8 +294,7 @@ def edit(
     ),
     config_dir: Annotated[Path, CONFIG_DIR_OPTION] = DEFAULT_CONFIG_DIR,
 ) -> None:
-    """
-    Open configuration file in editor.
+    """Open a configuration file in the editor.
 
     Parameters
     ----------
@@ -280,6 +302,10 @@ def edit(
         Config file to edit (processing, sites, sids).
     config_dir : Path
         Directory containing config files.
+
+    Returns
+    -------
+    None
     """
     import os
 
@@ -306,11 +332,21 @@ def edit(
     subprocess.run([editor, str(file_path)])
 
 
-def _show_processing(config):
-    """Display processing config."""
+def _show_processing(config: ProcessingConfig) -> None:
+    """Display processing config.
+
+    Parameters
+    ----------
+    config : ProcessingConfig
+        Processing configuration object.
+
+    Returns
+    -------
+    None
+    """
     console.print("[bold]Processing Configuration:[/bold]")
     table = Table(show_header=False)
-    
+
     # Credentials are now in .env file
     if config.credentials:
         # Legacy support if credentials still in processing.yaml
@@ -337,16 +373,28 @@ def _show_processing(config):
         "Time Aggregation",
         f"{config.processing.time_aggregation_seconds}s",
     )
-    table.add_row(
-        "GLONASS FDMA",
-        "Aggregated" if config.processing.aggregate_glonass_fdma else "Individual",
+    glonass_mode = (
+        "Aggregated"
+        if config.processing.aggregate_glonass_fdma
+        else "Individual"
     )
+    table.add_row("GLONASS FDMA", glonass_mode)
     console.print(table)
     console.print()
 
 
-def _show_sites(config):
-    """Display sites config."""
+def _show_sites(config: SitesConfig) -> None:
+    """Display sites config.
+
+    Parameters
+    ----------
+    config : SitesConfig
+        Sites configuration object.
+
+    Returns
+    -------
+    None
+    """
     console.print("[bold]Research Sites:[/bold]")
     for name, site in config.sites.items():
         console.print(f"\n  [cyan]{name}[/cyan]:")
@@ -356,8 +404,18 @@ def _show_sites(config):
             console.print(f"      - {recv_name} ({recv.type})")
 
 
-def _show_sids(config):
-    """Display SIDs config."""
+def _show_sids(config: SidsConfig) -> None:
+    """Display SIDs config.
+
+    Parameters
+    ----------
+    config : SidsConfig
+        SIDs configuration object.
+
+    Returns
+    -------
+    None
+    """
     console.print("[bold]Signal IDs:[/bold]")
     table = Table(show_header=False)
     table.add_row("Mode", config.mode)
@@ -373,8 +431,8 @@ def _show_sids(config):
 main_app.add_typer(config_app, name="config")
 
 
-def main():
-    """Main entry point for CLI."""
+def main() -> None:
+    """Run the CLI entry point."""
     main_app()
 
 

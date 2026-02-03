@@ -172,13 +172,13 @@ class SignalIDMapper:
         ('G01', 'L1', 'C')
 
         >>> mapper.parse_signal_id("invalid")
-        ('', '', '')
+        ('nan', 'nan', 'nan')
 
         """
         parts = signal_id.split("|")
         if len(parts) != SIGNAL_ID_PARTS:
             print(f"Invalid signal ID format: {signal_id}")
-            return "", "", ""
+            return "nan", "nan", "nan"
         return parts[0], parts[1], parts[2]
 
     def get_band_frequency(self, band_name: str) -> float | None:

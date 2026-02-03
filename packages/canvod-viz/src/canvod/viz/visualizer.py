@@ -1,12 +1,13 @@
 """Unified hemisphere visualization API combining 2D and 3D capabilities.
 
-Provides a single interface for both matplotlib (publication) and plotly (interactive) plots.
+Provides a single interface for both matplotlib (publication) and plotly
+(interactive) plots.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import plotly.graph_objects as go
 from canvod.viz.hemisphere_2d import HemisphereVisualizer2D
@@ -75,7 +76,7 @@ class HemisphereVisualizer:
 
     """
 
-    def __init__(self, grid: HemiGrid):
+    def __init__(self, grid: HemiGrid) -> None:
         """Initialize unified visualizer.
         
         Parameters
@@ -93,7 +94,7 @@ class HemisphereVisualizer:
         # Default styling
         self.style = PlotStyle()
 
-    def set_style(self, style: PlotStyle):
+    def set_style(self, style: PlotStyle) -> None:
         """Set unified styling for both 2D and 3D plots.
         
         Parameters
@@ -117,7 +118,7 @@ class HemisphereVisualizer:
         ax: Axes | None = None,
         save_path: Path | str | None = None,
         style: PolarPlotStyle | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> tuple[Figure, Axes]:
         """Create 2D publication-quality plot.
         
@@ -173,7 +174,7 @@ class HemisphereVisualizer:
         data: np.ndarray | None = None,
         title: str | None = None,
         style: PlotStyle | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> go.Figure:
         """Create 3D interactive plot.
         
@@ -220,7 +221,7 @@ class HemisphereVisualizer:
         self,
         data: np.ndarray | None = None,
         title: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> go.Figure:
         """Create 3D mesh plot showing cell boundaries.
         
@@ -321,7 +322,7 @@ class HemisphereVisualizer:
         title: str = "Hemispherical Data Distribution",
         save_path: Path | str | None = None,
         dpi: int = 300,
-        **kwargs,
+        **kwargs: Any,
     ) -> tuple[Figure, Axes]:
         """Create publication-ready figure with optimal styling.
         

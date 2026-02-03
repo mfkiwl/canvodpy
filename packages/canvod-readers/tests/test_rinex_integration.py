@@ -109,14 +109,16 @@ class TestRINEXIntegration:
         freq_center = ds.freq_center.values
         valid_freqs = freq_center[~np.isnan(freq_center)]
         assert len(valid_freqs) > 0, "Should have some valid frequencies"
-        assert np.all(valid_freqs > 0), "All valid frequencies should be positive"
+        assert np.all(
+            valid_freqs > 0), "All valid frequencies should be positive"
         assert np.all(valid_freqs < 3000), "Frequencies should be < 3000 MHz"
 
         # Check frequency ranges (excluding NaN values)
         freq_min = ds.freq_min.values
         freq_max = ds.freq_max.values
         valid_mask = ~(np.isnan(freq_min) | np.isnan(freq_max))
-        assert np.all(freq_min[valid_mask] < freq_max[valid_mask]), "freq_min should be < freq_max"
+        assert np.all(freq_min[valid_mask] <
+                      freq_max[valid_mask]), "freq_min should be < freq_max"
 
     def test_band_coordinate_in_dataset(self, rinex_file):
         """Test band coordinate is correctly set."""
@@ -142,11 +144,11 @@ class TestRINEXIntegration:
         for i, sid in enumerate(ds.sid.values):
             sv_system = str(sid).split("|")[0][0]
             dataset_system = str(ds.system.values[i])
-            
+
             # Skip NaN values from padded sids
             if dataset_system == 'nan':
                 continue
-                
+
             assert sv_system == dataset_system, \
                 f"System mismatch: SID has {sv_system}, dataset has {dataset_system}"
 
@@ -182,7 +184,8 @@ class TestRINEXIntegration:
             if var in ds.data_vars:
                 available_vars.append(var)
 
-        assert len(available_vars) > 0, "At least one data variable should be present"
+        assert len(
+            available_vars) > 0, "At least one data variable should be present"
 
         # Check each available variable has correct dimensions
         for var in available_vars:
@@ -241,7 +244,8 @@ class TestRINEXIntegration:
         # Check data is not all NaN
         if "SNR" in ds.data_vars:
             snr_data = ds["SNR"].values
-            assert not np.all(np.isnan(snr_data)), "SNR data should not be all NaN"
+            assert not np.all(
+                np.isnan(snr_data)), "SNR data should not be all NaN"
 
 
 class TestSignalMappingEdgeCases:
@@ -276,9 +280,9 @@ class TestSignalMappingEdgeCases:
 
         # Empty signal ID
         sv, band, code = mapper.parse_signal_id("")
-        assert sv == ""
-        assert band == ""
-        assert code == ""
+        assert sv == "nan"
+        assert band == "nan"
+        assert code == "nan"
 
     def test_nonexistent_band_frequency(self):
         """Test getting frequency for nonexistent band."""

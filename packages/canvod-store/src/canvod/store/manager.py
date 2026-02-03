@@ -59,6 +59,13 @@ class GnssResearchSite:
     """
 
     def __init__(self, site_name: str) -> None:
+        """Initialize the site manager.
+
+        Parameters
+        ----------
+        site_name : str
+            Name of the research site.
+        """
         if site_name not in RESEARCH_SITES:
             available_sites = list(RESEARCH_SITES.keys())
             raise KeyError(f"Site '{site_name}' not found in config. "
@@ -71,10 +78,10 @@ class GnssResearchSite:
         # Load store paths from processing config (not from research_sites_config)
         from canvod.utils.config import load_config
         config = load_config()
-        
+
         rinex_store_path = config.processing.storage.get_rinex_store_path(site_name)
         vod_store_path = config.processing.storage.get_vod_store_path(site_name)
-        
+
         # Initialize stores using paths from processing.yaml
         self.rinex_store = create_rinex_store(rinex_store_path)
         self.vod_store = create_vod_store(vod_store_path)
@@ -139,7 +146,7 @@ class GnssResearchSite:
         # Load config to get store paths
         from canvod.utils.config import load_config
         config = load_config()
-        
+
         # Try to match against each site's expected rinex store path
         for site_name in RESEARCH_SITES.keys():
             expected_path = config.processing.storage.get_rinex_store_path(site_name)
@@ -702,9 +709,23 @@ class GnssResearchSite:
         return True
 
     def __repr__(self) -> str:
+        """Return the developer-facing representation.
+
+        Returns
+        -------
+        str
+            Representation string.
+        """
         return f"GnssResearchSite(site_name='{self.site_name}')"
 
     def __str__(self) -> str:
+        """Return a human-readable summary.
+
+        Returns
+        -------
+        str
+            Summary string.
+        """
         rinex_groups = len(self.get_receiver_groups())
         vod_groups = len(self.get_vod_analysis_groups())
         return (

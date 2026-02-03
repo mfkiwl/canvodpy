@@ -30,12 +30,12 @@ def test_no_env():
         os.environ.pop("CDDIS_MAIL", None)
         os.environ.pop("GNSS_ROOT_DIR", None)
         
-        # Remove settings module from cache to force reimport
+        # Remove module from cache so it reimports
         if 'canvodpy.settings' in sys.modules:
             del sys.modules['canvodpy.settings']
         
-        # Mock Path.exists to make it think .env doesn't exist
-        with patch.object(Path, 'exists', return_value=False):
+        # Mock load_dotenv to do nothing (prevent .env loading)
+        with patch('dotenv.load_dotenv'):
             from canvodpy.settings import AppSettings
             settings = AppSettings()
 
@@ -58,7 +58,7 @@ def test_no_env():
             os.environ["CDDIS_MAIL"] = orig_cddis
         if orig_gnss:
             os.environ["GNSS_ROOT_DIR"] = orig_gnss
-        # Remove from cache again for clean slate
+        # Remove from cache for clean slate
         if 'canvodpy.settings' in sys.modules:
             del sys.modules['canvodpy.settings']
 
@@ -78,15 +78,13 @@ def test_with_env():
         os.environ["CDDIS_MAIL"] = "test@example.com"
         os.environ["GNSS_ROOT_DIR"] = "/tmp/test_gnss"
         
-        # Remove settings module from cache to force reimport
+        # Remove module from cache so it reimports
         if 'canvodpy.settings' in sys.modules:
             del sys.modules['canvodpy.settings']
         
-        # Mock Path.exists to make it think .env doesn't exist
-        # (we're testing environment variable loading, not file loading)
-        with patch.object(Path, 'exists', return_value=False):
-            from canvodpy.settings import AppSettings
-            settings = AppSettings()
+        # Don't mock load_dotenv - let it run but env vars override
+        from canvodpy.settings import AppSettings
+        settings = AppSettings()
 
         assert settings.has_cddis_credentials, "Should have CDDIS credentials"
         assert settings.cddis_mail == "test@example.com", "CDDIS mail mismatch"
@@ -110,7 +108,7 @@ def test_with_env():
             os.environ["GNSS_ROOT_DIR"] = orig_gnss
         else:
             os.environ.pop("GNSS_ROOT_DIR", None)
-        # Remove from cache again for clean slate
+        # Remove from cache for clean slate
         if 'canvodpy.settings' in sys.modules:
             del sys.modules['canvodpy.settings']
 

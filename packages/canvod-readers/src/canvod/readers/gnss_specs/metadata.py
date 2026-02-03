@@ -245,9 +245,9 @@ DTYPES: Final[dict[str, np.dtype]] = {
     "Doppler": np.dtype("float32"),
     "LLI": np.dtype("int8"),
     "SSI": np.dtype("int8"),
-    "freq_center": np.dtype("float64"),
-    "freq_min": np.dtype("float64"),
-    "freq_max": np.dtype("float64"),
+    "freq_center": np.dtype("float32"),
+    "freq_min": np.dtype("float32"),
+    "freq_max": np.dtype("float32"),
 }
 
 # -------------------

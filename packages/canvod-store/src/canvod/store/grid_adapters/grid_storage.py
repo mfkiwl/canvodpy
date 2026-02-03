@@ -652,8 +652,25 @@ except ImportError:
         except ImportError:
             # If all fails, create a simple wrapper
             class Blosc:
+                """Fallback Blosc codec wrapper for older zarr versions."""
 
-                def __init__(self, cname='zstd', clevel=5, shuffle=2):
+                def __init__(
+                    self,
+                    cname: str = "zstd",
+                    clevel: int = 5,
+                    shuffle: int = 2,
+                ) -> None:
+                    """Initialize the codec configuration.
+
+                    Parameters
+                    ----------
+                    cname : str, default "zstd"
+                        Compression algorithm name.
+                    clevel : int, default 5
+                        Compression level.
+                    shuffle : int, default 2
+                        Shuffle mode.
+                    """
                     self.cname = cname
                     self.clevel = clevel
                     self.shuffle = shuffle
@@ -668,14 +685,38 @@ try:  # Polars dtype helpers (0.20+)
     )
 except (ImportError, AttributeError):  # pragma: no cover - legacy Polars
 
-    def is_numeric_dtype(dtype) -> bool:
+    def is_numeric_dtype(dtype: Any) -> bool:
+        """Return True if the dtype is numeric.
+
+        Parameters
+        ----------
+        dtype : Any
+            Polars dtype to check.
+
+        Returns
+        -------
+        bool
+            True if dtype is numeric.
+        """
         numeric_dtypes = {
             pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.UInt8, pl.UInt16,
             pl.UInt32, pl.UInt64, pl.Float32, pl.Float64
         }
         return dtype in numeric_dtypes
 
-    def is_boolean_dtype(dtype) -> bool:
+    def is_boolean_dtype(dtype: Any) -> bool:
+        """Return True if the dtype is boolean.
+
+        Parameters
+        ----------
+        dtype : Any
+            Polars dtype to check.
+
+        Returns
+        -------
+        bool
+            True if dtype is boolean.
+        """
         return dtype == pl.Boolean
 
 # ==============================================================================
@@ -724,12 +765,29 @@ class GridMetadata(BaseModel):
     version: str = Field(default="1.0", description="Grid format version")
     immutable: bool = Field(default=True, description="Grid is immutable")
 
-    @field_validator('grid_type')
+    @field_validator("grid_type")
     @classmethod
-    def validate_grid_type(cls, v):
+    def validate_grid_type(cls, v: str) -> str:
+        """Validate grid type.
+
+        Parameters
+        ----------
+        v : str
+            Grid type string.
+
+        Returns
+        -------
+        str
+            Validated grid type.
+        """
         allowed = [
-            'htm', 'equal_area', 'geodesic', 'equirectangular', 'equal_angle',
-            'healpix', 'fibonacci'
+            "htm",
+            "equal_area",
+            "geodesic",
+            "equirectangular",
+            "equal_angle",
+            "healpix",
+            "fibonacci",
         ]
         if v not in allowed:
             raise ValueError(f"grid_type must be one of {allowed}")
@@ -880,9 +938,16 @@ class KDTreeCache:
         Cache directory. Defaults to ~/.cache/gnssvodpy/grids/.
     """
 
-    def __init__(self, cache_dir: Path | None = None):
+    def __init__(self, cache_dir: Path | None = None) -> None:
+        """Initialize the cache.
+
+        Parameters
+        ----------
+        cache_dir : Path | None, optional
+            Cache directory. Defaults to ~/.cache/gnssvodpy/grids/.
+        """
         if cache_dir is None:
-            cache_dir = Path.home() / '.cache' / 'gnssvodpy' / 'grids'
+            cache_dir = Path.home() / ".cache" / "gnssvodpy" / "grids"
 
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -906,7 +971,7 @@ class KDTreeCache:
 
         try:
             import pickle
-            with open(cache_path, 'rb') as f:
+            with open(cache_path, "rb") as f:
                 tree = pickle.load(f)
 
             self._logger.debug(f"KDTree loaded from cache: {cache_path.name}")
@@ -919,12 +984,26 @@ class KDTreeCache:
             return None
 
     def save(self, tree: cKDTree, grid_name: str, grid_hash: str) -> None:
-        """Save KDTree to cache."""
+        """Save KDTree to cache.
+
+        Parameters
+        ----------
+        tree : cKDTree
+            KDTree to serialize.
+        grid_name : str
+            Grid identifier.
+        grid_hash : str
+            Grid hash for cache keying.
+
+        Returns
+        -------
+        None
+        """
         cache_path = self.get_cache_path(grid_name, grid_hash)
 
         try:
             import pickle
-            with open(cache_path, 'wb') as f:
+            with open(cache_path, "wb") as f:
                 pickle.dump(tree, f, protocol=pickle.HIGHEST_PROTOCOL)
 
             self._logger.debug(f"KDTree cached: {cache_path.name}")
@@ -987,13 +1066,32 @@ class LoadedGrid:
         Spatial index (lazy loaded)
     """
 
-    def __init__(self,
-                 grid_name: str,
-                 cells: pl.DataFrame,
-                 metadata: GridMetadata,
-                 vertices: pl.DataFrame | None = None,
-                 neighbors: pl.DataFrame | None = None,
-                 specific_metadata: dict | None = None):
+    def __init__(
+        self,
+        grid_name: str,
+        cells: pl.DataFrame,
+        metadata: GridMetadata,
+        vertices: pl.DataFrame | None = None,
+        neighbors: pl.DataFrame | None = None,
+        specific_metadata: dict | None = None,
+    ) -> None:
+        """Initialize a loaded grid container.
+
+        Parameters
+        ----------
+        grid_name : str
+            Grid identifier.
+        cells : pl.DataFrame
+            Cells table.
+        metadata : GridMetadata
+            Validated grid metadata.
+        vertices : pl.DataFrame | None, optional
+            Vertices table if available.
+        neighbors : pl.DataFrame | None, optional
+            Neighbors table if available.
+        specific_metadata : dict | None, optional
+            Grid-type-specific metadata.
+        """
         self.grid_name = grid_name
         self.cells = cells
         self.vertices = vertices
@@ -1010,21 +1108,29 @@ class LoadedGrid:
         """Get KDTree, building/loading from cache if needed."""
         if self._kdtree is None:
             # Try cache first
-            self._kdtree = self._kdtree_cache.load(self.grid_name,
-                                                   self.metadata.grid_hash)
+            self._kdtree = self._kdtree_cache.load(
+                self.grid_name,
+                self.metadata.grid_hash,
+            )
 
             if self._kdtree is None:
                 # Build from scratch
                 self._logger.info(f"Building KDTree for '{self.grid_name}'...")
-                xyz = np.column_stack([
-                    self.cells['x'].to_numpy(), self.cells['y'].to_numpy(),
-                    self.cells['z'].to_numpy()
-                ])
+                xyz = np.column_stack(
+                    [
+                        self.cells["x"].to_numpy(),
+                        self.cells["y"].to_numpy(),
+                        self.cells["z"].to_numpy(),
+                    ]
+                )
                 self._kdtree = cKDTree(xyz)
 
                 # Cache it
-                self._kdtree_cache.save(self._kdtree, self.grid_name,
-                                        self.metadata.grid_hash)
+                self._kdtree_cache.save(
+                    self._kdtree,
+                    self.grid_name,
+                    self.metadata.grid_hash,
+                )
                 self._logger.info("  ✓ KDTree built and cached")
 
         return self._kdtree
@@ -1053,7 +1159,7 @@ class LoadedGrid:
         # Query KDTree
         _, idx = self.kdtree.query([x, y, z])
 
-        return int(self.cells['cell_id'][idx])
+        return int(self.cells["cell_id"][idx])
 
     def query_points(self, phi: np.ndarray, theta: np.ndarray) -> np.ndarray:
         """
@@ -1080,7 +1186,21 @@ class LoadedGrid:
         # Query KDTree
         _, indices = self.kdtree.query(xyz, workers=-1)
 
-        return self.cells['cell_id'][indices].to_numpy()
+        return self.cells["cell_id"][indices].to_numpy()
+
+    def __repr__(self) -> str:
+        """Return the developer-facing representation.
+
+        Returns
+        -------
+        str
+            Representation string.
+        """
+        return (
+            f"LoadedGrid(grid_name='{self.grid_name}', "
+            f"grid_type='{self.metadata.grid_type}', "
+            f"ncells={self.metadata.ncells})"
+        )
 
     def get_cell_boundaries(self, cell_id: int) -> dict[str, Any] | None:
         """
@@ -1150,9 +1270,18 @@ class LoadedGrid:
             return None
 
     def __repr__(self) -> str:
-        return (f"LoadedGrid(name='{self.grid_name}', "
-                f"type='{self.metadata.grid_type}', "
-                f"ncells={self.metadata.ncells})")
+        """Return the developer-facing representation.
+
+        Returns
+        -------
+        str
+            Representation string.
+        """
+        return (
+            f"LoadedGrid(name='{self.grid_name}', "
+            f"type='{self.metadata.grid_type}', "
+            f"ncells={self.metadata.ncells})"
+        )
 
 
 def load_grid_from_zarr(zarr_group: zarr.Group,
@@ -1568,48 +1697,78 @@ def _build_neighbors_dataset(
     return ds
 
 
-def write_grid_to_icechunk(session,
-                           grid_name: str,
-                           df_cells: pl.DataFrame,
-                           df_vertices: pl.DataFrame | None = None,
-                           df_neighbors: pl.DataFrame | None = None,
-                           metadata: dict[str, Any] | None = None,
-                           specific_metadata: dict[str, Any] | None = None,
-                           overwrite: bool = False) -> str:
-    """
-    Write grid definition to an Icechunk repository.
+def write_grid_to_icechunk(
+    session: Any,
+    grid_name: str,
+    df_cells: pl.DataFrame,
+    df_vertices: pl.DataFrame | None = None,
+    df_neighbors: pl.DataFrame | None = None,
+    metadata: dict[str, Any] | None = None,
+    specific_metadata: dict[str, Any] | None = None,
+    overwrite: bool = False,
+) -> str:
+    """Write a grid definition to an Icechunk repository.
+
+    Parameters
+    ----------
+    session : Any
+        Icechunk session or store handle.
+    grid_name : str
+        Grid identifier.
+    df_cells : pl.DataFrame
+        Cell metadata table.
+    df_vertices : pl.DataFrame | None, optional
+        Vertex metadata table.
+    df_neighbors : pl.DataFrame | None, optional
+        Neighbor metadata table.
+    metadata : dict[str, Any] | None, optional
+        Grid metadata values.
+    specific_metadata : dict[str, Any] | None, optional
+        Grid-type-specific metadata values.
+    overwrite : bool, default False
+        Whether to overwrite existing grid data.
+
+    Returns
+    -------
+    str
+        Grid hash.
     """
     if to_icechunk is None:  # pragma: no cover - handled at runtime
         raise ImportError(
             "icechunk is required to write grids. "
-            "Install the `icechunk` package to enable this functionality.")
+            "Install the `icechunk` package to enable this functionality.",
+        )
 
     logger = get_logger()
     logger.info(f"Writing grid '{grid_name}' to icechunk...")
 
     store = getattr(session, "store", session)
-    zroot = zarr.open_group(store, mode='a')
-    grids_group = zroot.require_group('grids')
+    zroot = zarr.open_group(store, mode="a")
+    grids_group = zroot.require_group("grids")
 
     if grid_name in grids_group:
         if not overwrite:
-            raise ValueError(f"Grid 'grids/{grid_name}' already exists. "
-                             "Use overwrite=True to replace.")
+            raise ValueError(
+                f"Grid 'grids/{grid_name}' already exists. "
+                "Use overwrite=True to replace."
+            )
         del grids_group[grid_name]
 
-    grid_path = f'grids/{grid_name}'
+    grid_path = f"grids/{grid_name}"
 
     metadata = metadata.copy() if metadata else {}
-    grid_hash = compute_grid_hash(df_cells['phi'].to_numpy(),
-                                  df_cells['theta'].to_numpy(),
-                                  metadata['grid_type'],
-                                  metadata['angular_resolution'])
+    grid_hash = compute_grid_hash(
+        df_cells["phi"].to_numpy(),
+        df_cells["theta"].to_numpy(),
+        metadata["grid_type"],
+        metadata["angular_resolution"],
+    )
     metadata['grid_hash'] = grid_hash
 
     grid_meta = GridMetadata(**metadata)
     cells_ds = _build_cells_dataset(df_cells)
 
-    to_icechunk(cells_ds, session, group=f'{grid_path}/cells', mode='w')
+    to_icechunk(cells_ds, session, group=f"{grid_path}/cells", mode="w")
 
     vertices_ds = _build_vertices_dataset(df_cells, df_vertices)
     if vertices_ds is not None:
@@ -1643,41 +1802,63 @@ def write_grid_to_icechunk(session,
     return grid_hash
 
 
-def load_grid_from_icechunk(session,
-                            grid_name: str,
-                            load_vertices: bool = True,
-                            load_neighbors: bool = True) -> LoadedGrid:
-    """
-    Load grid definition from an Icechunk repository.
+def load_grid_from_icechunk(
+    session: Any,
+    grid_name: str,
+    load_vertices: bool = True,
+    load_neighbors: bool = True,
+) -> LoadedGrid:
+    """Load a grid definition from an Icechunk repository.
+
+    Parameters
+    ----------
+    session : Any
+        Icechunk session or store handle.
+    grid_name : str
+        Grid identifier.
+    load_vertices : bool, default True
+        Whether to load vertex data.
+    load_neighbors : bool, default True
+        Whether to load neighbor data.
+
+    Returns
+    -------
+    LoadedGrid
+        Loaded grid container.
     """
     logger = get_logger()
     logger.info(f"Loading grid '{grid_name}' from icechunk...")
 
     store = getattr(session, "store", session)
-    grid_path = f'grids/{grid_name}'
+    grid_path = f"grids/{grid_name}"
 
     try:
-        meta_ds = xr.open_zarr(store=store,
-                               group=f'{grid_path}/metadata',
-                               consolidated=False)
+        meta_ds = xr.open_zarr(
+            store=store,
+            group=f"{grid_path}/metadata",
+            consolidated=False,
+        )
     except Exception as exc:
         raise KeyError(f"Grid '{grid_name}' not found in store") from exc
 
-    metadata_json = meta_ds.attrs.get('grid_metadata')
+    metadata_json = meta_ds.attrs.get("grid_metadata")
     if metadata_json is None:
         raise ValueError(
-            f"Grid '{grid_name}' metadata missing 'grid_metadata' attribute")
+            f"Grid '{grid_name}' metadata missing 'grid_metadata' attribute"
+        )
 
     metadata = GridMetadata(**json.loads(metadata_json))
 
     specific_metadata = {}
-    specific_json = meta_ds.attrs.get('grid_specific_metadata')
+    specific_json = meta_ds.attrs.get("grid_specific_metadata")
     if specific_json:
         specific_metadata = json.loads(specific_json)
 
-    cells_ds = xr.open_zarr(store=store,
-                            group=f'{grid_path}/cells',
-                            consolidated=False)
+    cells_ds = xr.open_zarr(
+        store=store,
+        group=f"{grid_path}/cells",
+        consolidated=False,
+    )
     cell_data = {name: cells_ds[name].values for name in cells_ds.data_vars}
     df_cells = pl.DataFrame(cell_data)
     logger.debug(f"  ✓ Loaded {len(df_cells)} cells")

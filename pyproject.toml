@@ -11,12 +11,14 @@ members = ["packages/*", "canvodpy"]
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.151.4",
     "ipykernel>=7.1.0",
     "marimo>=0.19.5",
     "mkdocstrings-python>=2.0.1",
     "mystmd>=1.6.6",
     "pydeps>=3.0.2",
     "pytest>=9.0.1",
+    "pytest-benchmark>=5.2.3",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.12.0",
     "ruff>=0.14.5",

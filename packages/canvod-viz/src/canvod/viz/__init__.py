@@ -15,6 +15,13 @@ Examples
     viz = HemisphereVisualizer2D(grid)
     fig, ax = viz.plot_grid_patches(data=vod_data, title="VOD Distribution")
 
+Convenience function::
+
+    from canvod.viz import visualize_grid, add_tissot_indicatrix
+    
+    fig, ax = visualize_grid(grid, data=vod_data, cmap='viridis')
+    add_tissot_indicatrix(ax, grid, n_sample=5)
+
 3D interactive visualization::
 
     from canvod.viz import HemisphereVisualizer3D
@@ -33,8 +40,13 @@ Unified API::
 
 """
 
-from canvod.viz.hemisphere_2d import HemisphereVisualizer2D, PolarPlotStyle
-from canvod.viz.hemisphere_3d import HemisphereVisualizer3D
+from canvod.viz.hemisphere_2d import (
+    HemisphereVisualizer2D,
+    PolarPlotStyle,
+    add_tissot_indicatrix,
+    visualize_grid,
+)
+from canvod.viz.hemisphere_3d import HemisphereVisualizer3D, visualize_grid_3d
 from canvod.viz.styles import (
     PlotStyle,
     create_interactive_style,
@@ -49,6 +61,10 @@ __all__ = [
     "HemisphereVisualizer",
     "HemisphereVisualizer2D",
     "HemisphereVisualizer3D",
+    # Convenience functions
+    "visualize_grid",
+    "visualize_grid_3d",
+    "add_tissot_indicatrix",
     # Styling
     "PolarPlotStyle",
     "PlotStyle",

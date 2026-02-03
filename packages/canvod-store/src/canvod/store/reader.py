@@ -134,20 +134,39 @@ class IcechunkDataReader:
         Delay in seconds after garbage collection (default 1.0)
     """
 
-    def __init__(self,
-                 matched_dirs: MatchedDirs,
-                 site_name: str = DEFAULT_RESEARCH_SITE,
-                 n_max_workers: int = N_MAX_THREADS,
-                 enable_gc: bool = True,
-                 gc_delay: float = 1.0):
+    def __init__(
+        self,
+        matched_dirs: MatchedDirs,
+        site_name: str = DEFAULT_RESEARCH_SITE,
+        n_max_workers: int = N_MAX_THREADS,
+        enable_gc: bool = True,
+        gc_delay: float = 1.0,
+    ) -> None:
+        """Initialize the Icechunk data reader.
+
+        Parameters
+        ----------
+        matched_dirs : MatchedDirs
+            Directory information for date/location matching.
+        site_name : str, optional
+            Name of research site.
+        n_max_workers : int, optional
+            Maximum number of workers for parallel operations.
+        enable_gc : bool, optional
+            Whether to enable garbage collection between operations.
+        gc_delay : float, optional
+            Delay in seconds after garbage collection.
+        """
         self.matched_dirs = matched_dirs
         self.site_name = site_name
         self.n_max_workers = n_max_workers
         self.enable_gc = enable_gc
         self.gc_delay = gc_delay
 
-        self._logger = get_logger().bind(site=site_name,
-                                         date=matched_dirs.yyyydoy.to_str())
+        self._logger = get_logger().bind(
+            site=site_name,
+            date=matched_dirs.yyyydoy.to_str(),
+        )
         self._site = GnssResearchSite(site_name)
 
         date_obj = self.matched_dirs.yyyydoy.date
@@ -157,14 +176,15 @@ class IcechunkDataReader:
 
         # ✅ single persistent pool
         self._pool = ProcessPoolExecutor(
-            max_workers=min(self.n_max_workers, 16))
+            max_workers=min(self.n_max_workers, 16),
+        )
 
         self._logger.info(
             f"Initialized Icechunk data reader for {matched_dirs.yyyydoy.to_str()}"
         )
 
     def __del__(self) -> None:
-        # ✅ make sure the pool is shut down when reader is deleted
+        """Ensure the pool is shut down when the reader is deleted."""
         try:
             self._pool.shutdown(wait=True)
         except Exception:
@@ -231,7 +251,7 @@ class IcechunkDataReader:
 
         # --- 1) Cache auxiliaries once per day ---
         from canvodpy.orchestrator import RinexDataProcessor
-        
+
         processor = RinexDataProcessor(matched_data_dirs=self.matched_dirs,
                                        icechunk_reader=self)
 
@@ -665,6 +685,13 @@ class IcechunkDataReader:
         return available
 
     def __str__(self) -> str:
+        """Return a human-readable summary.
+
+        Returns
+        -------
+        str
+            Summary string.
+        """
         available = self.get_available_receivers()
         return (
             f"IcechunkDataReader for {self.matched_dirs.yyyydoy.to_str()}\n"

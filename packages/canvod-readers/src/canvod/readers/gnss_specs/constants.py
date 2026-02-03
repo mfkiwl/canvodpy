@@ -34,7 +34,7 @@ EPOCH_RECORD_INDICATOR: str = ">"
 FREQ_UNIT: pint.Unit = UREG.MHz
 
 # Processing options (defaults - TODO: move to config system)
-AGGREGATE_GLONASS_FDMA: bool = False  # Whether to aggregate GLONASS FDMA channels
+AGGREGATE_GLONASS_FDMA: bool = True  # Whether to aggregate GLONASS FDMA channels
 COMPRESSION: str = "zlib"  # Compression algorithm for output
 KEEP_RNX_VARS: list[str] = [
     "C",

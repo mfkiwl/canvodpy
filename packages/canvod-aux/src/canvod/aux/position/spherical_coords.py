@@ -1,7 +1,10 @@
 """Spherical coordinate computation for GNSS satellite-receiver geometry.
 
-Computes spherical coordinates (φ, θ, r) in physics convention using
+Computes spherical coordinates (r, θ, φ) in navigation convention using
 local ENU (East-North-Up) topocentric frame.
+
+The azimuthal angle φ follows geographic/navigation standards with North=0°
+and clockwise rotation (0°=North, 90°=East, 180°=South, 270°=West).
 
 Migrated from gnssvodpy.position.spherical_coords
 """
@@ -19,21 +22,29 @@ def compute_spherical_coordinates(
     sat_z: np.ndarray,
     rx_pos: ECEFPosition,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Compute spherical coordinates (r, theta, phi) in physics convention.
+    """Compute spherical coordinates (r, theta, phi) in navigation convention.
 
     Uses local ENU (East-North-Up) topocentric frame centered at receiver.
 
-    Physics Convention:
+    Navigation Convention:
     - theta: Polar angle from +z axis (zenith), [0, π] radians
       * theta = 0 → zenith (straight up)
       * theta = π/2 → horizon
       * theta > π/2 → below horizon (set to NaN)
-    - phi: Azimuthal angle from +x (East), [0, 2π) radians, counter-clockwise
-      * phi = 0 → East
-      * phi = π/2 → North
-      * phi = π → West
-      * phi = 3π/2 → South
+    - phi: Azimuthal angle from North, clockwise, [0, 2π) radians
+      * phi = 0 → North
+      * phi = π/2 → East
+      * phi = π → South
+      * phi = 3π/2 → West
     - r: Radial distance in meters
+    
+    Note
+    ----
+    The phi convention follows geographic/navigation standards where:
+    - 0° points North (positive Y in ENU frame)
+    - Angles increase clockwise when viewed from above
+    - This is computed as arctan2(East, North), giving North=0° reference
+    - Differs from physics convention which uses East=0° reference
 
     Parameters
     ----------
@@ -97,8 +108,9 @@ def compute_spherical_coordinates(
     # Mask satellites below horizon (u < 0 means below horizon)
     below_horizon = (u < 0)
 
-    # Compute phi: azimuthal angle from +x (East) axis, counter-clockwise
-    phi = np.arctan2(n, e)
+    # Compute phi: azimuthal angle from North, clockwise (navigation convention)
+    # phi = arctan2(East, North) gives North=0°, East=90°, South=180°, West=270°
+    phi = np.arctan2(e, n)
     phi = np.mod(phi, 2 * np.pi)  # Wrap to [0, 2π)
 
     # Set below-horizon satellites to NaN

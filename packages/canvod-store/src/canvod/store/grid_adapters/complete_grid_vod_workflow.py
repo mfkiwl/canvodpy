@@ -5,18 +5,30 @@ Storage integration helpers for working with `HemiGrid` via composition.
 import warnings
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import polars as pl
 import zarr
-from gnssvodpy.hemigrid.storage.grid_storage import (
-    GridMetadata,
-    LoadedGrid,
-    load_grid_from_icechunk,
-    write_grid_to_icechunk,
-)
-from gnssvodpy.utils.tools import get_version_from_pyproject
+
+if TYPE_CHECKING:
+    from canvod.store.store import MyIcechunkStore
+try:
+    from gnssvodpy.hemigrid.storage.grid_storage import (
+        GridMetadata,
+        LoadedGrid,
+        load_grid_from_icechunk,
+        write_grid_to_icechunk,
+    )
+    from gnssvodpy.utils.tools import get_version_from_pyproject
+except ImportError:  # pragma: no cover
+    # gnssvodpy not installed; HemiGridStorageAdapter is not yet fully ported.
+    # store_grid / store_vod_with_grids (below) do not depend on these.
+    GridMetadata = None  # type: ignore[assignment,misc]
+    LoadedGrid = None  # type: ignore[assignment,misc]
+    load_grid_from_icechunk = None  # type: ignore[assignment]
+    write_grid_to_icechunk = None  # type: ignore[assignment]
+    get_version_from_pyproject = None  # type: ignore[assignment]
 
 
 class HemiGridStorageAdapter:
@@ -35,6 +47,13 @@ class HemiGridStorageAdapter:
     """
 
     def __init__(self, grid: Any) -> None:
+        """Initialize the adapter.
+
+        Parameters
+        ----------
+        grid : Any
+            Grid object providing the required HemiGrid interface.
+        """
         self._grid = grid
 
     def to_icechunk(
@@ -118,12 +137,29 @@ class HemiGridStorageAdapter:
         return grid_hash
 
     @staticmethod
-    def from_icechunk(session,
-                      grid_name: str,
-                      load_vertices: bool = True,
-                      load_neighbors: bool = True) -> "StoredHemiGrid":
-        """
-        Load a persisted grid and return a lightweight wrapper.
+    def from_icechunk(
+        session: Any,
+        grid_name: str,
+        load_vertices: bool = True,
+        load_neighbors: bool = True,
+    ) -> "StoredHemiGrid":
+        """Load a persisted grid and return a lightweight wrapper.
+
+        Parameters
+        ----------
+        session : Any
+            Icechunk session to read from.
+        grid_name : str
+            Grid identifier in the store.
+        load_vertices : bool, default True
+            Whether to load vertex data.
+        load_neighbors : bool, default True
+            Whether to load neighbor data.
+
+        Returns
+        -------
+        StoredHemiGrid
+            Loaded grid wrapper.
         """
         loaded = load_grid_from_icechunk(session=session,
                                          grid_name=grid_name,
@@ -135,7 +171,25 @@ class HemiGridStorageAdapter:
     # Backwards-compatible adapters
     # ------------------------------------------------------------------
 
-    def to_zarr(self, *args, **kwargs) -> str:  # pragma: no cover - legacy path
+    def to_zarr(  # pragma: no cover - legacy path
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> str:
+        """Write the grid using the legacy zarr path.
+
+        Parameters
+        ----------
+        *args : Any
+            Legacy positional arguments.
+        **kwargs : Any
+            Legacy keyword arguments.
+
+        Returns
+        -------
+        str
+            Grid hash for verification.
+        """
         warnings.warn(
             "HemiGridStorageAdapter.to_zarr is deprecated; "
             "use to_icechunk(session, ...) instead.",
@@ -150,7 +204,24 @@ class HemiGridStorageAdapter:
         return self.to_icechunk(session, *remaining_args, **kwargs)
 
     @staticmethod
-    def from_zarr(*args, **kwargs):  # pragma: no cover - legacy path
+    def from_zarr(  # pragma: no cover - legacy path
+        *args: Any,
+        **kwargs: Any,
+    ) -> "StoredHemiGrid":
+        """Load a grid using the legacy zarr path.
+
+        Parameters
+        ----------
+        *args : Any
+            Legacy positional arguments.
+        **kwargs : Any
+            Legacy keyword arguments.
+
+        Returns
+        -------
+        StoredHemiGrid
+            Loaded grid wrapper.
+        """
         warnings.warn(
             "HemiGridStorageAdapter.from_zarr is deprecated; "
             "use from_icechunk(session, ...) instead.",
@@ -422,6 +493,13 @@ class HemiGridStorageAdapter:
         return metadata
 
     def _get_neighbors_dataframe(self) -> pl.DataFrame | None:
+        """Return the neighbors DataFrame for storage.
+
+        Returns
+        -------
+        pl.DataFrame | None
+            Neighbors DataFrame or None if not available.
+        """
         return self._prepare_neighbors_dataframe()
 
 
@@ -436,54 +514,156 @@ class StoredHemiGrid:
     """
 
     def __init__(self, loaded_grid: LoadedGrid) -> None:
+        """Initialize the wrapper.
+
+        Parameters
+        ----------
+        loaded_grid : LoadedGrid
+            Loaded grid data to wrap.
+        """
         self._loaded = loaded_grid
 
     @property
     def metadata(self) -> GridMetadata:
+        """Return grid metadata.
+
+        Returns
+        -------
+        GridMetadata
+            Stored grid metadata.
+        """
         return self._loaded.metadata
 
     @property
     def grid_type(self) -> str:
+        """Return the grid type.
+
+        Returns
+        -------
+        str
+            Grid type string.
+        """
         return self._loaded.metadata.grid_type
 
     @property
     def angular_resolution(self) -> float:
+        """Return the angular resolution in degrees.
+
+        Returns
+        -------
+        float
+            Angular resolution.
+        """
         return self._loaded.metadata.angular_resolution
 
     @property
     def cutoff_theta(self) -> float:
+        """Return the cutoff theta (radians).
+
+        Returns
+        -------
+        float
+            Cutoff theta.
+        """
         return self._loaded.metadata.cutoff_theta
 
     @property
     def cells(self) -> pl.DataFrame:
+        """Return the cells DataFrame.
+
+        Returns
+        -------
+        pl.DataFrame
+            Cells table.
+        """
         return self._loaded.cells
 
     @property
     def ncells(self) -> int:
+        """Return the number of cells.
+
+        Returns
+        -------
+        int
+            Cell count.
+        """
         return self._loaded.metadata.ncells
 
     @property
     def grid(self) -> pl.DataFrame:
-        """
-        Compatibility alias matching the original HemiGrid API.
+        """Return cells via the original HemiGrid API alias.
+
+        Returns
+        -------
+        pl.DataFrame
+            Cells table.
         """
         return self._loaded.cells
 
     @property
     def vertices(self) -> pl.DataFrame | None:
+        """Return the vertices DataFrame.
+
+        Returns
+        -------
+        pl.DataFrame | None
+            Vertices table or None if unavailable.
+        """
         return self._loaded.vertices
 
     @property
     def neighbors(self) -> pl.DataFrame | None:
+        """Return the neighbors DataFrame.
+
+        Returns
+        -------
+        pl.DataFrame | None
+            Neighbors table or None if unavailable.
+        """
         return self._loaded.neighbors
 
     def query_point(self, phi: float, theta: float) -> int:
+        """Find the closest cell for a point.
+
+        Parameters
+        ----------
+        phi : float
+            Azimuth angle in radians.
+        theta : float
+            Zenith angle in radians.
+
+        Returns
+        -------
+        int
+            Cell index.
+        """
         return self._loaded.query_point(phi, theta)
 
     def query_points(self, phi: np.ndarray, theta: np.ndarray) -> np.ndarray:
+        """Find the closest cells for multiple points.
+
+        Parameters
+        ----------
+        phi : np.ndarray
+            Azimuth angles in radians.
+        theta : np.ndarray
+            Zenith angles in radians.
+
+        Returns
+        -------
+        np.ndarray
+            Array of cell indices.
+        """
         return self._loaded.query_points(phi, theta)
 
     def __repr__(self) -> str:
+        """Return the developer-facing representation.
+
+        Returns
+        -------
+        str
+            Representation string.
+        """
         return (f"StoredHemiGrid(name='{self._loaded.grid_name}', "
                 f"type='{self.grid_type}', "
                 f"ncells={self.metadata.ncells})")
@@ -494,14 +674,16 @@ class StoredHemiGrid:
 # ==============================================================================
 
 
-def store_grid_to_vod_store(grid,
-                            store_path: Path,
-                            grid_name: str | None = None,
-                            branch: str = "main",
-                            *,
-                            include_vertices: bool = True,
-                            include_neighbors: bool = False,
-                            overwrite: bool = False) -> str:
+def store_grid_to_vod_store(
+    grid: Any,
+    store_path: Path,
+    grid_name: str | None = None,
+    branch: str = "main",
+    *,
+    include_vertices: bool = True,
+    include_neighbors: bool = False,
+    overwrite: bool = False,
+) -> str:
     """
     Convenience function to store grid in VOD store.
 
@@ -548,11 +730,13 @@ def store_grid_to_vod_store(grid,
 
         adapter = HemiGridStorageAdapter(grid)
 
-        grid_hash = adapter.to_icechunk(session,
-                                        grid_name=grid_name,
-                                        include_vertices=include_vertices,
-                                        include_neighbors=include_neighbors,
-                                        overwrite=overwrite)
+        grid_hash = adapter.to_icechunk(
+            session,
+            grid_name=grid_name,
+            include_vertices=include_vertices,
+            include_neighbors=include_neighbors,
+            overwrite=overwrite,
+        )
 
         commit_msg = f"Added grid: {grid_name} (hash: {grid_hash[:8]})"
         snapshot_id = session.commit(commit_msg)
@@ -564,12 +748,14 @@ def store_grid_to_vod_store(grid,
     return snapshot_id
 
 
-def load_grid_from_vod_store(store_path: Path,
-                             grid_name: str,
-                             branch: str = "main",
-                             *,
-                             load_vertices: bool = True,
-                             load_neighbors: bool = True) -> StoredHemiGrid:
+def load_grid_from_vod_store(
+    store_path: Path,
+    grid_name: str,
+    branch: str = "main",
+    *,
+    load_vertices: bool = True,
+    load_neighbors: bool = True,
+) -> StoredHemiGrid:
     """
     Convenience function to load grid from VOD store.
 
@@ -641,13 +827,105 @@ def list_available_grids(store_path: Path, branch: str = "main") -> list[str]:
     store = create_vod_store(store_path)
 
     with store.readonly_session(branch) as session:
-        zroot = zarr.open_group(session.store, mode='r')
+        zroot = zarr.open_group(session.store, mode="r")
 
-        if 'grids' not in zroot:
+        if "grids" not in zroot:
             return []
 
-        grids_group = zroot['grids']
+        grids_group = zroot["grids"]
         return list(grids_group.group_keys())
+
+
+# ==============================================================================
+# XARRAY-BASED GRID / VOD STORAGE (from vertices.py)
+# ==============================================================================
+# These functions store grids and VOD datasets as native xarray groups via
+# ``grid_to_dataset`` (rectangular vertex arrays) rather than as structured
+# polars DataFrames (ragged vertex arrays) as the adapter does above.
+# Both representations are complementary: use the adapter for round-trip
+# grid persistence; use these helpers for quick xarray-native storage.
+
+
+def store_grid(
+    grid: Any,
+    store: "MyIcechunkStore",
+    grid_name: str,
+) -> str:
+    """Store grid in unified xarray format to icechunk.
+
+    The grid is first converted to an ``xr.Dataset`` via
+    :func:`canvod.grids.operations.grid_to_dataset`, then written to
+    ``grids/<grid_name>`` inside *store*.
+
+    Parameters
+    ----------
+    grid : GridData
+        Grid instance (from ``canvod.grids``).
+    store : MyIcechunkStore
+        Icechunk store (from ``canvod.store.store``).
+    grid_name : str
+        Grid identifier, e.g. ``'htm_10deg'``.
+
+    Returns
+    -------
+    str
+        Icechunk snapshot ID.
+    """
+    from canvod.grids.operations import grid_to_dataset
+    from icechunk.xarray import to_icechunk as _to_icechunk
+
+    print(f"\nStoring grid '{grid_name}'...")
+
+    ds_grid = grid_to_dataset(grid)
+    group_path = f"grids/{grid_name}"
+
+    with store.writable_session() as session:
+        _to_icechunk(ds_grid, session, group=group_path, mode="w")
+        snapshot_id = session.commit(f"Stored {grid_name} grid structure")
+
+    print(f"  ✓ Stored to '{group_path}'")
+    print(f"  ✓ Snapshot: {snapshot_id[:8]}...")
+    print(f"  ✓ Cells: {grid.ncells}, Type: {grid.grid_type}")
+
+    return snapshot_id
+
+
+def store_vod_with_grids(
+    vod_ds: "xr.Dataset", store: "MyIcechunkStore", group_name: str
+) -> str:
+    """Store VOD dataset (with cell-ID mappings) to icechunk.
+
+    The dataset is expected to already carry ``cell_id_<grid_name>``
+    variables as added by :func:`canvod.grids.operations.add_cell_ids_to_vod_fast`.
+
+    Parameters
+    ----------
+    vod_ds : xr.Dataset
+        VOD dataset with cell-ID coordinates.
+    store : MyIcechunkStore
+        Icechunk store.
+    group_name : str
+        Zarr group path, e.g. ``'reference_01_canopy_01'``.
+
+    Returns
+    -------
+    str
+        Icechunk snapshot ID.
+    """
+    from icechunk.xarray import to_icechunk as _to_icechunk
+
+    print(f"\nStoring VOD data to '{group_name}'...")
+
+    with store.writable_session() as session:
+        _to_icechunk(vod_ds, session, group=group_name, mode="w")
+        snapshot_id = session.commit(
+            f"Stored VOD with grid mappings to '{group_name}'"
+        )
+
+    print(f"  ✓ Snapshot: {snapshot_id[:8]}...")
+    print(f"  ✓ Grid references: {vod_ds.attrs.get('grid_references', [])}")
+
+    return snapshot_id
 
 
 # ==============================================================================

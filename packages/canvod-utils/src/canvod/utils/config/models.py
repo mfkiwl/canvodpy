@@ -11,7 +11,7 @@ These models provide:
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, ValidationInfo, field_validator
 
 # ============================================================================
 # Processing Configuration
@@ -30,11 +30,23 @@ class MetadataConfig(BaseModel):
     email: EmailStr = Field(..., description="Author email")
     institution: str = Field(..., description="Institution name")
     department: str | None = Field(None, description="Department name")
-    research_group: str | None = Field(None, description="Research group name")
-    website: str | None = Field(None, description="Institution/group website")
+    research_group: str | None = Field(
+        None,
+        description="Research group name",
+    )
+    website: str | None = Field(
+        None,
+        description="Institution/group website",
+    )
 
     def to_attrs_dict(self) -> dict[str, str]:
-        """Convert to dictionary for xarray attributes."""
+        """Convert to a dictionary for xarray attributes.
+
+        Returns
+        -------
+        dict[str, str]
+            Metadata as xarray-compatible attributes.
+        """
         attrs = {
             "author": self.author,
             "email": self.email,
@@ -69,14 +81,25 @@ class CredentialsConfig(BaseModel):
     @field_validator("gnss_root_dir")
     @classmethod
     def validate_root_dir_exists(cls, v: Path) -> Path:
-        """Validate GNSS root directory."""
-        # Only validate if it looks like a real path (not a placeholder)
+        """Validate the GNSS root directory.
+
+        Parameters
+        ----------
+        v : Path
+            GNSS root directory path.
+
+        Returns
+        -------
+        Path
+            Validated path.
+        """
+        # Only validate if it looks like a real path (not a placeholder).
         path_str = str(v)
         if path_str.startswith("/path/"):
-            # This is a placeholder path from defaults - skip validation
+            # This is a placeholder path from defaults - skip validation.
             return v
-        
-        # For real paths, check it exists
+
+        # For real paths, check it exists.
         if not v.exists():
             msg = (
                 f"GNSS root directory does not exist: {v}. "
@@ -104,8 +127,7 @@ class AuxDataConfig(BaseModel):
         self,
         cddis_mail: str | None,
     ) -> list[tuple[str, str | None]]:
-        """
-        Get FTP servers in priority order.
+        """Get FTP servers in priority order.
 
         If cddis_mail is set: NASA first (with auth), ESA fallback (no auth).
         If cddis_mail is None: ESA only (no auth).
@@ -180,8 +202,16 @@ class ChunkStrategy(BaseModel):
     This is a Pydantic model for configuration validation.
     """
 
-    epoch: int = Field(34560, ge=1, description="Chunk size for epoch dimension")
-    sid: int = Field(-1, ge=-1, description="Chunk size for sid (-1 = don't chunk)")
+    epoch: int = Field(
+        34560,
+        ge=1,
+        description="Chunk size for epoch dimension",
+    )
+    sid: int = Field(
+        -1,
+        ge=-1,
+        description="Chunk size for sid (-1 = don't chunk)",
+    )
 
 
 class IcechunkConfig(BaseModel):
@@ -223,7 +253,18 @@ class StorageConfig(BaseModel):
     @field_validator("stores_root_dir")
     @classmethod
     def validate_stores_dir(cls, v: Path) -> Path:
-        """Validate stores directory path."""
+        """Validate stores directory path.
+
+        Parameters
+        ----------
+        v : Path
+            Directory where stores are created.
+
+        Returns
+        -------
+        Path
+            Validated path.
+        """
         # Only validate if it looks like a real path (not a placeholder)
         path_str = str(v)
         if path_str.startswith("/path/"):
@@ -246,18 +287,42 @@ class StorageConfig(BaseModel):
         return v
 
     def get_rinex_store_path(self, site_name: str) -> Path:
-        """Get RINEX store path for a site."""
+        """Get the RINEX store path for a site.
+
+        Parameters
+        ----------
+        site_name : str
+            Site name.
+
+        Returns
+        -------
+        Path
+            Path to the site's RINEX store.
+        """
         return self.stores_root_dir / site_name / "rinex"
 
     def get_vod_store_path(self, site_name: str) -> Path:
-        """Get VOD store path for a site."""
+        """Get the VOD store path for a site.
+
+        Parameters
+        ----------
+        site_name : str
+            Site name.
+
+        Returns
+        -------
+        Path
+            Path to the site's VOD store.
+        """
         return self.stores_root_dir / site_name / "vod"
 
 
 class ProcessingConfig(BaseModel):
     """Complete processing configuration.
-    
-    Note: Credentials (CDDIS_MAIL, GNSS_ROOT_DIR) are configured via .env file,
+
+    Notes
+    -----
+    Credentials (CDDIS_MAIL, GNSS_ROOT_DIR) are configured via the .env file,
     not in processing.yaml. The credentials field is optional and deprecated.
     """
 
@@ -281,9 +346,15 @@ class ProcessingConfig(BaseModel):
 class ReceiverConfig(BaseModel):
     """Receiver configuration."""
 
-    type: Literal["reference", "canopy"] = Field(..., description="Receiver type")
+    type: Literal["reference", "canopy"] = Field(
+        ...,
+        description="Receiver type",
+    )
     directory: str = Field(..., description="Subdirectory for receiver data")
-    description: str | None = Field(None, description="Human-readable description")
+    description: str | None = Field(
+        None,
+        description="Human-readable description",
+    )
 
 
 class VodAnalysisConfig(BaseModel):
@@ -305,7 +376,13 @@ class SiteConfig(BaseModel):
     )
 
     def get_base_path(self) -> Path:
-        """Get base_dir as Path object."""
+        """Get base_dir as a Path.
+
+        Returns
+        -------
+        Path
+            Base directory as a Path object.
+        """
         return Path(self.base_dir)
 
 
@@ -316,8 +393,22 @@ class SitesConfig(BaseModel):
 
     @field_validator("sites")
     @classmethod
-    def validate_at_least_one_site(cls, v: dict) -> dict:
-        """Ensure at least one site is defined."""
+    def validate_at_least_one_site(
+        cls,
+        v: dict[str, "SiteConfig"],
+    ) -> dict[str, "SiteConfig"]:
+        """Ensure at least one site is defined.
+
+        Parameters
+        ----------
+        v : dict[str, SiteConfig]
+            Sites dictionary to validate.
+
+        Returns
+        -------
+        dict[str, SiteConfig]
+            Validated sites dictionary.
+        """
         if not v:
             msg = "At least one research site must be defined"
             raise ValueError(msg)
@@ -336,7 +427,10 @@ class SidsConfig(BaseModel):
         "all",
         description="SID selection mode",
     )
-    preset: str | None = Field(None, description="Preset name when mode=preset")
+    preset: str | None = Field(
+        None,
+        description="Preset name when mode=preset",
+    )
     custom_sids: list[str] = Field(
         default_factory=list,
         description="Custom SID list when mode=custom",
@@ -344,8 +438,25 @@ class SidsConfig(BaseModel):
 
     @field_validator("preset")
     @classmethod
-    def validate_preset_when_mode_preset(cls, v: str | None, info) -> str | None:
-        """Ensure preset is set when mode is preset."""
+    def validate_preset_when_mode_preset(
+        cls,
+        v: str | None,
+        info: ValidationInfo,
+    ) -> str | None:
+        """Ensure preset is set when mode is preset.
+
+        Parameters
+        ----------
+        v : str | None
+            Preset name.
+        info : ValidationInfo
+            Pydantic validation info.
+
+        Returns
+        -------
+        str | None
+            Preset value if valid.
+        """
         mode = info.data.get("mode")
         if mode == "preset" and not v:
             msg = "preset must be specified when mode is 'preset'"
@@ -353,12 +464,12 @@ class SidsConfig(BaseModel):
         return v
 
     def get_sids(self) -> list[str] | None:
-        """
-        Get effective SID list.
+        """Get the effective SID list.
 
-        Returns:
-            None if mode is 'all' (keep all SIDs)
-            List of SIDs otherwise
+        Returns
+        -------
+        list[str] | None
+            None if mode is "all" (keep all SIDs), otherwise a SID list.
         """
         if self.mode == "all":
             return None
@@ -368,7 +479,13 @@ class SidsConfig(BaseModel):
         return self.custom_sids
 
     def _get_preset_sids(self) -> list[str]:
-        """Load preset SID list."""
+        """Load the preset SID list.
+
+        Returns
+        -------
+        list[str]
+            Preset SID list.
+        """
         # TODO: Implement preset loading from package defaults
         # For now, return empty list
         return []
@@ -396,10 +513,22 @@ class CanvodConfig(BaseModel):
 
     @property
     def gnss_root_dir(self) -> Path:
-        """Shortcut to root directory."""
+        """Return the configured GNSS root directory.
+
+        Returns
+        -------
+        Path
+            GNSS root directory path.
+        """
         return self.processing.credentials.gnss_root_dir
 
     @property
     def cddis_mail(self) -> str | None:
-        """Shortcut to CDDIS mail."""
+        """Return the configured CDDIS email.
+
+        Returns
+        -------
+        str | None
+            CDDIS email address.
+        """
         return self.processing.credentials.cddis_mail

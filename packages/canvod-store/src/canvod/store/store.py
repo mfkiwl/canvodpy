@@ -3,9 +3,10 @@ import io
 import json
 import sys
 import warnings
+from collections.abc import Generator, Sequence
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import icechunk
 import numpy as np
@@ -33,6 +34,8 @@ from zarr.dtype import VariableLengthUTF8
 
 from canvod.store.viewer import add_rich_display_to_store
 
+if TYPE_CHECKING:
+    from plotly.graph_objects import Figure
 
 @add_rich_display_to_store
 class MyIcechunkStore:
@@ -75,11 +78,26 @@ class MyIcechunkStore:
         The Icechunk repository instance.
     """
 
-    def __init__(self,
-                 store_path: Path,
-                 store_type: str = "rinex_store",
-                 compression_level: int | None = None,
-                 compression_algorithm: str | None = None):
+    def __init__(
+        self,
+        store_path: Path,
+        store_type: str = "rinex_store",
+        compression_level: int | None = None,
+        compression_algorithm: str | None = None,
+    ) -> None:
+        """Initialize the Icechunk store manager.
+
+        Parameters
+        ----------
+        store_path : Path
+            Path to the Icechunk store directory.
+        store_type : str, default "rinex_store"
+            Type of store ("rinex_store" or "vod_store").
+        compression_level : int | None, optional
+            Override default compression level.
+        compression_algorithm : str | None, optional
+            Override default compression algorithm.
+        """
         self.store_path = Path(store_path)
         self.store_type = store_type
         # Site name is parent directory name
@@ -116,6 +134,18 @@ class MyIcechunkStore:
         self._ensure_store_exists()
 
     def _normalize_encodings(self, ds: xr.Dataset) -> xr.Dataset:
+        """Normalize dataset encodings for Icechunk.
+
+        Parameters
+        ----------
+        ds : xr.Dataset
+            Dataset to normalize.
+
+        Returns
+        -------
+        xr.Dataset
+            Dataset with normalized encodings.
+        """
         for v in ds.data_vars:
             if "dtype" in ds[v].encoding:
                 ds[v].encoding["dtype"] = np.dtype(ds[v].dtype)
@@ -145,8 +175,22 @@ class MyIcechunkStore:
         return self._repo
 
     @contextlib.contextmanager
-    def readonly_session(self, branch: str = "main"):
-        """Context manager for readonly sessions."""
+    def readonly_session(
+        self,
+        branch: str = "main",
+    ) -> Generator["icechunk.ReadonlySession"]:
+        """Context manager for readonly sessions.
+
+        Parameters
+        ----------
+        branch : str, default "main"
+            Branch name.
+
+        Returns
+        -------
+        Generator[icechunk.ReadonlySession, None, None]
+            Readonly session context manager.
+        """
         session = self.repo.readonly_session(branch)
         try:
             self._logger.debug(
@@ -157,8 +201,22 @@ class MyIcechunkStore:
                 f"Closed readonly session for branch '{branch}'")
 
     @contextlib.contextmanager
-    def writable_session(self, branch: str = "main"):
-        """Context manager for writable sessions."""
+    def writable_session(
+        self,
+        branch: str = "main",
+    ) -> Generator["icechunk.WritableSession"]:
+        """Context manager for writable sessions.
+
+        Parameters
+        ----------
+        branch : str, default "main"
+            Branch name.
+
+        Returns
+        -------
+        Generator[icechunk.WritableSession, None, None]
+            Writable session context manager.
+        """
         session = self.repo.writable_session(branch)
         try:
             self._logger.debug(
@@ -295,8 +353,30 @@ class MyIcechunkStore:
                 f"Failed to generate tree for {repr(self)}: {e}")
             sys.stdout.write(f"Error generating tree: {e}\n")
 
-    def _build_tree(self, group, prefix, max_depth, current_depth=0):
-        """Recursively build tree structure."""
+    def _build_tree(
+        self,
+        group: zarr.Group,
+        prefix: str,
+        max_depth: int | None,
+        current_depth: int = 0,
+    ) -> None:
+        """Recursively build a tree structure.
+
+        Parameters
+        ----------
+        group : zarr.Group
+            Root group to traverse.
+        prefix : str
+            Prefix string for tree formatting.
+        max_depth : int | None
+            Maximum depth to display. None for unlimited.
+        current_depth : int, default 0
+            Current recursion depth.
+
+        Returns
+        -------
+        None
+        """
         if max_depth is not None and current_depth >= max_depth:
             return
 
@@ -486,8 +566,7 @@ class MyIcechunkStore:
 
                         self._logger.info(
                             "Deduplicated using metadata table: kept "
-                            f"{len(latest_entries)} time ranges"
-                        )
+                            f"{len(latest_entries)} time ranges")
 
             except Exception as e:
                 # Fall back to simple deduplication
@@ -521,12 +600,14 @@ class MyIcechunkStore:
                 del dataset.attrs[attr]
         return dataset
 
-    def write_dataset(self,
-                      dataset: xr.Dataset,
-                      group_name: str,
-                      session,
-                      mode: str = "a",
-                      chunks: dict[str, int] | None = None) -> None:
+    def write_dataset(
+        self,
+        dataset: xr.Dataset,
+        group_name: str,
+        session: Any,
+        mode: str = "a",
+        chunks: dict[str, int] | None = None,
+    ) -> None:
         """
         Write a dataset to Icechunk with proper chunking.
 
@@ -536,8 +617,8 @@ class MyIcechunkStore:
             Dataset to write
         group_name : str
             Group path in store
-        session : icechunk.Session
-            Active writable session
+        session : Any
+            Active writable session or store handle.
         mode : str
             Write mode: 'w' (overwrite) or 'a' (append)
         chunks : dict[str, int] | None
@@ -552,7 +633,8 @@ class MyIcechunkStore:
         if chunks:
             dataset = dataset.chunk(chunks)
             self._logger.info(
-                f"Rechunked to {dict(dataset.chunks)} before write")
+                f"Rechunked to {dict(dataset.chunks)} before write"
+            )
 
         # Normalize encodings
         dataset = self._normalize_encodings(dataset)
@@ -606,19 +688,32 @@ class MyIcechunkStore:
             f"Created group '{group_name}' with {len(dataset.epoch)} epochs, "
             f"hash={rinex_hash}")
 
-    def backup_metadata_table(self, group_name: str,
-                              session) -> pl.DataFrame | None:
-        """
-        Backup the entire metadata table to a Polars DataFrame.
+    def backup_metadata_table(
+        self,
+        group_name: str,
+        session: Any,
+    ) -> pl.DataFrame | None:
+        """Backup the metadata table to a Polars DataFrame.
 
-        Returns None if no metadata table exists.
+        Parameters
+        ----------
+        group_name : str
+            Group name.
+        session : Any
+            Active session for reading.
+
+        Returns
+        -------
+        pl.DataFrame | None
+            DataFrame with metadata rows, or None if missing.
         """
         try:
             zroot = zarr.open_group(session.store, mode="r")
             meta_group_path = f"{group_name}/metadata/table"
 
             if "metadata" not in zroot[group_name] or "table" not in zroot[
-                    group_name]["metadata"]:
+                group_name
+            ]["metadata"]:
                 self._logger.info(
                     "No metadata table found for group "
                     f"'{group_name}' - nothing to backup"
@@ -647,12 +742,28 @@ class MyIcechunkStore:
             )
             return None
 
-    def restore_metadata_table(self, group_name: str, df: pl.DataFrame,
-                               session) -> None:
-        """
-        Restore the entire metadata table from a Polars DataFrame.
+    def restore_metadata_table(
+        self,
+        group_name: str,
+        df: pl.DataFrame,
+        session: Any,
+    ) -> None:
+        """Restore the metadata table from a Polars DataFrame.
 
         This recreates the full Zarr structure for the metadata table.
+
+        Parameters
+        ----------
+        group_name : str
+            Group name.
+        df : pl.DataFrame
+            Metadata table to restore.
+        session : Any
+            Active session for writing.
+
+        Returns
+        -------
+        None
         """
         if df is None or df.height == 0:
             self._logger.info(
@@ -694,10 +805,8 @@ class MyIcechunkStore:
                 # Write the data
                 zmeta[col_name][:] = arr
 
-            self._logger.info(
-                "Restored metadata table with "
-                f"{df.height} rows for group '{group_name}'"
-            )
+            self._logger.info("Restored metadata table with "
+                              f"{df.height} rows for group '{group_name}'")
 
         except Exception as e:
             self._logger.error(
@@ -757,10 +866,8 @@ class MyIcechunkStore:
 
             if commit_message is None:
                 version = get_version_from_pyproject()
-                commit_message = (
-                    f"[v{version}] Overwrote file {rinex_hash} "
-                    f"in group '{group_name}'"
-                )
+                commit_message = (f"[v{version}] Overwrote file {rinex_hash} "
+                                  f"in group '{group_name}'")
 
             snapshot_id = session.commit(commit_message)
 
@@ -1079,7 +1186,18 @@ class MyIcechunkStore:
         # Prepare the Polars DataFrame
         df = pl.DataFrame(rows)
 
-        def _do_append(session_obj):
+        def _do_append(session_obj: "icechunk.WritableSession") -> None:
+            """Append metadata rows to a writable session.
+
+            Parameters
+            ----------
+            session_obj : icechunk.WritableSession
+                Writable session to update.
+
+            Returns
+            -------
+            None
+            """
             zroot = zarr.open_group(session_obj.store, mode="a")
             meta_group_path = f"{group_name}/metadata/table"
             zmeta = zroot.require_group(meta_group_path)
@@ -1137,8 +1255,21 @@ class MyIcechunkStore:
                 _do_append(sess)
                 sess.commit(f"Bulk metadata append for {group_name}")
 
-    def load_metadata(self, store, group_name: str) -> pl.DataFrame:
-        """Load metadata table directly from Zarr into a Polars DataFrame."""
+    def load_metadata(self, store: Any, group_name: str) -> pl.DataFrame:
+        """Load metadata directly from Zarr into a Polars DataFrame.
+
+        Parameters
+        ----------
+        store : Any
+            Zarr store or session store handle.
+        group_name : str
+            Group name.
+
+        Returns
+        -------
+        pl.DataFrame
+            Metadata table.
+        """
         zroot = zarr.open_group(store, mode="r")
         zmeta = zroot[f"{group_name}/metadata/table"]
 
@@ -1157,9 +1288,25 @@ class MyIcechunkStore:
             df = df.with_columns(pl.col("written_at").str.to_datetime("%+"))
         return df
 
-    def read_metadata_table(self, session, group_name: str) -> pl.DataFrame:
-        zmeta = zarr.open_group(session.store,
-                                mode="r")[f"{group_name}/metadata/table"]
+    def read_metadata_table(self, session: Any, group_name: str) -> pl.DataFrame:
+        """Read the metadata table from a session.
+
+        Parameters
+        ----------
+        session : Any
+            Active session for reading.
+        group_name : str
+            Group name.
+
+        Returns
+        -------
+        pl.DataFrame
+            Metadata table.
+        """
+        zmeta = zarr.open_group(
+            session.store,
+            mode="r",
+        )[f"{group_name}/metadata/table"]
 
         data = {col: zmeta[col][:] for col in zmeta.array_keys()}
         df = pl.DataFrame(data)
@@ -1228,10 +1375,8 @@ class MyIcechunkStore:
             ])
 
             # Step 1: filter by start+end
-            matches = df.filter(
-                (pl.col("start") == np.datetime64(start, "ns")) &
-                (pl.col("end") == np.datetime64(end, "ns"))
-            )
+            matches = df.filter((pl.col("start") == np.datetime64(start, "ns"))
+                                & (pl.col("end") == np.datetime64(end, "ns")))
 
             if matches.is_empty():
                 return False, matches
@@ -1245,8 +1390,7 @@ class MyIcechunkStore:
                 raise ValueError(
                     "Metadata conflict: rows with start="
                     f"{start}, end={end} exist but hash differs "
-                    f"(existing={existing_hashes}, new={rinex_hash})"
-                )
+                    f"(existing={existing_hashes}, new={rinex_hash})")
 
             return True, matches
 
@@ -1271,7 +1415,7 @@ class MyIcechunkStore:
         self,
         group_name: str,
         rows: list[dict[str, Any]],
-        store,
+        store: Any,
     ) -> None:
         """
         Append metadata rows into an open transaction store.
@@ -1443,12 +1587,24 @@ class MyIcechunkStore:
             print(f"{ts} {entry['snapshot_id'][:8]} {entry['commit_msg']}")
 
     def __repr__(self) -> str:
-        return (
-            "MyIcechunkStore("
-            f"store_path={self.store_path}, store_type={self.store_type})"
-        )
+        """Return the developer-facing representation.
+
+        Returns
+        -------
+        str
+            Representation string.
+        """
+        return ("MyIcechunkStore("
+                f"store_path={self.store_path}, store_type={self.store_type})")
 
     def __str__(self) -> str:
+        """Return a human-readable summary.
+
+        Returns
+        -------
+        str
+            Summary string.
+        """
 
         # Capture tree output
         old_stdout = sys.stdout
@@ -1548,8 +1704,7 @@ class MyIcechunkStore:
             self.repo.reset_branch(source_branch, rechunked_snapshot)
             self._logger.info(
                 f"Reset branch '{source_branch}' to rechunked snapshot "
-                f"{rechunked_snapshot}"
-            )
+                f"{rechunked_snapshot}")
 
             # Delete temp branch if requested
             if delete_temp_branch:
@@ -1598,12 +1753,18 @@ class MyIcechunkStore:
             if self.store_type == "rinex_store":
                 chunks = ICECHUNK_CHUNK_STRATEGIES.get(
                     "rinex_store",
-                    {"epoch": 34560, "sid": -1},
+                    {
+                        "epoch": 34560,
+                        "sid": -1
+                    },
                 )
             else:
                 chunks = ICECHUNK_CHUNK_STRATEGIES.get(
                     "vod_store",
-                    {"epoch": 34560, "sid": -1},
+                    {
+                        "epoch": 34560,
+                        "sid": -1
+                    },
                 )
 
         print(f"\n{'='*60}")
@@ -1726,8 +1887,7 @@ class MyIcechunkStore:
             )
             self._logger.info(
                 f"Reset branch '{source_branch}' to rechunked snapshot "
-                f"{rechunked_snapshot}"
-            )
+                f"{rechunked_snapshot}")
 
             # Delete temp branch if requested
             if delete_temp_branch:
@@ -1775,7 +1935,7 @@ class MyIcechunkStore:
         self.repo.delete_tag(tag_name)
         self._logger.warning(f"Deleted tag '{tag_name}'")
 
-    def plot_commit_graph(self, max_commits: int = 100):
+    def plot_commit_graph(self, max_commits: int = 100) -> "Figure":
         """
         Visualize commit history as an interactive git-like graph.
 
@@ -1793,21 +1953,23 @@ class MyIcechunkStore:
 
         Returns
         -------
-        Interactive plotly figure (works in marimo and Jupyter).
+        Figure
+            Interactive plotly figure (works in marimo and Jupyter).
         """
-        import plotly.graph_objects as go
-        from datetime import datetime
         from collections import defaultdict
+        from datetime import datetime
+
+        import plotly.graph_objects as go
 
         # Collect all commits with full metadata
         commit_map = {}  # id -> commit data
         branch_tips = {}  # branch -> latest commit id
-        
+
         for branch in self.repo.list_branches():
             ancestors = list(self.repo.ancestry(branch=branch))
             if ancestors:
                 branch_tips[branch] = ancestors[0].id
-                
+
             for ancestor in ancestors:
                 if ancestor.id not in commit_map:
                     commit_map[ancestor.id] = {
@@ -1820,44 +1982,63 @@ class MyIcechunkStore:
                 else:
                     # Multiple branches point to same commit
                     commit_map[ancestor.id]["branches"].append(branch)
-                    
+
                 if len(commit_map) >= max_commits:
                     break
             if len(commit_map) >= max_commits:
                 break
-        
+
         # Build parent-child relationships
         commits_list = list(commit_map.values())
         commits_list.sort(key=lambda c: c["written_at"])  # Oldest first
-        
+
         # Assign horizontal positions (chronological)
         commit_x_positions = {}
         for idx, commit in enumerate(commits_list):
             commit["x"] = idx
             commit_x_positions[commit["id"]] = idx
-        
+
         # Assign vertical positions: commits shared by branches stay on same Y
         # Only diverge when branches have different commits
-        branch_names = sorted(self.repo.list_branches(), 
-                             key=lambda b: (b != "main", b))  # main first
-        
+        branch_names = sorted(self.repo.list_branches(),
+                              key=lambda b: (b != "main", b))  # main first
+
         # Build a set of all commit IDs for each branch
         branch_commits = {}
         for branch in branch_names:
             history = list(self.repo.ancestry(branch=branch))
-            branch_commits[branch] = {h.id for h in history if h.id in commit_map}
-        
+            branch_commits[branch] = {
+                h.id
+                for h in history if h.id in commit_map
+            }
+
         # Find where branches diverge
-        def branches_share_commit(commit_id, branches):
-            """Check which of the given branches contain this commit."""
+        def branches_share_commit(
+            commit_id: str,
+            branches: list[str],
+        ) -> list[str]:
+            """Return branches that contain a commit.
+
+            Parameters
+            ----------
+            commit_id : str
+                Commit identifier to check.
+            branches : list[str]
+                Branch names to search.
+
+            Returns
+            -------
+            list[str]
+                Branches that contain the commit.
+            """
             return [b for b in branches if commit_id in branch_commits[b]]
-        
+
         # Assign Y position: all commits on a single horizontal line initially
         # We'll use vertical offset for parallel branch indicators
         for commit in commits_list:
             commit["y"] = 0  # All on same timeline
             commit["branch_set"] = frozenset(commit["branches"])
-        
+
         # Color palette for branches
         colors = [
             "#4a9a4a",  # green (main)
@@ -1869,20 +2050,23 @@ class MyIcechunkStore:
             "#f39c12",  # yellow
             "#34495e",  # dark gray
         ]
-        branch_colors = {b: colors[i % len(colors)] 
-                        for i, b in enumerate(branch_names)}
-        
+        branch_colors = {
+            b: colors[i % len(colors)]
+            for i, b in enumerate(branch_names)
+        }
+
         # Build edges: draw parallel lines for shared commits (metro-style)
         edges_by_branch = defaultdict(list)  # branch -> list of edge dicts
-        
+
         for commit in commits_list:
             if commit["parent_id"] and commit["parent_id"] in commit_map:
                 parent = commit_map[commit["parent_id"]]
-                
+
                 # Find which branches share both this commit and its parent
-                shared_branches = [b for b in commit["branches"] 
-                                  if b in parent["branches"]]
-                
+                shared_branches = [
+                    b for b in commit["branches"] if b in parent["branches"]
+                ]
+
                 for branch in shared_branches:
                     edges_by_branch[branch].append({
                         "x0": parent["x"],
@@ -1890,113 +2074,107 @@ class MyIcechunkStore:
                         "x1": commit["x"],
                         "y1": commit["y"],
                     })
-        
+
         # Create plotly figure
         fig = go.Figure()
-        
+
         # Draw edges grouped by branch (parallel lines for shared paths)
         for branch_idx, branch in enumerate(branch_names):
             if branch not in edges_by_branch:
                 continue
-                
+
             color = branch_colors[branch]
-            
+
             # Draw each edge as a separate line
             for edge in edges_by_branch[branch]:
                 # Vertical offset for parallel lines (metro-style)
                 offset = (branch_idx - (len(branch_names) - 1) / 2) * 0.15
-                
-                fig.add_trace(go.Scatter(
-                    x=[edge["x0"], edge["x1"]],
-                    y=[edge["y0"] + offset, edge["y1"] + offset],
-                    mode="lines",
-                    line=dict(color=color, width=3),
-                    hoverinfo="skip",
-                    showlegend=False,
-                    opacity=0.7
-                ))
-        
+
+                fig.add_trace(
+                    go.Scatter(x=[edge["x0"], edge["x1"]],
+                               y=[edge["y0"] + offset, edge["y1"] + offset],
+                               mode="lines",
+                               line=dict(color=color, width=3),
+                               hoverinfo="skip",
+                               showlegend=False,
+                               opacity=0.7))
+
         # Draw commits (nodes) - one trace per unique commit
         # Color by which branches include it
         x_vals = [c["x"] for c in commits_list]
         y_vals = [c["y"] for c in commits_list]
-        
+
         # Format hover text
         hover_texts = []
         marker_colors = []
         marker_symbols = []
-        
+
         for c in commits_list:
             # Handle both string and datetime objects
             if isinstance(c["written_at"], str):
-                time_str = datetime.fromisoformat(c["written_at"]).strftime("%Y-%m-%d %H:%M")
+                time_str = datetime.fromisoformat(
+                    c["written_at"]).strftime("%Y-%m-%d %H:%M")
             else:
                 time_str = c["written_at"].strftime("%Y-%m-%d %H:%M")
-                
+
             branches_str = ", ".join(c["branches"])
-            hover_texts.append(
-                f"<b>{c['message'] or 'No message'}</b><br>"
-                f"Commit: {c['id'][:12]}<br>"
-                f"Branches: {branches_str}<br>"
-                f"Time: {time_str}"
-            )
-            
+            hover_texts.append(f"<b>{c['message'] or 'No message'}</b><br>"
+                               f"Commit: {c['id'][:12]}<br>"
+                               f"Branches: {branches_str}<br>"
+                               f"Time: {time_str}")
+
             # Color by first branch (priority: main)
             if "main" in c["branches"]:
                 marker_colors.append(branch_colors["main"])
             else:
                 marker_colors.append(branch_colors[c["branches"][0]])
-            
+
             # Star for branch tips
             if c["id"] in branch_tips.values():
                 marker_symbols.append("star")
             else:
                 marker_symbols.append("circle")
-        
-        fig.add_trace(go.Scatter(
-            x=x_vals,
-            y=y_vals,
-            mode="markers",
-            name="Commits",
-            marker=dict(
-                size=14,
-                color=marker_colors,
-                symbol=marker_symbols,
-                line=dict(color="white", width=2)
-            ),
-            hovertext=hover_texts,
-            hoverinfo="text",
-            showlegend=False
-        ))
-        
+
+        fig.add_trace(
+            go.Scatter(x=x_vals,
+                       y=y_vals,
+                       mode="markers",
+                       name="Commits",
+                       marker=dict(size=14,
+                                   color=marker_colors,
+                                   symbol=marker_symbols,
+                                   line=dict(color="white", width=2)),
+                       hovertext=hover_texts,
+                       hoverinfo="text",
+                       showlegend=False))
+
         # Add legend traces (invisible points just for legend)
         for branch_idx, branch in enumerate(branch_names):
-            fig.add_trace(go.Scatter(
-                x=[None],
-                y=[None],
-                mode="markers",
-                name=branch,
-                marker=dict(
-                    size=10,
-                    color=branch_colors[branch],
-                    line=dict(color="white", width=2)
-                ),
-                showlegend=True
-            ))
-        
+            fig.add_trace(
+                go.Scatter(x=[None],
+                           y=[None],
+                           mode="markers",
+                           name=branch,
+                           marker=dict(size=10,
+                                       color=branch_colors[branch],
+                                       line=dict(color="white", width=2)),
+                           showlegend=True))
+
         # Layout styling
+        title_text = (
+            f"Commit Graph: {self.site_name} ({len(commits_list)} commits, "
+            f"{len(branch_names)} branches)"
+        )
         fig.update_layout(
             title=dict(
-                text=f"Commit Graph: {self.site_name} ({len(commits_list)} commits, {len(branch_names)} branches)",
-                font=dict(size=16, color="#e5e5e5")
+                text=title_text,
+                font=dict(size=16, color="#e5e5e5"),
             ),
-            xaxis=dict(
-                title="Time (oldest ← → newest)",
-                showticklabels=False,
-                showgrid=True,
-                gridcolor="rgba(255,255,255,0.1)",
-                zeroline=False
-            ),
+            xaxis=dict(title="Time (oldest ← → newest)",
+                       showticklabels=False,
+                       showgrid=True,
+                       gridcolor="rgba(255,255,255,0.1)",
+                       zeroline=False),
             yaxis=dict(
                 title="",
                 showticklabels=False,
@@ -2009,18 +2187,16 @@ class MyIcechunkStore:
             font=dict(color="#e5e5e5"),
             hovermode="closest",
             height=400,
-            width=max(800, len(commits_list) * 50),
-            legend=dict(
-                title="Branches",
-                orientation="h",
-                x=0,
-                y=-0.15,
-                bgcolor="rgba(30,30,30,0.8)",
-                bordercolor="rgba(255,255,255,0.2)",
-                borderwidth=1
-            )
-        )
-        
+            width=max(800,
+                      len(commits_list) * 50),
+            legend=dict(title="Branches",
+                        orientation="h",
+                        x=0,
+                        y=-0.15,
+                        bgcolor="rgba(30,30,30,0.8)",
+                        bordercolor="rgba(255,255,255,0.2)",
+                        borderwidth=1))
+
         return fig
 
     def cleanup_stale_branches(self,
@@ -2277,10 +2453,8 @@ class MyIcechunkStore:
                 sanitized_sids = len(ds_sanitized.sid)
                 removed_sids = original_sids - sanitized_sids
 
-                print(
-                    f"        • Sanitized: {sanitized_sids} SIDs "
-                    f"(removed {removed_sids})"
-                )
+                print(f"        • Sanitized: {sanitized_sids} SIDs "
+                      f"(removed {removed_sids})")
 
                 # Write sanitized data
                 with self.writable_session(temp_branch) as session:
@@ -2398,24 +2572,40 @@ class MyIcechunkStore:
         self,
         group: str,
         freq: str = "1D",
-        vars_to_aggregate=("VOD", ),
-        geometry_vars=("phi", "theta"),
-        drop_empty=True,
-        branch="main",
+        vars_to_aggregate: Sequence[str] = ("VOD",),
+        geometry_vars: Sequence[str] = ("phi", "theta"),
+        drop_empty: bool = True,
+        branch: str = "main",
     ) -> xr.Dataset:
-        """
-        Safely aggregates temporally irregular VOD data.
+        """Safely aggregate temporally irregular VOD data.
 
-        - Aggregates only numeric vars (e.g. VOD) using mean
-        - Preserves geometry vars (e.g. phi, theta) using first() per bin
-        - Keeps non-temporal coordinates (sid, system, etc.)
+        Parameters
+        ----------
+        group : str
+            Group name to aggregate.
+        freq : str, default "1D"
+            Resample frequency string.
+        vars_to_aggregate : Sequence[str], optional
+            Variables to aggregate using mean.
+        geometry_vars : Sequence[str], optional
+            Geometry variables to preserve via first() per bin.
+        drop_empty : bool, default True
+            Drop empty epochs after aggregation.
+        branch : str, default "main"
+            Branch name to read from.
+
+        Returns
+        -------
+        xr.Dataset
+            Aggregated dataset.
         """
 
         with self.readonly_session(branch=branch) as session:
             ds = xr.open_zarr(session.store, group=group, consolidated=False)
 
             print(
-                f"📦 Aggregating group '{group}' from branch '{branch}' → freq={freq}"
+                f"📦 Aggregating group '{group}' from branch '{branch}' "
+                f"→ freq={freq}"
             )
 
             # 1️⃣ Aggregate numeric variables
@@ -2452,30 +2642,54 @@ class MyIcechunkStore:
         target_branch: str,
         freq: str = "1D",
         overwrite: bool = False,
-        **kwargs,
-    ):
-        """
-        Aggregates a source group and saves it to a new IceChunk branch/group.
+        **kwargs: Any,
+    ) -> xr.Dataset:
+        """Aggregate a group and save to a new Icechunk branch/group.
+
+        Parameters
+        ----------
+        source_group : str
+            Source group name.
+        target_group : str
+            Target group name.
+        target_branch : str
+            Target branch name.
+        freq : str, default "1D"
+            Resample frequency string.
+        overwrite : bool, default False
+            Whether to overwrite an existing branch.
+        **kwargs : Any
+            Additional keyword args passed to safe_temporal_aggregate().
+
+        Returns
+        -------
+        xr.Dataset
+            Aggregated dataset written to the target branch.
         """
 
         print(
-            f"🚀 Creating new aggregated branch '{target_branch}' at '{target_group}'"
+            f"🚀 Creating new aggregated branch '{target_branch}' "
+            f"at '{target_group}'"
         )
 
         # Compute safe aggregation
-        ds_agg = self.safe_temporal_aggregate(group=source_group,
-                                              freq=freq,
-                                              **kwargs)
+        ds_agg = self.safe_temporal_aggregate(
+            group=source_group,
+            freq=freq,
+            **kwargs,
+        )
 
         # Write to new branch
         current_snapshot = next(self.repo.ancestry(branch="main")).id
         self.delete_branch(target_branch)
         self.repo.create_branch(target_branch, current_snapshot)
         with self.writable_session(target_branch) as session:
-            to_icechunk(obj=ds_agg,
-                        session=session,
-                        group=target_group,
-                        mode='w')
+            to_icechunk(
+                obj=ds_agg,
+                session=session,
+                group=target_group,
+                mode="w",
+            )
             session.commit(
                 f"Saved aggregated data to {target_group} at freq={freq}")
 
