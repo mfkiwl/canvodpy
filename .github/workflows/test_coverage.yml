@@ -28,7 +28,10 @@ jobs:
 
             - name: Run Tests
               run: |
-                  uv run pytest --verbose --color=yes --cov=canvodpy --cov-report term-missing
+                  uv run pytest --verbose --color=yes \
+                    --cov=canvodpy \
+                    --cov=canvod \
+                    --cov-report=term-missing
 
             - name: Coverage comment
               id: coverage_comment
