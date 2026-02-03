@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -53,25 +54,28 @@ def _(mo):
 
     # Directory inputs
     rinex_dir_input = mo.ui.text(
-        value=str(default_rinex_dir),
-        label="RINEX Data Directory:",
-        full_width=True
+        value=str(default_rinex_dir), label="RINEX Data Directory:", full_width=True
     )
 
     aux_dir_input = mo.ui.text(
-        value=str(default_aux_dir),
-        label="Auxiliary Data Directory:",
-        full_width=True
+        value=str(default_aux_dir), label="Auxiliary Data Directory:", full_width=True
     )
 
     output_dir_input = mo.ui.text(
-        value=str(default_output_dir),
-        label="Output Directory:",
-        full_width=True
+        value=str(default_output_dir), label="Output Directory:", full_width=True
     )
 
     mo.vstack([rinex_dir_input, aux_dir_input, output_dir_input])
-    return (Path, aux_dir_input, default_aux_dir, default_output_dir, default_rinex_dir, output_dir_input, rinex_dir_input, tempfile)
+    return (
+        Path,
+        aux_dir_input,
+        default_aux_dir,
+        default_output_dir,
+        default_rinex_dir,
+        output_dir_input,
+        rinex_dir_input,
+        tempfile,
+    )
 
 
 @app.cell
@@ -227,7 +231,9 @@ def _(_rinex_ds):
 
         # Get first epoch
         first_epoch = ds.epoch.min().values
-        dt = datetime.datetime.utcfromtimestamp(first_epoch.astype("datetime64[s]").astype(int))
+        dt = datetime.datetime.utcfromtimestamp(
+            first_epoch.astype("datetime64[s]").astype(int)
+        )
 
         return dt.date()
 
@@ -243,13 +249,11 @@ def _(_aux_dir, _obs_date, mo):
     agency_selector = mo.ui.dropdown(
         options=["COD", "GFZ", "ESA", "JPL", "IGS"],
         value="COD",
-        label="Analysis Center:"
+        label="Analysis Center:",
     )
 
     product_selector = mo.ui.dropdown(
-        options=["final", "rapid"],
-        value="rapid",
-        label="Product Type:"
+        options=["final", "rapid"], value="rapid", label="Product Type:"
     )
 
     mo.hstack([agency_selector, product_selector])
@@ -321,10 +325,7 @@ def _(_aux_dir, _obs_date, agency_selector, download_aux_button, mo, product_sel
 
     if download_aux_button.value and _obs_date:
         _aux_files = download_aux_data(
-            _obs_date,
-            agency_selector.value,
-            product_selector.value,
-            _aux_dir
+            _obs_date, agency_selector.value, product_selector.value, _aux_dir
         )
 
         # Build output message
@@ -370,23 +371,11 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    receiver_x = mo.ui.number(
-        value=4194304.678,
-        label="X (m):",
-        step=0.001
-    )
+    receiver_x = mo.ui.number(value=4194304.678, label="X (m):", step=0.001)
 
-    receiver_y = mo.ui.number(
-        value=1162205.267,
-        label="Y (m):",
-        step=0.001
-    )
+    receiver_y = mo.ui.number(value=1162205.267, label="Y (m):", step=0.001)
 
-    receiver_z = mo.ui.number(
-        value=4647245.201,
-        label="Z (m):",
-        step=0.001
-    )
+    receiver_z = mo.ui.number(value=4647245.201, label="Z (m):", step=0.001)
 
     mo.hstack([receiver_x, receiver_y, receiver_z])
     return (receiver_x, receiver_y, receiver_z)
@@ -419,11 +408,7 @@ def _(_aux_files, _rinex_ds, augment_button, mo, receiver_x, receiver_y, receive
             z: float
 
         # Create receiver position
-        ecef_pos = ECEFPosition(
-            x=receiver_pos[0],
-            y=receiver_pos[1],
-            z=receiver_pos[2]
-        )
+        ecef_pos = ECEFPosition(x=receiver_pos[0], y=receiver_pos[1], z=receiver_pos[2])
 
         # Load auxiliary datasets
         sp3_ds = sp3_file.data
@@ -433,10 +418,7 @@ def _(_aux_files, _rinex_ds, augment_button, mo, receiver_x, receiver_y, receive
         context = AugmentationContext(
             receiver_position=ecef_pos,
             receiver_type="test",
-            matched_datasets={
-                "ephemeris": sp3_ds,
-                "clock": clk_ds
-            }
+            matched_datasets={"ephemeris": sp3_ds, "clock": clk_ds},
         )
 
         # Create augmenter
@@ -453,17 +435,10 @@ def _(_aux_files, _rinex_ds, augment_button, mo, receiver_x, receiver_y, receive
     if augment_button.value and _rinex_ds is not None and _aux_files:
         if _aux_files["sp3"] and _aux_files["clk"]:
             try:
-                _receiver_pos = (
-                    receiver_x.value,
-                    receiver_y.value,
-                    receiver_z.value
-                )
+                _receiver_pos = (receiver_x.value, receiver_y.value, receiver_z.value)
 
                 _augmented_ds = augment_rinex_data(
-                    _rinex_ds,
-                    _aux_files["sp3"],
-                    _aux_files["clk"],
-                    _receiver_pos
+                    _rinex_ds, _aux_files["sp3"], _aux_files["clk"], _receiver_pos
                 )
 
                 # Get new variables
@@ -517,7 +492,7 @@ def _(_augmented_ds, mo):
     if _augmented_ds is not None:
         plot_var_selector = mo.ui.dropdown(
             options=sorted([str(v) for v in _augmented_ds.data_vars]),
-            label="Select variable to plot:"
+            label="Select variable to plot:",
         )
         plot_var_selector
     return (plot_var_selector,)

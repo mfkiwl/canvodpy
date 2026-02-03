@@ -80,9 +80,9 @@ class Site:
 
     """
 
-    def __init__(self, name: str) -> None:  # noqa: D107
+    def __init__(self, name: str) -> None:
         # Lazy import to avoid circular dependency
-        from canvod.store import GnssResearchSite  # noqa: PLC0415
+        from canvod.store import GnssResearchSite
 
         # Use proven implementation
         self._site = GnssResearchSite(name)
@@ -118,7 +118,7 @@ class Site:
         keep_vars: list[str] | None = None,
         aux_agency: str = "COD",
         n_workers: int = 12,
-        dry_run: bool = False,  # noqa: FBT001, FBT002
+        dry_run: bool = False,
     ) -> Pipeline:
         """Create a processing pipeline for this site.
 
@@ -153,12 +153,12 @@ class Site:
             dry_run=dry_run,
         )
 
-    def __repr__(self) -> str:  # noqa: D105
+    def __repr__(self) -> str:
         n_receivers = len(self.active_receivers)
         n_analyses = len(self.vod_analyses)
         return f"Site('{self.name}', receivers={n_receivers}, analyses={n_analyses})"
 
-    def __str__(self) -> str:  # noqa: D105
+    def __str__(self) -> str:
         return f"GNSS Site: {self.name}"
 
 
@@ -199,13 +199,13 @@ class Pipeline:
 
     """
 
-    def __init__(  # noqa: D107
+    def __init__(
         self,
         site: Site | str,
         keep_vars: list[str] | None = None,
         aux_agency: str = "COD",
         n_workers: int = 12,
-        dry_run: bool = False,  # noqa: FBT001, FBT002
+        dry_run: bool = False,
     ) -> None:
         # Handle both Site object and string
         if isinstance(site, str):
@@ -218,11 +218,11 @@ class Pipeline:
         self.dry_run = dry_run
 
         # Lazy import to avoid circular dependency
-        from canvodpy.orchestrator import PipelineOrchestrator  # noqa: PLC0415
+        from canvodpy.orchestrator import PipelineOrchestrator
 
         # Use proven orchestrator implementation
         self._orchestrator = PipelineOrchestrator(
-            site=site._site,  # noqa: SLF001
+            site=site._site,
             n_max_workers=n_workers,
             dry_run=dry_run,
         )
@@ -335,7 +335,7 @@ class Pipeline:
         ref_data = self.site.rinex_store.read_group(reference, date=date)
 
         # Lazy import to avoid circular dependency
-        from canvod.vod import VODCalculator  # noqa: PLC0415
+        from canvod.vod import VODCalculator
 
         # Use proven VOD calculator
         calculator = VODCalculator()
@@ -364,7 +364,7 @@ class Pipeline:
         """
         return self._orchestrator.preview_processing_plan()
 
-    def __repr__(self) -> str:  # noqa: D105
+    def __repr__(self) -> str:
         return (
             f"Pipeline(site='{self.site.name}', "
             f"keep_vars={len(self.keep_vars)} vars, "
@@ -432,7 +432,7 @@ def process_date(
     return pipeline.process_date(date)
 
 
-def calculate_vod(  # noqa: PLR0913
+def calculate_vod(
     site: str,
     canopy: str,
     reference: str,

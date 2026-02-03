@@ -143,8 +143,7 @@ class AnalysisStorage:
 
         # Build xarray dataset
         weight_vars = {
-            name: (["cell"], arr.astype(np.float32))
-            for name, arr in weights.items()
+            name: (["cell"], arr.astype(np.float32)) for name, arr in weights.items()
         }
         ds_weights = xr.Dataset(
             weight_vars, coords={"cell": np.arange(ncells, dtype=np.int32)}
@@ -369,8 +368,13 @@ class AnalysisStorage:
                     {"epoch": ds_source["epoch"], "sid": ds_source["sid"]}
                 )
                 for coord in [
-                    "band", "code", "sv", "system",
-                    "freq_min", "freq_max", "freq_center",
+                    "band",
+                    "code",
+                    "sv",
+                    "system",
+                    "freq_min",
+                    "freq_max",
+                    "freq_center",
                 ]:
                     if coord in ds_source.coords:
                         mask = mask.assign_coords({coord: ds_source[coord]})
@@ -477,9 +481,7 @@ class AnalysisStorage:
         for name, arr in masks.items():
             n_sel = int(arr.sum())
             ds_masks[f"mask_{name}"].attrs["n_cells_selected"] = n_sel
-            ds_masks[f"mask_{name}"].attrs["fraction_selected"] = float(
-                n_sel / ncells
-            )
+            ds_masks[f"mask_{name}"].attrs["fraction_selected"] = float(n_sel / ncells)
         if mask_descriptions:
             for name, desc in mask_descriptions.items():
                 if name in masks:
@@ -717,9 +719,7 @@ class AnalysisStorage:
             return {var: ds_stats[var].values for var in ds_stats.data_vars}
 
         except Exception:
-            logger.error(
-                "Failed to load statistics from %s", group_path, exc_info=True
-            )
+            logger.error("Failed to load statistics from %s", group_path, exc_info=True)
             raise
 
     def has_statistics(self, dataset_name: str, grid_name: str) -> bool:
@@ -753,9 +753,7 @@ class AnalysisStorage:
             "statistics": self.has_statistics(dataset_name, grid_name),
         }
 
-    def get_metadata_summary(
-        self, dataset_name: str, grid_name: str
-    ) -> dict[str, Any]:
+    def get_metadata_summary(self, dataset_name: str, grid_name: str) -> dict[str, Any]:
         """Detailed summary of all stored metadata for a dataset+grid pair.
 
         Returns
@@ -911,9 +909,7 @@ class AnalysisStorage:
                     snapshot_id[:8],
                 )
                 return snapshot_id
-            raise ValueError(
-                f"Weight '{weight_name}' does not exist in {group_path}"
-            )
+            raise ValueError(f"Weight '{weight_name}' does not exist in {group_path}")
 
     def delete_specific_filter_mask(
         self, dataset_name: str, grid_name: str, filter_type: str

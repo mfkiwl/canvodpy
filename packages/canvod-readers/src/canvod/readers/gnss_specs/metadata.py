@@ -129,8 +129,7 @@ OBSERVABLES_METADATA: Final[dict[str, dict[str, str | float | int]]] = {
     "Auxiliary": {
         "standard_name": "auxiliary_observation",
         "long_name": "Auxiliary Observation (X1)",
-        "description":
-        "Auxiliary observation codes (e.g., X1) stored separately from SNR",
+        "description": "Auxiliary observation codes (e.g., X1) stored separately from SNR",
         "units": "arbitrary",
         "_FillValue": np.nan,
     },
@@ -164,8 +163,7 @@ SNR_METADATA: Final[dict[str, str | float | int]] = {
         "Signal-to-noise ratio (SNR) represents the received signal strength "
         "relative to the noise floor across the signal bandwidth."
     ),
-    "comment":
-    "SNR is expressed in decibels (dB). Higher values indicate better signal quality.",
+    "comment": "SNR is expressed in decibels (dB). Higher values indicate better signal quality.",
     "_FillValue": np.nan,
 }
 
@@ -174,30 +172,24 @@ SNR_METADATA: Final[dict[str, str | float | int]] = {
 # -------------------
 COORDS_METADATA: Final[dict[str, dict[str, str]]] = {
     "epoch": {
-        "standard_name":
-        "time",
-        "long_name":
-        "GNSS Observation epoch",
-        "short_name":
-        "epoch",
+        "standard_name": "time",
+        "long_name": "GNSS Observation epoch",
+        "short_name": "epoch",
         "description": (
             "The epoch indicates the precise time at which each GNSS "
             "observation was recorded."
         ),
     },
     "sv": {
-        "standard_name":
-        "space_vehicle_identifier",
-        "long_name":
-        "GNSS Space Vehicle Identifier",
+        "standard_name": "space_vehicle_identifier",
+        "long_name": "GNSS Space Vehicle Identifier",
         "description": (
             "The Space Vehicle (sv) identifier denotes the specific satellite "
             "from which the GNSS observation was received."
         ),
     },
     "sid": {
-        "long_name":
-        "Signal ID",
+        "long_name": "Signal ID",
         "description": (
             "Unique signal identifier (sv|band|code). Used to map each "
             "observation unambiguously to its properties."
@@ -270,14 +262,10 @@ DATAVARS_TO_BE_FILLED: Final[dict[str, dict[str, Any]]] = {
         "fill_value": -9999.0,
         "dtype": np.float32,
         "attrs": {
-            "long_name":
-            "radial distance",
-            "standard_name":
-            "slant_range",
-            "units":
-            "meters",
-            "description":
-            "Slant distance from receiver to satellite in ECEF spherical coordinates",
+            "long_name": "radial distance",
+            "standard_name": "slant_range",
+            "units": "meters",
+            "description": "Slant distance from receiver to satellite in ECEF spherical coordinates",
         },
     },
     "theta": {
@@ -297,8 +285,7 @@ DATAVARS_TO_BE_FILLED: Final[dict[str, dict[str, Any]]] = {
             "long_name": "azimuthal angle",
             "standard_name": "azimuth",
             "units": "degrees",
-            "description":
-            "Rotation angle from reference meridian in XY-plane",
+            "description": "Rotation angle from reference meridian in XY-plane",
         },
     },
     "v": {
@@ -308,22 +295,17 @@ DATAVARS_TO_BE_FILLED: Final[dict[str, dict[str, Any]]] = {
             "long_name": "satellite velocity",
             "standard_name": "platform_velocity",
             "units": "meters per second",
-            "description":
-            "Instantaneous satellite velocity relative to receiver",
+            "description": "Instantaneous satellite velocity relative to receiver",
         },
     },
     "a": {
         "fill_value": -9999.0,
         "dtype": np.float32,
         "attrs": {
-            "long_name":
-            "satellite acceleration",
-            "standard_name":
-            "platform_acceleration",
-            "units":
-            "meters per second squared",
-            "description":
-            "Instantaneous satellite acceleration relative to receiver",
+            "long_name": "satellite acceleration",
+            "standard_name": "platform_acceleration",
+            "units": "meters per second squared",
+            "description": "Instantaneous satellite acceleration relative to receiver",
         },
     },
 }

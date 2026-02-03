@@ -108,10 +108,8 @@ class TemporalAnalysis:
 
         # Solar calculator (optional)
         if site_lat is not None and site_lon is not None:
-            self.solar_calc: SolarPositionCalculator | None = (
-                SolarPositionCalculator(
-                    lat=site_lat, lon=site_lon, elevation=site_elevation
-                )
+            self.solar_calc: SolarPositionCalculator | None = SolarPositionCalculator(
+                lat=site_lat, lon=site_lon, elevation=site_elevation
             )
             logger.info(
                 "solar calculator enabled for (%.4f°, %.4f°)",
@@ -705,9 +703,7 @@ class TemporalAnalysis:
     # Solar metadata
     # ------------------------------------------------------------------
 
-    def add_solar_metadata_to_timeseries(
-        self, timeseries: xr.Dataset
-    ) -> xr.Dataset:
+    def add_solar_metadata_to_timeseries(self, timeseries: xr.Dataset) -> xr.Dataset:
         """Attach solar zenith, azimuth and elevation to a time-series.
 
         Parameters

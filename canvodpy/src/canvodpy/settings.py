@@ -13,6 +13,7 @@ from typing import Any
 # Load .env file from repository root before anything else
 try:
     from dotenv import load_dotenv
+
     # From canvodpy/src/canvodpy/settings.py go up 4 levels to reach repo root
     _env_path = Path(__file__).parent.parent.parent.parent / ".env"
     if _env_path.exists():
@@ -76,7 +77,7 @@ class AppSettings:
 
     """
 
-    def __init__(self) -> None:  # noqa: D107
+    def __init__(self) -> None:
         self.cddis_mail: str | None = self._load_email()
         self.gnss_root_dir: str | None = os.getenv("GNSS_ROOT_DIR")
 
@@ -113,7 +114,7 @@ class AppSettings:
 
     def log_configuration_status(
         self,
-        logger: Any | None = None,  # noqa: ANN401
+        logger: Any | None = None,
     ) -> None:
         """Log the current configuration status.
 
@@ -132,8 +133,7 @@ class AppSettings:
             log_fn("ℹ No CDDIS credentials configured")  # noqa: RUF001
             log_fn("  Using ESA FTP server exclusively (no authentication required)")
             log_fn(
-                "  To enable NASA CDDIS fallback, set CDDIS_MAIL environment "
-                "variable"
+                "  To enable NASA CDDIS fallback, set CDDIS_MAIL environment variable"
             )
             log_fn("  Register at: https://urs.earthdata.nasa.gov/users/new")
 
@@ -151,7 +151,7 @@ def get_settings() -> AppSettings:
         Instance loaded from environment.
 
     """
-    global _settings  # noqa: PLW0603
+    global _settings
     if _settings is None:
         _settings = AppSettings()
     return _settings
@@ -168,10 +168,11 @@ def reload_settings() -> AppSettings:
         New settings instance.
 
     """
-    global _settings  # noqa: PLW0603
+    global _settings
     # Reload .env file
     try:
-        from dotenv import load_dotenv  # noqa: PLC0415
+        from dotenv import load_dotenv
+
         # From canvodpy/src/canvodpy/settings.py go up 4 levels to reach repo root
         _env_path = Path(__file__).parent.parent.parent.parent / ".env"
         if _env_path.exists():

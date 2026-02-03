@@ -42,8 +42,9 @@ def _build_kdtree(grid: GridData) -> cKDTree:
     return cKDTree(np.column_stack([x, y, z]))
 
 
-def _query_points(tree: cKDTree, cell_id_col: np.ndarray,
-                  phi: np.ndarray, theta: np.ndarray) -> np.ndarray:
+def _query_points(
+    tree: cKDTree, cell_id_col: np.ndarray, phi: np.ndarray, theta: np.ndarray
+) -> np.ndarray:
     """Vectorised nearest-cell lookup via KDTree.
 
     Parameters
@@ -75,8 +76,9 @@ def _query_points(tree: cKDTree, cell_id_col: np.ndarray,
 # ==============================================================================
 
 
-def add_cell_ids_to_vod_fast(vod_ds: xr.Dataset, grid: GridData,
-                             grid_name: str) -> xr.Dataset:
+def add_cell_ids_to_vod_fast(
+    vod_ds: xr.Dataset, grid: GridData, grid_name: str
+) -> xr.Dataset:
     """Assign grid cells to every observation in a VOD dataset (vectorised).
 
     Uses a KDTree built from the grid cell centres for O(n log m) lookup.
@@ -112,8 +114,7 @@ def add_cell_ids_to_vod_fast(vod_ds: xr.Dataset, grid: GridData,
     cell_ids = np.full(len(phi), np.nan, dtype=np.float64)
 
     if np.any(valid):
-        cell_ids[valid] = _query_points(tree, cell_id_col,
-                                        phi[valid], theta[valid])
+        cell_ids[valid] = _query_points(tree, cell_id_col, phi[valid], theta[valid])
 
     cell_ids_2d = cell_ids.reshape(vod_ds["VOD"].shape)
 
@@ -127,8 +128,9 @@ def add_cell_ids_to_vod_fast(vod_ds: xr.Dataset, grid: GridData,
     return vod_ds
 
 
-def add_cell_ids_to_vod(vod_ds: xr.Dataset, grid: GridData,
-                        grid_name: str) -> xr.Dataset:
+def add_cell_ids_to_vod(
+    vod_ds: xr.Dataset, grid: GridData, grid_name: str
+) -> xr.Dataset:
     """Assign grid cells to a VOD dataset (element-wise fallback).
 
     Slower than :func:`add_cell_ids_to_vod_fast`; kept for cases where the
@@ -162,9 +164,7 @@ def add_cell_ids_to_vod(vod_ds: xr.Dataset, grid: GridData,
     for i in range(len(phi_flat)):
         if np.isfinite(phi_flat[i]) and np.isfinite(theta_flat[i]):
             cell_ids_flat[i] = _query_points(
-                tree, cell_id_col,
-                np.array([phi_flat[i]]),
-                np.array([theta_flat[i]])
+                tree, cell_id_col, np.array([phi_flat[i]]), np.array([theta_flat[i]])
             )[0]
 
     cell_ids_2d = cell_ids_flat.reshape(vod_ds["VOD"].shape)
@@ -184,9 +184,9 @@ def add_cell_ids_to_vod(vod_ds: xr.Dataset, grid: GridData,
     return vod_ds
 
 
-def add_cell_ids_to_ds_fast(ds: xr.Dataset, grid: GridData,
-                            grid_name: str,
-                            data_var: str = "VOD") -> xr.Dataset:
+def add_cell_ids_to_ds_fast(
+    ds: xr.Dataset, grid: GridData, grid_name: str, data_var: str = "VOD"
+) -> xr.Dataset:
     """Assign grid cells lazily via dask (avoids loading full arrays).
 
     The output ``cell_id_<grid_name>`` variable is a dask array that
@@ -270,8 +270,7 @@ def add_cell_ids_to_ds_fast(ds: xr.Dataset, grid: GridData,
 # ==============================================================================
 
 
-def extract_grid_vertices(
-        grid: GridData) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def extract_grid_vertices(grid: GridData) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Extract 3D vertices from hemisphere grid cells.
 
     Dispatches to a grid-type–specific extractor.  The returned arrays are
@@ -354,7 +353,8 @@ def _extract_rectangular_vertices(
 
 
 def _extract_geodesic_vertices(
-        grid: GridData) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    grid: GridData,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Extract vertices from geodesic grid (cell centres as proxy)."""
     phi_vals = grid.grid["phi"].to_numpy()
     theta_vals = grid.grid["theta"].to_numpy()
@@ -367,7 +367,8 @@ def _extract_geodesic_vertices(
 
 
 def _extract_healpix_vertices(
-        grid: GridData) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    grid: GridData,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Extract vertices from HEALPix grid via healpy boundaries."""
     try:
         import healpy as hp
@@ -393,7 +394,8 @@ def _extract_healpix_vertices(
 
 
 def _extract_fibonacci_vertices(
-        grid: GridData) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    grid: GridData,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Extract vertices from Fibonacci grid (point-based, centres only)."""
     phi_vals = grid.grid["phi"].to_numpy()
     theta_vals = grid.grid["theta"].to_numpy()
@@ -538,14 +540,10 @@ def grid_to_dataset(grid: GridData) -> xr.Dataset:
         attrs={
             "grid_type": grid.grid_type,
             "angular_resolution": (
-                grid.metadata.get("angular_resolution", 0.0)
-                if grid.metadata
-                else 0.0
+                grid.metadata.get("angular_resolution", 0.0) if grid.metadata else 0.0
             ),
             "cutoff_theta": (
-                grid.metadata.get("cutoff_theta", 0.0)
-                if grid.metadata
-                else 0.0
+                grid.metadata.get("cutoff_theta", 0.0) if grid.metadata else 0.0
             ),
             "n_cells": n_cells,
         },
@@ -647,9 +645,7 @@ def load_grid(
 
     # Load from store
     with store.readonly_session() as session:
-        ds_grid = xr.open_zarr(
-            session.store, group=group_path, consolidated=False
-        )
+        ds_grid = xr.open_zarr(session.store, group=group_path, consolidated=False)
 
     # Extract metadata
     grid_type = ds_grid.attrs.get("grid_type")

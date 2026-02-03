@@ -278,6 +278,7 @@ class StorageConfig(BaseModel):
             except (OSError, PermissionError) as e:
                 # Warn but don't fail - let user create it manually
                 import warnings
+
                 warnings.warn(
                     f"Could not create stores directory {v}: {e}. "
                     "Please create it manually.",

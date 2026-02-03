@@ -54,9 +54,7 @@ class DatasetMatcher:
     """
 
     def match_datasets(
-        self,
-        reference_ds: xr.Dataset,
-        **aux_datasets: xr.Dataset
+        self, reference_ds: xr.Dataset, **aux_datasets: xr.Dataset
     ) -> dict[str, xr.Dataset]:
         """Match auxiliary datasets to reference dataset epochs.
 
@@ -151,10 +149,8 @@ class DatasetMatcher:
         ValueError
             If missing 'epoch' or 'sid' dimension.
         """
-        if 'epoch' not in ds.dims or 'sid' not in ds.dims:
-            raise ValueError(
-                f"{name} missing required dimension 'epoch' or 'sid'"
-            )
+        if "epoch" not in ds.dims or "sid" not in ds.dims:
+            raise ValueError(f"{name} missing required dimension 'epoch' or 'sid'")
 
     def _validate_interpolation_config(
         self,
@@ -173,11 +169,11 @@ class DatasetMatcher:
         name : str
             Dataset name for warning message.
         """
-        if 'interpolator_config' not in ds.attrs:
+        if "interpolator_config" not in ds.attrs:
             warnings.warn(
                 f"Dataset '{name}' missing interpolation configuration. "
                 "Will use nearest-neighbor interpolation.",
-                UserWarning
+                UserWarning,
             )
 
     def _get_temporal_interval(self, ds: xr.Dataset) -> float:
@@ -193,7 +189,7 @@ class DatasetMatcher:
         float
             Interval between first two epochs in seconds.
         """
-        time_diff = ds['epoch'][1] - ds['epoch'][0]
+        time_diff = ds["epoch"][1] - ds["epoch"][0]
         return float(time_diff.values)
 
     def _match_temporal_resolution(
@@ -230,12 +226,11 @@ class DatasetMatcher:
             if ds_interval < ref_interval:
                 # Higher resolution → simple nearest neighbor
                 matched_datasets[name] = ds.interp(
-                    epoch=reference_ds.epoch,
-                    method='nearest'
+                    epoch=reference_ds.epoch, method="nearest"
                 )
             else:
                 # Lower resolution → use specialized interpolator
-                if 'interpolator_config' in ds.attrs:
+                if "interpolator_config" in ds.attrs:
                     interpolator = create_interpolator_from_attrs(ds.attrs)
                     matched_datasets[name] = interpolator.interpolate(
                         ds, reference_ds.epoch
@@ -243,15 +238,12 @@ class DatasetMatcher:
                 else:
                     # Fallback to nearest neighbor
                     matched_datasets[name] = ds.interp(
-                        epoch=reference_ds.epoch,
-                        method='nearest'
+                        epoch=reference_ds.epoch, method="nearest"
                     )
 
                 # Track temporal distance for quality assessment
-                temporal_distance = abs(
-                    matched_datasets[name]['epoch'] - ds['epoch']
-                )
-                matched_datasets[name][f'{name.lower()}_temporal_distance'] = (
+                temporal_distance = abs(matched_datasets[name]["epoch"] - ds["epoch"])
+                matched_datasets[name][f"{name.lower()}_temporal_distance"] = (
                     temporal_distance
                 )
 

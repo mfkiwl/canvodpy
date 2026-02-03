@@ -207,11 +207,11 @@ class TestSignalMapping:
         for i, sid in enumerate(ds.sid.values):
             sv_system = str(sid).split("|")[0][0]
             dataset_system = str(ds.system.values[i])
-            
+
             # Skip NaN values from padded sids
-            if dataset_system == 'nan':
+            if dataset_system == "nan":
                 continue
-                
+
             assert dataset_system == sv_system
 
 

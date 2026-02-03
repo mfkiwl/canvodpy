@@ -18,20 +18,20 @@ if TYPE_CHECKING:
 
 class HemisphereVisualizer3D:
     """3D hemisphere visualization using plotly.
-    
+
     Creates interactive 3D plots with rotation, zoom, and hover capabilities.
     Designed for exploratory data analysis and presentations.
-    
+
     Parameters
     ----------
     grid : HemiGrid
         Hemisphere grid to visualize
-    
+
     Examples
     --------
     >>> from canvod.grids import create_hemigrid
     >>> from canvod.viz import HemisphereVisualizer3D
-    >>> 
+    >>>
     >>> grid = create_hemigrid(grid_type='equal_area', angular_resolution=10.0)
     >>> viz = HemisphereVisualizer3D(grid)
     >>> fig = viz.plot_hemisphere_surface(data=vod_data, title="Interactive VOD")
@@ -41,7 +41,7 @@ class HemisphereVisualizer3D:
 
     def __init__(self, grid: HemiGrid) -> None:
         """Initialize 3D hemisphere visualizer.
-        
+
         Parameters
         ----------
         grid : HemiGrid
@@ -64,9 +64,9 @@ class HemisphereVisualizer3D:
         **kwargs: Any,
     ) -> go.Figure:
         """Create 3D surface plot on hemisphere with actual cell patches.
-        
+
         Renders grid cells as colored 3D patches (not just points).
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -89,12 +89,12 @@ class HemisphereVisualizer3D:
             Figure height in pixels
         **kwargs
             Additional plotly trace parameters
-        
+
         Returns
         -------
         plotly.graph_objects.Figure
             Interactive 3D figure with cell patches
-        
+
         Examples
         --------
         >>> fig = viz.plot_hemisphere_surface(
@@ -138,19 +138,21 @@ class HemisphereVisualizer3D:
 
         # Apply layout
         layout_config = style.to_plotly_layout() if style else {}
-        layout_config.update({
-            "title": title or "Hemisphere 3D",
-            "scene": dict(
-                aspectmode="data",
-                xaxis=dict(title="East", showbackground=False),
-                yaxis=dict(title="North", showbackground=False),
-                zaxis=dict(title="Up", showbackground=False),
-                bgcolor=layout_config.get("plot_bgcolor", "white")
-            ),
-            "width": width,
-            "height": height,
-            "margin": dict(l=0, r=0, b=0, t=40),
-        })
+        layout_config.update(
+            {
+                "title": title or "Hemisphere 3D",
+                "scene": dict(
+                    aspectmode="data",
+                    xaxis=dict(title="East", showbackground=False),
+                    yaxis=dict(title="North", showbackground=False),
+                    zaxis=dict(title="Up", showbackground=False),
+                    bgcolor=layout_config.get("plot_bgcolor", "white"),
+                ),
+                "width": width,
+                "height": height,
+                "margin": dict(l=0, r=0, b=0, t=40),
+            }
+        )
 
         fig.update_layout(**layout_config)
 
@@ -161,7 +163,7 @@ class HemisphereVisualizer3D:
         data: np.ndarray | None,
         colorscale: str,
         opacity: float,
-        show_colorbar: bool
+        show_colorbar: bool,
     ) -> go.Mesh3d:
         """Render rectangular grid cells as 3D mesh patches."""
         grid_df = self.grid.grid
@@ -226,7 +228,7 @@ class HemisphereVisualizer3D:
             colorbar=dict(title="Value") if show_colorbar else None,
             opacity=opacity,
             flatshading=True,
-            name=f"{self.grid.grid_type.title()} Grid"
+            name=f"{self.grid.grid_type.title()} Grid",
         )
 
     def _render_htm_cells(
@@ -234,7 +236,7 @@ class HemisphereVisualizer3D:
         data: np.ndarray | None,
         colorscale: str,
         opacity: float,
-        show_colorbar: bool
+        show_colorbar: bool,
     ) -> go.Mesh3d:
         """Render HTM triangular cells as 3D mesh."""
         grid_df = self.grid.grid
@@ -285,7 +287,7 @@ class HemisphereVisualizer3D:
             colorbar=dict(title="Value") if show_colorbar else None,
             opacity=opacity,
             flatshading=True,
-            name=f"{self.grid.grid_type.title()} Grid"
+            name=f"{self.grid.grid_type.title()} Grid",
         )
 
     def _render_scatter_fallback(
@@ -293,7 +295,7 @@ class HemisphereVisualizer3D:
         data: np.ndarray | None,
         colorscale: str,
         opacity: float,
-        show_colorbar: bool
+        show_colorbar: bool,
     ) -> go.Scatter3d:
         """Fallback scatter plot for unsupported grid types."""
         grid_df = self.grid.grid
@@ -347,7 +349,7 @@ class HemisphereVisualizer3D:
         height: int = 600,
     ) -> go.Figure:
         """Create 3D scatter plot of cell centers.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -364,7 +366,7 @@ class HemisphereVisualizer3D:
             Figure width
         height : int, default 600
             Figure height
-        
+
         Returns
         -------
         plotly.graph_objects.Figure
@@ -379,7 +381,7 @@ class HemisphereVisualizer3D:
             colorscale=colorscale,
             opacity=opacity,
             width=width,
-            height=height
+            height=height,
         )
 
         return fig
@@ -395,7 +397,7 @@ class HemisphereVisualizer3D:
         height: int = 600,
     ) -> go.Figure:
         """Create 3D mesh plot showing cell boundaries.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -412,12 +414,12 @@ class HemisphereVisualizer3D:
             Figure width
         height : int, default 600
             Figure height
-        
+
         Returns
         -------
         plotly.graph_objects.Figure
             Interactive mesh plot
-        
+
         Notes
         -----
         This method requires grid cells with vertex information.
@@ -452,9 +454,8 @@ class HemisphereVisualizer3D:
                         continue
 
                     # Normalize color value
-                    color_val = (
-                        (values[idx] - np.nanmin(values))
-                        / (np.nanmax(values) - np.nanmin(values))
+                    color_val = (values[idx] - np.nanmin(values)) / (
+                        np.nanmax(values) - np.nanmin(values)
                     )
                     color_rgb = sample_colorscale(colorscale, [color_val])[0]
 
@@ -470,7 +471,7 @@ class HemisphereVisualizer3D:
                         opacity=opacity,
                         flatshading=True,
                         showscale=False,
-                        hoverinfo="skip"
+                        hoverinfo="skip",
                     )
                     traces.append(trace)
                 except (KeyError, TypeError, ValueError):
@@ -497,7 +498,7 @@ class HemisphereVisualizer3D:
                     colorbar=dict(title="Value"),
                 ),
                 showlegend=False,
-                hoverinfo="skip"
+                hoverinfo="skip",
             )
             traces.append(dummy_trace)
 
@@ -528,7 +529,7 @@ class HemisphereVisualizer3D:
         line_width: float = 1,
     ) -> go.Figure:
         """Add elevation rings and meridians to 3D plot.
-        
+
         Parameters
         ----------
         fig : plotly.graph_objects.Figure
@@ -541,12 +542,12 @@ class HemisphereVisualizer3D:
             Color for overlay lines
         line_width : float, default 1
             Width of overlay lines
-        
+
         Returns
         -------
         fig : plotly.graph_objects.Figure
             Modified figure with overlays
-        
+
         """
         if elevation_rings is None:
             elevation_rings = [15, 30, 45, 60, 75, 90]
@@ -601,7 +602,7 @@ class HemisphereVisualizer3D:
         show_labels: bool = True,
     ) -> go.Figure:
         """Add custom coordinate axes with labels.
-        
+
         Parameters
         ----------
         fig : plotly.graph_objects.Figure
@@ -612,12 +613,12 @@ class HemisphereVisualizer3D:
             Color for axes
         show_labels : bool, default True
             Show axis labels (E, N, Z)
-        
+
         Returns
         -------
         fig : plotly.graph_objects.Figure
             Modified figure with custom axes
-        
+
         """
         # Axis lines
         axes_lines = [
@@ -703,9 +704,9 @@ def visualize_grid_3d(
     **kwargs: Any,
 ) -> go.Figure:
     """Visualize hemispherical grid in 3D interactive plot.
-    
+
     Convenience function providing simple interface to 3D visualization.
-    
+
     Parameters
     ----------
     grid : HemiGrid
@@ -722,26 +723,26 @@ def visualize_grid_3d(
         Add custom coordinate axes
     **kwargs
         Additional parameters passed to plot_hemisphere_surface
-    
+
     Returns
     -------
     fig : plotly.graph_objects.Figure
         Interactive 3D figure
-    
+
     Examples
     --------
     >>> from canvod.grids import create_hemigrid
     >>> from canvod.viz import visualize_grid_3d
-    >>> 
+    >>>
     >>> grid = create_hemigrid(grid_type='equal_area', angular_resolution=10.0)
     >>> fig = visualize_grid_3d(
-    ...     grid, 
-    ...     data=vod_data, 
+    ...     grid,
+    ...     data=vod_data,
     ...     title="VOD 3D",
     ...     add_overlays=True
     ... )
     >>> fig.show()
-    
+
     """
     viz = HemisphereVisualizer3D(grid)
     fig = viz.plot_hemisphere_surface(

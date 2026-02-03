@@ -74,7 +74,7 @@ class Sp3File(AuxFile):
         """Get appropriate interpolation strategy for SP3 files."""
         config = Sp3Config(
             use_velocities=self.add_velocities,
-            fallback_method='linear',
+            fallback_method="linear",
         )
         return Sp3InterpolationStrategy(config=config)
 
@@ -114,17 +114,16 @@ class Sp3File(AuxFile):
         destination = self.local_dir / orbit_file
 
         file_info = {
-            'gps_week': gps_week,
-            'filename': orbit_file,
-            'type': 'orbit',
-            'agency': self.agency,
-            'latency': self.product_spec.latency_hours,
+            "gps_week": gps_week,
+            "filename": orbit_file,
+            "type": "orbit",
+            "agency": self.agency,
+            "latency": self.product_spec.latency_hours,
         }
 
         try:
             self.download_file(full_url, destination, file_info)
-            print(
-                f"Downloaded orbit file for {self.agency} on date {self.date}")
+            print(f"Downloaded orbit file for {self.agency} on date {self.date}")
         except Exception as e:
             raise RuntimeError(
                 f"Failed to download SP3 file from all available servers: {str(e)}"
@@ -168,14 +167,14 @@ class Sp3File(AuxFile):
     def _add_metadata(self, ds: xr.Dataset) -> xr.Dataset:
         """Add file-level metadata to dataset."""
         ds.attrs = {
-            'file': str(self.fpath.name),
-            'agency': self.agency,
-            'agency_name': self.product_spec.agency_name,
-            'product_type': self.product_type,
-            'ftp_server': self.ftp_server,
-            'date': self.date,
-            'sampling_rate': self.product_spec.sampling_rate,
-            'duration': self.product_spec.duration,
+            "file": str(self.fpath.name),
+            "agency": self.agency,
+            "agency_name": self.product_spec.agency_name,
+            "product_type": self.product_type,
+            "ftp_server": self.ftp_server,
+            "date": self.date,
+            "sampling_rate": self.product_spec.sampling_rate,
+            "duration": self.product_spec.duration,
         }
         return ds
 
@@ -196,28 +195,28 @@ class Sp3File(AuxFile):
             Dataset augmented with Vx, Vy, Vz velocities.
         """
         # Calculate time step
-        time_diffs = np.diff(ds['epoch'].values)
-        dt = np.median(time_diffs).astype('timedelta64[s]').astype(float)
+        time_diffs = np.diff(ds["epoch"].values)
+        dt = np.median(time_diffs).astype("timedelta64[s]").astype(float)
 
         # Initialize velocity arrays
-        vx = np.zeros_like(ds['X'].values)
-        vy = np.zeros_like(ds['Y'].values)
-        vz = np.zeros_like(ds['Z'].values)
+        vx = np.zeros_like(ds["X"].values)
+        vy = np.zeros_like(ds["Y"].values)
+        vz = np.zeros_like(ds["Z"].values)
 
         # Central difference for interior points
-        vx[1:-1] = (ds['X'].values[2:] - ds['X'].values[:-2]) / (2 * dt)
-        vy[1:-1] = (ds['Y'].values[2:] - ds['Y'].values[:-2]) / (2 * dt)
-        vz[1:-1] = (ds['Z'].values[2:] - ds['Z'].values[:-2]) / (2 * dt)
+        vx[1:-1] = (ds["X"].values[2:] - ds["X"].values[:-2]) / (2 * dt)
+        vy[1:-1] = (ds["Y"].values[2:] - ds["Y"].values[:-2]) / (2 * dt)
+        vz[1:-1] = (ds["Z"].values[2:] - ds["Z"].values[:-2]) / (2 * dt)
 
         # Forward difference for first point
-        vx[0] = (ds['X'].values[1] - ds['X'].values[0]) / dt
-        vy[0] = (ds['Y'].values[1] - ds['Y'].values[0]) / dt
-        vz[0] = (ds['Z'].values[1] - ds['Z'].values[0]) / dt
+        vx[0] = (ds["X"].values[1] - ds["X"].values[0]) / dt
+        vy[0] = (ds["Y"].values[1] - ds["Y"].values[0]) / dt
+        vz[0] = (ds["Z"].values[1] - ds["Z"].values[0]) / dt
 
         # Backward difference for last point
-        vx[-1] = (ds['X'].values[-1] - ds['X'].values[-2]) / dt
-        vy[-1] = (ds['Y'].values[-1] - ds['Y'].values[-2]) / dt
-        vz[-1] = (ds['Z'].values[-1] - ds['Z'].values[-2]) / dt
+        vx[-1] = (ds["X"].values[-1] - ds["X"].values[-2]) / dt
+        vy[-1] = (ds["Y"].values[-1] - ds["Y"].values[-2]) / dt
+        vz[-1] = (ds["Z"].values[-1] - ds["Z"].values[-2]) / dt
 
         # Add units if needed
         if not self.dimensionless:
@@ -227,9 +226,9 @@ class Sp3File(AuxFile):
 
         # Add to dataset
         ds = ds.assign(
-            Vx=(('epoch', 'sv'), vx),
-            Vy=(('epoch', 'sv'), vy),
-            Vz=(('epoch', 'sv'), vz),
+            Vx=(("epoch", "sv"), vx),
+            Vy=(("epoch", "sv"), vy),
+            Vz=(("epoch", "sv"), vz),
         )
 
         # Add velocity attributes
@@ -245,32 +244,32 @@ class Sp3File(AuxFile):
     ) -> dict[str, dict[str, str | float]]:
         """Get standardized attributes for velocity variables."""
         base_attrs = {
-            'units': 'm/s',
-            'computation_method': 'central_difference',
-            'time_step': float(dt),
-            'reference_frame': 'ECEF',
+            "units": "m/s",
+            "computation_method": "central_difference",
+            "time_step": float(dt),
+            "reference_frame": "ECEF",
         }
 
         return {
-            'Vx': {
-                'long_name': 'x-component of velocity',
-                'standard_name': 'v_x',
-                'short_name': 'v_x',
-                'axis': 'v_x',
+            "Vx": {
+                "long_name": "x-component of velocity",
+                "standard_name": "v_x",
+                "short_name": "v_x",
+                "axis": "v_x",
                 **base_attrs,
             },
-            'Vy': {
-                'long_name': 'y-component of velocity',
-                'standard_name': 'v_y',
-                'short_name': 'v_y',
-                'axis': 'v_y',
+            "Vy": {
+                "long_name": "y-component of velocity",
+                "standard_name": "v_y",
+                "short_name": "v_y",
+                "axis": "v_y",
                 **base_attrs,
             },
-            'Vz': {
-                'long_name': 'z-component of velocity',
-                'standard_name': 'v_z',
-                'short_name': 'v_z',
-                'axis': 'v_z',
+            "Vz": {
+                "long_name": "z-component of velocity",
+                "standard_name": "v_z",
+                "short_name": "v_z",
+                "axis": "v_z",
                 **base_attrs,
             },
         }

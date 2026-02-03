@@ -47,7 +47,8 @@ class DatasetMatcher:
 
         # Match datasets
         return self._match_temporal_resolution(
-            canopy_data_ds, canopy_interval, other_ds)
+            canopy_data_ds, canopy_interval, other_ds
+        )
 
     def _validate_inputs(
         self,
@@ -132,22 +133,25 @@ class DatasetMatcher:
 
             if ds_interval < canopy_interval:
                 # Higher resolution datasets use nearest neighbor
-                matched_datasets[name] = ds.interp(epoch=canopy_ds.epoch,
-                                                   method="nearest")
+                matched_datasets[name] = ds.interp(
+                    epoch=canopy_ds.epoch, method="nearest"
+                )
             else:
                 # Lower resolution datasets use their specialized interpolator
                 if "interpolator_config" in ds.attrs:
                     interpolator = create_interpolator_from_attrs(ds.attrs)
                     matched_datasets[name] = interpolator.interpolate(
-                        ds, canopy_ds.epoch)
+                        ds, canopy_ds.epoch
+                    )
                 else:
                     # Fallback to nearest neighbor if no interpolator configured
-                    matched_datasets[name] = ds.interp(epoch=canopy_ds.epoch,
-                                                       method="nearest")
+                    matched_datasets[name] = ds.interp(
+                        epoch=canopy_ds.epoch, method="nearest"
+                    )
 
                 # Track temporal distance for quality assessment
-                matched_datasets[name][
-                    f"{name.lower()}_temporal_distance"] = abs(
-                        matched_datasets[name]["epoch"] - ds["epoch"])
+                matched_datasets[name][f"{name.lower()}_temporal_distance"] = abs(
+                    matched_datasets[name]["epoch"] - ds["epoch"]
+                )
 
         return matched_datasets

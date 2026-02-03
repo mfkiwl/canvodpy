@@ -52,7 +52,7 @@ def find_monorepo_root() -> Path:
             return monorepo_root
     except Exception:
         pass
-    
+
     raise RuntimeError("Cannot find monorepo root (no .git directory found)")
 
 
@@ -127,8 +127,7 @@ def init(
     except RuntimeError:
         # Fallback to path calculation if monorepo root not found
         template_dir = (
-            Path(__file__).parent.parent.parent.parent.parent.parent.parent
-            / "config"
+            Path(__file__).parent.parent.parent.parent.parent.parent.parent / "config"
         )
 
     if not template_dir.exists():
@@ -159,9 +158,7 @@ def init(
             shutil.copy(template_path, dest_path)
             files_created.append(dest_path)
         else:
-            console.print(
-                f"[yellow]⚠️  Template not found: {template_path}[/yellow]"
-            )
+            console.print(f"[yellow]⚠️  Template not found: {template_path}[/yellow]")
 
     # Show results
     if files_created:
@@ -214,13 +211,14 @@ def validate(
 
         console.print(f"\n  SID mode: {config.sids.mode}")
         console.print(f"  Agency: {config.processing.aux_data.agency}")
-        
+
         # Get credentials from settings (not from config YAML)
         try:
             from canvodpy.settings import get_settings
+
             settings = get_settings()
             console.print(f"  GNSS root: {settings.gnss_root_path}")
-            
+
             if settings.has_cddis_credentials:
                 console.print(f"  CDDIS mail: {settings.cddis_mail}")
                 console.print("  [green]✓ NASA CDDIS enabled[/green]")
@@ -228,8 +226,7 @@ def validate(
                 console.print("  [yellow]⊘ NASA CDDIS disabled (ESA only)[/yellow]")
         except ImportError:
             console.print(
-                "  [yellow]⊘ Settings not available "
-                "(install canvodpy package)[/yellow]"
+                "  [yellow]⊘ Settings not available (install canvodpy package)[/yellow]"
             )
 
         console.print()
@@ -365,7 +362,7 @@ def _show_processing(config: ProcessingConfig) -> None:
             "",
             "[dim](CDDIS_MAIL, GNSS_ROOT_DIR)[/dim]",
         )
-    
+
     table.add_row("Agency", config.aux_data.agency)
     table.add_row("Product Type", config.aux_data.product_type)
     table.add_row("Max Threads", str(config.processing.n_max_threads))
@@ -374,9 +371,7 @@ def _show_processing(config: ProcessingConfig) -> None:
         f"{config.processing.time_aggregation_seconds}s",
     )
     glonass_mode = (
-        "Aggregated"
-        if config.processing.aggregate_glonass_fdma
-        else "Individual"
+        "Aggregated" if config.processing.aggregate_glonass_fdma else "Individual"
     )
     table.add_row("GLONASS FDMA", glonass_mode)
     console.print(table)

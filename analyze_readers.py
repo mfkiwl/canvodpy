@@ -53,7 +53,9 @@ def has_numpy_docstring(node: ast.FunctionDef) -> tuple[bool, list[str]]:
 
     # Check for required sections in public functions
     if not node.name.startswith("_"):
-        if "Parameters" not in docstring and len(node.args.args) > 1:  # More than just self
+        if (
+            "Parameters" not in docstring and len(node.args.args) > 1
+        ):  # More than just self
             issues.append("Missing 'Parameters' section")
 
         # Check for Returns section (unless __init__)
@@ -83,11 +85,15 @@ def analyze_file(filepath: Path) -> FileReport:
 
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef):
-            rel_path = filepath.relative_to("/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers")
+            rel_path = filepath.relative_to(
+                "/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers"
+            )
 
             # Check docstring
             has_doc, doc_issues = has_numpy_docstring(node)
-            if not has_doc and not node.name.startswith("_"):  # Only report public functions
+            if not has_doc and not node.name.startswith(
+                "_"
+            ):  # Only report public functions
                 functions_without_docstrings.append(
                     FunctionIssue(node.name, node.lineno, str(rel_path), doc_issues)
                 )
@@ -96,14 +102,21 @@ def analyze_file(filepath: Path) -> FileReport:
             if node.returns is None and node.name not in ["__init__", "__post_init__"]:
                 if not node.name.startswith("_"):  # Only report public functions
                     functions_without_return_hints.append(
-                        FunctionIssue(node.name, node.lineno, str(rel_path), ["No return hint"])
+                        FunctionIssue(
+                            node.name, node.lineno, str(rel_path), ["No return hint"]
+                        )
                     )
 
             # Special handling for __init__ and __post_init__
             if node.name in ["__init__", "__post_init__"]:
                 if node.returns is None:
                     functions_without_return_hints.append(
-                        FunctionIssue(node.name, node.lineno, str(rel_path), ["Should have -> None"])
+                        FunctionIssue(
+                            node.name,
+                            node.lineno,
+                            str(rel_path),
+                            ["Should have -> None"],
+                        )
                     )
 
             # Check argument type hints
@@ -127,23 +140,29 @@ def analyze_file(filepath: Path) -> FileReport:
                                 parent_class = n.name
                                 break
 
-                init_methods.append({
-                    "class": parent_class or "Unknown",
-                    "method": node.name,
-                    "line": node.lineno,
-                    "file": str(rel_path),
-                    "has_docstring": bool(ast.get_docstring(node)),
-                    "has_return_hint": node.returns is not None,
-                    "missing_arg_hints": missing_args
-                })
+                init_methods.append(
+                    {
+                        "class": parent_class or "Unknown",
+                        "method": node.name,
+                        "line": node.lineno,
+                        "file": str(rel_path),
+                        "has_docstring": bool(ast.get_docstring(node)),
+                        "has_return_hint": node.returns is not None,
+                        "missing_arg_hints": missing_args,
+                    }
+                )
 
     return FileReport(
-        str(filepath.relative_to("/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers")),
+        str(
+            filepath.relative_to(
+                "/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers"
+            )
+        ),
         functions_without_docstrings,
         functions_without_return_hints,
         functions_with_missing_arg_hints,
         old_typing,
-        init_methods
+        init_methods,
     )
 
 
@@ -163,9 +182,15 @@ def main():
     print("=" * 80)
 
     # Summary statistics
-    total_missing_docstrings = sum(len(r.functions_without_docstrings) for r in all_reports)
-    total_missing_return_hints = sum(len(r.functions_without_return_hints) for r in all_reports)
-    total_missing_arg_hints = sum(len(r.functions_with_missing_arg_hints) for r in all_reports)
+    total_missing_docstrings = sum(
+        len(r.functions_without_docstrings) for r in all_reports
+    )
+    total_missing_return_hints = sum(
+        len(r.functions_without_return_hints) for r in all_reports
+    )
+    total_missing_arg_hints = sum(
+        len(r.functions_with_missing_arg_hints) for r in all_reports
+    )
     total_old_typing = sum(1 for r in all_reports if r.old_typing_imports)
     total_init_methods = sum(len(r.init_methods) for r in all_reports)
 
@@ -211,7 +236,9 @@ def main():
         if report.functions_with_missing_arg_hints:
             print(f"\n📁 {report.filepath}")
             for func in report.functions_with_missing_arg_hints:
-                print(f"   ⚠️  {func.name} (line {func.line}): missing hints for {', '.join(func.issues)}")
+                print(
+                    f"   ⚠️  {func.name} (line {func.line}): missing hints for {', '.join(func.issues)}"
+                )
 
     print("\n" + "=" * 80)
     print("5. __init__ AND __post_init__ METHODS AUDIT")
@@ -226,10 +253,14 @@ def main():
                 if not method["has_docstring"]:
                     status.append("❌ No docstring")
                 if method["missing_arg_hints"]:
-                    status.append(f"⚠️  Missing hints: {', '.join(method['missing_arg_hints'])}")
+                    status.append(
+                        f"⚠️  Missing hints: {', '.join(method['missing_arg_hints'])}"
+                    )
 
                 status_str = "; ".join(status) if status else "✅ OK"
-                print(f"   {method['class']}.{method['method']} (line {method['line']}): {status_str}")
+                print(
+                    f"   {method['class']}.{method['method']} (line {method['line']}): {status_str}"
+                )
 
     # Priority recommendations
     print("\n" + "=" * 80)
@@ -243,16 +274,22 @@ def main():
         print("   Replace: List[X] → list[X]")
 
     if total_missing_return_hints > 0:
-        print(f"\n2. ADD RETURN TYPE HINTS (HIGH PRIORITY - {total_missing_return_hints} functions)")
+        print(
+            f"\n2. ADD RETURN TYPE HINTS (HIGH PRIORITY - {total_missing_return_hints} functions)"
+        )
         print("   All functions need explicit return types")
         print("   __init__/__post_init__ need -> None")
 
     if total_missing_docstrings > 0:
-        print(f"\n3. ADD DOCSTRINGS (MEDIUM PRIORITY - {total_missing_docstrings} functions)")
+        print(
+            f"\n3. ADD DOCSTRINGS (MEDIUM PRIORITY - {total_missing_docstrings} functions)"
+        )
         print("   Use NumPy style with Parameters/Returns/Raises sections")
 
     if total_missing_arg_hints > 0:
-        print(f"\n4. COMPLETE ARGUMENT TYPE HINTS (MEDIUM PRIORITY - {total_missing_arg_hints} functions)")
+        print(
+            f"\n4. COMPLETE ARGUMENT TYPE HINTS (MEDIUM PRIORITY - {total_missing_arg_hints} functions)"
+        )
         print("   All arguments except self/cls need type hints")
 
 

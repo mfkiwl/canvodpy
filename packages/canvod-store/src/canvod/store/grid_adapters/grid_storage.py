@@ -699,8 +699,16 @@ except (ImportError, AttributeError):  # pragma: no cover - legacy Polars
             True if dtype is numeric.
         """
         numeric_dtypes = {
-            pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.UInt8, pl.UInt16,
-            pl.UInt32, pl.UInt64, pl.Float32, pl.Float64
+            pl.Int8,
+            pl.Int16,
+            pl.Int32,
+            pl.Int64,
+            pl.UInt8,
+            pl.UInt16,
+            pl.UInt32,
+            pl.UInt64,
+            pl.Float32,
+            pl.Float64,
         }
         return dtype in numeric_dtypes
 
@@ -731,14 +739,18 @@ class CoordinateSystem(BaseModel):
     -----
     This is a Pydantic model used to validate serialized metadata fields.
     """
+
     phi_description: str = Field(
         default="azimuth [0, 2π) radians, 0=North, increases clockwise",
-        description="Azimuthal angle convention")
+        description="Azimuthal angle convention",
+    )
     theta_description: str = Field(
         default="polar angle [0, π/2] radians from zenith",
-        description="Polar angle convention")
-    reference: str = Field(default="unit sphere, radius = 1",
-                           description="Coordinate reference")
+        description="Polar angle convention",
+    )
+    reference: str = Field(
+        default="unit sphere, radius = 1", description="Coordinate reference"
+    )
 
 
 class GridMetadata(BaseModel):
@@ -748,17 +760,16 @@ class GridMetadata(BaseModel):
     -----
     This is a Pydantic model used to validate serialized metadata fields.
     """
-    grid_type: str = Field(...,
-                           description="Grid type (htm, equal_area, geodesic)")
+
+    grid_type: str = Field(..., description="Grid type (htm, equal_area, geodesic)")
     angular_resolution: float = Field(
-        ..., gt=0, description="Angular resolution in degrees")
-    cutoff_theta: float = Field(...,
-                                ge=0,
-                                le=np.pi / 2,
-                                description="Cutoff angle in radians")
+        ..., gt=0, description="Angular resolution in degrees"
+    )
+    cutoff_theta: float = Field(
+        ..., ge=0, le=np.pi / 2, description="Cutoff angle in radians"
+    )
     ncells: int = Field(..., gt=0, description="Number of cells")
-    coordinate_system: CoordinateSystem = Field(
-        default_factory=CoordinateSystem)
+    coordinate_system: CoordinateSystem = Field(default_factory=CoordinateSystem)
     creation_timestamp: str = Field(..., description="ISO 8601 timestamp")
     creation_software: str = Field(..., description="Software version")
     grid_hash: str = Field(..., description="SHA256 hash of grid definition")
@@ -801,24 +812,23 @@ class GridSpecificMetadata(BaseModel):
     -----
     This is a Pydantic model used to validate serialized metadata fields.
     """
-    htm_level: int | None = Field(None,
-                                     ge=0,
-                                     description="HTM subdivision level")
-    base_triangles: int | None = Field(
-        None, description="Number of base triangles")
+
+    htm_level: int | None = Field(None, ge=0, description="HTM subdivision level")
+    base_triangles: int | None = Field(None, description="Number of base triangles")
     n_theta_bands: int | None = Field(
-        None, ge=1, description="Number of latitude bands")
+        None, ge=1, description="Number of latitude bands"
+    )
     cells_per_band: list[int] | None = Field(
-        None, description="Cells per latitude band")
+        None, description="Cells per latitude band"
+    )
     subdivision_frequency: int | None = Field(
-        None, ge=1, description="Geodesic subdivision")
-    base_icosahedron: bool | None = Field(
-        None, description="Based on icosahedron")
-    healpix_nside: int | None = Field(None,
-                                         ge=1,
-                                         description="HEALPix nside parameter")
+        None, ge=1, description="Geodesic subdivision"
+    )
+    base_icosahedron: bool | None = Field(None, description="Based on icosahedron")
+    healpix_nside: int | None = Field(None, ge=1, description="HEALPix nside parameter")
     fibonacci_n_points: int | None = Field(
-        None, ge=1, description="Number of Fibonacci spiral points")
+        None, ge=1, description="Number of Fibonacci spiral points"
+    )
 
 
 # ==============================================================================
@@ -836,14 +846,13 @@ def get_default_compressor() -> Blosc | dict | None:
         Default compressor instance or configuration
     """
     try:
-        return Blosc(cname='zstd', clevel=5, shuffle=2)
+        return Blosc(cname="zstd", clevel=5, shuffle=2)
     except Exception:
         # Fallback to dict configuration
-        return {'id': 'blosc', 'cname': 'zstd', 'clevel': 5, 'shuffle': 2}
+        return {"id": "blosc", "cname": "zstd", "clevel": 5, "shuffle": 2}
 
 
-def configure_compressor(
-        compressor: Blosc | dict | str | None) -> Blosc | dict | None:
+def configure_compressor(compressor: Blosc | dict | str | None) -> Blosc | dict | None:
     """
     Configure compressor from various input types.
 
@@ -864,12 +873,7 @@ def configure_compressor(
         try:
             return Blosc(cname=compressor, clevel=5, shuffle=2)
         except Exception:
-            return {
-                'id': 'blosc',
-                'cname': compressor,
-                'clevel': 5,
-                'shuffle': 2
-            }
+            return {"id": "blosc", "cname": compressor, "clevel": 5, "shuffle": 2}
     elif isinstance(compressor, dict):
         # Dict config -> create Blosc instance if possible
         try:
@@ -887,8 +891,9 @@ def configure_compressor(
 # ==============================================================================
 
 
-def compute_grid_hash(phi: np.ndarray, theta: np.ndarray, grid_type: str,
-                      angular_resolution: float) -> str:
+def compute_grid_hash(
+    phi: np.ndarray, theta: np.ndarray, grid_type: str, angular_resolution: float
+) -> str:
     """
     Compute SHA256 hash of grid definition.
 
@@ -971,6 +976,7 @@ class KDTreeCache:
 
         try:
             import pickle
+
             with open(cache_path, "rb") as f:
                 tree = pickle.load(f)
 
@@ -1003,6 +1009,7 @@ class KDTreeCache:
 
         try:
             import pickle
+
             with open(cache_path, "wb") as f:
                 pickle.dump(tree, f, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -1217,7 +1224,7 @@ class LoadedGrid:
             Cell boundary data (phi_min, phi_max, theta_min, theta_max, etc.)
         """
         try:
-            cell_row = self.cells.filter(pl.col('cell_id') == cell_id)
+            cell_row = self.cells.filter(pl.col("cell_id") == cell_id)
             if len(cell_row) == 0:
                 return None
             return cell_row.to_dicts()[0]
@@ -1242,7 +1249,7 @@ class LoadedGrid:
             return None
 
         try:
-            return self.vertices.filter(pl.col('cell_id') == cell_id)
+            return self.vertices.filter(pl.col("cell_id") == cell_id)
         except Exception:
             return None
 
@@ -1264,8 +1271,8 @@ class LoadedGrid:
             return None
 
         try:
-            neighbors = self.neighbors.filter(pl.col('cell_id') == cell_id)
-            return neighbors['neighbor_id'].to_list()
+            neighbors = self.neighbors.filter(pl.col("cell_id") == cell_id)
+            return neighbors["neighbor_id"].to_list()
         except Exception:
             return None
 
@@ -1284,10 +1291,12 @@ class LoadedGrid:
         )
 
 
-def load_grid_from_zarr(zarr_group: zarr.Group,
-                        grid_name: str,
-                        load_vertices: bool = True,
-                        load_neighbors: bool = True) -> LoadedGrid:
+def load_grid_from_zarr(
+    zarr_group: zarr.Group,
+    grid_name: str,
+    load_vertices: bool = True,
+    load_neighbors: bool = True,
+) -> LoadedGrid:
     """
     Load grid from zarr group.
 
@@ -1310,26 +1319,23 @@ def load_grid_from_zarr(zarr_group: zarr.Group,
     logger = get_logger()
     logger.info(f"Loading grid '{grid_name}' from zarr...")
 
-    grid_group = zarr_group[f'grids/{grid_name}']
+    grid_group = zarr_group[f"grids/{grid_name}"]
 
     # Load and validate metadata
     metadata = GridMetadata(**dict(grid_group.attrs))
 
     # Load cells
-    cells_group = grid_group['cells']
-    cell_data = {
-        name: cells_group[name][:]
-        for name in cells_group.array_keys()
-    }
+    cells_group = grid_group["cells"]
+    cell_data = {name: cells_group[name][:] for name in cells_group.array_keys()}
     df_cells = pl.DataFrame(cell_data)
 
     logger.debug(f"  ✓ Loaded {len(df_cells)} cells")
 
     # Load vertices if requested
     df_vertices = None
-    if load_vertices and 'vertices' in grid_group:
-        vertices_group = grid_group['vertices']
-        offsets = vertices_group['offsets'][:]
+    if load_vertices and "vertices" in grid_group:
+        vertices_group = grid_group["vertices"]
+        offsets = vertices_group["offsets"][:]
 
         # Reconstruct vertex DataFrame from ragged arrays
         vertex_rows = []
@@ -1338,25 +1344,27 @@ def load_grid_from_zarr(zarr_group: zarr.Group,
             end = offsets[cell_idx + 1]
 
             for vert_idx, i in enumerate(range(start, end)):
-                vertex_rows.append({
-                    'cell_id': df_cells['cell_id'][cell_idx],
-                    'vertex_idx': vert_idx,
-                    'phi': vertices_group['phi'][i],
-                    'theta': vertices_group['theta'][i],
-                    'x': vertices_group['x'][i],
-                    'y': vertices_group['y'][i],
-                    'z': vertices_group['z'][i],
-                })
+                vertex_rows.append(
+                    {
+                        "cell_id": df_cells["cell_id"][cell_idx],
+                        "vertex_idx": vert_idx,
+                        "phi": vertices_group["phi"][i],
+                        "theta": vertices_group["theta"][i],
+                        "x": vertices_group["x"][i],
+                        "y": vertices_group["y"][i],
+                        "z": vertices_group["z"][i],
+                    }
+                )
 
         df_vertices = pl.DataFrame(vertex_rows)
         logger.debug(f"  ✓ Loaded {len(df_vertices)} vertices")
 
     # Load neighbors if requested
     df_neighbors = None
-    if load_neighbors and 'neighbors' in grid_group:
-        neighbors_group = grid_group['neighbors']
-        offsets = neighbors_group['offsets'][:]
-        neighbor_ids = neighbors_group['cell_ids'][:]
+    if load_neighbors and "neighbors" in grid_group:
+        neighbors_group = grid_group["neighbors"]
+        offsets = neighbors_group["offsets"][:]
+        neighbor_ids = neighbors_group["cell_ids"][:]
 
         # Reconstruct neighbor DataFrame
         neighbor_rows = []
@@ -1365,27 +1373,31 @@ def load_grid_from_zarr(zarr_group: zarr.Group,
             end = offsets[cell_idx + 1]
 
             for i in range(start, end):
-                neighbor_rows.append({
-                    'cell_id': df_cells['cell_id'][cell_idx],
-                    'neighbor_id': neighbor_ids[i]
-                })
+                neighbor_rows.append(
+                    {
+                        "cell_id": df_cells["cell_id"][cell_idx],
+                        "neighbor_id": neighbor_ids[i],
+                    }
+                )
 
         df_neighbors = pl.DataFrame(neighbor_rows)
         logger.debug(f"  ✓ Loaded {len(df_neighbors)} neighbor relationships")
 
     # Load grid-specific metadata
     specific_metadata = {}
-    if 'metadata' in grid_group:
-        specific_metadata = dict(grid_group['metadata'].attrs)
+    if "metadata" in grid_group:
+        specific_metadata = dict(grid_group["metadata"].attrs)
 
     logger.info(f"✓ Grid '{grid_name}' loaded successfully")
 
-    return LoadedGrid(grid_name=grid_name,
-                      cells=df_cells,
-                      metadata=metadata,
-                      vertices=df_vertices,
-                      neighbors=df_neighbors,
-                      specific_metadata=specific_metadata)
+    return LoadedGrid(
+        grid_name=grid_name,
+        cells=df_cells,
+        metadata=metadata,
+        vertices=df_vertices,
+        neighbors=df_neighbors,
+        specific_metadata=specific_metadata,
+    )
 
 
 # ==============================================================================
@@ -1443,17 +1455,19 @@ def write_grid_to_zarr(
     logger.info(f"Writing grid '{grid_name}' to zarr...")
 
     # Create grid group
-    grid_group = zarr_group.require_group(f'grids/{grid_name}')
+    grid_group = zarr_group.require_group(f"grids/{grid_name}")
 
     # Compute grid hash
-    grid_hash = compute_grid_hash(df_cells['phi'].to_numpy(),
-                                  df_cells['theta'].to_numpy(),
-                                  metadata['grid_type'],
-                                  metadata['angular_resolution'])
+    grid_hash = compute_grid_hash(
+        df_cells["phi"].to_numpy(),
+        df_cells["theta"].to_numpy(),
+        metadata["grid_type"],
+        metadata["angular_resolution"],
+    )
 
     # Add hash to metadata
     metadata = metadata.copy() if metadata else {}
-    metadata['grid_hash'] = grid_hash
+    metadata["grid_hash"] = grid_hash
 
     # Validate metadata
     try:
@@ -1465,15 +1479,15 @@ def write_grid_to_zarr(
 
     # Write cells
     logger.debug("  Writing cell data...")
-    cells_group = grid_group.require_group('cells')
+    cells_group = grid_group.require_group("cells")
 
     for col in df_cells.columns:
         data = df_cells[col].to_numpy()
 
         # Determine dtype
-        if col == 'cell_id':
+        if col == "cell_id":
             dtype = np.int32
-        elif col == 'is_boundary':
+        elif col == "is_boundary":
             dtype = np.uint8
         else:
             dtype = np.float32
@@ -1481,79 +1495,85 @@ def write_grid_to_zarr(
         cells_group.create_array(
             name=col,
             data=data.astype(dtype),
-            chunks=(len(data), ),  # Single chunk
+            chunks=(len(data),),  # Single chunk
             compressor=compressor,
-            overwrite=True)
+            overwrite=True,
+        )
 
     logger.debug(f"  ✓ Wrote {len(df_cells)} cells")
 
     # Write vertices (ragged)
     if df_vertices is not None:
         logger.debug("  Writing vertex data...")
-        vertices_group = grid_group.require_group('vertices')
+        vertices_group = grid_group.require_group("vertices")
 
         # Group by cell_id to create ragged structure
-        grouped = df_vertices.group_by('cell_id', maintain_order=True)
+        grouped = df_vertices.group_by("cell_id", maintain_order=True)
 
         # Flatten all vertices
-        for col in ['phi', 'theta', 'x', 'y', 'z']:
+        for col in ["phi", "theta", "x", "y", "z"]:
             if col in df_vertices.columns:
-                vertices_group.array(name=col,
-                                     data=df_vertices[col].to_numpy().astype(
-                                         np.float32),
-                                     chunks=(10000, ),
-                                     compressor=compressor,
-                                     overwrite=True)
+                vertices_group.array(
+                    name=col,
+                    data=df_vertices[col].to_numpy().astype(np.float32),
+                    chunks=(10000,),
+                    compressor=compressor,
+                    overwrite=True,
+                )
 
         # Create offsets array
         offsets = [0]
         for cell_id, group_df in grouped:
             offsets.append(offsets[-1] + len(group_df))
 
-        vertices_group.create_array(name='offsets',
-                                    data=np.array(offsets, dtype=np.int32),
-                                    chunks=(len(offsets), ),
-                                    compressor=compressor,
-                                    overwrite=True)
+        vertices_group.create_array(
+            name="offsets",
+            data=np.array(offsets, dtype=np.int32),
+            chunks=(len(offsets),),
+            compressor=compressor,
+            overwrite=True,
+        )
 
         logger.debug(f"  ✓ Wrote {len(df_vertices)} vertices")
 
     # Write neighbors (ragged)
     if df_neighbors is not None:
         logger.debug("  Writing neighbor data...")
-        neighbors_group = grid_group.require_group('neighbors')
+        neighbors_group = grid_group.require_group("neighbors")
 
         # Group by cell_id
-        grouped = df_neighbors.group_by('cell_id', maintain_order=True)
+        grouped = df_neighbors.group_by("cell_id", maintain_order=True)
 
         # Flatten all neighbor IDs
         neighbors_group.create_array(
-            name='cell_ids',
-            data=df_neighbors['neighbor_id'].to_numpy().astype(np.int32),
-            chunks=(10000, ),
+            name="cell_ids",
+            data=df_neighbors["neighbor_id"].to_numpy().astype(np.int32),
+            chunks=(10000,),
             compressor=compressor,
-            overwrite=True)
+            overwrite=True,
+        )
 
         # Create offsets
         offsets = [0]
         for cell_id, group_df in grouped:
             offsets.append(offsets[-1] + len(group_df))
 
-        neighbors_group.create_array(name='offsets',
-                                     data=np.array(offsets, dtype=np.int32),
-                                     chunks=(len(offsets), ),
-                                     compressor=compressor,
-                                     overwrite=True)
+        neighbors_group.create_array(
+            name="offsets",
+            data=np.array(offsets, dtype=np.int32),
+            chunks=(len(offsets),),
+            compressor=compressor,
+            overwrite=True,
+        )
 
         logger.debug(f"  ✓ Wrote {len(df_neighbors)} neighbor relationships")
 
     # Write grid-specific metadata
     if specific_metadata:
-        metadata_group = grid_group.require_group('metadata')
+        metadata_group = grid_group.require_group("metadata")
         try:
             spec_meta = GridSpecificMetadata(**specific_metadata)
-            metadata_group.attrs.update(
-                spec_meta.model_dump(exclude_none=True))
+            metadata_group.attrs.update(spec_meta.model_dump(exclude_none=True))
         except Exception as e:
             logger.warning(f"Grid-specific metadata validation failed: {e}")
             metadata_group.attrs.update(specific_metadata)
@@ -1564,15 +1584,13 @@ def write_grid_to_zarr(
     return grid_hash
 
 
-def _compute_offsets(df_cells: pl.DataFrame,
-                     counts_df: pl.DataFrame) -> np.ndarray:
+def _compute_offsets(df_cells: pl.DataFrame, counts_df: pl.DataFrame) -> np.ndarray:
     """Compute ragged offsets aligned with cell ordering."""
-    cell_ids = df_cells['cell_id'].to_numpy()
+    cell_ids = df_cells["cell_id"].to_numpy()
     offsets = np.zeros(len(cell_ids) + 1, dtype=np.int32)
 
     counts_map = {
-        int(row['cell_id']): int(row['len'])
-        for row in counts_df.iter_rows(named=True)
+        int(row["cell_id"]): int(row["len"]) for row in counts_df.iter_rows(named=True)
     }
 
     total = 0
@@ -1591,109 +1609,108 @@ def _build_cells_dataset(df_cells: pl.DataFrame) -> xr.Dataset:
     logger = get_logger()
 
     dtype_overrides: dict[str, Any] = {
-        'cell_id': np.int32,
-        'is_boundary': np.bool_,
-        'phi': np.float32,
-        'theta': np.float32,
-        'x': np.float32,
-        'y': np.float32,
-        'z': np.float32,
-        'solid_angle': np.float32,
-        'phi_min': np.float32,
-        'phi_max': np.float32,
-        'theta_min': np.float32,
-        'theta_max': np.float32,
+        "cell_id": np.int32,
+        "is_boundary": np.bool_,
+        "phi": np.float32,
+        "theta": np.float32,
+        "x": np.float32,
+        "y": np.float32,
+        "z": np.float32,
+        "solid_angle": np.float32,
+        "phi_min": np.float32,
+        "phi_max": np.float32,
+        "theta_min": np.float32,
+        "theta_max": np.float32,
     }
 
     data_vars = {}
     for col, dtype in df_cells.schema.items():
         if not (is_numeric_dtype(dtype) or is_boolean_dtype(dtype)):
-            logger.debug(
-                f"Skipping non-scalar cell column '{col}' (dtype={dtype})")
+            logger.debug(f"Skipping non-scalar cell column '{col}' (dtype={dtype})")
             continue
 
         arr = df_cells[col].to_numpy()
         target_dtype = dtype_overrides.get(col)
         if target_dtype is not None:
             arr = arr.astype(target_dtype)
-        data_vars[col] = ('cell', arr)
+        data_vars[col] = ("cell", arr)
 
-    coords = {'cell': ('cell', np.arange(df_cells.height, dtype=np.int32))}
+    coords = {"cell": ("cell", np.arange(df_cells.height, dtype=np.int32))}
     return xr.Dataset(data_vars=data_vars, coords=coords)
 
 
 def _build_vertices_dataset(
-        df_cells: pl.DataFrame,
-        df_vertices: pl.DataFrame | None) -> xr.Dataset | None:
+    df_cells: pl.DataFrame, df_vertices: pl.DataFrame | None
+) -> xr.Dataset | None:
     """Convert vertices dataframe to dataset with ragged representation."""
     if df_vertices is None or df_vertices.is_empty():
         return None
 
     df = df_vertices
 
-    if 'vertex_idx' not in df.columns:
-        df = df.sort('cell_id').with_columns(
-            pl.col('cell_id').cumcount().over('cell_id').alias('vertex_idx'))
+    if "vertex_idx" not in df.columns:
+        df = df.sort("cell_id").with_columns(
+            pl.col("cell_id").cumcount().over("cell_id").alias("vertex_idx")
+        )
 
     order_map = {
-        int(cell_id): idx
-        for idx, cell_id in enumerate(df_cells['cell_id'].to_numpy())
+        int(cell_id): idx for idx, cell_id in enumerate(df_cells["cell_id"].to_numpy())
     }
 
-    order_df = pl.DataFrame({
-        'cell_id': list(order_map.keys()),
-        '_cell_order': list(order_map.values())
-    })
+    order_df = pl.DataFrame(
+        {"cell_id": list(order_map.keys()), "_cell_order": list(order_map.values())}
+    )
 
-    df = (df.join(order_df, on='cell_id', how='left')
-            .with_columns(pl.col('_cell_order').fill_null(-1))
-            .sort(['_cell_order', 'vertex_idx'])
-            .drop('_cell_order'))
+    df = (
+        df.join(order_df, on="cell_id", how="left")
+        .with_columns(pl.col("_cell_order").fill_null(-1))
+        .sort(["_cell_order", "vertex_idx"])
+        .drop("_cell_order")
+    )
 
-    counts_df = df.group_by('cell_id', maintain_order=True).len()
+    counts_df = df.group_by("cell_id", maintain_order=True).len()
     offsets = _compute_offsets(df_cells, counts_df)
 
     dtype_overrides: dict[str, Any] = {
-        'cell_id': np.int32,
-        'vertex_idx': np.int32,
-        'phi': np.float32,
-        'theta': np.float32,
-        'x': np.float32,
-        'y': np.float32,
-        'z': np.float32,
+        "cell_id": np.int32,
+        "vertex_idx": np.int32,
+        "phi": np.float32,
+        "theta": np.float32,
+        "x": np.float32,
+        "y": np.float32,
+        "z": np.float32,
     }
 
     data_vars = {}
     for col, dtype in dtype_overrides.items():
         if col in df.columns:
-            data_vars[col] = ('vertex', df[col].to_numpy().astype(dtype))
+            data_vars[col] = ("vertex", df[col].to_numpy().astype(dtype))
 
-    coords = {'vertex': ('vertex', np.arange(df.height, dtype=np.int32))}
+    coords = {"vertex": ("vertex", np.arange(df.height, dtype=np.int32))}
     ds = xr.Dataset(data_vars=data_vars, coords=coords)
-    ds['offsets'] = ('offset', offsets.astype(np.int32))
+    ds["offsets"] = ("offset", offsets.astype(np.int32))
     return ds
 
 
 def _build_neighbors_dataset(
-        df_cells: pl.DataFrame,
-        df_neighbors: pl.DataFrame | None) -> xr.Dataset | None:
+    df_cells: pl.DataFrame, df_neighbors: pl.DataFrame | None
+) -> xr.Dataset | None:
     """Convert neighbor dataframe to dataset with ragged representation."""
     if df_neighbors is None or df_neighbors.is_empty():
         return None
 
-    df = df_neighbors.sort(['cell_id', 'neighbor_id'])
-    counts_df = df.group_by('cell_id', maintain_order=True).len()
+    df = df_neighbors.sort(["cell_id", "neighbor_id"])
+    counts_df = df.group_by("cell_id", maintain_order=True).len()
     offsets = _compute_offsets(df_cells, counts_df)
 
     data_vars = {
-        'cell_id': ('neighbor', df['cell_id'].to_numpy().astype(np.int32)),
-        'neighbor_id':
-        ('neighbor', df['neighbor_id'].to_numpy().astype(np.int32)),
+        "cell_id": ("neighbor", df["cell_id"].to_numpy().astype(np.int32)),
+        "neighbor_id": ("neighbor", df["neighbor_id"].to_numpy().astype(np.int32)),
     }
 
-    coords = {'neighbor': ('neighbor', np.arange(df.height, dtype=np.int32))}
+    coords = {"neighbor": ("neighbor", np.arange(df.height, dtype=np.int32))}
     ds = xr.Dataset(data_vars=data_vars, coords=coords)
-    ds['offsets'] = ('offset', offsets.astype(np.int32))
+    ds["offsets"] = ("offset", offsets.astype(np.int32))
     return ds
 
 
@@ -1763,7 +1780,7 @@ def write_grid_to_icechunk(
         metadata["grid_type"],
         metadata["angular_resolution"],
     )
-    metadata['grid_hash'] = grid_hash
+    metadata["grid_hash"] = grid_hash
 
     grid_meta = GridMetadata(**metadata)
     cells_ds = _build_cells_dataset(df_cells)
@@ -1772,29 +1789,23 @@ def write_grid_to_icechunk(
 
     vertices_ds = _build_vertices_dataset(df_cells, df_vertices)
     if vertices_ds is not None:
-        to_icechunk(vertices_ds,
-                    session,
-                    group=f'{grid_path}/vertices',
-                    mode='w')
+        to_icechunk(vertices_ds, session, group=f"{grid_path}/vertices", mode="w")
 
     neighbors_ds = _build_neighbors_dataset(df_cells, df_neighbors)
     if neighbors_ds is not None:
-        to_icechunk(neighbors_ds,
-                    session,
-                    group=f'{grid_path}/neighbors',
-                    mode='w')
+        to_icechunk(neighbors_ds, session, group=f"{grid_path}/neighbors", mode="w")
 
     meta_ds = xr.Dataset()
-    meta_ds.attrs['grid_metadata'] = json.dumps(
-        grid_meta.model_dump(exclude_none=True))
+    meta_ds.attrs["grid_metadata"] = json.dumps(grid_meta.model_dump(exclude_none=True))
 
     if specific_metadata:
         spec_meta = GridSpecificMetadata(**specific_metadata)
-        meta_ds.attrs['grid_specific_metadata'] = json.dumps(
-            spec_meta.model_dump(exclude_none=True))
+        meta_ds.attrs["grid_specific_metadata"] = json.dumps(
+            spec_meta.model_dump(exclude_none=True)
+        )
 
-    meta_ds.attrs['format'] = 'gnssvodpy.grid.v1'
-    to_icechunk(meta_ds, session, group=f'{grid_path}/metadata', mode='w')
+    meta_ds.attrs["format"] = "gnssvodpy.grid.v1"
+    to_icechunk(meta_ds, session, group=f"{grid_path}/metadata", mode="w")
 
     logger.info(f"✓ Grid '{grid_name}' written successfully via Icechunk")
     logger.info(f"  Hash: {grid_hash[:16]}...")
@@ -1866,19 +1877,20 @@ def load_grid_from_icechunk(
     df_vertices = None
     if load_vertices:
         try:
-            vertices_ds = xr.open_zarr(store=store,
-                                       group=f'{grid_path}/vertices',
-                                       consolidated=False)
+            vertices_ds = xr.open_zarr(
+                store=store, group=f"{grid_path}/vertices", consolidated=False
+            )
             vertex_data = {
                 name: vertices_ds[name].values
-                for name in vertices_ds.data_vars if name != 'offsets'
+                for name in vertices_ds.data_vars
+                if name != "offsets"
             }
             if vertex_data:
                 df_vertices = pl.DataFrame(vertex_data)
-                if 'vertex_idx' not in df_vertices.columns:
-                    df_vertices = (df_vertices.sort('cell_id').with_columns(
-                        pl.col('cell_id').cumcount().over('cell_id').alias(
-                            'vertex_idx')))
+                if "vertex_idx" not in df_vertices.columns:
+                    df_vertices = df_vertices.sort("cell_id").with_columns(
+                        pl.col("cell_id").cumcount().over("cell_id").alias("vertex_idx")
+                    )
             vertex_count = 0 if df_vertices is None else df_vertices.height
             logger.debug(f"  ✓ Loaded {vertex_count} vertices")
         except (KeyError, FileNotFoundError):
@@ -1887,43 +1899,41 @@ def load_grid_from_icechunk(
     df_neighbors = None
     if load_neighbors:
         try:
-            neighbors_ds = xr.open_zarr(store=store,
-                                        group=f'{grid_path}/neighbors',
-                                        consolidated=False)
+            neighbors_ds = xr.open_zarr(
+                store=store, group=f"{grid_path}/neighbors", consolidated=False
+            )
             neighbor_data = {
                 name: neighbors_ds[name].values
-                for name in neighbors_ds.data_vars if name != 'offsets'
+                for name in neighbors_ds.data_vars
+                if name != "offsets"
             }
             if neighbor_data:
                 df_neighbors = pl.DataFrame(neighbor_data)
             neighbor_count = 0 if df_neighbors is None else df_neighbors.height
-            logger.debug(
-                f"  ✓ Loaded {neighbor_count} neighbor relationships"
-            )
+            logger.debug(f"  ✓ Loaded {neighbor_count} neighbor relationships")
         except (KeyError, FileNotFoundError):
             df_neighbors = None
 
     # Reconstruct grid-type specific columns that rely on nested data
-    if metadata.grid_type == 'htm' and df_vertices is not None:
+    if metadata.grid_type == "htm" and df_vertices is not None:
         vertex_map: dict[int, list[list[float]]] = {}
 
-        for row in df_vertices.sort(['cell_id', 'vertex_idx'
-                                     ]).iter_rows(named=True):
-            cell_id = int(row['cell_id'])
+        for row in df_vertices.sort(["cell_id", "vertex_idx"]).iter_rows(named=True):
+            cell_id = int(row["cell_id"])
             # Convert to floats; fallback to NaN if missing
             vertex = [
-                float(row.get('x', float('nan'))),
-                float(row.get('y', float('nan'))),
-                float(row.get('z', float('nan')))
+                float(row.get("x", float("nan"))),
+                float(row.get("y", float("nan"))),
+                float(row.get("z", float("nan"))),
             ]
             vertex_map.setdefault(cell_id, [])
             if len(vertex_map[cell_id]) < 3:
                 vertex_map[cell_id].append(vertex)
 
-        default_vertex = [float('nan'), float('nan'), float('nan')]
+        default_vertex = [float("nan"), float("nan"), float("nan")]
         vertex_columns = {0: [], 1: [], 2: []}
 
-        for cell_id in df_cells['cell_id']:
+        for cell_id in df_cells["cell_id"]:
             vertices = vertex_map.get(int(cell_id), [])
             for idx in range(3):
                 if idx < len(vertices):
@@ -1931,20 +1941,24 @@ def load_grid_from_icechunk(
                 else:
                     vertex_columns[idx].append(default_vertex)
 
-        df_cells = df_cells.with_columns([
-            pl.Series('htm_vertex_0', vertex_columns[0]),
-            pl.Series('htm_vertex_1', vertex_columns[1]),
-            pl.Series('htm_vertex_2', vertex_columns[2]),
-        ])
+        df_cells = df_cells.with_columns(
+            [
+                pl.Series("htm_vertex_0", vertex_columns[0]),
+                pl.Series("htm_vertex_1", vertex_columns[1]),
+                pl.Series("htm_vertex_2", vertex_columns[2]),
+            ]
+        )
 
     logger.info(f"✓ Grid '{grid_name}' loaded successfully")
 
-    return LoadedGrid(grid_name=grid_name,
-                      cells=df_cells,
-                      metadata=metadata,
-                      vertices=df_vertices,
-                      neighbors=df_neighbors,
-                      specific_metadata=specific_metadata)
+    return LoadedGrid(
+        grid_name=grid_name,
+        cells=df_cells,
+        metadata=metadata,
+        vertices=df_vertices,
+        neighbors=df_neighbors,
+        specific_metadata=specific_metadata,
+    )
 
 
 # ==============================================================================
@@ -1966,18 +1980,18 @@ def list_available_grids(zarr_group: zarr.Group) -> dict[str, dict[str, Any]]:
     dict
         Dictionary mapping grid names to their metadata
     """
-    if 'grids' not in zarr_group:
+    if "grids" not in zarr_group:
         return {}
 
-    grids_group = zarr_group['grids']
+    grids_group = zarr_group["grids"]
     available_grids = {}
 
     for grid_name in grids_group.group_keys():
         try:
             grid_group = grids_group[grid_name]
-            if 'metadata' in grid_group:
-                metadata_group = grid_group['metadata']
-                metadata_json = metadata_group.attrs.get('grid_metadata')
+            if "metadata" in grid_group:
+                metadata_group = grid_group["metadata"]
+                metadata_json = metadata_group.attrs.get("grid_metadata")
                 if metadata_json:
                     metadata = json.loads(metadata_json)
                 else:
@@ -1986,7 +2000,7 @@ def list_available_grids(zarr_group: zarr.Group) -> dict[str, dict[str, Any]]:
                 metadata = dict(grid_group.attrs)
             available_grids[grid_name] = metadata
         except Exception as e:
-            available_grids[grid_name] = {'error': str(e)}
+            available_grids[grid_name] = {"error": str(e)}
 
     return available_grids
 
@@ -2010,8 +2024,8 @@ def delete_grid(zarr_group: zarr.Group, grid_name: str) -> bool:
     logger = get_logger()
 
     try:
-        if 'grids' in zarr_group and grid_name in zarr_group['grids']:
-            del zarr_group['grids'][grid_name]
+        if "grids" in zarr_group and grid_name in zarr_group["grids"]:
+            del zarr_group["grids"][grid_name]
             logger.info(f"✓ Deleted grid '{grid_name}'")
             return True
         else:
@@ -2039,11 +2053,11 @@ def validate_grid_integrity(loaded_grid: LoadedGrid) -> dict[str, Any]:
     logger = get_logger()
 
     results = {
-        'grid_name': loaded_grid.grid_name,
-        'valid': True,
-        'errors': [],
-        'warnings': [],
-        'statistics': {}
+        "grid_name": loaded_grid.grid_name,
+        "valid": True,
+        "errors": [],
+        "warnings": [],
+        "statistics": {},
     }
 
     try:
@@ -2052,59 +2066,58 @@ def validate_grid_integrity(loaded_grid: LoadedGrid) -> dict[str, Any]:
         actual_ncells = len(loaded_grid.cells)
 
         if expected_ncells != actual_ncells:
-            results['errors'].append(
+            results["errors"].append(
                 f"Cell count mismatch: expected {expected_ncells}, got {actual_ncells}"
             )
-            results['valid'] = False
+            results["valid"] = False
 
         # Check coordinate ranges
-        phi = loaded_grid.cells['phi'].to_numpy()
-        theta = loaded_grid.cells['theta'].to_numpy()
+        phi = loaded_grid.cells["phi"].to_numpy()
+        theta = loaded_grid.cells["theta"].to_numpy()
 
         if not (np.all(phi >= 0) and np.all(phi <= 2 * np.pi)):
-            results['errors'].append("Phi coordinates out of range [0, 2π]")
-            results['valid'] = False
+            results["errors"].append("Phi coordinates out of range [0, 2π]")
+            results["valid"] = False
 
         if not (np.all(theta >= 0) and np.all(theta <= np.pi / 2)):
-            results['warnings'].append(
-                "Theta coordinates outside expected hemisphere range [0, π/2]")
+            results["warnings"].append(
+                "Theta coordinates outside expected hemisphere range [0, π/2]"
+            )
 
         # Check solid angles
-        if 'solid_angle' in loaded_grid.cells.columns:
-            solid_angles = loaded_grid.cells['solid_angle'].to_numpy()
+        if "solid_angle" in loaded_grid.cells.columns:
+            solid_angles = loaded_grid.cells["solid_angle"].to_numpy()
             if not np.all(solid_angles > 0):
-                results['errors'].append("Non-positive solid angles found")
-                results['valid'] = False
+                results["errors"].append("Non-positive solid angles found")
+                results["valid"] = False
 
             # Statistics
-            results['statistics'] = {
-                'solid_angle_mean':
-                float(solid_angles.mean()),
-                'solid_angle_std':
-                float(solid_angles.std()),
-                'solid_angle_cv':
-                float(solid_angles.std() / solid_angles.mean() * 100),
-                'total_solid_angle':
-                float(solid_angles.sum())
+            results["statistics"] = {
+                "solid_angle_mean": float(solid_angles.mean()),
+                "solid_angle_std": float(solid_angles.std()),
+                "solid_angle_cv": float(solid_angles.std() / solid_angles.mean() * 100),
+                "total_solid_angle": float(solid_angles.sum()),
             }
 
         # Verify grid hash
         computed_hash = compute_grid_hash(
-            phi, theta, loaded_grid.metadata.grid_type,
-            loaded_grid.metadata.angular_resolution)
+            phi,
+            theta,
+            loaded_grid.metadata.grid_type,
+            loaded_grid.metadata.angular_resolution,
+        )
 
         if computed_hash != loaded_grid.metadata.grid_hash:
-            results['errors'].append(
-                "Grid hash mismatch - data may be corrupted")
-            results['valid'] = False
+            results["errors"].append("Grid hash mismatch - data may be corrupted")
+            results["valid"] = False
 
         logger.info(
             f"Grid validation: {'✓ PASSED' if results['valid'] else '✗ FAILED'}"
         )
 
     except Exception as e:
-        results['valid'] = False
-        results['errors'].append(f"Validation failed: {str(e)}")
+        results["valid"] = False
+        results["errors"].append(f"Validation failed: {str(e)}")
         logger.error(f"Grid validation error: {e}")
 
     return results

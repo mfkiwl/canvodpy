@@ -37,6 +37,7 @@ class AuxFile(ABC):
     This is a Pydantic dataclass with `arbitrary_types_allowed=True`, and
     it uses `ABC` to define required subclass hooks.
     """
+
     date: str
     agency: str
     product_type: str

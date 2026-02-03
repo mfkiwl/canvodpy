@@ -1,7 +1,6 @@
 """Basic tests for canvod-vod package."""
 
 
-
 def test_import():
     """Test that package can be imported."""
     import canvod.vod

@@ -3,10 +3,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import re
 import shutil
-
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_SITE = ROOT / "docs-site"
@@ -245,8 +244,7 @@ def _transform_markdown(text: str) -> str:
                 )
             else:
                 out.append(
-                    "> See the unified API reference: "
-                    "[API Reference](../../docs/api/)"
+                    "> See the unified API reference: [API Reference](../../docs/api/)"
                 )
             out.append("")
             continue
@@ -259,7 +257,7 @@ def _transform_markdown(text: str) -> str:
                 i += 1
                 continue
             if stripped.startswith("```{code-block}"):
-                lang = stripped[len("```{code-block}"):].strip()
+                lang = stripped[len("```{code-block}") :].strip()
                 out.append(f"```{lang}")
                 in_code_fence = True
                 i += 1

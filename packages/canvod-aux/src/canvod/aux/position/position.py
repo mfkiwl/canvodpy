@@ -89,18 +89,18 @@ class ECEFPosition:
         >>> pos = ECEFPosition.from_ds_metadata(ds)
         """
         # Try different attribute names
-        if 'APPROX POSITION X' in ds.attrs:
+        if "APPROX POSITION X" in ds.attrs:
             # Standard RINEX v3 format
-            x = ds.attrs['APPROX POSITION X']
-            y = ds.attrs['APPROX POSITION Y']
-            z = ds.attrs['APPROX POSITION Z']
-        elif 'Approximate Position' in ds.attrs:
+            x = ds.attrs["APPROX POSITION X"]
+            y = ds.attrs["APPROX POSITION Y"]
+            z = ds.attrs["APPROX POSITION Z"]
+        elif "Approximate Position" in ds.attrs:
             # Alternative format: "X=..., Y=..., Z=..."
-            pos = ds.attrs['Approximate Position']
-            pos_parts = pos.split(',')
+            pos = ds.attrs["Approximate Position"]
+            pos_parts = pos.split(",")
 
             def sanitize(s: str) -> float:
-                return float(s.split('=')[1].strip().split()[0])
+                return float(s.split("=")[1].strip().split()[0])
 
             x = sanitize(pos_parts[0])
             y = sanitize(pos_parts[1])

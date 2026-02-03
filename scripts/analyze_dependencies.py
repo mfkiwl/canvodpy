@@ -56,7 +56,9 @@ class DependencyAnalyzer:
             deps = data.get("project", {}).get("dependencies", [])
             for dep in deps:
                 # Extract package name (before version specifier)
-                dep_name = dep.split("[")[0].split(">")[0].split("=")[0].split("<")[0].strip()
+                dep_name = (
+                    dep.split("[")[0].split(">")[0].split("=")[0].split("<")[0].strip()
+                )
                 # Only track internal dependencies
                 if dep_name.startswith("canvod-"):
                     self.dependencies[pkg_name].add(dep_name)
@@ -107,9 +109,7 @@ class DependencyAnalyzer:
             # Independence score (custom metric)
             # Higher is better (fewer dependencies)
             total_packages = len(self.packages) - 1  # Exclude self
-            independence = (
-                1 - (ce / total_packages) if total_packages > 0 else 1.0
-            )
+            independence = 1 - (ce / total_packages) if total_packages > 0 else 1.0
 
             metrics[pkg_name] = {
                 "afferent_coupling": ca,
@@ -128,13 +128,21 @@ class DependencyAnalyzer:
 
         # Add style classes
         lines.append("    classDef stable fill:#90EE90,stroke:#2E8B57,stroke-width:2px")
-        lines.append("    classDef unstable fill:#FFB6C1,stroke:#DC143C,stroke-width:2px")
-        lines.append("    classDef balanced fill:#87CEEB,stroke:#4682B4,stroke-width:2px")
+        lines.append(
+            "    classDef unstable fill:#FFB6C1,stroke:#DC143C,stroke-width:2px"
+        )
+        lines.append(
+            "    classDef balanced fill:#87CEEB,stroke:#4682B4,stroke-width:2px"
+        )
 
         # Add nodes with descriptions
         for pkg_name, info in self.packages.items():
             node_id = pkg_name.replace("-", "_")
-            desc = info["description"][:40] + "..." if len(info["description"]) > 40 else info["description"]
+            desc = (
+                info["description"][:40] + "..."
+                if len(info["description"]) > 40
+                else info["description"]
+            )
             lines.append(f'    {node_id}["{pkg_name}<br/>{desc}"]')
 
         # Add edges
@@ -178,7 +186,9 @@ class DependencyAnalyzer:
             else:
                 color = "#87CEEB"  # Blue (balanced)
 
-            lines.append(f'    "{pkg_name}" [label="{label}", fillcolor="{color}", style="filled,rounded"];')
+            lines.append(
+                f'    "{pkg_name}" [label="{label}", fillcolor="{color}", style="filled,rounded"];'
+            )
 
         lines.append("")
 
@@ -200,7 +210,9 @@ class DependencyAnalyzer:
         # Summary
         lines.append("## Summary")
         lines.append(f"- Total packages: {len(self.packages)}")
-        lines.append(f"- Total internal dependencies: {sum(len(d) for d in self.dependencies.values())}")
+        lines.append(
+            f"- Total internal dependencies: {sum(len(d) for d in self.dependencies.values())}"
+        )
         lines.append(f"- Circular dependencies: {len(circles)}")
         lines.append("")
 
@@ -211,24 +223,34 @@ class DependencyAnalyzer:
             for i, circle in enumerate(circles, 1):
                 lines.append(f"{i}. {' → '.join(circle)}")
             lines.append("")
-            lines.append("**Recommendation:** Break circular dependencies for better modularity.")
+            lines.append(
+                "**Recommendation:** Break circular dependencies for better modularity."
+            )
             lines.append("")
 
         # Package metrics
         lines.append("## Package Independence Metrics")
         lines.append("")
-        lines.append("| Package | Dependencies | Dependents | Instability | Independence | Status |")
-        lines.append("|---------|--------------|------------|-------------|--------------|--------|")
+        lines.append(
+            "| Package | Dependencies | Dependents | Instability | Independence | Status |"
+        )
+        lines.append(
+            "|---------|--------------|------------|-------------|--------------|--------|"
+        )
 
         # Sort by independence (most independent first)
         sorted_metrics = sorted(
-            metrics.items(),
-            key=lambda x: x[1]["independence"],
-            reverse=True
+            metrics.items(), key=lambda x: x[1]["independence"], reverse=True
         )
 
         for pkg_name, m in sorted_metrics:
-            status = "🟢 Stable" if m["instability"] < 0.3 else "🔴 Unstable" if m["instability"] > 0.7 else "🟡 Balanced"
+            status = (
+                "🟢 Stable"
+                if m["instability"] < 0.3
+                else "🔴 Unstable"
+                if m["instability"] > 0.7
+                else "🟡 Balanced"
+            )
             lines.append(
                 f"| {pkg_name} | {m['efferent_coupling']} | {m['afferent_coupling']} | "
                 f"{m['instability']:.2f} | {m['independence']:.2f} | {status} |"
@@ -245,19 +267,31 @@ class DependencyAnalyzer:
             lines.append("")
             lines.append(f"**Description:** {self.packages[pkg_name]['description']}")
             lines.append("")
-            lines.append(f"- **Efferent Coupling (Ce):** {m['efferent_coupling']} - Depends on {m['efferent_coupling']} internal packages")
-            lines.append(f"- **Afferent Coupling (Ca):** {m['afferent_coupling']} - Used by {m['afferent_coupling']} internal packages")
-            lines.append(f"- **Instability (I):** {m['instability']:.2f} - {'Low (stable)' if m['instability'] < 0.3 else 'High (unstable)' if m['instability'] > 0.7 else 'Medium'}")
-            lines.append(f"- **Independence:** {m['independence']:.2f} - {'Highly independent' if m['independence'] > 0.8 else 'Moderately independent' if m['independence'] > 0.5 else 'Low independence'}")
+            lines.append(
+                f"- **Efferent Coupling (Ce):** {m['efferent_coupling']} - Depends on {m['efferent_coupling']} internal packages"
+            )
+            lines.append(
+                f"- **Afferent Coupling (Ca):** {m['afferent_coupling']} - Used by {m['afferent_coupling']} internal packages"
+            )
+            lines.append(
+                f"- **Instability (I):** {m['instability']:.2f} - {'Low (stable)' if m['instability'] < 0.3 else 'High (unstable)' if m['instability'] > 0.7 else 'Medium'}"
+            )
+            lines.append(
+                f"- **Independence:** {m['independence']:.2f} - {'Highly independent' if m['independence'] > 0.8 else 'Moderately independent' if m['independence'] > 0.5 else 'Low independence'}"
+            )
             lines.append("")
 
             if m["dependencies"]:
-                lines.append(f"**Dependencies ({len(m['dependencies'])}):** {', '.join(m['dependencies'])}")
+                lines.append(
+                    f"**Dependencies ({len(m['dependencies'])}):** {', '.join(m['dependencies'])}"
+                )
             else:
                 lines.append("**Dependencies:** None ✅")
 
             if m["dependents"]:
-                lines.append(f"**Dependents ({len(m['dependents'])}):** {', '.join(m['dependents'])}")
+                lines.append(
+                    f"**Dependents ({len(m['dependents'])}):** {', '.join(m['dependents'])}"
+                )
             else:
                 lines.append("**Dependents:** None (leaf package)")
 
@@ -269,15 +303,16 @@ class DependencyAnalyzer:
 
         # Find packages with high coupling
         high_coupling = [
-            (name, m) for name, m in metrics.items()
-            if m["efferent_coupling"] > 2
+            (name, m) for name, m in metrics.items() if m["efferent_coupling"] > 2
         ]
 
         if high_coupling:
             lines.append("### High Coupling (>2 dependencies)")
             lines.append("")
             for pkg_name, m in high_coupling:
-                lines.append(f"**{pkg_name}** depends on {m['efferent_coupling']} packages:")
+                lines.append(
+                    f"**{pkg_name}** depends on {m['efferent_coupling']} packages:"
+                )
                 for dep in m["dependencies"]:
                     lines.append(f"  - {dep}")
                 lines.append("")
@@ -300,19 +335,20 @@ class DependencyAnalyzer:
             lines.append("")
 
         # Find hub packages (many dependents)
-        hubs = [
-            (name, m) for name, m in metrics.items()
-            if m["afferent_coupling"] > 3
-        ]
+        hubs = [(name, m) for name, m in metrics.items() if m["afferent_coupling"] > 3]
         if hubs:
             lines.append("### Hub Packages (>3 Dependents)")
             lines.append("")
             for pkg_name, m in hubs:
-                lines.append(f"**{pkg_name}** is used by {m['afferent_coupling']} packages:")
+                lines.append(
+                    f"**{pkg_name}** is used by {m['afferent_coupling']} packages:"
+                )
                 for dep in m["dependents"]:
                     lines.append(f"  - {dep}")
                 lines.append("")
-                lines.append("  💡 **Suggestion:** Ensure this is intentional. Consider:")
+                lines.append(
+                    "  💡 **Suggestion:** Ensure this is intentional. Consider:"
+                )
                 lines.append("  - Splitting into smaller, focused packages")
                 lines.append("  - Moving rarely-used functionality out")
                 lines.append("  - Documenting as a core/foundation package")
@@ -327,13 +363,9 @@ def main():
         "--format",
         choices=["mermaid", "dot", "report", "all"],
         default="report",
-        help="Output format"
+        help="Output format",
     )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        help="Output file (default: stdout)"
-    )
+    parser.add_argument("--output", type=Path, help="Output file (default: stdout)")
     args = parser.parse_args()
 
     # Find repo root

@@ -120,8 +120,7 @@ def map_aux_sv_to_sid(
                         slices_old = [slice(None)] * len(arr.shape)
                         slices_new[sv_dim] = sid_idx
                         slices_old[sv_dim] = sv_idx
-                        expanded[tuple(slices_new)] = arr.values[tuple(
-                            slices_old)]
+                        expanded[tuple(slices_new)] = arr.values[tuple(slices_old)]
 
             new_dims = list(arr.dims)
             new_dims[sv_dim] = "sid"
@@ -131,16 +130,11 @@ def map_aux_sv_to_sid(
 
     # Coordinates
     new_coords = {
-        **{
-            k: v
-            for k, v in aux_ds.coords.items() if k != "sv"
-        },
+        **{k: v for k, v in aux_ds.coords.items() if k != "sv"},
         "sid": ("sid", all_sids),
     }
 
-    return xr.Dataset(new_data_vars,
-                      coords=new_coords,
-                      attrs=aux_ds.attrs.copy())
+    return xr.Dataset(new_data_vars, coords=new_coords, attrs=aux_ds.attrs.copy())
 
 
 def pad_to_global_sid(
@@ -180,7 +174,8 @@ def pad_to_global_sid(
     sids = [
         f"{sv}|{band}|{code}"
         for sys_letter, bands in mapper.SYSTEM_BANDS.items()
-        for _, band in bands.items() for sv in systems[sys_letter].svs
+        for _, band in bands.items()
+        for sv in systems[sys_letter].svs
         for code in systems[sys_letter].BAND_CODES.get(band, ["X"])
     ]
     sids = sorted(sids)
@@ -209,7 +204,8 @@ def normalize_sid_dtype(ds: xr.Dataset) -> xr.Dataset:
         return ds
     if "sid" in ds.coords and ds.sid.dtype.kind == "U":
         ds = ds.assign_coords(
-            sid=xr.Variable("sid", ds.sid.values.astype(object), ds.sid.attrs))
+            sid=xr.Variable("sid", ds.sid.values.astype(object), ds.sid.attrs)
+        )
     return ds
 
 
@@ -234,8 +230,9 @@ def strip_fillvalue(ds: xr.Dataset) -> xr.Dataset:
     return ds
 
 
-def add_future_datavars(ds: xr.Dataset,
-                        var_config: dict[str, dict[str, Any]]) -> xr.Dataset:
+def add_future_datavars(
+    ds: xr.Dataset, var_config: dict[str, dict[str, Any]]
+) -> xr.Dataset:
     """Add placeholder data variables from a configuration dictionary.
 
     Parameters
@@ -260,9 +257,7 @@ def add_future_datavars(ds: xr.Dataset,
     n_epochs, n_sids = ds.sizes["epoch"], ds.sizes["sid"]
     for name, cfg in var_config.items():
         if name not in ds:
-            arr = np.full((n_epochs, n_sids),
-                          cfg["fill_value"],
-                          dtype=cfg["dtype"])
+            arr = np.full((n_epochs, n_sids), cfg["fill_value"], dtype=cfg["dtype"])
             ds[name] = (("epoch", "sid"), arr, cfg["attrs"])
     return ds
 

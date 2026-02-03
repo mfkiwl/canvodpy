@@ -33,9 +33,9 @@ def test_imports():
             print(f"✗ {description:<30} FAILED: {e}")
             failed.append((module_name, str(e)))
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Results: {len(passed)}/{len(tests)} passed")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     if failed:
         print("Failed imports:")
@@ -52,9 +52,11 @@ def test_store_vod_integration():
 
     try:
         from canvod.vod import TauOmegaZerothOrder
+
         print("✓ VODCalculator imported from canvod.vod")
 
         from canvod.store import GnssResearchSite
+
         print("✓ GnssResearchSite imported from canvod.store")
 
         # Test that calculate_vod can use default calculator
@@ -89,9 +91,9 @@ def test_package_versions():
 
 def main():
     """Run all tests."""
-    print("="*60)
+    print("=" * 60)
     print("canVODpy Migration Verification")
-    print("="*60)
+    print("=" * 60)
     print()
 
     # Test imports
@@ -111,9 +113,9 @@ def main():
     # Show versions
     test_package_versions()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("✅ All verification tests passed!")
-    print("="*60)
+    print("=" * 60)
     print()
     print("Next steps:")
     print("  1. Run package tests: cd packages/canvod-store && just test")

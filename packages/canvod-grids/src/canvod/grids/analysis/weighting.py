@@ -127,8 +127,7 @@ class WeightCalculator:
 
         if weight_type not in _DISPATCH:
             raise ValueError(
-                f"Unknown weight_type: {weight_type}. "
-                f"Valid: {list(_DISPATCH.keys())}"
+                f"Unknown weight_type: {weight_type}. Valid: {list(_DISPATCH.keys())}"
             )
 
         weight = _DISPATCH[weight_type](**kwargs)
@@ -279,9 +278,7 @@ class WeightCalculator:
             solid_angles = self._compute_solid_angles_from_geometry()
 
         if np.any(solid_angles <= 0):
-            logger.warning(
-                "Found non-positive solid angles, setting to small value"
-            )
+            logger.warning("Found non-positive solid angles, setting to small value")
             solid_angles = np.maximum(solid_angles, 1e-10)
 
         return solid_angles
@@ -316,9 +313,7 @@ class WeightCalculator:
                 cell_area = (2 * np.pi) / hemisphere_cells
                 return np.full(self.grid.ncells, cell_area)
             return np.zeros(self.grid.ncells)
-        logger.warning(
-            f"Unknown grid type: {grid_type}, using uniform weights"
-        )
+        logger.warning(f"Unknown grid type: {grid_type}, using uniform weights")
         return np.full(self.grid.ncells, (2 * np.pi) / self.grid.ncells)
 
     def _compute_rectangular_solid_angles(self) -> np.ndarray:
@@ -393,9 +388,8 @@ class WeightCalculator:
 
             for cell_id in range(self.grid.ncells):
                 try:
-                    cell_verts = (
-                        vertices_df.filter(pl.col("cell_id") == cell_id)
-                        .sort("vertex_idx")
+                    cell_verts = vertices_df.filter(pl.col("cell_id") == cell_id).sort(
+                        "vertex_idx"
                     )
                     if len(cell_verts) < 3:
                         continue
@@ -413,9 +407,7 @@ class WeightCalculator:
                     v2 = v2 / np.linalg.norm(v2)
 
                     numerator = np.abs(np.dot(v0, np.cross(v1, v2)))
-                    denominator = (
-                        1 + np.dot(v0, v1) + np.dot(v1, v2) + np.dot(v2, v0)
-                    )
+                    denominator = 1 + np.dot(v0, v1) + np.dot(v1, v2) + np.dot(v2, v0)
 
                     solid_angles[cell_id] = 2 * np.arctan2(
                         numerator,
@@ -462,9 +454,7 @@ class WeightCalculator:
         if var_name not in self.ds:
             raise ValueError(f"Variable '{var_name}' not found in dataset")
 
-        logger.info(
-            "Computing observation counts (this may take 30-60 seconds)..."
-        )
+        logger.info("Computing observation counts (this may take 30-60 seconds)...")
 
         cell_ids_da = self.ds[cell_id_var].data.ravel()
         var_values_da = self.ds[var_name].data.ravel()

@@ -57,11 +57,7 @@ def test_plot_style_to_polar_style():
     """Test conversion from PlotStyle to PolarPlotStyle."""
     from canvod.viz import PlotStyle
 
-    plot_style = PlotStyle(
-        colormap="plasma",
-        edge_linewidth=0.3,
-        dark_mode=True
-    )
+    plot_style = PlotStyle(colormap="plasma", edge_linewidth=0.3, dark_mode=True)
 
     polar_style = plot_style.to_polar_style()
 
@@ -160,12 +156,7 @@ def test_style_parameter_override():
     """Test that style parameters can be overridden."""
     from canvod.viz import PolarPlotStyle
 
-    style = PolarPlotStyle(
-        cmap="plasma",
-        figsize=(12, 12),
-        dpi=300,
-        linewidth=0.2
-    )
+    style = PolarPlotStyle(cmap="plasma", figsize=(12, 12), dpi=300, linewidth=0.2)
 
     assert style.cmap == "plasma"
     assert style.figsize == (12, 12)

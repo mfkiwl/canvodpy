@@ -382,9 +382,7 @@ class IcechunkStoreViewer:
         except Exception as e:
             return {"error": str(e)}
 
-    def _build_group_section(
-        self, branch: str, group_name: str
-    ) -> str:
+    def _build_group_section(self, branch: str, group_name: str) -> str:
         """Build HTML for a single group (collapsed by default)."""
         group_id = f"group-{uuid.uuid4()}"
 
@@ -446,17 +444,13 @@ class IcechunkStoreViewer:
         # 2. Load and display metadata table
         try:
             with self.store.readonly_session(branch) as session:
-                metadata_df = self.store.load_metadata(
-                    session.store, group_name
-                )
+                metadata_df = self.store.load_metadata(session.store, group_name)
 
                 # Try to use marimo interactive table if available
                 try:
                     import marimo as mo
-                    table_widget = mo.ui.table(
-                        data=metadata_df,
-                        pagination=True
-                    )
+
+                    table_widget = mo.ui.table(data=metadata_df, pagination=True)
                     table_html = table_widget._repr_html_()
                 except (ImportError, AttributeError):
                     # Fallback to Polars HTML for Jupyter
@@ -496,13 +490,11 @@ class IcechunkStoreViewer:
 
             if not groups:
                 groups_html = (
-                    '<div class="icechunk-empty">'
-                    "📭 No receivers in this branch"
-                    "</div>"
+                    '<div class="icechunk-empty">📭 No receivers in this branch</div>'
                 )
 
             # Default to checked for "main" branch
-            checked = ' checked' if branch == "main" else ''
+            checked = " checked" if branch == "main" else ""
 
             receiver_label = "receiver" if len(groups) == 1 else "receivers"
             receiver_count = len(groups)
@@ -546,7 +538,7 @@ class IcechunkStoreViewer:
                     MyIcechunkStore (Error)
                 </div>
                 <div class="icechunk-error">
-                    {escape(summary['error'])}
+                    {escape(summary["error"])}
                 </div>
             </div>
             """
@@ -556,28 +548,24 @@ class IcechunkStoreViewer:
             # Use configured site name (or fallback to store path name)
             site_name = self.store.site_name
 
-            branch_label = (
-                "branch" if summary["branches"] == 1 else "branches"
-            )
-            receiver_label = (
-                "receiver" if summary["groups"] == 1 else "receivers"
-            )
+            branch_label = "branch" if summary["branches"] == 1 else "branches"
+            receiver_label = "receiver" if summary["groups"] == 1 else "receivers"
 
             header = f"""
             <div class="icechunk-header">
                 <div class="icechunk-title">
-                    {escape(summary['store_type'])} MyIcechunkStore: {escape(site_name)}
+                    {escape(summary["store_type"])} MyIcechunkStore: {escape(site_name)}
                 </div>
-                <div class="icechunk-path">{escape(summary['path'])}</div>
+                <div class="icechunk-path">{escape(summary["path"])}</div>
                 <div class="icechunk-stats">
                     <span class="stat-badge">
-                        📊 {summary['branches']} {branch_label}
+                        📊 {summary["branches"]} {branch_label}
                     </span>
                     <span class="stat-badge">
-                        📡 {summary['groups']} {receiver_label}
+                        📡 {summary["groups"]} {receiver_label}
                     </span>
                     <span class="stat-badge">
-                        💾 {summary['store_type']}
+                        💾 {summary["store_type"]}
                     </span>
                 </div>
             </div>
@@ -592,9 +580,7 @@ class IcechunkStoreViewer:
                     )
                 else:
                     branches_html = (
-                        '<div class="icechunk-empty">'
-                        "📭 No branches in store"
-                        "</div>"
+                        '<div class="icechunk-empty">📭 No branches in store</div>'
                     )
             except Exception as e:
                 branches_html = f"""
@@ -608,13 +594,13 @@ class IcechunkStoreViewer:
             <div class="icechunk-summary">
                 <div class="summary-grid">
                     <div class="summary-item">
-                        {summary['branches']} {branch_label}
+                        {summary["branches"]} {branch_label}
                     </div>
                     <div class="summary-item">
-                        {summary['groups']} {receiver_label}
+                        {summary["groups"]} {receiver_label}
                     </div>
                     <div class="summary-item">
-                        {summary['store_type']} storage
+                        {summary["store_type"]} storage
                     </div>
                 </div>
             </div>
@@ -727,8 +713,7 @@ def add_rich_display_to_store(store_class: type) -> type:
             import marimo as mo
         except ImportError as e:
             msg = (
-                "marimo is required for interactive tables. "
-                "Install with: uv add marimo"
+                "marimo is required for interactive tables. Install with: uv add marimo"
             )
             raise ImportError(msg) from e
 

@@ -1,5 +1,4 @@
-"""
-Example: Complete Grid Storage and Loading Workflow
+"""Example: Complete Grid Storage and Loading Workflow
 
 Demonstrates how to:
 1. Create a grid
@@ -8,11 +7,7 @@ Demonstrates how to:
 4. Use it for VOD data processing
 """
 
-from pathlib import Path
-from canvod.grids import create_hemigrid, store_grid, load_grid
-from canvod.grids import add_cell_ids_to_ds_fast
-import xarray as xr
-import numpy as np
+from canvod.grids import create_hemigrid, store_grid
 
 
 def example_store_grids(store, grid_configs):

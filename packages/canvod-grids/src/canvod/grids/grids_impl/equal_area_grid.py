@@ -174,12 +174,9 @@ class EqualAreaBuilder(BaseGridBuilder):
 
         if len(cells) == 0:
             raise ValueError(
-                "No cells generated - check cutoff_theta and "
-                "angular_resolution"
+                "No cells generated - check cutoff_theta and angular_resolution"
             )
 
-        grid = pl.concat(cells).with_columns(
-            pl.int_range(0, pl.len()).alias("cell_id")
-        )
+        grid = pl.concat(cells).with_columns(pl.int_range(0, pl.len()).alias("cell_id"))
 
         return grid, np.array(theta_lims), phi_lims, cell_ids

@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -28,6 +29,7 @@ def _():
 
     from canvod.aux.clock.reader import ClkFile
     from canvod.aux.ephemeris.reader import Sp3File
+
     return ClkFile, Path, Sp3File, datetime, tempfile
 
 
@@ -147,6 +149,7 @@ def _(mo, sp3_dataset):
 
     def sv_options_for_system(sys):
         return sorted([s for s in sv_labels if s.startswith(sys)]) if sys else []
+
     return np, sv_options_for_system, system_dropdown
 
 
@@ -154,8 +157,11 @@ def _(mo, sp3_dataset):
 def _(mo, sv_options_for_system, system_dropdown):
     sv_dropdown = mo.ui.dropdown(
         options=sv_options_for_system(system_dropdown.value),
-        value=(sv_options_for_system(system_dropdown.value)[0]
-               if sv_options_for_system(system_dropdown.value) else None),
+        value=(
+            sv_options_for_system(system_dropdown.value)[0]
+            if sv_options_for_system(system_dropdown.value)
+            else None
+        ),
         label="SV",
     )
     return
@@ -269,7 +275,6 @@ def _(clk_file):
 
 @app.cell
 def _(sp3_dataset):
-
     df = sp3_dataset.to_dataframe().reset_index()
     print(df)
     return (df,)
@@ -301,7 +306,7 @@ def _(go, np, table):
     d = table.value.sort_values(["sv", "epoch"]).copy()
 
     # Speed magnitude
-    d["speed"] = np.sqrt(d["Vx"]**2 + d["Vy"]**2 + d["Vz"]**2)
+    d["speed"] = np.sqrt(d["Vx"] ** 2 + d["Vy"] ** 2 + d["Vz"] ** 2)
 
     _fig = go.Figure()
 
@@ -328,7 +333,7 @@ def _(go, np, table):
         )
 
     _fig.update_layout(
-        title=f"3D Trajectories of {d["sv"].unique()} colored by speed",
+        title=f"3D Trajectories of {d['sv'].unique()} colored by speed",
         scene=dict(
             xaxis_title="X",
             yaxis_title="Y",

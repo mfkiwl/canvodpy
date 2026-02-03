@@ -75,8 +75,16 @@ def process_spatial_batch_worker(args: tuple) -> dict:
         ``processing_indices``, ``combinations``, ``filtered``.
 
     """
-    (batch_cells, vod_values_sid, cell_ids_sid, valid_indices, threshold,
-     min_obs_per_sid, batch_idx, sid_idx) = args
+    (
+        batch_cells,
+        vod_values_sid,
+        cell_ids_sid,
+        valid_indices,
+        threshold,
+        min_obs_per_sid,
+        batch_idx,
+        sid_idx,
+    ) = args
 
     batch_outlier_indices: list[int] = []
     batch_processing_indices: list[int] = []
@@ -176,7 +184,11 @@ def hampel_cell_sid_parallelized(
     logger.info(
         "Parallelized Hampel filter: shape=%s, threshold=%.1f, "
         "min_obs=%d, workers=%d, batch_size=%d",
-        vod_ds.VOD.shape, threshold, min_obs_per_sid, n_workers, spatial_batch_size,
+        vod_ds.VOD.shape,
+        threshold,
+        min_obs_per_sid,
+        n_workers,
+        spatial_batch_size,
     )
 
     # Unique cells and spatial batches
@@ -220,8 +232,16 @@ def hampel_cell_sid_parallelized(
         sid_vod = vod_values[valid_mask, sid_idx]
 
         batch_args = [
-            (batch_cells, sid_vod, sid_cells, valid_indices,
-             threshold, min_obs_per_sid, batch_idx, sid_idx)
+            (
+                batch_cells,
+                sid_vod,
+                sid_cells,
+                valid_indices,
+                threshold,
+                min_obs_per_sid,
+                batch_idx,
+                sid_idx,
+            )
             for batch_cells, batch_idx in cell_batches
         ]
 
@@ -280,7 +300,8 @@ def hampel_cell_sid_parallelized(
             "combinations_filtered": total_combinations_filtered,
             "parallel_efficiency": (
                 total_combinations_processed / (n_workers * total_time)
-                if total_time > 0 else 0
+                if total_time > 0
+                else 0
             ),
             "outliers_removed": outliers_removed,
             "outlier_percentage": outlier_pct,
@@ -317,15 +338,21 @@ def hampel_cell_sid_parallelized(
 
 # Frequency → window in seconds
 _FREQ_MAP: dict[str, int] = {
-    "30s": 30, "1min": 60, "5min": 300, "10min": 600,
-    "15min": 900, "30min": 1800, "1H": 3600, "3H": 10800,
-    "6H": 21600, "12H": 43200, "1D": 86400,
+    "30s": 30,
+    "1min": 60,
+    "5min": 300,
+    "10min": 600,
+    "15min": 900,
+    "30min": 1800,
+    "1H": 3600,
+    "3H": 10800,
+    "6H": 21600,
+    "12H": 43200,
+    "1D": 86400,
 }
 
 
-def _compute_time_bins(
-    global_times: np.ndarray, temporal_agg: str
-) -> np.ndarray:
+def _compute_time_bins(global_times: np.ndarray, temporal_agg: str) -> np.ndarray:
     """Compute unique time-bin edges from epoch array and frequency string."""
     if temporal_agg not in _FREQ_MAP:
         raise ValueError(
@@ -477,7 +504,10 @@ def aggr_hampel_cell_sid_parallelized(
 
     logger.info(
         "aggr_hampel: shape=%s, threshold=%.1f, workers=%d, temporal_agg=%s",
-        vod_ds.VOD.shape, threshold, n_workers, temporal_agg,
+        vod_ds.VOD.shape,
+        threshold,
+        n_workers,
+        temporal_agg,
     )
 
     # --- Epoch grid ---
@@ -515,8 +545,16 @@ def aggr_hampel_cell_sid_parallelized(
 
         # Parallel filtering
         batch_args = [
-            (batch_cells, sid_vod, sid_cells, np.arange(len(valid_times)),
-             threshold, min_obs_per_sid, batch_idx, sid_idx)
+            (
+                batch_cells,
+                sid_vod,
+                sid_cells,
+                np.arange(len(valid_times)),
+                threshold,
+                min_obs_per_sid,
+                batch_idx,
+                sid_idx,
+            )
             for batch_cells, batch_idx in cell_batches
         ]
 
@@ -599,7 +637,9 @@ def aggr_hampel_cell_sid_parallelized(
 
     logger.info(
         "aggr_hampel complete: epochs=%d, sids=%d, time=%.1fs",
-        len(new_epochs), n_sids, total_time,
+        len(new_epochs),
+        n_sids,
+        total_time,
     )
 
     return result_ds

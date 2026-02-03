@@ -1,4 +1,3 @@
-# ruff: noqa: DTZ005, ERA001, PLC0415, BLE001
 """Diagnostic script for canvodpy - analogon to gnssvodpy.
 
 timing_diagnostics_script.py.
@@ -6,6 +5,7 @@ timing_diagnostics_script.py.
 This script processes RINEX data using the new canvodpy architecture.
 Compare results with gnssvodpy to verify correct implementation.
 """
+
 import csv
 import gc
 import time
@@ -31,36 +31,40 @@ class TimingLogger:
         # Define all possible receivers upfront
         if expected_receivers is None:
             expected_receivers = [
-                'canopy_01', 'canopy_02', 'reference_01', 'reference_02'
+                "canopy_01",
+                "canopy_02",
+                "reference_01",
+                "reference_02",
             ]
         self.expected_receivers = sorted(expected_receivers)
 
         # Fixed fieldnames for consistent CSV structure
-        self.fieldnames = ['day', 'start_time', 'end_time'] + \
-                         [f'{name}_seconds' for name in self.expected_receivers] + \
-                         ['total_seconds']
+        self.fieldnames = (
+            ["day", "start_time", "end_time"]
+            + [f"{name}_seconds" for name in self.expected_receivers]
+            + ["total_seconds"]
+        )
 
     def log(self, day, start_time, end_time, receiver_times, total_time):
         """Log a day's processing times."""
-
         row = {
-            'day': day,
-            'start_time': start_time.isoformat(),
-            'end_time': end_time.isoformat(),
-            'total_seconds': round(total_time, 2)
+            "day": day,
+            "start_time": start_time.isoformat(),
+            "end_time": end_time.isoformat(),
+            "total_seconds": round(total_time, 2),
         }
 
         # Add all expected receivers (0.0 if not present this day)
         for receiver_name in self.expected_receivers:
-            col_name = f'{receiver_name}_seconds'
+            col_name = f"{receiver_name}_seconds"
             row[col_name] = round(receiver_times.get(receiver_name, 0.0), 2)
 
         # Write with consistent fieldnames
-        mode = 'a' if self.file_exists else 'w'
+        mode = "a" if self.file_exists else "w"
         write_header = not self.file_exists
 
         try:
-            with open(self.filename, mode, newline='') as f:
+            with open(self.filename, mode, newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=self.fieldnames)
 
                 if write_header:
@@ -77,7 +81,6 @@ class TimingLogger:
 
     def save(self):
         """Compatibility method - does nothing since we write immediately."""
-        pass
 
 
 def diagnose_processing(
@@ -135,50 +138,54 @@ def diagnose_processing(
 
     # Main processing loop
     for date_key, datasets, receiver_times in orchestrator.process_by_date(
-            keep_vars=KEEP_RNX_VARS, start_from=start_from, end_at=end_at):
-
+        keep_vars=KEEP_RNX_VARS, start_from=start_from, end_at=end_at
+    ):
         day_start_time = datetime.now()  # Capture start time
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"Processing {date_key}")
-        print(f"{'='*80}\n")
+        print(f"{'=' * 80}\n")
 
         try:
             # Track timing per receiver
             for receiver_name, ds in datasets.items():
-                print(f"\n{'─'*80}")
+                print(f"\n{'─' * 80}")
                 print(f"{receiver_name.upper()} PROCESSING")
-                print(f"{'─'*80}")
+                print(f"{'─' * 80}")
                 print(f"  Dataset shape: {dict(ds.sizes)}")
-                print("  Processing time: "
-                      f"{receiver_times[receiver_name]:.2f}s")
+                print(f"  Processing time: {receiver_times[receiver_name]:.2f}s")
 
             day_end_time = datetime.now()  # Capture end time
             # Calculate actual total from receiver times
             total_time = sum(receiver_times.values())
 
             # Summary
-            print(f"\n{'='*80}")
+            print(f"\n{'=' * 80}")
             print("SUMMARY")
-            print(f"{'='*80}")
+            print(f"{'=' * 80}")
             for receiver_name, ds in datasets.items():
-                print(f"{receiver_name}: {dict(ds.sizes)} "
-                      f"({receiver_times[receiver_name]:.2f}s)")
+                print(
+                    f"{receiver_name}: {dict(ds.sizes)} "
+                    f"({receiver_times[receiver_name]:.2f}s)"
+                )
             print(f"Total time: {total_time:.2f}s")
             print(f"\n✓ Successfully processed {date_key}")
 
             # LOG TO CSV with actual receiver times
-            timing_log.log(day=date_key,
-                           start_time=day_start_time,
-                           end_time=day_end_time,
-                           receiver_times=receiver_times,
-                           total_time=total_time)
+            timing_log.log(
+                day=date_key,
+                start_time=day_start_time,
+                end_time=day_end_time,
+                receiver_times=receiver_times,
+                total_time=total_time,
+            )
 
             days_since_rechunk += 1
 
         except Exception as e:
             print(f"\n✗ Failed {date_key}: {e}")
             import traceback
+
             traceback.print_exc()
 
         finally:
@@ -206,14 +213,14 @@ def diagnose_processing(
         #     print(f"\n🛑 Reached 30 days of processing, stopping for diagnostics.")
         #     break
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"End time: {datetime.now()}")
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
 
 
 if __name__ == "__main__":
     # Process everything
-    diagnose_processing()  #tart_from="20250806")
+    diagnose_processing()  # tart_from="20250806")
 
     # Start from a specific date
     # diagnose_processing(start_from="2024183")  # July 1, 2024

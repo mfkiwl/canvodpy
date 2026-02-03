@@ -68,8 +68,10 @@ class GnssResearchSite:
         """
         if site_name not in RESEARCH_SITES:
             available_sites = list(RESEARCH_SITES.keys())
-            raise KeyError(f"Site '{site_name}' not found in config. "
-                           f"Available sites: {available_sites}")
+            raise KeyError(
+                f"Site '{site_name}' not found in config. "
+                f"Available sites: {available_sites}"
+            )
 
         self.site_name = site_name
         self.site_config = RESEARCH_SITES[site_name]
@@ -77,6 +79,7 @@ class GnssResearchSite:
 
         # Load store paths from processing config (not from research_sites_config)
         from canvod.utils.config import load_config
+
         config = load_config()
 
         rinex_store_path = config.processing.storage.get_rinex_store_path(site_name)
@@ -145,6 +148,7 @@ class GnssResearchSite:
         """
         # Load config to get store paths
         from canvod.utils.config import load_config
+
         config = load_config()
 
         # Try to match against each site's expected rinex store path
@@ -153,8 +157,9 @@ class GnssResearchSite:
             if expected_path == rinex_store_path:
                 return cls(site_name)
 
-        raise ValueError(f"No research site found for RINEX store path: "
-                         f"{rinex_store_path}")
+        raise ValueError(
+            f"No research site found for RINEX store path: {rinex_store_path}"
+        )
 
     def validate_site_config(self) -> bool:
         """
@@ -176,22 +181,28 @@ class GnssResearchSite:
             ref_rx = analysis_config["reference_receiver"]
 
             if canopy_rx not in self.receivers:
-                raise ValueError(f"VOD analysis '{analysis_name}' references "
-                                 f"unknown canopy receiver: {canopy_rx}")
+                raise ValueError(
+                    f"VOD analysis '{analysis_name}' references "
+                    f"unknown canopy receiver: {canopy_rx}"
+                )
             if ref_rx not in self.receivers:
-                raise ValueError(f"VOD analysis '{analysis_name}' references "
-                                 f"unknown reference receiver: {ref_rx}")
+                raise ValueError(
+                    f"VOD analysis '{analysis_name}' references "
+                    f"unknown reference receiver: {ref_rx}"
+                )
 
             # Check receiver types match their roles
             canopy_type = self.receivers[canopy_rx]["type"]
             ref_type = self.receivers[ref_rx]["type"]
 
             if canopy_type != "canopy":
-                raise ValueError(f"Receiver '{canopy_rx}' used as canopy "
-                                 f"but type is '{canopy_type}'")
+                raise ValueError(
+                    f"Receiver '{canopy_rx}' used as canopy but type is '{canopy_type}'"
+                )
             if ref_type != "reference":
-                raise ValueError(f"Receiver '{ref_rx}' used as reference "
-                                 f"but type is '{ref_type}'")
+                raise ValueError(
+                    f"Receiver '{ref_rx}' used as reference but type is '{ref_type}'"
+                )
 
         self._logger.debug("Site configuration validation passed")
         return True
@@ -218,10 +229,9 @@ class GnssResearchSite:
         """
         return self.vod_store.list_groups()
 
-    def ingest_rinex_data(self,
-                          dataset: xr.Dataset,
-                          receiver_name: str,
-                          commit_message: str | None = None) -> None:
+    def ingest_rinex_data(
+        self, dataset: xr.Dataset, receiver_name: str, commit_message: str | None = None
+    ) -> None:
         """
         Ingest RINEX data for a specific receiver.
 
@@ -241,23 +251,22 @@ class GnssResearchSite:
         """
         if receiver_name not in self.receivers:
             available_receivers = list(self.receivers.keys())
-            raise ValueError(f"Receiver '{receiver_name}' not configured. "
-                             f"Available: {available_receivers}")
+            raise ValueError(
+                f"Receiver '{receiver_name}' not configured. "
+                f"Available: {available_receivers}"
+            )
 
-        self._logger.info(
-            f"Ingesting RINEX data for receiver '{receiver_name}'")
+        self._logger.info(f"Ingesting RINEX data for receiver '{receiver_name}'")
 
-        self.rinex_store.write_or_append_group(dataset=dataset,
-                                               group_name=receiver_name,
-                                               commit_message=commit_message)
+        self.rinex_store.write_or_append_group(
+            dataset=dataset, group_name=receiver_name, commit_message=commit_message
+        )
 
-        self._logger.info(
-            f"Successfully ingested data for receiver '{receiver_name}'")
+        self._logger.info(f"Successfully ingested data for receiver '{receiver_name}'")
 
     def read_receiver_data(
-            self,
-            receiver_name: str,
-            time_range: tuple[datetime, datetime] | None = None) -> xr.Dataset:
+        self, receiver_name: str, time_range: tuple[datetime, datetime] | None = None
+    ) -> xr.Dataset:
         """
         Read data from a specific receiver.
 
@@ -280,33 +289,37 @@ class GnssResearchSite:
         """
         if not self.rinex_store.group_exists(receiver_name):
             available_groups = self.get_receiver_groups()
-            raise ValueError(f"No data found for receiver '{receiver_name}'. "
-                             f"Available: {available_groups}")
+            raise ValueError(
+                f"No data found for receiver '{receiver_name}'. "
+                f"Available: {available_groups}"
+            )
 
         self._logger.info(f"Reading data for receiver '{receiver_name}'")
 
         if RINEX_STORE_STRATEGY == "append":
-            ds = self.rinex_store.read_group_deduplicated(receiver_name,
-                                                          keep='last')
+            ds = self.rinex_store.read_group_deduplicated(receiver_name, keep="last")
         else:
             ds = self.rinex_store.read_group(receiver_name)
 
         # Apply time filtering if specified
         if time_range is not None:
             start_time, end_time = time_range
-            ds = ds.where((ds.epoch >= np.datetime64(start_time, "ns")) &
-                          (ds.epoch <= np.datetime64(end_time, "ns")),
-                          drop=True)
+            ds = ds.where(
+                (ds.epoch >= np.datetime64(start_time, "ns"))
+                & (ds.epoch <= np.datetime64(end_time, "ns")),
+                drop=True,
+            )
 
-            self._logger.debug(
-                f"Applied time filter: {start_time} to {end_time}")
+            self._logger.debug(f"Applied time filter: {start_time} to {end_time}")
 
         return ds
 
-    def store_vod_analysis(self,
-                           vod_dataset: xr.Dataset,
-                           analysis_name: str,
-                           commit_message: str | None = None) -> None:
+    def store_vod_analysis(
+        self,
+        vod_dataset: xr.Dataset,
+        analysis_name: str,
+        commit_message: str | None = None,
+    ) -> None:
         """
         Store VOD analysis results.
 
@@ -326,22 +339,22 @@ class GnssResearchSite:
         """
         if analysis_name not in self.vod_analyses:
             available_analyses = list(self.vod_analyses.keys())
-            raise ValueError(f"VOD analysis '{analysis_name}' not configured. "
-                             f"Available: {available_analyses}")
+            raise ValueError(
+                f"VOD analysis '{analysis_name}' not configured. "
+                f"Available: {available_analyses}"
+            )
 
         self._logger.info(f"Storing VOD analysis results: '{analysis_name}'")
 
-        self.vod_store.write_or_append_group(dataset=vod_dataset,
-                                             group_name=analysis_name,
-                                             commit_message=commit_message)
+        self.vod_store.write_or_append_group(
+            dataset=vod_dataset, group_name=analysis_name, commit_message=commit_message
+        )
 
-        self._logger.info(
-            f"Successfully stored VOD analysis: '{analysis_name}'")
+        self._logger.info(f"Successfully stored VOD analysis: '{analysis_name}'")
 
     def read_vod_analysis(
-            self,
-            analysis_name: str,
-            time_range: tuple[datetime, datetime] | None = None) -> xr.Dataset:
+        self, analysis_name: str, time_range: tuple[datetime, datetime] | None = None
+    ) -> xr.Dataset:
         """
         Read VOD analysis results.
 
@@ -366,7 +379,8 @@ class GnssResearchSite:
             available_groups = self.get_vod_analysis_groups()
             raise ValueError(
                 f"No VOD results found for analysis '{analysis_name}'. "
-                f"Available: {available_groups}")
+                f"Available: {available_groups}"
+            )
 
         self._logger.info(f"Reading VOD analysis: '{analysis_name}'")
 
@@ -376,15 +390,12 @@ class GnssResearchSite:
         if time_range is not None:
             start_time, end_time = time_range
             ds = ds.sel(epoch=slice(start_time, end_time))
-            self._logger.debug(
-                f"Applied time filter: {start_time} to {end_time}")
+            self._logger.debug(f"Applied time filter: {start_time} to {end_time}")
 
         return ds
 
     def prepare_vod_input_data(
-        self,
-        analysis_name: str,
-        time_range: tuple[datetime, datetime] | None = None
+        self, analysis_name: str, time_range: tuple[datetime, datetime] | None = None
     ) -> tuple[xr.Dataset, xr.Dataset]:
         """
         Prepare aligned input data for VOD analysis.
@@ -411,8 +422,10 @@ class GnssResearchSite:
         """
         if analysis_name not in self.vod_analyses:
             available_analyses = list(self.vod_analyses.keys())
-            raise ValueError(f"VOD analysis '{analysis_name}' not configured. "
-                             f"Available: {available_analyses}")
+            raise ValueError(
+                f"VOD analysis '{analysis_name}' not configured. "
+                f"Available: {available_analyses}"
+            )
 
         analysis_config = self.vod_analyses[analysis_name]
         canopy_receiver = analysis_config["canopy_receiver"]
@@ -424,11 +437,12 @@ class GnssResearchSite:
 
         # Read data from both receivers
         canopy_data = self.read_receiver_data(canopy_receiver, time_range)
-        reference_data = self.read_receiver_data(reference_receiver,
-                                                 time_range)
+        reference_data = self.read_receiver_data(reference_receiver, time_range)
 
-        self._logger.info(f"Loaded data - Canopy: {dict(canopy_data.dims)}, "
-                          f"Reference: {dict(reference_data.dims)}")
+        self._logger.info(
+            f"Loaded data - Canopy: {dict(canopy_data.dims)}, "
+            f"Reference: {dict(reference_data.dims)}"
+        )
 
         return canopy_data, reference_data
 
@@ -462,6 +476,7 @@ class GnssResearchSite:
         if calculator_class is None:
             try:
                 from canvod.vod import TauOmegaZerothOrder
+
                 calculator_class = TauOmegaZerothOrder
             except ImportError as e:
                 raise ImportError(
@@ -469,25 +484,21 @@ class GnssResearchSite:
                     "Install with: pip install canvod-vod"
                 ) from e
 
-        canopy_ds, reference_ds = self.prepare_vod_input_data(
-            analysis_name, time_range)
+        canopy_ds, reference_ds = self.prepare_vod_input_data(analysis_name, time_range)
 
         # Use the calculator's class method for calculation
-        vod_ds = calculator_class.from_datasets(canopy_ds,
-                                                reference_ds,
-                                                align=True)
+        vod_ds = calculator_class.from_datasets(canopy_ds, reference_ds, align=True)
 
         # Add metadata
         analysis_config = self.vod_analyses[analysis_name]
         vod_ds.attrs["analysis_name"] = analysis_name
         vod_ds.attrs["canopy_receiver"] = analysis_config["canopy_receiver"]
-        vod_ds.attrs["reference_receiver"] = analysis_config[
-            "reference_receiver"]
+        vod_ds.attrs["reference_receiver"] = analysis_config["reference_receiver"]
         vod_ds.attrs["calculator"] = calculator_class.__name__
-        vod_ds.attrs["canopy_hash"] = canopy_ds.attrs.get(
-            "RINEX File Hash", "unknown")
+        vod_ds.attrs["canopy_hash"] = canopy_ds.attrs.get("RINEX File Hash", "unknown")
         vod_ds.attrs["reference_hash"] = reference_ds.attrs.get(
-            "RINEX File Hash", "unknown")
+            "RINEX File Hash", "unknown"
+        )
 
         self._logger.info(
             f"VOD calculated for {analysis_name} using {calculator_class.__name__}"
@@ -528,27 +539,27 @@ class GnssResearchSite:
                 to_icechunk(vod_ds, session, group=analysis_name, mode="w")
                 action = "write"
             else:
-                to_icechunk(vod_ds,
-                            session,
-                            group=analysis_name,
-                            append_dim="epoch")
+                to_icechunk(vod_ds, session, group=analysis_name, append_dim="epoch")
                 action = "append"
 
             version = get_version_from_pyproject()
             commit_msg = f"[v{version}] VOD for {analysis_name}"
             snapshot_id = session.commit(commit_msg)
 
-        self.vod_store.append_metadata(group_name=analysis_name,
-                                       rinex_hash=combined_hash,
-                                       start=vod_ds["epoch"].values[0],
-                                       end=vod_ds["epoch"].values[-1],
-                                       snapshot_id=snapshot_id,
-                                       action=action,
-                                       commit_msg=commit_msg,
-                                       dataset_attrs=dict(vod_ds.attrs))
+        self.vod_store.append_metadata(
+            group_name=analysis_name,
+            rinex_hash=combined_hash,
+            start=vod_ds["epoch"].values[0],
+            end=vod_ds["epoch"].values[-1],
+            snapshot_id=snapshot_id,
+            action=action,
+            commit_msg=commit_msg,
+            dataset_attrs=dict(vod_ds.attrs),
+        )
 
         self._logger.info(
-            f"VOD stored for {analysis_name}, snapshot={snapshot_id[:8]}...")
+            f"VOD stored for {analysis_name}, snapshot={snapshot_id[:8]}..."
+        )
         return snapshot_id
 
     def get_site_summary(self) -> dict[str, Any]:
@@ -569,18 +580,18 @@ class GnssResearchSite:
                 "total_receivers": len(self.receivers),
                 "active_receivers": len(self.active_receivers),
                 "total_vod_analyses": len(self.vod_analyses),
-                "active_vod_analyses": len(self.active_vod_analyses)
+                "active_vod_analyses": len(self.active_vod_analyses),
             },
             "data_status": {
                 "rinex_groups_exist": len(rinex_groups),
                 "rinex_groups": rinex_groups,
                 "vod_groups_exist": len(vod_groups),
-                "vod_groups": vod_groups
+                "vod_groups": vod_groups,
             },
             "stores": {
                 "rinex_store_path": str(self.site_config["rinex_store_path"]),
-                "vod_store_path": str(self.site_config["vod_store_path"])
-            }
+                "vod_store_path": str(self.site_config["vod_store_path"]),
+            },
         }
 
         # Add receiver details
@@ -590,7 +601,7 @@ class GnssResearchSite:
             summary["receivers"][receiver_name] = {
                 "type": receiver_config["type"],
                 "description": receiver_config["description"],
-                "has_data": has_data
+                "has_data": has_data,
             }
 
             if has_data:
@@ -599,11 +610,10 @@ class GnssResearchSite:
                     summary["receivers"][receiver_name]["data_info"] = {
                         "dimensions": info["dimensions"],
                         "variables": len(info["variables"]),
-                        "temporal_info": info.get("temporal_info", {})
+                        "temporal_info": info.get("temporal_info", {}),
                     }
                 except Exception as e:
-                    self._logger.warning(
-                        f"Failed to get info for {receiver_name}: {e}")
+                    self._logger.warning(f"Failed to get info for {receiver_name}: {e}")
 
         # Add VOD analysis details
         summary["vod_analyses"] = {}
@@ -613,7 +623,7 @@ class GnssResearchSite:
                 "canopy_receiver": analysis_config["canopy_receiver"],
                 "reference_receiver": analysis_config["reference_receiver"],
                 "description": analysis_config["description"],
-                "has_results": has_results
+                "has_results": has_results,
             }
 
             if has_results:
@@ -622,18 +632,21 @@ class GnssResearchSite:
                     summary["vod_analyses"][analysis_name]["results_info"] = {
                         "dimensions": info["dimensions"],
                         "variables": len(info["variables"]),
-                        "temporal_info": info.get("temporal_info", {})
+                        "temporal_info": info.get("temporal_info", {}),
                     }
                 except Exception as e:
                     self._logger.warning(
-                        f"Failed to get VOD info for {analysis_name}: {e}")
+                        f"Failed to get VOD info for {analysis_name}: {e}"
+                    )
 
         return summary
 
-    def is_day_complete(self,
-                        yyyydoy: str,
-                        receiver_types: list[str] | None = None,
-                        completeness_threshold: float = 0.95) -> bool:
+    def is_day_complete(
+        self,
+        yyyydoy: str,
+        receiver_types: list[str] | None = None,
+        completeness_threshold: float = 0.95,
+    ) -> bool:
         """
         Check if a day has complete data coverage for all receiver types.
 
@@ -653,9 +666,10 @@ class GnssResearchSite:
             True if all receiver types have complete data for this day
         """
         if receiver_types is None:
-            receiver_types = ['canopy', 'reference']
+            receiver_types = ["canopy", "reference"]
 
         from gnssvodpy.utils.date_time import YYYYDOY
+
         yyyydoy_obj = YYYYDOY.from_str(yyyydoy)
 
         # Expected epochs for 24h at 30s sampling
@@ -666,31 +680,30 @@ class GnssResearchSite:
             # Get receiver name for this type
             receiver_name = None
             for name, config in self.active_receivers.items():
-                if config.get('type') == receiver_type:
+                if config.get("type") == receiver_type:
                     receiver_name = name
                     break
 
             if not receiver_name:
-                self._logger.warning(
-                    f"No receiver configured for type {receiver_type}")
+                self._logger.warning(f"No receiver configured for type {receiver_type}")
                 return False
 
             try:
                 # Try to read data for this day
-                time_range = (yyyydoy_obj.start_datetime(),
-                              yyyydoy_obj.end_datetime())
+                time_range = (yyyydoy_obj.start_datetime(), yyyydoy_obj.end_datetime())
 
-                ds = self.read_receiver_data(receiver_name=receiver_name,
-                                             time_range=time_range)
+                ds = self.read_receiver_data(
+                    receiver_name=receiver_name, time_range=time_range
+                )
 
                 # Check epoch count
-                n_epochs = ds.sizes.get('epoch', 0)
+                n_epochs = ds.sizes.get("epoch", 0)
 
                 if n_epochs < required_epochs:
                     self._logger.info(
                         f"{receiver_name} {yyyydoy}: Only "
                         f"{n_epochs}/{expected_epochs} epochs "
-                        f"({n_epochs/expected_epochs*100:.1f}%) - incomplete"
+                        f"({n_epochs / expected_epochs * 100:.1f}%) - incomplete"
                     )
                     return False
 
@@ -701,8 +714,7 @@ class GnssResearchSite:
 
             except (ValueError, KeyError, Exception) as e:
                 # No data exists or error reading
-                self._logger.debug(
-                    f"{receiver_name} {yyyydoy}: No data found - {e}")
+                self._logger.debug(f"{receiver_name} {yyyydoy}: No data found - {e}")
                 return False
 
         # All receiver types have complete data
@@ -752,10 +764,9 @@ def create_default_site() -> GnssResearchSite:
 
 # Example usage and testing
 if __name__ == "__main__":
-
     from gnssvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
 
-    print(RESEARCH_SITES['Rosalia']['rinex_store_path'])
+    print(RESEARCH_SITES["Rosalia"]["rinex_store_path"])
 
     # # Create site manager
     # try:

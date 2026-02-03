@@ -1,16 +1,17 @@
 """Basic metadata tests for canvod-viz package."""
 
 
-
 def test_package_importable():
     """Test that package can be imported."""
     import canvod.viz
+
     assert canvod.viz is not None
 
 
 def test_package_has_version():
     """Test that package has version attribute."""
     from canvod.viz import __version__
+
     assert isinstance(__version__, str)
     assert __version__ == "0.1.0"
 
@@ -18,6 +19,7 @@ def test_package_has_version():
 def test_package_has_all():
     """Test that package has __all__ attribute."""
     import canvod.viz
+
     assert hasattr(canvod.viz, "__all__")
     assert isinstance(canvod.viz.__all__, list)
     assert len(canvod.viz.__all__) > 0

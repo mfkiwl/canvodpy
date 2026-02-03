@@ -43,8 +43,10 @@ def get_gps_week_from_filename(file_name: Path) -> str:
     elif any(ext in str(file_name) for ext in ("TRO", "IONEX")):
         return str(file_name).split("_")[1][:4]
 
-    msg = ("Invalid file type. The filename must end with "
-           ".clk, clk_05s, .CLK, .SP3, .TRO, or .IONEX")
+    msg = (
+        "Invalid file type. The filename must end with "
+        ".clk, clk_05s, .CLK, .SP3, .TRO, or .IONEX"
+    )
     raise ValueError(msg)
 
 
@@ -119,9 +121,11 @@ class YYYYDOY:
         str
             Detailed representation of the date.
         """
-        return (f"YYYYDOY(year={self.year}, doy={self.doy}, date={self.date}, "
-                f"yydoy={self.yydoy}, gps_week={self.gps_week}, "
-                f"gps_day_of_week={self.gps_day_of_week})")
+        return (
+            f"YYYYDOY(year={self.year}, doy={self.doy}, date={self.date}, "
+            f"yydoy={self.yydoy}, gps_week={self.gps_week}, "
+            f"gps_day_of_week={self.gps_day_of_week})"
+        )
 
     def __str__(self) -> str:
         """Return the user-facing date string.
@@ -185,8 +189,9 @@ class YYYYDOY:
         datetime.date
             Calculated calendar date.
         """
-        return datetime.date(self.year, 1,
-                             1) + datetime.timedelta(days=int(self.doy) - 1)
+        return datetime.date(self.year, 1, 1) + datetime.timedelta(
+            days=int(self.doy) - 1
+        )
 
     @staticmethod
     def _validate_doy(doy: int) -> None:
@@ -202,8 +207,7 @@ class YYYYDOY:
         None
         """
         if not 1 <= doy <= 366:
-            raise ValueError(
-                f"Day of year (DOY) must be in range [1, 366], got {doy}")
+            raise ValueError(f"Day of year (DOY) must be in range [1, 366], got {doy}")
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "YYYYDOY":
@@ -241,8 +245,7 @@ class YYYYDOY:
         if isinstance(yyyydoy, int):
             yyyydoy = str(yyyydoy)
         if len(yyyydoy) != 7:
-            raise ValueError(
-                f"Invalid format. Expected 'YYYYDDD', got '{yyyydoy}'")
+            raise ValueError(f"Invalid format. Expected 'YYYYDDD', got '{yyyydoy}'")
         year = int(yyyydoy[:4])
         doy = int(yyyydoy[4:])
         cls._validate_doy(doy)
@@ -320,8 +323,7 @@ class YYYYDOY:
 
         # Convert string to date if needed
         if not is_datetime and isinstance(input_date, str):
-            input_date = datetime.datetime.strptime(input_date,
-                                                    "%d-%m-%Y").date()
+            input_date = datetime.datetime.strptime(input_date, "%d-%m-%Y").date()
         elif isinstance(input_date, datetime.datetime):
             input_date = input_date.date()
 

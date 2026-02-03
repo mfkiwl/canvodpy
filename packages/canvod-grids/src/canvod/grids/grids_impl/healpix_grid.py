@@ -226,9 +226,7 @@ class HEALPixBuilder(BaseGridBuilder):
         # compatibility with ring-based grids. For spatial queries, use the
         # per-pixel theta_min/max and phi_min/max columns instead.
         theta_lims = np.linspace(0, np.pi / 2, min(n_theta_bands, 20))
-        phi_lims = [
-            np.linspace(0, 2 * np.pi, 20) for _ in range(len(theta_lims))
-        ]
+        phi_lims = [np.linspace(0, 2 * np.pi, 20) for _ in range(len(theta_lims))]
 
         cell_ids_list = [np.array(valid_pixels, dtype=np.int64)]
 

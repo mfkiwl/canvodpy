@@ -415,7 +415,7 @@ class TestIntegration:
 @pytest.mark.slow
 class TestWikipediaCache:
     """Tests for Wikipedia satellite list caching.
-    
+
     These tests are marked as slow because they involve network access.
     """
 

@@ -7,6 +7,7 @@ class TestPackageStructure:
     def test_package_imports(self):
         """Test that package can be imported."""
         import canvod.readers
+
         assert canvod.readers is not None
 
     def test_main_exports(self):

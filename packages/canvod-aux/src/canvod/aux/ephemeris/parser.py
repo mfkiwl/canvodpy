@@ -55,7 +55,7 @@ class Sp3Parser:
         with open(self.fpath) as f:
             # Skip header until first epoch marker
             for line in f:
-                if line.startswith('*'):
+                if line.startswith("*"):
                     current_epoch = self._parse_epoch_line(line)
                     epochs.append(current_epoch)
                     current_epoch_idx += 1
@@ -63,12 +63,12 @@ class Sp3Parser:
 
             # Single pass through file
             for line in f:
-                if line.startswith('*'):
+                if line.startswith("*"):
                     current_epoch = self._parse_epoch_line(line)
                     epochs.append(current_epoch)
                     current_epoch_idx += 1
 
-                elif line.startswith('P'):
+                elif line.startswith("P"):
                     sv_code = line[1:4].strip()
                     svs.add(sv_code)
 
@@ -76,15 +76,17 @@ class Sp3Parser:
                     y = self._parse_coordinate(line[18:32])
                     z = self._parse_coordinate(line[32:46])
 
-                    epoch_data.append((
-                        current_epoch_idx,
-                        sv_code,
-                        x if x is not None else np.nan,
-                        y if y is not None else np.nan,
-                        z if z is not None else np.nan,
-                    ))
+                    epoch_data.append(
+                        (
+                            current_epoch_idx,
+                            sv_code,
+                            x if x is not None else np.nan,
+                            y if y is not None else np.nan,
+                            z if z is not None else np.nan,
+                        )
+                    )
 
-                elif line.startswith('EOF'):
+                elif line.startswith("EOF"):
                     break
 
         # Build arrays
@@ -115,13 +117,13 @@ class Sp3Parser:
         # Create dataset
         ds = xr.Dataset(
             data_vars={
-                'X': (('epoch', 'sv'), x_data),
-                'Y': (('epoch', 'sv'), y_data),
-                'Z': (('epoch', 'sv'), z_data),
+                "X": (("epoch", "sv"), x_data),
+                "Y": (("epoch", "sv"), y_data),
+                "Z": (("epoch", "sv"), z_data),
             },
             coords={
-                'epoch': np.array(epochs, dtype='datetime64[ns]'),
-                'sv': np.array(sv_list),
+                "epoch": np.array(epochs, dtype="datetime64[ns]"),
+                "sv": np.array(sv_list),
             },
         )
 
@@ -181,48 +183,45 @@ class Sp3Parser:
             If coordinate cannot be parsed.
         """
         coord_str = coord_str.strip()
-        if not coord_str or coord_str == '999999.999999':
+        if not coord_str or coord_str == "999999.999999":
             return None
 
         try:
             return float(coord_str)
         except ValueError:
             # Handle missing spaces between fields
-            if '.' in coord_str:
-                parts = coord_str.split('.')
+            if "." in coord_str:
+                parts = coord_str.split(".")
                 if len(parts) == 2:
-                    integer_part = parts[0].replace(' ', '')
+                    integer_part = parts[0].replace(" ", "")
                     return float(f"{integer_part}.{parts[1]}")
             raise
 
     def _get_variable_attributes(self) -> dict[str, dict[str, str]]:
         """Get standardized attributes for position variables."""
         return {
-            'X': {
-                'long_name': 'x-coordinate in ECEF',
-                'standard_name': r'x_{ECEF}',
-                'short_name': 'x',
-                'units': 'm',
-                'axis': 'x',
-                'description':
-                'x-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
+            "X": {
+                "long_name": "x-coordinate in ECEF",
+                "standard_name": r"x_{ECEF}",
+                "short_name": "x",
+                "units": "m",
+                "axis": "x",
+                "description": "x-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame",
             },
-            'Y': {
-                'long_name': 'y-coordinate in ECEF',
-                'standard_name': r'y_{ECEF}',
-                'short_name': 'y',
-                'units': 'm',
-                'axis': 'y',
-                'description':
-                'y-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
+            "Y": {
+                "long_name": "y-coordinate in ECEF",
+                "standard_name": r"y_{ECEF}",
+                "short_name": "y",
+                "units": "m",
+                "axis": "y",
+                "description": "y-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame",
             },
-            'Z': {
-                'long_name': 'z-coordinate in ECEF',
-                'standard_name': r'z_{ECEF}',
-                'short_name': 'z',
-                'units': 'm',
-                'axis': 'z',
-                'description':
-                'z-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame',
+            "Z": {
+                "long_name": "z-coordinate in ECEF",
+                "standard_name": r"z_{ECEF}",
+                "short_name": "z",
+                "units": "m",
+                "axis": "z",
+                "description": "z-coordinate in ECEF (Earth-Centered, Earth-Fixed) frame",
             },
         }

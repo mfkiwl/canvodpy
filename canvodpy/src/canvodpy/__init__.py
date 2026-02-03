@@ -73,27 +73,30 @@ from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
 # Level 3 API: Re-export subpackages for advanced users
 # ============================================================================
 
+
 # Lazy import subpackages on access to avoid circular dependencies
 def __getattr__(name: str):
     """Lazy import subpackages when accessed."""
     _subpackages = {
         "aux": "canvod.aux",
-        "grids": "canvod.grids", 
+        "grids": "canvod.grids",
         "readers": "canvod.readers",
         "store": "canvod.store",
         "viz": "canvod.viz",
         "vod": "canvod.vod",
     }
-    
+
     if name in _subpackages:
         import importlib
         import sys
+
         module = importlib.import_module(_subpackages[name])
         # Cache the imported module (can't use globals() as it's shadowed by canvodpy.globals)
         setattr(sys.modules[__name__], name, module)
         return module
-    
+
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 # ============================================================================
 # Version
@@ -108,19 +111,16 @@ __version__ = "0.1.0"
 __all__ = [  # noqa: RUF022
     # Version
     "__version__",
-
     # High-level API (most users)
     "Site",
     "Pipeline",
     "process_date",
     "calculate_vod",
     "preview_processing",
-
     # Configuration (useful for all users)
     "KEEP_RNX_VARS",
     "RESEARCH_SITES",
     "DEFAULT_RESEARCH_SITE",
-
     # Subpackages (advanced users)
     "readers",
     "aux",

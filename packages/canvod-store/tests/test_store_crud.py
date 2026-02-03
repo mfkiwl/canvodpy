@@ -14,7 +14,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-import pytest
 import xarray as xr
 import zarr
 
@@ -195,9 +194,7 @@ class TestWriteReadOperations:
         # Read back
         with store.readonly_session() as session:
             root = zarr.open(session.store, mode="r")
-            loaded_ds = xr.open_zarr(
-                root.store, group="test_data", consolidated=False
-            )
+            loaded_ds = xr.open_zarr(root.store, group="test_data", consolidated=False)
 
             # Verify structure
             assert "temperature" in loaded_ds.data_vars

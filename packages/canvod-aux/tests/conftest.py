@@ -10,12 +10,12 @@ import xarray as xr
 def pytest_configure(config):
     """Configure pytest with custom markers."""
     config.addinivalue_line(
-        "markers",
-        "slow: marks tests as slow (deselect with '-m \"not slow\"')")
-    config.addinivalue_line("markers",
-                            "integration: marks tests as integration tests")
+        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+    )
+    config.addinivalue_line("markers", "integration: marks tests as integration tests")
     config.addinivalue_line(
-        "markers", "network: marks tests that require network access")
+        "markers", "network: marks tests that require network access"
+    )
 
 
 @pytest.fixture(scope="session")
@@ -31,9 +31,9 @@ def sample_sp3_data():
 
     Simulates raw SP3 data: (epoch: 96, sv: 4)
     """
-    base_time = np.datetime64('2024-01-01T00:00:00')
-    epochs = base_time + np.arange(96) * np.timedelta64(15, 'm')
-    svs = ['G01', 'G02', 'E01', 'R01']
+    base_time = np.datetime64("2024-01-01T00:00:00")
+    epochs = base_time + np.arange(96) * np.timedelta64(15, "m")
+    svs = ["G01", "G02", "E01", "R01"]
 
     # Realistic satellite positions (ECEF, meters)
     X = np.random.uniform(2e7, 3e7, size=(96, 4))
@@ -47,21 +47,22 @@ def sample_sp3_data():
 
     ds = xr.Dataset(
         {
-            'X': (['epoch', 'sv'], X),
-            'Y': (['epoch', 'sv'], Y),
-            'Z': (['epoch', 'sv'], Z),
-            'VX': (['epoch', 'sv'], VX),
-            'VY': (['epoch', 'sv'], VY),
-            'VZ': (['epoch', 'sv'], VZ),
+            "X": (["epoch", "sv"], X),
+            "Y": (["epoch", "sv"], Y),
+            "Z": (["epoch", "sv"], Z),
+            "VX": (["epoch", "sv"], VX),
+            "VY": (["epoch", "sv"], VY),
+            "VZ": (["epoch", "sv"], VZ),
         },
         coords={
-            'epoch': epochs,
-            'sv': svs,
+            "epoch": epochs,
+            "sv": svs,
         },
         attrs={
-            'Created': '2024-01-01T00:00:00Z',
-            'File Type': 'SP3',
-        })
+            "Created": "2024-01-01T00:00:00Z",
+            "File Type": "SP3",
+        },
+    )
 
     return ds
 
@@ -73,24 +74,26 @@ def sample_clk_data():
 
     Simulates raw CLK data: (epoch: 288, sv: 4)
     """
-    base_time = np.datetime64('2024-01-01T00:00:00')
-    epochs = base_time + np.arange(288) * np.timedelta64(5, 'm')
-    svs = ['G01', 'G02', 'E01', 'R01']
+    base_time = np.datetime64("2024-01-01T00:00:00")
+    epochs = base_time + np.arange(288) * np.timedelta64(5, "m")
+    svs = ["G01", "G02", "E01", "R01"]
 
     # Clock bias in seconds
     clock_bias = np.random.uniform(-1e-6, 1e-6, size=(288, 4))
 
-    ds = xr.Dataset({
-        'clock_bias': (['epoch', 'sv'], clock_bias),
-    },
-                    coords={
-                        'epoch': epochs,
-                        'sv': svs,
-                    },
-                    attrs={
-                        'Created': '2024-01-01T00:00:00Z',
-                        'File Type': 'CLK',
-                    })
+    ds = xr.Dataset(
+        {
+            "clock_bias": (["epoch", "sv"], clock_bias),
+        },
+        coords={
+            "epoch": epochs,
+            "sv": svs,
+        },
+        attrs={
+            "Created": "2024-01-01T00:00:00Z",
+            "File Type": "CLK",
+        },
+    )
 
     return ds
 
@@ -103,63 +106,63 @@ def sample_rinex_data():
     Simulates RINEX data: (epoch: 2880, sid: 48)
     48 unique signal IDs from 4 constellations.
     """
-    base_time = np.datetime64('2024-01-01T00:00:00')
-    epochs = base_time + np.arange(2880) * np.timedelta64(30, 's')
+    base_time = np.datetime64("2024-01-01T00:00:00")
+    epochs = base_time + np.arange(2880) * np.timedelta64(30, "s")
 
     # Generate 48 UNIQUE signal IDs across 4 constellations
     sids = [
         # GPS (12 sids: 4 satellites × 3 signals)
-        'G01|L1|C',
-        'G01|L2|W',
-        'G01|L5|I',
-        'G02|L1|C',
-        'G02|L2|W',
-        'G02|L5|I',
-        'G03|L1|C',
-        'G03|L2|W',
-        'G03|L5|I',
-        'G04|L1|C',
-        'G04|L2|W',
-        'G04|L5|I',
+        "G01|L1|C",
+        "G01|L2|W",
+        "G01|L5|I",
+        "G02|L1|C",
+        "G02|L2|W",
+        "G02|L5|I",
+        "G03|L1|C",
+        "G03|L2|W",
+        "G03|L5|I",
+        "G04|L1|C",
+        "G04|L2|W",
+        "G04|L5|I",
         # Galileo (12 sids: 4 satellites × 3 signals)
-        'E01|E1|C',
-        'E01|E5a|Q',
-        'E01|E5b|I',
-        'E02|E1|C',
-        'E02|E5a|Q',
-        'E02|E5b|I',
-        'E03|E1|C',
-        'E03|E5a|Q',
-        'E03|E5b|I',
-        'E04|E1|C',
-        'E04|E5a|Q',
-        'E04|E5b|I',
+        "E01|E1|C",
+        "E01|E5a|Q",
+        "E01|E5b|I",
+        "E02|E1|C",
+        "E02|E5a|Q",
+        "E02|E5b|I",
+        "E03|E1|C",
+        "E03|E5a|Q",
+        "E03|E5b|I",
+        "E04|E1|C",
+        "E04|E5a|Q",
+        "E04|E5b|I",
         # GLONASS (12 sids: 4 satellites × 3 signals)
-        'R01|G1|C',
-        'R01|G2|P',
-        'R01|G3|I',
-        'R02|G1|C',
-        'R02|G2|P',
-        'R02|G3|I',
-        'R03|G1|C',
-        'R03|G2|P',
-        'R03|G3|I',
-        'R04|G1|C',
-        'R04|G2|P',
-        'R04|G3|I',
+        "R01|G1|C",
+        "R01|G2|P",
+        "R01|G3|I",
+        "R02|G1|C",
+        "R02|G2|P",
+        "R02|G3|I",
+        "R03|G1|C",
+        "R03|G2|P",
+        "R03|G3|I",
+        "R04|G1|C",
+        "R04|G2|P",
+        "R04|G3|I",
         # BeiDou (12 sids: 4 satellites × 3 signals)
-        'C01|B1I|I',
-        'C01|B3I|I',
-        'C01|B2a|I',
-        'C02|B1I|I',
-        'C02|B3I|I',
-        'C02|B2a|I',
-        'C03|B1I|I',
-        'C03|B3I|I',
-        'C03|B2a|I',
-        'C04|B1I|I',
-        'C04|B3I|I',
-        'C04|B2a|I',
+        "C01|B1I|I",
+        "C01|B3I|I",
+        "C01|B2a|I",
+        "C02|B1I|I",
+        "C02|B3I|I",
+        "C02|B2a|I",
+        "C03|B1I|I",
+        "C03|B3I|I",
+        "C03|B2a|I",
+        "C04|B1I|I",
+        "C04|B3I|I",
+        "C04|B2a|I",
     ]
 
     # Verify uniqueness
@@ -169,23 +172,25 @@ def sample_rinex_data():
     # SNR data
     SNR = np.random.uniform(30, 55, size=(2880, 48))
 
-    ds = xr.Dataset({
-        'SNR': (['epoch', 'sid'], SNR),
-    },
-                    coords={
-                        'epoch': epochs,
-                        'sid': sids,
-                        'sv': (['sid'], [sid.split('|')[0] for sid in sids]),
-                        'band': (['sid'], [sid.split('|')[1] for sid in sids]),
-                        'code': (['sid'], [sid.split('|')[2] for sid in sids]),
-                    },
-                    attrs={
-                        'Created': '2024-01-01T00:00:00Z',
-                        'RINEX File Hash': 'abc123',
-                        'APPROX POSITION X': 4075539.8,
-                        'APPROX POSITION Y': 931735.3,
-                        'APPROX POSITION Z': 4801629.6,
-                    })
+    ds = xr.Dataset(
+        {
+            "SNR": (["epoch", "sid"], SNR),
+        },
+        coords={
+            "epoch": epochs,
+            "sid": sids,
+            "sv": (["sid"], [sid.split("|")[0] for sid in sids]),
+            "band": (["sid"], [sid.split("|")[1] for sid in sids]),
+            "code": (["sid"], [sid.split("|")[2] for sid in sids]),
+        },
+        attrs={
+            "Created": "2024-01-01T00:00:00Z",
+            "RINEX File Hash": "abc123",
+            "APPROX POSITION X": 4075539.8,
+            "APPROX POSITION Y": 931735.3,
+            "APPROX POSITION Z": 4801629.6,
+        },
+    )
 
     return ds
 
@@ -198,63 +203,63 @@ def sample_preprocessed_sp3():
     Output after preprocessing: (epoch: 96, sid: 48)
     Must match sample_rinex_data sid structure.
     """
-    base_time = np.datetime64('2024-01-01T00:00:00')
-    epochs = base_time + np.arange(96) * np.timedelta64(15, 'm')
+    base_time = np.datetime64("2024-01-01T00:00:00")
+    epochs = base_time + np.arange(96) * np.timedelta64(15, "m")
 
     # Same 48 unique sids as sample_rinex_data
     sids = [
         # GPS (12 sids: 4 satellites × 3 signals)
-        'G01|L1|C',
-        'G01|L2|W',
-        'G01|L5|I',
-        'G02|L1|C',
-        'G02|L2|W',
-        'G02|L5|I',
-        'G03|L1|C',
-        'G03|L2|W',
-        'G03|L5|I',
-        'G04|L1|C',
-        'G04|L2|W',
-        'G04|L5|I',
+        "G01|L1|C",
+        "G01|L2|W",
+        "G01|L5|I",
+        "G02|L1|C",
+        "G02|L2|W",
+        "G02|L5|I",
+        "G03|L1|C",
+        "G03|L2|W",
+        "G03|L5|I",
+        "G04|L1|C",
+        "G04|L2|W",
+        "G04|L5|I",
         # Galileo (12 sids: 4 satellites × 3 signals)
-        'E01|E1|C',
-        'E01|E5a|Q',
-        'E01|E5b|I',
-        'E02|E1|C',
-        'E02|E5a|Q',
-        'E02|E5b|I',
-        'E03|E1|C',
-        'E03|E5a|Q',
-        'E03|E5b|I',
-        'E04|E1|C',
-        'E04|E5a|Q',
-        'E04|E5b|I',
+        "E01|E1|C",
+        "E01|E5a|Q",
+        "E01|E5b|I",
+        "E02|E1|C",
+        "E02|E5a|Q",
+        "E02|E5b|I",
+        "E03|E1|C",
+        "E03|E5a|Q",
+        "E03|E5b|I",
+        "E04|E1|C",
+        "E04|E5a|Q",
+        "E04|E5b|I",
         # GLONASS (12 sids: 4 satellites × 3 signals)
-        'R01|G1|C',
-        'R01|G2|P',
-        'R01|G3|I',
-        'R02|G1|C',
-        'R02|G2|P',
-        'R02|G3|I',
-        'R03|G1|C',
-        'R03|G2|P',
-        'R03|G3|I',
-        'R04|G1|C',
-        'R04|G2|P',
-        'R04|G3|I',
+        "R01|G1|C",
+        "R01|G2|P",
+        "R01|G3|I",
+        "R02|G1|C",
+        "R02|G2|P",
+        "R02|G3|I",
+        "R03|G1|C",
+        "R03|G2|P",
+        "R03|G3|I",
+        "R04|G1|C",
+        "R04|G2|P",
+        "R04|G3|I",
         # BeiDou (12 sids: 4 satellites × 3 signals)
-        'C01|B1I|I',
-        'C01|B3I|I',
-        'C01|B2a|D',
-        'C02|B1I|I',
-        'C02|B3I|I',
-        'C02|B2a|P',
-        'C03|B1I|I',
-        'C03|B3I|I',
-        'C03|B2a|X',
-        'C04|B1I|I',
-        'C04|B3I|I',
-        'C04|B2a|P',
+        "C01|B1I|I",
+        "C01|B3I|I",
+        "C01|B2a|D",
+        "C02|B1I|I",
+        "C02|B3I|I",
+        "C02|B2a|P",
+        "C03|B1I|I",
+        "C03|B3I|I",
+        "C03|B2a|X",
+        "C04|B1I|I",
+        "C04|B3I|I",
+        "C04|B2a|P",
     ]
 
     assert len(sids) == 48
@@ -266,17 +271,18 @@ def sample_preprocessed_sp3():
 
     ds = xr.Dataset(
         {
-            'X': (['epoch', 'sid'], X),
-            'Y': (['epoch', 'sid'], Y),
-            'Z': (['epoch', 'sid'], Z),
+            "X": (["epoch", "sid"], X),
+            "Y": (["epoch", "sid"], Y),
+            "Z": (["epoch", "sid"], Z),
         },
         coords={
-            'epoch': epochs,
-            'sid': sids,
+            "epoch": epochs,
+            "sid": sids,
         },
         attrs={
-            'Created': '2024-01-01T00:00:00Z',
-        })
+            "Created": "2024-01-01T00:00:00Z",
+        },
+    )
 
     return ds
 
@@ -285,6 +291,7 @@ def sample_preprocessed_sp3():
 def ecef_position():
     """Fixture providing sample ECEF position (TU Wien station)."""
     from canvod.aux import ECEFPosition
+
     return ECEFPosition(x=4075539.8, y=931735.3, z=4801629.6)
 
 

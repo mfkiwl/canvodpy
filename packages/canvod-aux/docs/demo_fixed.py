@@ -7,7 +7,8 @@ app = marimo.App(width="columns")
 @app.cell
 def _():
     import marimo as mo
-    return (mo, )
+
+    return (mo,)
 
 
 @app.cell(hide_code=True)
@@ -45,6 +46,7 @@ def _():
         list_agencies,
         list_available_products,
     )
+
     return (
         get_product_spec,
         get_products_for_agency,
@@ -62,7 +64,7 @@ def _(list_agencies, list_available_products):
     print(f"Available Analysis Centers: {len(agencies)}")
     print(f"Total Products: {len(all_products)}")
     print(f"\nAgencies: {', '.join(sorted(agencies))}")
-    return (agencies, )
+    return (agencies,)
 
 
 @app.cell(hide_code=True)
@@ -76,11 +78,11 @@ def _(mo):
 @app.cell
 def _(agencies, mo):
     # Interactive agency selector
-    selected_agency = mo.ui.dropdown(options=sorted(agencies),
-                                     value="COD",
-                                     label="Select Analysis Center:")
+    selected_agency = mo.ui.dropdown(
+        options=sorted(agencies), value="COD", label="Select Analysis Center:"
+    )
     selected_agency
-    return (selected_agency, )
+    return (selected_agency,)
 
 
 @app.cell
@@ -91,7 +93,7 @@ def _(get_products_for_agency, selected_agency):
     print(f"\n{selected_agency.value} Products:")
     for _product_key in sorted(agency_products):
         print(f"  • {_product_key}")
-    return (agency_products, )
+    return (agency_products,)
 
 
 @app.cell(hide_code=True)
@@ -108,9 +110,10 @@ def _(agency_products, mo):
     selected_product = mo.ui.dropdown(
         options=sorted(agency_products) if agency_products else [],
         value=sorted(agency_products)[0] if agency_products else None,
-        label="Select Product Type:")
+        label="Select Product Type:",
+    )
     selected_product
-    return (selected_product, )
+    return (selected_product,)
 
 
 @app.cell(hide_code=True)
@@ -126,8 +129,7 @@ def _(get_product_spec, mo, selected_agency, selected_product):
     # Show detailed product specifications
     product_spec = None
     if selected_product.value:
-        product_spec = get_product_spec(selected_agency.value,
-                                        selected_product.value)
+        product_spec = get_product_spec(selected_agency.value, selected_product.value)
 
         details = f"""
         ### {product_spec.prefix}
@@ -136,7 +138,7 @@ def _(get_product_spec, mo, selected_agency, selected_product):
         **Latency:** {product_spec.latency_hours} hours
         **Sampling Rate:** {product_spec.sampling_rate}
         **Duration:** {product_spec.duration}
-        **Available Formats:** {', '.join(product_spec.available_formats)}
+        **Available Formats:** {", ".join(product_spec.available_formats)}
 
         **Description:** {product_spec.description}
 
@@ -160,11 +162,11 @@ def _(mo):
 def _(mo):
     # Compare different product types
     product_types = ["final", "rapid"]
-    comparison_selector = mo.ui.multiselect(options=product_types,
-                                            value=["rapid"],
-                                            label="Compare Product Types:")
+    comparison_selector = mo.ui.multiselect(
+        options=product_types, value=["rapid"], label="Compare Product Types:"
+    )
     comparison_selector
-    return (comparison_selector, )
+    return (comparison_selector,)
 
 
 @app.cell
@@ -176,27 +178,23 @@ def _(comparison_selector, get_product_spec, selected_agency):
     for _ptype in comparison_selector.value:
         try:
             _pspec = get_product_spec(selected_agency.value, _ptype)
-            _comparison_data.append({
-                "Type":
-                _ptype,
-                "Prefix":
-                _pspec.prefix,
-                "Latency (h)":
-                _pspec.latency_hours,
-                "Sampling":
-                _pspec.sampling_rate,
-                "Duration":
-                _pspec.duration,
-                "Formats":
-                ", ".join(_pspec.available_formats),
-            })
+            _comparison_data.append(
+                {
+                    "Type": _ptype,
+                    "Prefix": _pspec.prefix,
+                    "Latency (h)": _pspec.latency_hours,
+                    "Sampling": _pspec.sampling_rate,
+                    "Duration": _pspec.duration,
+                    "Formats": ", ".join(_pspec.available_formats),
+                }
+            )
         except Exception:
             pass
 
     if _comparison_data:
         comparison_df = pl.DataFrame(_comparison_data)
         print(comparison_df)
-    return (pl, )
+    return (pl,)
 
 
 @app.cell(hide_code=True)
@@ -216,12 +214,14 @@ def _(get_product_spec, get_products_for_agency, list_agencies, pl):
         # Get sample product for agency name
         if _prods:
             _sample = get_product_spec(_agn, _prods[0])
-            _overview_data.append({
-                "Code": _agn,
-                "Agency": _sample.agency_name,
-                "Products": len(_prods),
-                "Types": ", ".join(sorted(_prods)),
-            })
+            _overview_data.append(
+                {
+                    "Code": _agn,
+                    "Agency": _sample.agency_name,
+                    "Products": len(_prods),
+                    "Types": ", ".join(sorted(_prods)),
+                }
+            )
 
     overview_df = pl.DataFrame(_overview_data)
     print(overview_df)
@@ -276,15 +276,16 @@ def _(get_product_spec, list_agencies):
         ax.set_yticklabels(_labels, fontsize=8)
         ax.set_xlabel("Latency (hours)")
         ax.set_title("Product Latency by Analysis Center")
-        ax.grid(axis='x', alpha=0.3)
+        ax.grid(axis="x", alpha=0.3)
 
         # Add legend
         from matplotlib.patches import Patch
+
         _legend_elements = [
             Patch(facecolor="#2E86AB", label="Final"),
             Patch(facecolor="#A23B72", label="Rapid"),
         ]
-        ax.legend(handles=_legend_elements, loc='lower right')
+        ax.legend(handles=_legend_elements, loc="lower right")
 
         plt.tight_layout()
         plt.show()
@@ -309,6 +310,7 @@ def _(get_product_spec, list_available_products, plt):
 
     # Count occurrences
     from collections import Counter
+
     _rate_counts = Counter(_sampling_data.values())
 
     # Create pie chart
@@ -316,7 +318,7 @@ def _(get_product_spec, list_available_products, plt):
     _rates = list(_rate_counts.keys())
     _counts = list(_rate_counts.values())
 
-    ax2.pie(_counts, labels=_rates, autopct='%1.1f%%', startangle=90)
+    ax2.pie(_counts, labels=_rates, autopct="%1.1f%%", startangle=90)
     ax2.set_title("Sampling Rate Distribution Across Products")
     plt.tight_layout()
     plt.show()
@@ -353,9 +355,9 @@ def _(mo):
     else:
         print("ℹ CDDIS Fallback: Disabled (ESA only)")
 
-    dir_input = mo.ui.text(value=str(default_dir),
-                           label="Download Directory:",
-                           full_width=True)
+    dir_input = mo.ui.text(
+        value=str(default_dir), label="Download Directory:", full_width=True
+    )
     dir_input
     return dir_input, os
 
@@ -365,15 +367,11 @@ def _(mo):
     import datetime
 
     # Date selection with dropdown for year
-    date_year = mo.ui.dropdown(options=[2020, 2021, 2022, 2023, 2024],
-                               value=2023,
-                               label="Year:")
+    date_year = mo.ui.dropdown(
+        options=[2020, 2021, 2022, 2023, 2024], value=2023, label="Year:"
+    )
 
-    date_month = mo.ui.number(value=9,
-                              start=1,
-                              stop=12,
-                              step=1,
-                              label="Month:")
+    date_month = mo.ui.number(value=9, start=1, stop=12, step=1, label="Month:")
 
     date_day = mo.ui.number(value=11, start=1, stop=31, step=1, label="Day:")
 
@@ -384,22 +382,19 @@ def _(mo):
 @app.cell
 def _(date_day, date_month, date_year, datetime):
     # Construct date
-    selected_date = datetime.date(date_year.value, date_month.value,
-                                  date_day.value)
-    print(
-        f"Selected date: {selected_date} (DOY: {selected_date.timetuple().tm_yday})"
-    )
-    return (selected_date, )
+    selected_date = datetime.date(date_year.value, date_month.value, date_day.value)
+    print(f"Selected date: {selected_date} (DOY: {selected_date.timetuple().tm_yday})")
+    return (selected_date,)
 
 
 @app.cell
 def _(mo):
     # Server selection
-    server_selector = mo.ui.radio(options=["ESA", "NASA+ESA"],
-                                  value="ESA",
-                                  label="FTP Server:")
+    server_selector = mo.ui.radio(
+        options=["ESA", "NASA+ESA"], value="ESA", label="FTP Server:"
+    )
     server_selector
-    return (server_selector, )
+    return (server_selector,)
 
 
 @app.cell(hide_code=True)
@@ -452,7 +447,7 @@ def _(mo):
     # Download button
     download_sp3_button = mo.ui.button(label="Download SP3")
     download_sp3_button
-    return (download_sp3_button, )
+    return (download_sp3_button,)
 
 
 @app.cell
@@ -476,8 +471,11 @@ def _(
 
         try:
             # Setup downloader
-            _user_email = os.environ.get(
-                "CDDIS_MAIL") if server_selector.value == "NASA+ESA" else None
+            _user_email = (
+                os.environ.get("CDDIS_MAIL")
+                if server_selector.value == "NASA+ESA"
+                else None
+            )
             _downloader = FtpDownloader(user_email=_user_email)
 
             # Download file using from_datetime_date()
@@ -515,8 +513,7 @@ def _(
             """)
     else:
         # Button not clicked yet
-        sp3_download_output = mo.md(
-            "⬇️ Click **Download SP3** to fetch a file.")
+        sp3_download_output = mo.md("⬇️ Click **Download SP3** to fetch a file.")
 
     sp3_download_output
     return
@@ -541,7 +538,7 @@ def _(mo):
     # Read button
     read_sp3_button = mo.ui.button(label="Read SP3 Dataset")
     read_sp3_button
-    return (read_sp3_button, )
+    return (read_sp3_button,)
 
 
 @app.cell
@@ -602,7 +599,7 @@ def _(mo):
 def _(mo):
     download_clk_button = mo.ui.button(label="Download CLK")
     download_clk_button
-    return (download_clk_button, )
+    return (download_clk_button,)
 
 
 @app.cell
@@ -624,8 +621,11 @@ def _(
         os.makedirs(_download_dir, exist_ok=True)
 
         try:
-            _user_email = os.environ.get(
-                "CDDIS_MAIL") if server_selector.value == "NASA+ESA" else None
+            _user_email = (
+                os.environ.get("CDDIS_MAIL")
+                if server_selector.value == "NASA+ESA"
+                else None
+            )
             _downloader = FtpDownloader(user_email=_user_email)
 
             _clk_file = ClkFile.from_datetime_date(
@@ -658,8 +658,7 @@ def _(
             *Tip: Try a different date or enable NASA CDDIS fallback*
             """)
     else:
-        clk_download_output = mo.md(
-            "⬇️ Click **Download CLK** to fetch a file.")
+        clk_download_output = mo.md("⬇️ Click **Download CLK** to fetch a file.")
 
     clk_download_output
     return
@@ -678,7 +677,7 @@ def _(mo):
 def _(mo):
     read_clk_button = mo.ui.button(label="Read CLK Dataset")
     read_clk_button
-    return (read_clk_button, )
+    return (read_clk_button,)
 
 
 @app.cell
@@ -749,12 +748,13 @@ def _(Sp3File, mo, np, sp3_state):
                 ### SP3 with Velocities (from_file)
 
                 **Variables:** {list(_sp3_vel_ds.data_vars)}
-                **Has Velocities:** {'Vx' in _sp3_vel_ds.data_vars}
+                **Has Velocities:** {"Vx" in _sp3_vel_ds.data_vars}
                 """
 
-                if 'Vx' in _sp3_vel_ds.data_vars:
-                    _v_mag = np.sqrt(_sp3_vel_ds.Vx**2 + _sp3_vel_ds.Vy**2 +
-                                     _sp3_vel_ds.Vz**2)
+                if "Vx" in _sp3_vel_ds.data_vars:
+                    _v_mag = np.sqrt(
+                        _sp3_vel_ds.Vx**2 + _sp3_vel_ds.Vy**2 + _sp3_vel_ds.Vz**2
+                    )
                     _info += f"""
 
                     **Velocity Statistics:**
@@ -774,12 +774,14 @@ def _(Sp3File, mo, np, sp3_state):
         else:
             read_vel_output = mo.md("⚠️ Download an SP3 file first")
     else:
-        read_vel_output = mo.vstack([
-            read_sp3_velocities_button,
-            mo.
-            md("👆 Click to demonstrate `from_file()` with velocity calculation"
-               )
-        ])
+        read_vel_output = mo.vstack(
+            [
+                read_sp3_velocities_button,
+                mo.md(
+                    "👆 Click to demonstrate `from_file()` with velocity calculation"
+                ),
+            ]
+        )
 
     read_vel_output
     return

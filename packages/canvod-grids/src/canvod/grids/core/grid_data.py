@@ -1,4 +1,5 @@
 """Grid data container for hemisphere grids."""
+
 from dataclasses import dataclass
 from typing import Any
 

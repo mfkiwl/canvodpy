@@ -28,47 +28,47 @@ if TYPE_CHECKING:
 
 class HemisphereVisualizer:
     """Unified hemisphere visualizer combining 2D and 3D capabilities.
-    
+
     Provides consistent API for both publication-quality matplotlib plots
     and interactive plotly visualizations. Handles styling coordination
     between different rendering backends.
-    
+
     Parameters
     ----------
     grid : HemiGrid
         Hemisphere grid to visualize
-    
+
     Examples
     --------
     Create both 2D and 3D visualizations::
-    
+
         from canvod.grids import create_hemigrid
         from canvod.viz import HemisphereVisualizer
-        
+
         grid = create_hemigrid(grid_type='equal_area', angular_resolution=10.0)
         viz = HemisphereVisualizer(grid)
-        
+
         # Publication-quality 2D plot
         fig_2d, ax_2d = viz.plot_2d(
             data=vod_data,
             title="VOD Distribution",
             save_path="publication.png"
         )
-        
+
         # Interactive 3D plot
         fig_3d = viz.plot_3d(
             data=vod_data,
             title="Interactive VOD Explorer"
         )
         fig_3d.show()
-    
+
     Switch styles easily::
-    
+
         # Publication style
         pub_style = create_publication_style()
         viz.set_style(pub_style)
         fig, ax = viz.plot_2d(data=vod_data)
-        
+
         # Interactive style
         int_style = create_interactive_style(dark_mode=True)
         viz.set_style(int_style)
@@ -78,7 +78,7 @@ class HemisphereVisualizer:
 
     def __init__(self, grid: HemiGrid) -> None:
         """Initialize unified visualizer.
-        
+
         Parameters
         ----------
         grid : HemiGrid
@@ -96,12 +96,12 @@ class HemisphereVisualizer:
 
     def set_style(self, style: PlotStyle) -> None:
         """Set unified styling for both 2D and 3D plots.
-        
+
         Parameters
         ----------
         style : PlotStyle
             Styling configuration
-        
+
         Examples
         --------
         >>> pub_style = create_publication_style()
@@ -121,7 +121,7 @@ class HemisphereVisualizer:
         **kwargs: Any,
     ) -> tuple[Figure, Axes]:
         """Create 2D publication-quality plot.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -136,14 +136,14 @@ class HemisphereVisualizer:
             Override default 2D style
         **kwargs
             Additional styling parameters
-        
+
         Returns
         -------
         fig : matplotlib.figure.Figure
             Figure object
         ax : matplotlib.axes.Axes
             Polar axes with plot
-        
+
         Examples
         --------
         >>> fig, ax = viz.plot_2d(
@@ -162,11 +162,7 @@ class HemisphereVisualizer:
             style.title = title
 
         return self.viz_2d.plot_grid_patches(
-            data=data,
-            style=style,
-            ax=ax,
-            save_path=save_path,
-            **kwargs
+            data=data, style=style, ax=ax, save_path=save_path, **kwargs
         )
 
     def plot_3d(
@@ -177,7 +173,7 @@ class HemisphereVisualizer:
         **kwargs: Any,
     ) -> go.Figure:
         """Create 3D interactive plot.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -188,12 +184,12 @@ class HemisphereVisualizer:
             Override default 3D style
         **kwargs
             Additional plotly parameters
-        
+
         Returns
         -------
         plotly.graph_objects.Figure
             Interactive 3D figure
-        
+
         Examples
         --------
         >>> fig = viz.plot_3d(
@@ -211,10 +207,7 @@ class HemisphereVisualizer:
             style = self.style
 
         return self.viz_3d.plot_hemisphere_surface(
-            data=data,
-            style=style,
-            title=title,
-            **kwargs
+            data=data, style=style, title=title, **kwargs
         )
 
     def plot_3d_mesh(
@@ -224,7 +217,7 @@ class HemisphereVisualizer:
         **kwargs: Any,
     ) -> go.Figure:
         """Create 3D mesh plot showing cell boundaries.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -233,12 +226,12 @@ class HemisphereVisualizer:
             Plot title
         **kwargs
             Additional plotly parameters
-        
+
         Returns
         -------
         plotly.graph_objects.Figure
             Interactive mesh figure
-        
+
         Examples
         --------
         >>> fig = viz.plot_3d_mesh(
@@ -248,11 +241,7 @@ class HemisphereVisualizer:
         ... )
 
         """
-        return self.viz_3d.plot_cell_mesh(
-            data=data,
-            title=title,
-            **kwargs
-        )
+        return self.viz_3d.plot_cell_mesh(data=data, title=title, **kwargs)
 
     def create_comparison_plot(
         self,
@@ -263,7 +252,7 @@ class HemisphereVisualizer:
         save_3d: Path | str | None = None,
     ) -> tuple[tuple[Figure, Axes], go.Figure]:
         """Create both 2D and 3D plots for comparison.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -276,14 +265,14 @@ class HemisphereVisualizer:
             Save 2D figure to this path
         save_3d : Path or str, optional
             Save 3D figure to this path (HTML)
-        
+
         Returns
         -------
         plot_2d : tuple of Figure and Axes
             2D matplotlib plot
         plot_3d : plotly.graph_objects.Figure
             3D plotly plot
-        
+
         Examples
         --------
         >>> (fig_2d, ax_2d), fig_3d = viz.create_comparison_plot(
@@ -296,17 +285,10 @@ class HemisphereVisualizer:
 
         """
         # Create 2D plot
-        fig_2d, ax_2d = self.plot_2d(
-            data=data,
-            title=title_2d,
-            save_path=save_2d
-        )
+        fig_2d, ax_2d = self.plot_2d(data=data, title=title_2d, save_path=save_2d)
 
         # Create 3D plot
-        fig_3d = self.plot_3d(
-            data=data,
-            title=title_3d
-        )
+        fig_3d = self.plot_3d(data=data, title=title_3d)
 
         # Save 3D if requested
         if save_3d:
@@ -325,7 +307,7 @@ class HemisphereVisualizer:
         **kwargs: Any,
     ) -> tuple[Figure, Axes]:
         """Create publication-ready figure with optimal styling.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -338,14 +320,14 @@ class HemisphereVisualizer:
             Resolution in dots per inch
         **kwargs
             Additional styling parameters
-        
+
         Returns
         -------
         fig : matplotlib.figure.Figure
             Publication-ready figure
         ax : matplotlib.axes.Axes
             Styled polar axes
-        
+
         Examples
         --------
         >>> fig, ax = viz.create_publication_figure(
@@ -367,11 +349,7 @@ class HemisphereVisualizer:
             if hasattr(polar_style, key):
                 setattr(polar_style, key, value)
 
-        return self.plot_2d(
-            data=data,
-            style=polar_style,
-            save_path=save_path
-        )
+        return self.plot_2d(data=data, style=polar_style, save_path=save_path)
 
     def create_interactive_explorer(
         self,
@@ -381,7 +359,7 @@ class HemisphereVisualizer:
         save_html: Path | str | None = None,
     ) -> go.Figure:
         """Create interactive explorer with optimal settings.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -392,12 +370,12 @@ class HemisphereVisualizer:
             Use dark theme
         save_html : Path or str, optional
             Save HTML to this path
-        
+
         Returns
         -------
         plotly.graph_objects.Figure
             Interactive explorer figure
-        
+
         Examples
         --------
         >>> fig = viz.create_interactive_explorer(
@@ -412,11 +390,7 @@ class HemisphereVisualizer:
         # Use interactive style
         int_style = create_interactive_style(dark_mode=dark_mode)
 
-        fig = self.plot_3d(
-            data=data,
-            title=title,
-            style=int_style
-        )
+        fig = self.plot_3d(data=data, title=title, style=int_style)
 
         # Save if requested
         if save_html:

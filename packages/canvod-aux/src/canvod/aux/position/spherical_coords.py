@@ -37,7 +37,7 @@ def compute_spherical_coordinates(
       * phi = π → South
       * phi = 3π/2 → West
     - r: Radial distance in meters
-    
+
     Note
     ----
     The phi convention follows geographic/navigation standards where:
@@ -106,7 +106,7 @@ def compute_spherical_coordinates(
     theta = np.arccos(cos_theta)
 
     # Mask satellites below horizon (u < 0 means below horizon)
-    below_horizon = (u < 0)
+    below_horizon = u < 0
 
     # Compute phi: azimuthal angle from North, clockwise (navigation convention)
     # phi = arctan2(East, North) gives North=0°, East=90°, South=180°, West=270°
@@ -159,50 +159,47 @@ def add_spherical_coords_to_dataset(
     >>> augmented_ds = add_spherical_coords_to_dataset(rinex_ds, r, theta, phi)
     >>> print(augmented_ds.phi.attrs['description'])
     """
-    ds = ds.assign({
-        "phi":
-        xr.DataArray(
-            phi,
-            coords=[ds["epoch"], ds["sid"]],
-            dims=["epoch", "sid"],
-            attrs={
-                "long_name": "Azimuthal angle (physics convention)",
-                "short_name": "φ",
-                "units": "rad",
-                "description": (
-                    "Azimuthal angle from East (+x) in ENU frame, "
-                    "counter-clockwise"
-                ),
-                "valid_range": [0.0, 2 * np.pi],
-                "convention":
-                "physics (0=East, π/2=North, π=West, 3π/2=South)",
-            },
-        ),
-        "theta":
-        xr.DataArray(
-            theta,
-            coords=[ds["epoch"], ds["sid"]],
-            dims=["epoch", "sid"],
-            attrs={
-                "long_name": "Polar angle (physics convention)",
-                "short_name": "θ",
-                "units": "rad",
-                "description": "Polar angle from zenith (+z/Up)",
-                "valid_range": [0.0, np.pi / 2],
-                "convention": "physics (0=zenith, π/2=horizon)",
-            },
-        ),
-        "r":
-        xr.DataArray(
-            r,
-            coords=[ds["epoch"], ds["sid"]],
-            dims=["epoch", "sid"],
-            attrs={
-                "long_name": "Distance",
-                "short_name": "r",
-                "units": "m",
-                "description": "Distance between satellite and receiver",
-            },
-        ),
-    })
+    ds = ds.assign(
+        {
+            "phi": xr.DataArray(
+                phi,
+                coords=[ds["epoch"], ds["sid"]],
+                dims=["epoch", "sid"],
+                attrs={
+                    "long_name": "Azimuthal angle (physics convention)",
+                    "short_name": "φ",
+                    "units": "rad",
+                    "description": (
+                        "Azimuthal angle from East (+x) in ENU frame, counter-clockwise"
+                    ),
+                    "valid_range": [0.0, 2 * np.pi],
+                    "convention": "physics (0=East, π/2=North, π=West, 3π/2=South)",
+                },
+            ),
+            "theta": xr.DataArray(
+                theta,
+                coords=[ds["epoch"], ds["sid"]],
+                dims=["epoch", "sid"],
+                attrs={
+                    "long_name": "Polar angle (physics convention)",
+                    "short_name": "θ",
+                    "units": "rad",
+                    "description": "Polar angle from zenith (+z/Up)",
+                    "valid_range": [0.0, np.pi / 2],
+                    "convention": "physics (0=zenith, π/2=horizon)",
+                },
+            ),
+            "r": xr.DataArray(
+                r,
+                coords=[ds["epoch"], ds["sid"]],
+                dims=["epoch", "sid"],
+                attrs={
+                    "long_name": "Distance",
+                    "short_name": "r",
+                    "units": "m",
+                    "description": "Distance between satellite and receiver",
+                },
+            ),
+        }
+    )
     return ds

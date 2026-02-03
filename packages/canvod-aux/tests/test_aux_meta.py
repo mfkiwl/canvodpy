@@ -4,6 +4,7 @@ Meta tests for canvod-aux package.
 Tests basic imports and package structure to ensure
 the package is properly configured.
 """
+
 import pytest
 
 
@@ -12,6 +13,7 @@ def _can_import_pipeline():
     """Check if pipeline can be imported (requires gnssvodpy)."""
     try:
         from canvod.aux import AuxDataPipeline
+
         return True
     except (ImportError, AttributeError):
         return False
@@ -21,6 +23,7 @@ def _can_import_augmentation():
     """Check if augmentation can be imported (requires gnssvodpy)."""
     try:
         from canvod.aux import AuxDataAugmenter
+
         return True
     except (ImportError, AttributeError):
         return False
@@ -30,6 +33,7 @@ def _can_import_augmentation():
 def test_package_imports():
     """Test that main package can be imported."""
     import canvod.aux
+
     assert canvod.aux is not None
 
 
@@ -38,6 +42,7 @@ def test_internal_utilities_import():
     from canvod.utils.tools import YYYYDOY
 
     from canvod.aux._internal import UREG, get_logger
+
     assert UREG is not None
     assert YYYYDOY is not None
     assert get_logger is not None
@@ -68,27 +73,26 @@ def test_public_api_imports():
     import canvod.aux
 
     # Core classes should always be available
-    assert hasattr(canvod.aux, 'Sp3File')
-    assert hasattr(canvod.aux, 'ClkFile')
-    assert hasattr(canvod.aux, 'AuxFile')
+    assert hasattr(canvod.aux, "Sp3File")
+    assert hasattr(canvod.aux, "ClkFile")
+    assert hasattr(canvod.aux, "AuxFile")
 
     # Optional classes (require gnssvodpy)
     # These may or may not be available depending on whether gnssvodpy is installed
 
 
 @pytest.mark.skipif(
-    not _can_import_pipeline(),
-    reason="Requires gnssvodpy (optional dependency)"
+    not _can_import_pipeline(), reason="Requires gnssvodpy (optional dependency)"
 )
 def test_pipeline_import():
     """Test that pipeline can be imported (requires gnssvodpy)."""
     from canvod.aux import AuxDataPipeline
+
     assert AuxDataPipeline is not None
 
 
 @pytest.mark.skipif(
-    not _can_import_augmentation(),
-    reason="Requires gnssvodpy (optional dependency)"
+    not _can_import_augmentation(), reason="Requires gnssvodpy (optional dependency)"
 )
 def test_augmentation_imports():
     """Test that augmentation framework can be imported (requires gnssvodpy)."""
@@ -128,5 +132,6 @@ def test_container_imports():
 def test_version_attribute():
     """Test that package has version attribute."""
     import canvod.aux
-    assert hasattr(canvod.aux, '__version__')
+
+    assert hasattr(canvod.aux, "__version__")
     assert canvod.aux.__version__ == "0.1.0"

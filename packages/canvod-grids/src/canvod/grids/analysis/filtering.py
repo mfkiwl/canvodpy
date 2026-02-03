@@ -132,9 +132,7 @@ class ZScoreFilter(Filter):
         """Initialize the filter."""
         super().__init__("zscore")
 
-    def compute_mask(
-        self, data: xr.DataArray, threshold: float = 3.0
-    ) -> xr.DataArray:
+    def compute_mask(self, data: xr.DataArray, threshold: float = 3.0) -> xr.DataArray:
         """Compute z-score mask.
 
         Parameters
@@ -172,9 +170,7 @@ class IQRFilter(Filter):
         """Initialize the filter."""
         super().__init__("iqr")
 
-    def compute_mask(
-        self, data: xr.DataArray, factor: float = 1.5
-    ) -> xr.DataArray:
+    def compute_mask(self, data: xr.DataArray, factor: float = 1.5) -> xr.DataArray:
         """Compute IQR mask.
 
         Parameters
@@ -358,9 +354,7 @@ class FilterPipeline:
         self.var_name = var_name
         self.filters: list[tuple[Filter, dict]] = []
 
-    def add_filter(
-        self, filter_obj: Filter | str, **kwargs: Any
-    ) -> FilterPipeline:
+    def add_filter(self, filter_obj: Filter | str, **kwargs: Any) -> FilterPipeline:
         """Add filter to pipeline.
 
         Parameters
@@ -445,9 +439,7 @@ class FilterPipeline:
                 cumulative_suffix = "_".join(filter_names)
                 filtered_data = ds_out[self.var_name].where(cumulative_mask)
 
-                filtered_var_name = (
-                    f"{self.var_name}_filtered_{cumulative_suffix}"
-                )
+                filtered_var_name = f"{self.var_name}_filtered_{cumulative_suffix}"
                 cumulative_mask_name = f"mask_{cumulative_suffix}"
 
                 ds_out[filtered_var_name] = filtered_data
@@ -465,8 +457,7 @@ class FilterPipeline:
                     "fraction_removed": float(n_removed / n_total),
                     "timestamp": datetime.now().isoformat(),
                     "filters": {
-                        fname: params
-                        for fname, params in zip(filter_names, all_params)
+                        fname: params for fname, params in zip(filter_names, all_params)
                     },
                 }
 
@@ -474,21 +465,15 @@ class FilterPipeline:
                 ds_out[cumulative_mask_name].attrs = metadata
 
             if output_name:
-                final_var = (
-                    f"{self.var_name}_filtered_{'_'.join(filter_names)}"
-                )
+                final_var = f"{self.var_name}_filtered_{'_'.join(filter_names)}"
                 final_mask = f"mask_{'_'.join(filter_names)}"
 
-                ds_out[f"{self.var_name}_filtered_{output_name}"] = ds_out[
-                    final_var
-                ]
+                ds_out[f"{self.var_name}_filtered_{output_name}"] = ds_out[final_var]
                 ds_out[f"mask_{output_name}"] = ds_out[final_mask]
-                ds_out[
-                    f"{self.var_name}_filtered_{output_name}"
-                ].attrs = ds_out[final_var].attrs
-                ds_out[f"mask_{output_name}"].attrs = ds_out[
-                    final_mask
+                ds_out[f"{self.var_name}_filtered_{output_name}"].attrs = ds_out[
+                    final_var
                 ].attrs
+                ds_out[f"mask_{output_name}"].attrs = ds_out[final_mask].attrs
 
         elif mode == "combined":
             masks = []
@@ -534,8 +519,7 @@ class FilterPipeline:
                 "fraction_removed": float(n_removed / n_total),
                 "timestamp": datetime.now().isoformat(),
                 "filters": {
-                    fname: params
-                    for fname, params in zip(filter_names, all_params)
+                    fname: params for fname, params in zip(filter_names, all_params)
                 },
             }
 

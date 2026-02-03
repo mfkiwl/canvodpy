@@ -1,4 +1,5 @@
 """Grid type definitions for hemisphere tessellation."""
+
 from enum import Enum
 
 

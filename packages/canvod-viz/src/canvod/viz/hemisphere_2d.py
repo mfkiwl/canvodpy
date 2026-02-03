@@ -23,20 +23,20 @@ if TYPE_CHECKING:
 
 class HemisphereVisualizer2D:
     """2D hemisphere visualization using matplotlib.
-    
+
     Creates publication-quality polar projection plots of hemispherical grids.
     Supports multiple grid types and rendering methods.
-    
+
     Parameters
     ----------
     grid : HemiGrid
         Hemisphere grid to visualize
-    
+
     Examples
     --------
     >>> from canvod.grids import create_hemigrid
     >>> from canvod.viz import HemisphereVisualizer2D
-    >>> 
+    >>>
     >>> grid = create_hemigrid(grid_type='equal_area', angular_resolution=10.0)
     >>> viz = HemisphereVisualizer2D(grid)
     >>> fig, ax = viz.plot_grid_patches(data=vod_data, title="VOD Distribution")
@@ -46,7 +46,7 @@ class HemisphereVisualizer2D:
 
     def __init__(self, grid: HemiGrid) -> None:
         """Initialize 2D hemisphere visualizer.
-        
+
         Parameters
         ----------
         grid : HemiGrid
@@ -66,7 +66,7 @@ class HemisphereVisualizer2D:
         **style_kwargs: Any,
     ) -> tuple[Figure, Axes]:
         """Plot hemisphere grid as colored patches in polar projection.
-        
+
         Parameters
         ----------
         data : np.ndarray, optional
@@ -79,14 +79,14 @@ class HemisphereVisualizer2D:
             If provided, saves figure to this path
         **style_kwargs
             Override individual style parameters
-        
+
         Returns
         -------
         fig : matplotlib.figure.Figure
             Figure object
         ax : matplotlib.axes.Axes
             Polar axes with plot
-        
+
         Examples
         --------
         >>> fig, ax = viz.plot_grid_patches(
@@ -109,9 +109,7 @@ class HemisphereVisualizer2D:
         # Create figure if needed
         if ax is None:
             fig, ax = plt.subplots(
-                figsize=style.figsize,
-                dpi=style.dpi,
-                subplot_kw={"projection": "polar"}
+                figsize=style.figsize, dpi=style.dpi, subplot_kw={"projection": "polar"}
             )
         else:
             fig = ax.figure
@@ -132,7 +130,7 @@ class HemisphereVisualizer2D:
             cmap=style.cmap,
             edgecolor=style.edgecolor,
             linewidth=style.linewidth,
-            alpha=style.alpha
+            alpha=style.alpha,
         )
         pc.set_array(np.ma.masked_invalid(patch_data))
         pc.set_clim(vmin, vmax)
@@ -165,14 +163,14 @@ class HemisphereVisualizer2D:
                 dpi=style.dpi,
                 bbox_inches="tight",
                 facecolor="white",
-                edgecolor="none"
+                edgecolor="none",
             )
 
         return fig, ax
 
     def _extract_grid_patches(self) -> tuple[list[Polygon], np.ndarray]:
         """Extract 2D polygon patches from hemispherical grid.
-        
+
         Returns
         -------
         patches : list of Polygon
@@ -229,12 +227,14 @@ class HemisphereVisualizer2D:
             rho_max = np.sin(theta_max)
 
             # Create rectangular patch in polar coordinates
-            vertices = np.array([
-                [phi_min, rho_min],
-                [phi_max, rho_min],
-                [phi_max, rho_max],
-                [phi_min, rho_max],
-            ])
+            vertices = np.array(
+                [
+                    [phi_min, rho_min],
+                    [phi_max, rho_min],
+                    [phi_max, rho_max],
+                    [phi_min, rho_max],
+                ]
+            )
 
             patches.append(Polygon(vertices, closed=True))
             cell_indices.append(idx)
@@ -337,7 +337,7 @@ class HemisphereVisualizer2D:
                 try:
                     # Extract cell vertices (implementation depends on vertex storage)
                     # This is a placeholder - needs actual implementation
-                    cell_verts_3d = vertices_3d[cell_id * 3:(cell_id + 1) * 3]
+                    cell_verts_3d = vertices_3d[cell_id * 3 : (cell_id + 1) * 3]
 
                     if len(cell_verts_3d) < 3:
                         continue
@@ -381,14 +381,14 @@ class HemisphereVisualizer2D:
         cell_indices: np.ndarray,
     ) -> np.ndarray:
         """Map data values to patches.
-        
+
         Parameters
         ----------
         data : np.ndarray or None
             Data per grid cell
         cell_indices : np.ndarray
             Cell indices corresponding to patches
-        
+
         Returns
         -------
         np.ndarray
@@ -406,7 +406,7 @@ class HemisphereVisualizer2D:
         style: PolarPlotStyle,
     ) -> None:
         """Apply styling to polar axes.
-        
+
         Parameters
         ----------
         ax : matplotlib.axes.Axes
@@ -435,7 +435,7 @@ class HemisphereVisualizer2D:
                 True,
                 alpha=style.grid_alpha,
                 linestyle=style.grid_linestyle,
-                color="gray"
+                color="gray",
             )
         else:
             ax.grid(False)
@@ -453,9 +453,9 @@ def visualize_grid(
     **kwargs: Any,
 ) -> tuple[Figure, Axes]:
     """Visualize hemispherical grid in 2D polar projection.
-    
+
     Convenience function providing simple interface to 2D visualization.
-    
+
     Parameters
     ----------
     grid : HemiGrid
@@ -466,23 +466,23 @@ def visualize_grid(
         Styling configuration. If None, uses defaults.
     **kwargs
         Additional style parameter overrides
-    
+
     Returns
     -------
     fig : matplotlib.figure.Figure
         Figure object
     ax : matplotlib.axes.Axes
         Polar axes object
-    
+
     Examples
     --------
     >>> from canvod.grids import create_hemigrid
     >>> from canvod.viz import visualize_grid
-    >>> 
+    >>>
     >>> grid = create_hemigrid(grid_type='equal_area', angular_resolution=10.0)
     >>> fig, ax = visualize_grid(grid, data=vod_data, cmap='viridis')
     >>> plt.savefig("vod_plot.png", dpi=300)
-    
+
     """
     viz = HemisphereVisualizer2D(grid)
     return viz.plot_grid_patches(data=data, style=style, **kwargs)
@@ -499,10 +499,10 @@ def add_tissot_indicatrix(
     linewidth: float = 0.5,
 ) -> Axes:
     """Add Tissot's indicatrix circles to existing polar plot.
-    
+
     Adds equal-sized circles to visualize grid distortion. In equal-area grids,
     circles should appear roughly equal-sized. Variation indicates distortion.
-    
+
     Parameters
     ----------
     ax : matplotlib.axes.Axes
@@ -523,18 +523,18 @@ def add_tissot_indicatrix(
         Edge color for circles
     linewidth : float, default 0.5
         Edge line width
-    
+
     Returns
     -------
     ax : matplotlib.axes.Axes
         Modified axis with Tissot circles added
-    
+
     Examples
     --------
     >>> fig, ax = visualize_grid(grid, data=vod_data)
     >>> add_tissot_indicatrix(ax, grid, radius_deg=3, n_sample=5)
     >>> plt.savefig("vod_with_tissot.png")
-    
+
     """
     from matplotlib.patches import Ellipse
 
@@ -583,11 +583,13 @@ def add_tissot_indicatrix(
                 tangent_phi = np.array([-np.sin(phi_center), np.cos(phi_center), 0])
                 tangent_phi = tangent_phi / np.linalg.norm(tangent_phi)
 
-                tangent_theta = np.array([
-                    np.cos(theta_center) * np.cos(phi_center),
-                    np.cos(theta_center) * np.sin(phi_center),
-                    -np.sin(theta_center),
-                ])
+                tangent_theta = np.array(
+                    [
+                        np.cos(theta_center) * np.cos(phi_center),
+                        np.cos(theta_center) * np.sin(phi_center),
+                        -np.sin(theta_center),
+                    ]
+                )
                 tangent_theta = tangent_theta / np.linalg.norm(tangent_theta)
 
                 tangent_1 = tangent_phi

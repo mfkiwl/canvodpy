@@ -202,9 +202,7 @@ class SpatialMask:
         self.masks.append(("cell_ids", mask))
         return self
 
-    def add_exclude_cell_ids(
-        self, cell_ids: list[int] | np.ndarray
-    ) -> SpatialMask:
+    def add_exclude_cell_ids(self, cell_ids: list[int] | np.ndarray) -> SpatialMask:
         """Exclude specific cell IDs.
 
         Parameters
@@ -256,8 +254,7 @@ class SpatialMask:
         if var_name not in self._grid_df.columns:
             available = list(self._grid_df.columns)
             raise ValueError(
-                f"Variable '{var_name}' not found in grid. "
-                f"Available: {available}"
+                f"Variable '{var_name}' not found in grid. Available: {available}"
             )
 
         values = self._grid_df[var_name].to_numpy()
@@ -348,9 +345,7 @@ class SpatialMask:
             mask_array = mask
 
         if not isinstance(mask_array, np.ndarray):
-            raise ValueError(
-                "Custom mask must be numpy array or return numpy array"
-            )
+            raise ValueError("Custom mask must be numpy array or return numpy array")
         if mask_array.shape != (self.grid.ncells,):
             raise ValueError(
                 f"Custom mask shape {mask_array.shape} doesn't match "
@@ -440,9 +435,7 @@ class SpatialMask:
 
         """
         if not self.masks:
-            raise ValueError(
-                "No masks added. Use add_* methods before compute()"
-            )
+            raise ValueError("No masks added. Use add_* methods before compute()")
 
         if mode.upper() == "AND":
             combined = np.ones(self.grid.ncells, dtype=bool)
@@ -558,8 +551,7 @@ def create_hemisphere_mask(grid: GridData, hemisphere: str = "north") -> np.ndar
     key = hemisphere.lower()
     if key not in _RANGES:
         raise ValueError(
-            f"Unknown hemisphere: {hemisphere}. "
-            f"Choose from {list(_RANGES.keys())}"
+            f"Unknown hemisphere: {hemisphere}. Choose from {list(_RANGES.keys())}"
         )
 
     mask = SpatialMask(grid)

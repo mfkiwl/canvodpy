@@ -1,6 +1,5 @@
 """Test core gnss_specs modules: constants, exceptions, models, utils, metadata."""
 
-
 import pytest
 from canvod.readers.gnss_specs import constants, exceptions, models, utils
 
@@ -70,11 +69,7 @@ class TestModels:
     def test_observation_creation(self):
         """Test Observation model."""
         obs = models.Observation(
-            observation_freq_tag="G01|L1C",
-            obs_type="S",
-            value=45.0,
-            lli=None,
-            ssi=5
+            observation_freq_tag="G01|L1C", obs_type="S", value=45.0, lli=None, ssi=5
         )
 
         assert obs.observation_freq_tag == "G01|L1C"
@@ -89,7 +84,7 @@ class TestModels:
                 obs_type="S",
                 value=45.0,
                 lli=None,
-                ssi=None
+                ssi=None,
             )
 
     def test_satellite_creation(self):
@@ -107,11 +102,7 @@ class TestModels:
         """Test adding observations to satellite."""
         sat = models.Satellite(sv="G01")
         obs = models.Observation(
-            observation_freq_tag="G01|L1C",
-            obs_type="S",
-            value=45.0,
-            lli=None,
-            ssi=5
+            observation_freq_tag="G01|L1C", obs_type="S", value=45.0, lli=None, ssi=5
         )
 
         sat.add_observation(obs)
@@ -121,10 +112,7 @@ class TestModels:
         """Test Epoch model."""
         from datetime import datetime
 
-        epoch = models.Epoch(
-            timestamp=datetime(2025, 1, 1, 0, 0, 0),
-            num_satellites=1
-        )
+        epoch = models.Epoch(timestamp=datetime(2025, 1, 1, 0, 0, 0), num_satellites=1)
 
         assert epoch.num_satellites == 1
         assert len(epoch.satellites) == 0

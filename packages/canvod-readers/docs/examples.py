@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -51,6 +52,7 @@ def _():
     from pathlib import Path
 
     from canvod.readers import Rnxv3Obs
+
     return Path, Rnxv3Obs
 
 
@@ -124,7 +126,12 @@ def _(reader):
     if reader:
         # Convert to xarray Dataset with signal IDs
         ds = reader.to_ds(
-            keep_rnx_data_vars=["SNR", "Doppler", "Phase", "Pseudorange"],  # Keep only SNR observations
+            keep_rnx_data_vars=[
+                "SNR",
+                "Doppler",
+                "Phase",
+                "Pseudorange",
+            ],  # Keep only SNR observations
             write_global_attrs=True,  # Include comprehensive metadata
         )
         ds
@@ -225,7 +232,7 @@ def _(reader):
             # Validate that all expected epochs are present
             reader.validate_epoch_completeness(
                 sampling_interval="30 s",  # Expected sampling rate
-                dump_interval="15 min"  # Expected file duration
+                dump_interval="15 min",  # Expected file duration
             )
             print("✓ All epochs present and valid")
         except Exception as e:
@@ -271,12 +278,22 @@ def _(ds, mo):
         return sorted(set(str(x) for x in np.asarray(a).tolist()))
 
     vars_ = list(ds.data_vars)
-    var = mo.ui.dropdown(vars_, value=("SNR" if "SNR" in vars_ else vars_[0]), label="Variable")
+    var = mo.ui.dropdown(
+        vars_, value=("SNR" if "SNR" in vars_ else vars_[0]), label="Variable"
+    )
 
-    system = mo.ui.dropdown(["All"] + _sorted_unique_str(ds["system"].values), value="All", label="System")
-    band   = mo.ui.dropdown(["All"] + _sorted_unique_str(ds["band"].values),   value="All", label="Band")
-    code   = mo.ui.dropdown(["All"] + _sorted_unique_str(ds["code"].values),   value="All", label="Code")
-    sv     = mo.ui.dropdown(["All"] + _sorted_unique_str(ds["sv"].values),     value="All", label="SV")
+    system = mo.ui.dropdown(
+        ["All"] + _sorted_unique_str(ds["system"].values), value="All", label="System"
+    )
+    band = mo.ui.dropdown(
+        ["All"] + _sorted_unique_str(ds["band"].values), value="All", label="Band"
+    )
+    code = mo.ui.dropdown(
+        ["All"] + _sorted_unique_str(ds["code"].values), value="All", label="Code"
+    )
+    sv = mo.ui.dropdown(
+        ["All"] + _sorted_unique_str(ds["sv"].values), value="All", label="SV"
+    )
 
     epoch_range = mo.ui.range_slider(
         start=0,
@@ -303,13 +320,13 @@ def _(band, code, ds, epoch_range, mo, sv, system, xr):
     def _filter_ds(ds, system, band, code, sv):
         mask = xr.ones_like(ds["sid"], dtype=bool)
         if system != "All":
-            mask &= (ds["system"] == system)
+            mask &= ds["system"] == system
         if band != "All":
-            mask &= (ds["band"] == band)
+            mask &= ds["band"] == band
         if code != "All":
-            mask &= (ds["code"] == code)
+            mask &= ds["code"] == code
         if sv != "All":
-            mask &= (ds["sv"] == sv)
+            mask &= ds["sv"] == sv
         return ds.sel(sid=ds["sid"].where(mask, drop=True))
 
     def _slice_epoch(ds, i0, i1):
@@ -320,7 +337,7 @@ def _(band, code, ds, epoch_range, mo, sv, system, xr):
 
     ds_f = _slice_epoch(
         _filter_ds(ds, system.value, band.value, code.value, sv.value),
-        *epoch_range.value
+        *epoch_range.value,
     )
 
     sid_list = [str(x) for x in ds_f["sid"].values.tolist()]
@@ -343,7 +360,9 @@ def _(ds_f, go, mo, sid_pick, var):
         Y = ds_f["sid"].values
         fig = go.Figure(
             go.Heatmap(
-                z=Z, x=X, y=Y,
+                z=Z,
+                x=X,
+                y=Y,
                 hovertemplate="epoch=%{x}<br>sid=%{y}<br>value=%{z}<extra></extra>",
             )
         )

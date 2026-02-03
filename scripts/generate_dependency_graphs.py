@@ -25,10 +25,7 @@ class DependencyGraphGenerator:
         self.output_dir.mkdir(exist_ok=True, parents=True)
 
     def generate_package_graph(
-        self,
-        package_name: str,
-        show_classes: bool = True,
-        cluster: bool = True
+        self, package_name: str, show_classes: bool = True, cluster: bool = True
     ) -> None:
         """Generate internal dependency graph for a package."""
         print(f"\n🔍 Analyzing {package_name}...")
@@ -37,11 +34,24 @@ class DependencyGraphGenerator:
         module_name = package_name.replace("-", "/")
 
         # Find package source directory with actual module
-        pkg_dir = self.root_dir / "packages" / package_name / "src" / module_name.replace("/", ".")
+        pkg_dir = (
+            self.root_dir
+            / "packages"
+            / package_name
+            / "src"
+            / module_name.replace("/", ".")
+        )
 
         # Try alternative structure if first doesn't exist
         if not pkg_dir.exists():
-            pkg_dir = self.root_dir / "packages" / package_name / "src" / "canvod" / package_name.split("-")[1]
+            pkg_dir = (
+                self.root_dir
+                / "packages"
+                / package_name
+                / "src"
+                / "canvod"
+                / package_name.split("-")[1]
+            )
 
         if not pkg_dir.exists():
             print(f"⚠️  Package directory not found: {pkg_dir}")
@@ -52,13 +62,18 @@ class DependencyGraphGenerator:
 
         # Build pydeps command (use uv run to access installed pydeps)
         cmd = [
-            str(Path.home() / ".local/bin/uv"), "run", "pydeps",
+            str(Path.home() / ".local/bin/uv"),
+            "run",
+            "pydeps",
             str(pkg_dir),
             "--cluster",  # Group by module
-            "--max-bacon", "3",  # Show 3 levels deep
+            "--max-bacon",
+            "3",  # Show 3 levels deep
             "--noshow",  # Don't open browser
-            "-o", str(output_file),
-            "--exclude", "*test*,test*",  # Exclude tests
+            "-o",
+            str(output_file),
+            "--exclude",
+            "*test*,test*",  # Exclude tests
         ]
 
         try:
@@ -86,13 +101,18 @@ class DependencyGraphGenerator:
 
         # Build pydeps command - show how umbrella uses all packages (use uv run)
         cmd = [
-            str(Path.home() / ".local/bin/uv"), "run", "pydeps",
+            str(Path.home() / ".local/bin/uv"),
+            "run",
+            "pydeps",
             str(api_dir),
             "--cluster",
-            "--max-bacon", "3",  # Show API → packages → internals
+            "--max-bacon",
+            "3",  # Show API → packages → internals
             "--noshow",
-            "-o", str(output_file),
-            "--exclude", "test*,*test*",  # Exclude tests
+            "-o",
+            str(output_file),
+            "--exclude",
+            "test*,*test*",  # Exclude tests
         ]
 
         try:
@@ -115,14 +135,19 @@ class DependencyGraphGenerator:
         output_file = self.output_dir / "config-flow.svg"
 
         cmd = [
-            str(Path.home() / ".local/bin/uv"), "run", "pydeps",
+            str(Path.home() / ".local/bin/uv"),
+            "run",
+            "pydeps",
             str(utils_dir),
-            "--only", "canvod.utils.config",
+            "--only",
+            "canvod.utils.config",
             "--cluster",
-            "--max-bacon", "3",
+            "--max-bacon",
+            "3",
             "--reverse",  # Show who imports config
             "--noshow",
-            "-o", str(output_file),
+            "-o",
+            str(output_file),
         ]
 
         try:
@@ -160,40 +185,42 @@ class DependencyGraphGenerator:
                 lines.append(f"![{pkg_name} internal dependencies]({graph_file})")
                 lines.append("")
 
-        lines.extend([
-            "## API Orchestration",
-            "",
-            "Shows how the umbrella package (canvodpy) orchestrates all components:",
-            "",
-            "![API Orchestration](api-orchestration.svg)",
-            "",
-            "## Configuration Flow",
-            "",
-            "Shows how configuration flows through the system:",
-            "",
-            "![Config Flow](config-flow.svg)",
-            "",
-            "## Regenerating Graphs",
-            "",
-            "```bash",
-            "# Regenerate all graphs",
-            "python scripts/generate_dependency_graphs.py --all",
-            "",
-            "# Regenerate specific package",
-            "python scripts/generate_dependency_graphs.py --package canvod-readers",
-            "",
-            "# Regenerate API graph only",
-            "python scripts/generate_dependency_graphs.py --api",
-            "```",
-            "",
-            "## Reading the Graphs",
-            "",
-            "- **Arrows** show import direction (A → B means A imports B)",
-            "- **Clusters** group related modules together",
-            "- **Colors** distinguish different modules/packages",
-            "",
-            "**Generated:** Auto-updated during development",
-        ])
+        lines.extend(
+            [
+                "## API Orchestration",
+                "",
+                "Shows how the umbrella package (canvodpy) orchestrates all components:",
+                "",
+                "![API Orchestration](api-orchestration.svg)",
+                "",
+                "## Configuration Flow",
+                "",
+                "Shows how configuration flows through the system:",
+                "",
+                "![Config Flow](config-flow.svg)",
+                "",
+                "## Regenerating Graphs",
+                "",
+                "```bash",
+                "# Regenerate all graphs",
+                "python scripts/generate_dependency_graphs.py --all",
+                "",
+                "# Regenerate specific package",
+                "python scripts/generate_dependency_graphs.py --package canvod-readers",
+                "",
+                "# Regenerate API graph only",
+                "python scripts/generate_dependency_graphs.py --api",
+                "```",
+                "",
+                "## Reading the Graphs",
+                "",
+                "- **Arrows** show import direction (A → B means A imports B)",
+                "- **Clusters** group related modules together",
+                "- **Colors** distinguish different modules/packages",
+                "",
+                "**Generated:** Auto-updated during development",
+            ]
+        )
 
         output_file.write_text("\n".join(lines))
         print(f"\n✅ Created {output_file.name}")
@@ -206,22 +233,18 @@ def main():
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Generate all graphs (packages + API + config)"
+        help="Generate all graphs (packages + API + config)",
     )
     parser.add_argument(
         "--package",
         type=str,
-        help="Generate graph for specific package (e.g., canvod-readers)"
+        help="Generate graph for specific package (e.g., canvod-readers)",
     )
     parser.add_argument(
-        "--api",
-        action="store_true",
-        help="Generate API orchestration graph"
+        "--api", action="store_true", help="Generate API orchestration graph"
     )
     parser.add_argument(
-        "--config",
-        action="store_true",
-        help="Generate configuration flow graph"
+        "--config", action="store_true", help="Generate configuration flow graph"
     )
     args = parser.parse_args()
 

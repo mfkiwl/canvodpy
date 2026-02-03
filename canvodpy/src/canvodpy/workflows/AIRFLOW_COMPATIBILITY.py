@@ -1,4 +1,4 @@
-# ruff: noqa: N999, AIR311, AIR312, AIR001, DTZ001, PLC0415, ANN201, ANN003, ARG001, F821, F841, D401, N806
+# ruff: noqa: N999, F821, F841
 """Airflow compatibility analysis for canvodpy orchestration layer.
 
 This document analyzes the canvodpy orchestrator for Apache Airflow integration.
@@ -41,6 +41,7 @@ This document analyzes the canvodpy orchestrator for Apache Airflow integration.
 # EXAMPLE AIRFLOW DAG
 # ============================================================================
 
+
 def example_airflow_dag():
     """Example DAG showing canvodpy integration."""
     from datetime import datetime, timedelta
@@ -52,6 +53,7 @@ def example_airflow_dag():
     def health_check_task(site: str) -> bool:
         """Check site health before processing."""
         from canvodpy import Site
+
         site_obj = Site(site)
         return site_obj.active_receivers is not None
 
@@ -67,7 +69,7 @@ def example_airflow_dag():
             "site": site,
             "date": date,
             "receivers": list(data.keys()),
-            "epochs_per_receiver": {r: len(ds.epoch) for r, ds in data.items()}
+            "epochs_per_receiver": {r: len(ds.epoch) for r, ds in data.items()},
         }
 
     def calculate_vod_task(site: str, date: str, **context) -> dict:
@@ -82,7 +84,7 @@ def example_airflow_dag():
                 site=site,
                 canopy_receiver=config["canopy_receiver"],
                 reference_receiver=config["reference_receiver"],
-                date=date
+                date=date,
             )
             results[analysis_name] = {
                 "mean_vod": float(vod_ds.tau.mean()),
@@ -149,6 +151,7 @@ def example_airflow_dag():
 # MULTI-SITE DAG PATTERN
 # ============================================================================
 
+
 def multi_site_dag():
     """Process multiple sites in parallel with Airflow."""
     from datetime import datetime
@@ -189,7 +192,7 @@ AIRFLOW_COMPATIBILITY_CHECKLIST = {
             "process_date() always produces same output for same input",
             "Icechunk handles deduplication via content hashing",
             "Safe to retry without side effects",
-        ]
+        ],
     },
     "stateless_functions": {
         "status": "✅ PASS",
@@ -197,7 +200,7 @@ AIRFLOW_COMPATIBILITY_CHECKLIST = {
             "No hidden class state",
             "All parameters explicit",
             "No global variables modified",
-        ]
+        ],
     },
     "clear_dependencies": {
         "status": "✅ PASS",
@@ -205,7 +208,7 @@ AIRFLOW_COMPATIBILITY_CHECKLIST = {
             "Linear task flow: health → process → vod",
             "Explicit data dependencies via Icechunk",
             "No implicit coupling between tasks",
-        ]
+        ],
     },
     "proper_logging": {
         "status": "⚠️ PARTIAL",
@@ -213,7 +216,7 @@ AIRFLOW_COMPATIBILITY_CHECKLIST = {
             "Has logging with context",
             "TODO: Add structured logging (structlog)",
             "TODO: Add metrics (Prometheus)",
-        ]
+        ],
     },
     "error_handling": {
         "status": "✅ PASS",
@@ -221,7 +224,7 @@ AIRFLOW_COMPATIBILITY_CHECKLIST = {
             "Exceptions propagate cleanly",
             "Proper error messages",
             "Logging on failures",
-        ]
+        ],
     },
     "serialization": {
         "status": "✅ PASS",
@@ -229,7 +232,7 @@ AIRFLOW_COMPATIBILITY_CHECKLIST = {
             "Parameters are primitives (str, int)",
             "Datasets stored in Icechunk (not passed between tasks)",
             "Return values are JSON-serializable dicts",
-        ]
+        ],
     },
     "monitoring": {
         "status": "📋 PLANNED",
@@ -237,7 +240,7 @@ AIRFLOW_COMPATIBILITY_CHECKLIST = {
             "Structure ready (diagnostics/)",
             "TODO: Add task-level metrics",
             "TODO: Add health checks",
-        ]
+        ],
     },
 }
 
@@ -338,6 +341,6 @@ if __name__ == "__main__":
     for check, result in AIRFLOW_COMPATIBILITY_CHECKLIST.items():
         print(f"  {result['status']} {check}")
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("The orchestration layer is READY for Airflow integration!")
-    print("="*70)
+    print("=" * 70)

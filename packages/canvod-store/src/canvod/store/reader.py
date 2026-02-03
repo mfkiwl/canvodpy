@@ -212,14 +212,15 @@ class IcechunkDataReader:
             List of receiver names of the specified type
         """
         return [
-            name for name, config in self._site.active_receivers.items()
-            if config['type'] == receiver_type
+            name
+            for name, config in self._site.active_receivers.items()
+            if config["type"] == receiver_type
         ]
 
     def _get_receiver_name_for_type(self, receiver_type: str) -> str | None:
         """Get the first configured receiver name for a given type."""
         for name, config in self._site.active_receivers.items():
-            if config['type'] == receiver_type:
+            if config["type"] == receiver_type:
                 return name
         return None
 
@@ -243,7 +244,7 @@ class IcechunkDataReader:
         """
 
         if receiver_types is None:
-            receiver_types = ['canopy', 'reference']
+            receiver_types = ["canopy", "reference"]
 
         self._logger.info(
             f"Starting RINEX processing and ingestion for types: {receiver_types}"
@@ -252,8 +253,9 @@ class IcechunkDataReader:
         # --- 1) Cache auxiliaries once per day ---
         from canvodpy.orchestrator import RinexDataProcessor
 
-        processor = RinexDataProcessor(matched_data_dirs=self.matched_dirs,
-                                       icechunk_reader=self)
+        processor = RinexDataProcessor(
+            matched_data_dirs=self.matched_dirs, icechunk_reader=self
+        )
 
         ephem_ds = prep_aux_ds(processor.get_ephemeride_ds())
         clk_ds = prep_aux_ds(processor.get_clk_ds())
@@ -263,21 +265,20 @@ class IcechunkDataReader:
 
         for receiver_type in receiver_types:
             # --- resolve dirs and names ---
-            if receiver_type == 'canopy':
+            if receiver_type == "canopy":
                 rinex_dir = self.matched_dirs.canopy_data_dir
-                receiver_name = self._get_receiver_name_for_type('canopy')
+                receiver_name = self._get_receiver_name_for_type("canopy")
                 store_group = "canopy"
-            elif receiver_type == 'reference':
+            elif receiver_type == "reference":
                 rinex_dir = self.matched_dirs.reference_data_dir
-                receiver_name = self._get_receiver_name_for_type('reference')
+                receiver_name = self._get_receiver_name_for_type("reference")
                 store_group = "reference"
             else:
                 self._logger.warning(f"Unknown receiver type: {receiver_type}")
                 continue
 
             if not receiver_name:
-                self._logger.warning(
-                    f"No configured receiver for type {receiver_type}")
+                self._logger.warning(f"No configured receiver for type {receiver_type}")
                 continue
 
             rinex_files = self._get_rinex_files(rinex_dir)
@@ -291,14 +292,15 @@ class IcechunkDataReader:
 
             # --- parallel preprocessing ---
             futures = {
-                self._pool.submit(preprocess_rnx, f, keep_vars): f
-                for f in rinex_files
+                self._pool.submit(preprocess_rnx, f, keep_vars): f for f in rinex_files
             }
             results: list[tuple[Path, xr.Dataset]] = []
 
-            for fut in tqdm(as_completed(futures),
-                            total=len(futures),
-                            desc=f"Processing {receiver_type}"):
+            for fut in tqdm(
+                as_completed(futures),
+                total=len(futures),
+                desc=f"Processing {receiver_type}",
+            ):
                 try:
                     fname, ds = fut.result()
                     results.append((fname, ds))
@@ -312,8 +314,7 @@ class IcechunkDataReader:
                 token = set_file_context(fname)
                 try:
                     log = get_logger()
-                    rel_path = self._site.rinex_store.rel_path_for_commit(
-                        fname)
+                    rel_path = self._site.rinex_store.rel_path_for_commit(fname)
                     version = get_version_from_pyproject()
 
                     rinex_hash = ds.attrs.get("RINEX File Hash")
@@ -325,7 +326,8 @@ class IcechunkDataReader:
                     end_epoch = np.datetime64(ds.epoch.max().values)
 
                     exists, matches = self._site.rinex_store.metadata_row_exists(
-                        store_group, rinex_hash, start_epoch, end_epoch)
+                        store_group, rinex_hash, start_epoch, end_epoch
+                    )
 
                     ds = self._site.rinex_store._cleanse_dataset_attrs(ds)
 
@@ -335,12 +337,14 @@ class IcechunkDataReader:
 
                     # --- 3) Augment with φ, θ, r ---
                     matched = processor.match_datasets(ds, **aux_ds_dict)
-                    ephem_matched = matched['ephem']
-                    ds = processor.add_azi_ele(rnx_obs_ds=ds,
-                                               ephem_ds=ephem_matched,
-                                               rx_x=approx_pos.x,
-                                               rx_y=approx_pos.y,
-                                               rx_z=approx_pos.z)
+                    ephem_matched = matched["ephem"]
+                    ds = processor.add_azi_ele(
+                        rnx_obs_ds=ds,
+                        ephem_ds=ephem_matched,
+                        rx_x=approx_pos.x,
+                        rx_y=approx_pos.y,
+                        rx_z=approx_pos.z,
+                    )
 
                     # --- 4) Store to Icechunk ---
                     existing_groups = self._site.rinex_store.list_groups()
@@ -350,9 +354,8 @@ class IcechunkDataReader:
                             f"(hash={rinex_hash}, epoch={start_epoch}→{end_epoch})"
                         )
                         self._site.rinex_store.write_initial_group(
-                            dataset=ds,
-                            group_name=store_group,
-                            commit_message=msg)
+                            dataset=ds, group_name=store_group, commit_message=msg
+                        )
                         log.info(msg)
                         continue
 
@@ -368,7 +371,8 @@ class IcechunkDataReader:
                                 snapshot_id="none",
                                 action="skip",
                                 commit_msg="skip",
-                                dataset_attrs=ds.attrs)
+                                dataset_attrs=ds.attrs,
+                            )
 
                         case (True, "overwrite"):
                             msg = f"[v{version}] Overwrote {rel_path}"
@@ -405,10 +409,10 @@ class IcechunkDataReader:
                 self._memory_cleanup()
 
             # --- 5) Yield full daily dataset (already enriched) ---
-            final_ds = self._site.read_receiver_data(store_group,
-                                                     self._time_range)
+            final_ds = self._site.read_receiver_data(store_group, self._time_range)
             self._logger.info(
-                f"Yielding {receiver_type} dataset: {dict(final_ds.sizes)}")
+                f"Yielding {receiver_type} dataset: {dict(final_ds.sizes)}"
+            )
             yield final_ds
             self._memory_cleanup()
 
@@ -437,7 +441,7 @@ class IcechunkDataReader:
         """
 
         if receiver_types is None:
-            receiver_types = ['canopy', 'reference']
+            receiver_types = ["canopy", "reference"]
 
         self._logger.info(
             f"Starting RINEX processing and ingestion for types: {receiver_types}"
@@ -445,21 +449,20 @@ class IcechunkDataReader:
 
         for receiver_type in receiver_types:
             # --- resolve dirs and names ---
-            if receiver_type == 'canopy':
+            if receiver_type == "canopy":
                 rinex_dir = self.matched_dirs.canopy_data_dir
-                receiver_name = self._get_receiver_name_for_type('canopy')
+                receiver_name = self._get_receiver_name_for_type("canopy")
                 store_group = "canopy"
-            elif receiver_type == 'reference':
+            elif receiver_type == "reference":
                 rinex_dir = self.matched_dirs.reference_data_dir
-                receiver_name = self._get_receiver_name_for_type('reference')
+                receiver_name = self._get_receiver_name_for_type("reference")
                 store_group = "reference"
             else:
                 self._logger.warning(f"Unknown receiver type: {receiver_type}")
                 continue
 
             if not receiver_name:
-                self._logger.warning(
-                    f"No configured receiver for type {receiver_type}")
+                self._logger.warning(f"No configured receiver for type {receiver_type}")
                 continue
 
             rinex_files = self._get_rinex_files(rinex_dir)
@@ -475,15 +478,16 @@ class IcechunkDataReader:
 
             # --- one pool per receiver type ---
             futures = {
-                self._pool.submit(preprocess_rnx, f, keep_vars): f
-                for f in rinex_files
+                self._pool.submit(preprocess_rnx, f, keep_vars): f for f in rinex_files
             }
             results: list[tuple[Path, xr.Dataset]] = []
 
             # ✅ progressbar over all files, not per batch
-            for fut in tqdm(as_completed(futures),
-                            total=len(futures),
-                            desc=f"Processing {receiver_type}"):
+            for fut in tqdm(
+                as_completed(futures),
+                total=len(futures),
+                desc=f"Processing {receiver_type}",
+            ):
                 try:
                     fname, ds = fut.result()
                     results.append((fname, ds))
@@ -498,22 +502,23 @@ class IcechunkDataReader:
                 token = set_file_context(fname)
                 try:
                     log = get_logger()
-                    rel_path = self._site.rinex_store.rel_path_for_commit(
-                        fname)
+                    rel_path = self._site.rinex_store.rel_path_for_commit(fname)
                     version = get_version_from_pyproject()
 
                     rinex_hash = ds.attrs.get("RINEX File Hash")
                     if not rinex_hash:
                         log.warning(
                             f"No RINEX hash found in dataset from {fname}. "
-                            "Skipping duplicate detection for this file.")
+                            "Skipping duplicate detection for this file."
+                        )
                         continue
 
                     start_epoch = np.datetime64(ds.epoch.min().values)
                     end_epoch = np.datetime64(ds.epoch.max().values)
 
                     exists, matches = self._site.rinex_store.metadata_row_exists(
-                        store_group, rinex_hash, start_epoch, end_epoch)
+                        store_group, rinex_hash, start_epoch, end_epoch
+                    )
 
                     ds = self._site.rinex_store._cleanse_dataset_attrs(ds)
 
@@ -522,7 +527,8 @@ class IcechunkDataReader:
                         msg = (
                             f"[v{version}] Initial commit with {rel_path} "
                             f"(hash={rinex_hash}, epoch={start_epoch}→{end_epoch}) "
-                            f"to group '{store_group}'")
+                            f"to group '{store_group}'"
+                        )
                         self._site.rinex_store.write_initial_group(
                             dataset=ds,
                             group_name=store_group,
@@ -538,7 +544,8 @@ class IcechunkDataReader:
                             msg = (
                                 f"[v{version}] Skipped {rel_path} "
                                 f"(hash={rinex_hash}, epoch={start_epoch}→{end_epoch}) "
-                                f"in group '{store_group}'")
+                                f"in group '{store_group}'"
+                            )
                             log.info(msg)
                             self._site.rinex_store.append_metadata(
                                 group_name=store_group,
@@ -555,7 +562,8 @@ class IcechunkDataReader:
                             msg = (
                                 f"[v{version}] Overwrote {rel_path} "
                                 f"(hash={rinex_hash}, epoch={start_epoch}→{end_epoch}) "
-                                f"in group '{store_group}'")
+                                f"in group '{store_group}'"
+                            )
                             log.info(msg)
                             self._site.rinex_store.overwrite_file_in_group(
                                 dataset=ds,
@@ -570,12 +578,13 @@ class IcechunkDataReader:
                             msg = (
                                 f"[v{version}] Appended {rel_path} "
                                 f"(hash={rinex_hash}, epoch={start_epoch}→{end_epoch}) "
-                                f"to group '{store_group}'")
+                                f"to group '{store_group}'"
+                            )
                             self._site.rinex_store.append_to_group(
                                 dataset=ds,
                                 group_name=store_group,
                                 append_dim="epoch",
-                                action='append',
+                                action="append",
                                 commit_message=msg,
                             )
                             log.info(msg)
@@ -584,12 +593,13 @@ class IcechunkDataReader:
                             msg = (
                                 f"[v{version}] Wrote {rel_path} "
                                 f"(hash={rinex_hash}, epoch={start_epoch}→{end_epoch}) "
-                                f"to group '{store_group}'")
+                                f"to group '{store_group}'"
+                            )
                             self._site.rinex_store.append_to_group(
                                 dataset=ds,
                                 group_name=store_group,
                                 append_dim="epoch",
-                                action='write',
+                                action="write",
                                 commit_message=msg,
                             )
                             log.info(msg)
@@ -599,10 +609,10 @@ class IcechunkDataReader:
                 self._memory_cleanup()
 
             # --- read back final dataset ---
-            final_ds = self._site.read_receiver_data(store_group,
-                                                     self._time_range)
+            final_ds = self._site.read_receiver_data(store_group, self._time_range)
             self._logger.info(
-                f"Yielding {receiver_type} dataset: {dict(final_ds.sizes)}")
+                f"Yielding {receiver_type} dataset: {dict(final_ds.sizes)}"
+            )
             yield final_ds
 
             self._memory_cleanup()
@@ -612,7 +622,7 @@ class IcechunkDataReader:
     def _get_receiver_name_for_type(self, receiver_type: str) -> str | None:
         """Get the first configured receiver name for a given type."""
         for name, config in self._site.active_receivers.items():
-            if config['type'] == receiver_type:
+            if config["type"] == receiver_type:
                 return name
         return None
 
@@ -624,7 +634,7 @@ class IcechunkDataReader:
             return []
 
         # Look for common RINEX file patterns
-        patterns = ['*.??o', '*.??O', '*.rnx', '*.RNX']
+        patterns = ["*.??o", "*.??O", "*.rnx", "*.RNX"]
         rinex_files = []
 
         for pattern in patterns:
@@ -648,20 +658,21 @@ class IcechunkDataReader:
 
             commit_message = (
                 f"[v{version}] Processed and ingested {receiver_type} data "
-                f"for {date_str}")
+                f"for {date_str}"
+            )
 
             # Use site's ingestion method
-            self._site.ingest_rinex_data(dataset, receiver_name,
-                                         commit_message)
+            self._site.ingest_rinex_data(dataset, receiver_name, commit_message)
 
             self._logger.info(
                 f"Successfully appended {receiver_type} data to store as "
-                f"'{receiver_name}'")
+                f"'{receiver_name}'"
+            )
 
         except Exception as e:
             self._logger.exception(
-                f"Failed to append {receiver_type} data to store",
-                error=str(e))
+                f"Failed to append {receiver_type} data to store", error=str(e)
+            )
             raise
 
     def get_available_receivers(self) -> dict[str, list[str]]:
@@ -674,12 +685,10 @@ class IcechunkDataReader:
             Dictionary mapping receiver types to lists of receiver names.
         """
         available = {}
-        for receiver_type in ['canopy', 'reference']:
+        for receiver_type in ["canopy", "reference"]:
             receivers = self.get_receiver_by_type(receiver_type)
             # Filter to only receivers that have data
-            with_data = [
-                r for r in receivers if self._site.rinex_store.group_exists(r)
-            ]
+            with_data = [r for r in receivers if self._site.rinex_store.group_exists(r)]
             available[receiver_type] = with_data
 
         return available
@@ -697,7 +706,8 @@ class IcechunkDataReader:
             f"IcechunkDataReader for {self.matched_dirs.yyyydoy.to_str()}\n"
             f"  Site: {self.site_name}\n"
             f"  Available receivers: {dict(available)}\n"
-            f"  Workers: {self.n_max_workers}, GC enabled: {self.enable_gc}")
+            f"  Workers: {self.n_max_workers}, GC enabled: {self.enable_gc}"
+        )
 
 
 # Example usage showing the replacement
@@ -707,28 +717,36 @@ if __name__ == "__main__":
 
     # Example usage
     matcher = DataDirMatcher.from_root(
-        Path('/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/'
-             '05_data/01_Rosalia'))
+        Path(
+            "/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/"
+            "05_data/01_Rosalia"
+        )
+    )
 
     md = MatchedDirs(
         canopy_data_dir=Path(
-            '/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302'),
+            "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302"
+        ),
         reference_data_dir=Path(
-            '/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302'),
-        yyyydoy=YYYYDOY.from_str('2024302'))
+            "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302"
+        ),
+        yyyydoy=YYYYDOY.from_str("2024302"),
+    )
 
     reader = IcechunkDataReader(
         matched_dirs=md,
         site_name="Rosalia",
         n_max_workers=12,  # Configurable threading
         enable_gc=False,  # Manually force garbage collection
-        gc_delay=0  # Delay after GC
+        gc_delay=0,  # Delay after GC
     )
 
     print(f"Reader info: {reader}")
 
     # Use the generator (same interface as before)
-    data_generator = reader.parsed_rinex_data_gen(keep_vars=KEEP_RNX_VARS, )
+    data_generator = reader.parsed_rinex_data_gen(
+        keep_vars=KEEP_RNX_VARS,
+    )
 
     try:
         # Get canopy data
@@ -744,32 +762,40 @@ if __name__ == "__main__":
 
     # reader._site.rinex_store.debug_metadata_calls("canopy")
 
-    print(reader._site.read_receiver_data('canopy'))
+    print(reader._site.read_receiver_data("canopy"))
 
     print("and all again, to test skipping of existing data...")
 
     matcher = DataDirMatcher.from_root(
-        Path('/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/'
-             '05_data/01_Rosalia'))
+        Path(
+            "/home/nbader/shares/climers/Studies/GNSS_Vegetation_Study/"
+            "05_data/01_Rosalia"
+        )
+    )
     md = MatchedDirs(
         canopy_data_dir=Path(
-            '/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302'),
+            "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302"
+        ),
         reference_data_dir=Path(
-            '/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302'),
-        yyyydoy=YYYYDOY.from_str('2024302'))
+            "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302"
+        ),
+        yyyydoy=YYYYDOY.from_str("2024302"),
+    )
 
     reader = IcechunkDataReader(
         matched_dirs=md,
         site_name="Rosalia",
         n_max_workers=12,  # Configurable threading
         enable_gc=False,  # Manually force garbage collection
-        gc_delay=0  # Delay after GC
+        gc_delay=0,  # Delay after GC
     )
 
     print(f"Reader info: {reader}")
 
     # Use the generator (same interface as before)
-    data_generator = reader.parsed_rinex_data_gen(keep_vars=KEEP_RNX_VARS, )
+    data_generator = reader.parsed_rinex_data_gen(
+        keep_vars=KEEP_RNX_VARS,
+    )
 
     try:
         # Get canopy data
@@ -784,4 +810,4 @@ if __name__ == "__main__":
         print("No more data available")
 
     # reader._site.rinex_store.debug_metadata_calls("canopy")
-    print(reader._site.read_receiver_data('canopy'))
+    print(reader._site.read_receiver_data("canopy"))

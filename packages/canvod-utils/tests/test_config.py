@@ -19,6 +19,7 @@ try:
         SidsConfig,
         SitesConfig,
     )
+
     print("✓ All imports successful")
 except ImportError as e:
     print(f"✗ Import failed: {e}")

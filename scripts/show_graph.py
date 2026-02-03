@@ -37,9 +37,13 @@ print()
 
 # Foundation packages (no dependencies)
 foundation = [pkg for pkg in sorted(dependencies.keys()) if not dependencies[pkg]]
-foundation += [pkg_dir.name for pkg_dir in packages_dir.iterdir()
-               if pkg_dir.is_dir() and (pkg_dir / "pyproject.toml").exists()
-               and pkg_dir.name not in dependencies]
+foundation += [
+    pkg_dir.name
+    for pkg_dir in packages_dir.iterdir()
+    if pkg_dir.is_dir()
+    and (pkg_dir / "pyproject.toml").exists()
+    and pkg_dir.name not in dependencies
+]
 
 print("Foundation (no dependencies):")
 for pkg in sorted(set(foundation)):
@@ -58,7 +62,9 @@ for pkg_name, deps in sorted(dependencies.items()):
 
 print()
 print("Summary:")
-print(f"  Total packages: {len(foundation) + len([p for p in dependencies if dependencies[p]])}")
+print(
+    f"  Total packages: {len(foundation) + len([p for p in dependencies if dependencies[p]])}"
+)
 print(f"  Foundation packages: {len(foundation)}")
 print(f"  Consumer packages: {len([p for p in dependencies if dependencies[p]])}")
 print(f"  Total dependencies: {sum(len(d) for d in dependencies.values())}")

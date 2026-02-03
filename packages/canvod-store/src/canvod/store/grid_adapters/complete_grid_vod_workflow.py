@@ -125,14 +125,16 @@ class HemiGridStorageAdapter:
         # Prepare grid-specific metadata
         specific_metadata = self._prepare_specific_metadata()
 
-        grid_hash = write_grid_to_icechunk(session=session,
-                                           grid_name=grid_name,
-                                           df_cells=df_cells,
-                                           df_vertices=df_vertices,
-                                           df_neighbors=df_neighbors,
-                                           metadata=metadata,
-                                           specific_metadata=specific_metadata,
-                                           overwrite=overwrite)
+        grid_hash = write_grid_to_icechunk(
+            session=session,
+            grid_name=grid_name,
+            df_cells=df_cells,
+            df_vertices=df_vertices,
+            df_neighbors=df_neighbors,
+            metadata=metadata,
+            specific_metadata=specific_metadata,
+            overwrite=overwrite,
+        )
 
         return grid_hash
 
@@ -161,10 +163,12 @@ class HemiGridStorageAdapter:
         StoredHemiGrid
             Loaded grid wrapper.
         """
-        loaded = load_grid_from_icechunk(session=session,
-                                         grid_name=grid_name,
-                                         load_vertices=load_vertices,
-                                         load_neighbors=load_neighbors)
+        loaded = load_grid_from_icechunk(
+            session=session,
+            grid_name=grid_name,
+            load_vertices=load_vertices,
+            load_neighbors=load_neighbors,
+        )
         return StoredHemiGrid(loaded)
 
     # ------------------------------------------------------------------
@@ -194,11 +198,13 @@ class HemiGridStorageAdapter:
             "HemiGridStorageAdapter.to_zarr is deprecated; "
             "use to_icechunk(session, ...) instead.",
             DeprecationWarning,
-            stacklevel=2)
-        if not args or not hasattr(args[0], 'store'):
+            stacklevel=2,
+        )
+        if not args or not hasattr(args[0], "store"):
             raise TypeError(
                 "Legacy to_zarr usage is no longer supported. "
-                "Pass an Icechunk session to to_icechunk(session, ...).")
+                "Pass an Icechunk session to to_icechunk(session, ...)."
+            )
         session = args[0]
         remaining_args = args[1:]
         return self.to_icechunk(session, *remaining_args, **kwargs)
@@ -226,7 +232,8 @@ class HemiGridStorageAdapter:
             "HemiGridStorageAdapter.from_zarr is deprecated; "
             "use from_icechunk(session, ...) instead.",
             DeprecationWarning,
-            stacklevel=2)
+            stacklevel=2,
+        )
         return HemiGridStorageAdapter.from_icechunk(*args, **kwargs)
 
     # -------------------------------------------------------------------------
@@ -250,51 +257,61 @@ class HemiGridStorageAdapter:
         df = self._grid.grid.clone()
 
         # Ensure required columns exist
-        required = ['phi', 'theta']
+        required = ["phi", "theta"]
         for col in required:
             if col not in df.columns:
                 raise ValueError(f"Grid missing required column: {col}")
 
         # Add cell_id if not present
-        if 'cell_id' not in df.columns:
-            df = df.with_columns(pl.int_range(0, pl.len()).alias('cell_id'))
+        if "cell_id" not in df.columns:
+            df = df.with_columns(pl.int_range(0, pl.len()).alias("cell_id"))
 
         # Ensure rectangular bounds columns exist (fill with NaN for irregular grids)
-        for col in ['phi_min', 'phi_max', 'theta_min', 'theta_max']:
+        for col in ["phi_min", "phi_max", "theta_min", "theta_max"]:
             if col not in df.columns:
-                df = df.with_columns(pl.lit(float('nan')).alias(col))
+                df = df.with_columns(pl.lit(float("nan")).alias(col))
 
         # Add Cartesian coordinates if not present
-        if 'x' not in df.columns:
-            df = df.with_columns([
-                (pl.col('theta').sin() * pl.col('phi').cos()).alias('x'),
-                (pl.col('theta').sin() * pl.col('phi').sin()).alias('y'),
-                pl.col('theta').cos().alias('z')
-            ])
+        if "x" not in df.columns:
+            df = df.with_columns(
+                [
+                    (pl.col("theta").sin() * pl.col("phi").cos()).alias("x"),
+                    (pl.col("theta").sin() * pl.col("phi").sin()).alias("y"),
+                    pl.col("theta").cos().alias("z"),
+                ]
+            )
 
         # Add solid angles from grid geometry
-        if 'solid_angle' not in df.columns:
+        if "solid_angle" not in df.columns:
             solid_angles = self._grid.get_solid_angles()
             if solid_angles is None:
                 raise ValueError("Unable to compute solid angles for grid")
-            df = df.with_columns(
-                pl.Series(name='solid_angle', values=solid_angles))
+            df = df.with_columns(pl.Series(name="solid_angle", values=solid_angles))
 
         # Add is_boundary flag
-        if 'is_boundary' not in df.columns:
+        if "is_boundary" not in df.columns:
             cutoff_rad = np.deg2rad(self._grid.cutoff_theta)
             horizon_threshold = (np.pi / 2) - cutoff_rad - 1e-6
-            if 'theta_max' in df.columns:
-                theta_expr = pl.col('theta_max').fill_null(pl.col('theta'))
+            if "theta_max" in df.columns:
+                theta_expr = pl.col("theta_max").fill_null(pl.col("theta"))
             else:
-                theta_expr = pl.col('theta')
-            df = df.with_columns(
-                (theta_expr >= horizon_threshold).alias('is_boundary'))
+                theta_expr = pl.col("theta")
+            df = df.with_columns((theta_expr >= horizon_threshold).alias("is_boundary"))
 
         # Ensure column order roughly matches expectations
         desired_order = [
-            'cell_id', 'phi', 'theta', 'x', 'y', 'z', 'solid_angle',
-            'is_boundary', 'phi_min', 'phi_max', 'theta_min', 'theta_max'
+            "cell_id",
+            "phi",
+            "theta",
+            "x",
+            "y",
+            "z",
+            "solid_angle",
+            "is_boundary",
+            "phi_min",
+            "phi_max",
+            "theta_min",
+            "theta_max",
         ]
         existing = [col for col in desired_order if col in df.columns]
         remaining = [col for col in df.columns if col not in desired_order]
@@ -319,18 +336,19 @@ class HemiGridStorageAdapter:
         # Rectangular grids (equal-area, equal-angle, etc.)
         grid_type = self._grid.grid_type
 
-        if grid_type in ['equal_area', 'equal_angle', 'equirectangular',
-                         'healpix']:
-            bounds_cols = {'phi_min', 'phi_max', 'theta_min', 'theta_max'}
+        if grid_type in ["equal_area", "equal_angle", "equirectangular", "healpix"]:
+            bounds_cols = {"phi_min", "phi_max", "theta_min", "theta_max"}
             if bounds_cols.issubset(set(grid_df.columns)):
                 for row in grid_df.iter_rows(named=True):
-                    phi_min = row['phi_min']
-                    phi_max = row['phi_max']
-                    theta_min = row['theta_min']
-                    theta_max = row['theta_max']
+                    phi_min = row["phi_min"]
+                    phi_max = row["phi_max"]
+                    theta_min = row["theta_min"]
+                    theta_max = row["theta_max"]
 
-                    if any(np.isnan(val)
-                           for val in [phi_min, phi_max, theta_min, theta_max]):
+                    if any(
+                        np.isnan(val)
+                        for val in [phi_min, phi_max, theta_min, theta_max]
+                    ):
                         continue
 
                     corners = [
@@ -343,25 +361,27 @@ class HemiGridStorageAdapter:
                         x = np.sin(theta) * np.cos(phi)
                         y = np.sin(theta) * np.sin(phi)
                         z = np.cos(theta)
-                        records.append({
-                            'cell_id': int(row['cell_id']),
-                            'vertex_idx': idx,
-                            'phi': float(np.mod(phi, 2 * np.pi)),
-                            'theta': float(theta),
-                            'x': float(x),
-                            'y': float(y),
-                            'z': float(z),
-                        })
+                        records.append(
+                            {
+                                "cell_id": int(row["cell_id"]),
+                                "vertex_idx": idx,
+                                "phi": float(np.mod(phi, 2 * np.pi)),
+                                "theta": float(theta),
+                                "x": float(x),
+                                "y": float(y),
+                                "z": float(z),
+                            }
+                        )
 
         # HTM triangular grids with per-cell vertex definitions
-        elif grid_type == 'htm':
-            vertex_cols = {'htm_vertex_0', 'htm_vertex_1', 'htm_vertex_2'}
+        elif grid_type == "htm":
+            vertex_cols = {"htm_vertex_0", "htm_vertex_1", "htm_vertex_2"}
             if vertex_cols.issubset(set(grid_df.columns)):
                 for row in grid_df.iter_rows(named=True):
                     raw_vertices = [
-                        np.asarray(row['htm_vertex_0'], dtype=float),
-                        np.asarray(row['htm_vertex_1'], dtype=float),
-                        np.asarray(row['htm_vertex_2'], dtype=float),
+                        np.asarray(row["htm_vertex_0"], dtype=float),
+                        np.asarray(row["htm_vertex_1"], dtype=float),
+                        np.asarray(row["htm_vertex_2"], dtype=float),
                     ]
                     for idx, vector in enumerate(raw_vertices):
                         norm = np.linalg.norm(vector)
@@ -370,25 +390,28 @@ class HemiGridStorageAdapter:
                         x, y, z = vector / norm
                         theta = np.arccos(np.clip(z, -1, 1))
                         phi = np.mod(np.arctan2(y, x), 2 * np.pi)
-                        records.append({
-                            'cell_id': int(row['cell_id']),
-                            'vertex_idx': idx,
-                            'phi': float(phi),
-                            'theta': float(theta),
-                            'x': float(x),
-                            'y': float(y),
-                            'z': float(z),
-                        })
+                        records.append(
+                            {
+                                "cell_id": int(row["cell_id"]),
+                                "vertex_idx": idx,
+                                "phi": float(phi),
+                                "theta": float(theta),
+                                "x": float(x),
+                                "y": float(y),
+                                "z": float(z),
+                            }
+                        )
 
         # Geodesic grids share vertex arrays via metadata
-        elif grid_type == 'geodesic':
-            grid_data = getattr(self._grid, '_grid_data', None)
-            shared_vertices = getattr(grid_data, 'vertices',
-                                      None) if grid_data else None
-            if shared_vertices is not None and 'geodesic_vertices' in grid_df.columns:
+        elif grid_type == "geodesic":
+            grid_data = getattr(self._grid, "_grid_data", None)
+            shared_vertices = (
+                getattr(grid_data, "vertices", None) if grid_data else None
+            )
+            if shared_vertices is not None and "geodesic_vertices" in grid_df.columns:
                 shared_vertices = np.asarray(shared_vertices, dtype=float)
                 for row in grid_df.iter_rows(named=True):
-                    indices = row['geodesic_vertices']
+                    indices = row["geodesic_vertices"]
                     for idx, vertex_idx in enumerate(indices):
                         vector = shared_vertices[int(vertex_idx)]
                         norm = np.linalg.norm(vector)
@@ -397,15 +420,17 @@ class HemiGridStorageAdapter:
                         x, y, z = vector / norm
                         theta = np.arccos(np.clip(z, -1, 1))
                         phi = np.mod(np.arctan2(y, x), 2 * np.pi)
-                        records.append({
-                            'cell_id': int(row['cell_id']),
-                            'vertex_idx': idx,
-                            'phi': float(phi),
-                            'theta': float(theta),
-                            'x': float(x),
-                            'y': float(y),
-                            'z': float(z),
-                        })
+                        records.append(
+                            {
+                                "cell_id": int(row["cell_id"]),
+                                "vertex_idx": idx,
+                                "phi": float(phi),
+                                "theta": float(theta),
+                                "x": float(x),
+                                "y": float(y),
+                                "z": float(z),
+                            }
+                        )
 
         if not records:
             return None
@@ -424,7 +449,7 @@ class HemiGridStorageAdapter:
         """
         # TODO: Implement based on your neighbor storage
 
-        neighbors = getattr(self._grid, '_neighbors', None)
+        neighbors = getattr(self._grid, "_neighbors", None)
 
         if neighbors is None:
             return None
@@ -434,8 +459,7 @@ class HemiGridStorageAdapter:
             return neighbors.clone()
         else:
             # Convert from your internal format
-            converter = getattr(self._grid, '_convert_neighbors_to_dataframe',
-                                None)
+            converter = getattr(self._grid, "_convert_neighbors_to_dataframe", None)
             if converter is None:
                 return None
             return converter()
@@ -444,13 +468,13 @@ class HemiGridStorageAdapter:
         """Prepare grid metadata."""
         cutoff_rad = float(np.deg2rad(self._grid.cutoff_theta))
         return {
-            'grid_type': self._grid.grid_type,
-            'angular_resolution': float(self._grid.angular_resolution),
-            'cutoff_theta': cutoff_rad,
-            'ncells': int(self._grid.ncells),
-            'creation_timestamp': datetime.now(UTC).isoformat(),
-            'creation_software': f"gnssvodpy=={get_version_from_pyproject()}",
-            'immutable': True,
+            "grid_type": self._grid.grid_type,
+            "angular_resolution": float(self._grid.angular_resolution),
+            "cutoff_theta": cutoff_rad,
+            "ncells": int(self._grid.ncells),
+            "creation_timestamp": datetime.now(UTC).isoformat(),
+            "creation_software": f"gnssvodpy=={get_version_from_pyproject()}",
+            "immutable": True,
         }
 
     def _prepare_specific_metadata(self) -> dict[str, Any]:
@@ -461,34 +485,34 @@ class HemiGridStorageAdapter:
         """
         metadata = {}
 
-        builder = getattr(self._grid, '_builder', None)
+        builder = getattr(self._grid, "_builder", None)
         grid_type = self._grid.grid_type
 
-        if grid_type == 'htm':
-            if builder and hasattr(builder, 'htm_level'):
-                metadata['htm_level'] = int(builder.htm_level)
-            metadata['base_triangles'] = 8
+        if grid_type == "htm":
+            if builder and hasattr(builder, "htm_level"):
+                metadata["htm_level"] = int(builder.htm_level)
+            metadata["base_triangles"] = 8
 
-        elif grid_type == 'equal_area':
-            theta_lims = getattr(self._grid, 'theta_lims', None)
+        elif grid_type == "equal_area":
+            theta_lims = getattr(self._grid, "theta_lims", None)
             if theta_lims is not None:
-                metadata['theta_band_edges'] = [float(v) for v in theta_lims]
-            metadata['cutoff_theta_deg'] = float(self._grid.cutoff_theta)
+                metadata["theta_band_edges"] = [float(v) for v in theta_lims]
+            metadata["cutoff_theta_deg"] = float(self._grid.cutoff_theta)
 
-        elif grid_type == 'geodesic':
-            if builder and hasattr(builder, 'subdivision_level'):
-                metadata['subdivision_level'] = int(builder.subdivision_level)
-            metadata['base_icosahedron'] = True
+        elif grid_type == "geodesic":
+            if builder and hasattr(builder, "subdivision_level"):
+                metadata["subdivision_level"] = int(builder.subdivision_level)
+            metadata["base_icosahedron"] = True
 
-        elif grid_type == 'healpix':
-            if 'healpix_nside' in self._grid.grid.columns:
-                nside = int(self._grid.grid['healpix_nside'][0])
-                metadata['healpix_nside'] = nside
+        elif grid_type == "healpix":
+            if "healpix_nside" in self._grid.grid.columns:
+                nside = int(self._grid.grid["healpix_nside"][0])
+                metadata["healpix_nside"] = nside
 
-        elif grid_type == 'fibonacci':
-            grid_data = getattr(self._grid, '_grid_data', None)
-            if grid_data and getattr(grid_data, 'points_xyz', None) is not None:
-                metadata['n_points'] = int(len(grid_data.points_xyz))
+        elif grid_type == "fibonacci":
+            grid_data = getattr(self._grid, "_grid_data", None)
+            if grid_data and getattr(grid_data, "points_xyz", None) is not None:
+                metadata["n_points"] = int(len(grid_data.points_xyz))
 
         return metadata
 
@@ -664,9 +688,11 @@ class StoredHemiGrid:
         str
             Representation string.
         """
-        return (f"StoredHemiGrid(name='{self._loaded.grid_name}', "
-                f"type='{self.grid_type}', "
-                f"ncells={self.metadata.ncells})")
+        return (
+            f"StoredHemiGrid(name='{self._loaded.grid_name}', "
+            f"type='{self.grid_type}', "
+            f"ncells={self.metadata.ncells})"
+        )
 
 
 # ==============================================================================
@@ -918,9 +944,7 @@ def store_vod_with_grids(
 
     with store.writable_session() as session:
         _to_icechunk(vod_ds, session, group=group_name, mode="w")
-        snapshot_id = session.commit(
-            f"Stored VOD with grid mappings to '{group_name}'"
-        )
+        snapshot_id = session.commit(f"Stored VOD with grid mappings to '{group_name}'")
 
     print(f"  ✓ Snapshot: {snapshot_id[:8]}...")
     print(f"  ✓ Grid references: {vod_ds.attrs.get('grid_references', [])}")
@@ -939,14 +963,12 @@ if __name__ == "__main__":
 
     # Create a grid
     print("Creating HTM grid...")
-    grid = create_hemigrid(angular_resolution=10, grid_type='htm')
+    grid = create_hemigrid(angular_resolution=10, grid_type="htm")
 
     # Store it
     store_path = Path("./test_vod_store")
     print(f"\nStoring grid to {store_path}...")
-    snapshot_id = store_grid_to_vod_store(grid,
-                                          store_path,
-                                          grid_name='htm_10deg')
+    snapshot_id = store_grid_to_vod_store(grid, store_path, grid_name="htm_10deg")
 
     # List available grids
     print("\nAvailable grids:")
@@ -956,7 +978,7 @@ if __name__ == "__main__":
 
     # Load it back
     print("\nLoading grid from store...")
-    loaded_grid = load_grid_from_vod_store(store_path, 'htm_10deg')
+    loaded_grid = load_grid_from_vod_store(store_path, "htm_10deg")
 
     # Test query
     print("\nTesting point query...")

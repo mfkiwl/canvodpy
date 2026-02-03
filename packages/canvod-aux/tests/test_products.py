@@ -25,7 +25,7 @@ class TestProductSpec:
             available_formats=["SP3", "CLK"],
             ftp_path_pattern="/gnss/products/{gps_week}/{file}",
             latency_hours=336,
-            description="Test product"
+            description="Test product",
         )
 
         assert spec.agency_code == "COD"
@@ -43,7 +43,7 @@ class TestProductSpec:
             duration="01D",
             available_formats=["SP3"],
             ftp_path_pattern="/path/{file}",
-            latency_hours=24
+            latency_hours=24,
         )
 
         assert spec.agency_code == "COD"
@@ -128,8 +128,7 @@ class TestListAvailableProducts:
         products = list_available_products()
 
         agencies_with_final = {
-            agency for agency, product_type in products
-            if product_type == "final"
+            agency for agency, product_type in products if product_type == "final"
         }
 
         # Most major agencies should have final products
@@ -189,7 +188,7 @@ class TestProductRegistry:
 
             # Should contain placeholders
             path = spec.ftp_path_pattern
-            assert any(ph in path for ph in ['{gps_week}', '{file}'])
+            assert any(ph in path for ph in ["{gps_week}", "{file}"])
 
     def test_latency_ordering(self):
         """Test product latencies are ordered correctly."""
@@ -222,7 +221,7 @@ class TestProductSpecConfiguration:
         spec = get_product_spec("COD", "final")
 
         assert spec.ftp_path_pattern is not None
-        assert '/' in spec.ftp_path_pattern
+        assert "/" in spec.ftp_path_pattern
 
     def test_sp3_and_clk_consistency(self):
         """Test products specify available formats."""

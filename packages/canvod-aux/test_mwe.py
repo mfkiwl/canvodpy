@@ -59,8 +59,9 @@ def main():
         print(f"✓ Variables (with velocities): {list(ds2.data_vars)}")
         print(f"✓ Has velocities: {'Vx' in ds2.data_vars}")
 
-        if 'Vx' in ds2.data_vars:
+        if "Vx" in ds2.data_vars:
             import numpy as np
+
             v_mag = np.sqrt(ds2.Vx**2 + ds2.Vy**2 + ds2.Vz**2)
             print(f"✓ Mean velocity magnitude: {float(v_mag.mean()):.2f} m/s")
     else:

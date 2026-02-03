@@ -143,8 +143,7 @@ class VODSpatialAnalyzer:
         _AGG_FUNCS = {"mean", "std", "count", "median"}
         if time_agg not in _AGG_FUNCS:
             raise ValueError(
-                f"Unknown aggregation '{time_agg}'; expected one of "
-                f"{_AGG_FUNCS}"
+                f"Unknown aggregation '{time_agg}'; expected one of {_AGG_FUNCS}"
             )
 
         logger.info("spatial statistics: var=%s agg=%s", var_name, time_agg)

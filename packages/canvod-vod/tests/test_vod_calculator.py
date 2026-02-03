@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 from pydantic import ValidationError
 
-from canvod.vod import TauOmegaZerothOrder, VODCalculator
+from canvod.vod import TauOmegaZerothOrder
 
 
 class TestVODCalculatorValidation:
@@ -13,11 +13,13 @@ class TestVODCalculatorValidation:
 
     def test_valid_datasets(self):
         """Test that valid datasets pass validation."""
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.random.randn(10, 5)),
-            "phi": (["epoch", "sid"], np.random.rand(10, 5) * 2 * np.pi),
-            "theta": (["epoch", "sid"], np.random.rand(10, 5) * np.pi / 2),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.random.randn(10, 5)),
+                "phi": (["epoch", "sid"], np.random.rand(10, 5) * 2 * np.pi),
+                "theta": (["epoch", "sid"], np.random.rand(10, 5) * np.pi / 2),
+            }
+        )
         sky_ds = canopy_ds.copy()
 
         calculator = TauOmegaZerothOrder(canopy_ds=canopy_ds, sky_ds=sky_ds)
@@ -26,36 +28,48 @@ class TestVODCalculatorValidation:
 
     def test_missing_snr_canopy(self):
         """Test that missing SNR in canopy raises error."""
-        canopy_ds = xr.Dataset({
-            "phi": (["epoch", "sid"], np.random.rand(10, 5)),
-            "theta": (["epoch", "sid"], np.random.rand(10, 5)),
-        })
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.random.randn(10, 5)),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "phi": (["epoch", "sid"], np.random.rand(10, 5)),
+                "theta": (["epoch", "sid"], np.random.rand(10, 5)),
+            }
+        )
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.random.randn(10, 5)),
+            }
+        )
 
         with pytest.raises(ValueError, match="must contain 'SNR'"):
             TauOmegaZerothOrder(canopy_ds=canopy_ds, sky_ds=sky_ds)
 
     def test_missing_snr_sky(self):
         """Test that missing SNR in sky raises error."""
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.random.randn(10, 5)),
-        })
-        sky_ds = xr.Dataset({
-            "phi": (["epoch", "sid"], np.random.rand(10, 5)),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.random.randn(10, 5)),
+            }
+        )
+        sky_ds = xr.Dataset(
+            {
+                "phi": (["epoch", "sid"], np.random.rand(10, 5)),
+            }
+        )
 
         with pytest.raises(ValueError, match="must contain 'SNR'"):
             TauOmegaZerothOrder(canopy_ds=canopy_ds, sky_ds=sky_ds)
 
     def test_invalid_type_canopy(self):
         """Test that non-dataset canopy raises error."""
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.random.randn(10, 5)),
-        })
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.random.randn(10, 5)),
+            }
+        )
 
-        with pytest.raises(ValidationError, match="Input should be an instance of Dataset"):
+        with pytest.raises(
+            ValidationError, match="Input should be an instance of Dataset"
+        ):
             TauOmegaZerothOrder(canopy_ds="not a dataset", sky_ds=sky_ds)
 
 
@@ -65,18 +79,25 @@ class TestTauOmegaZerothOrder:
     def create_test_datasets(self, n_epoch=10, n_sid=5):
         """Create test datasets with known values."""
         # Create canopy dataset with higher SNR
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((n_epoch, n_sid), 20.0)),  # 20 dB
-            "phi": (["epoch", "sid"], np.random.rand(n_epoch, n_sid) * 2 * np.pi),
-            "theta": (["epoch", "sid"], np.full((n_epoch, n_sid), np.pi / 4)),  # 45°
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((n_epoch, n_sid), 20.0)),  # 20 dB
+                "phi": (["epoch", "sid"], np.random.rand(n_epoch, n_sid) * 2 * np.pi),
+                "theta": (
+                    ["epoch", "sid"],
+                    np.full((n_epoch, n_sid), np.pi / 4),
+                ),  # 45°
+            }
+        )
 
         # Create sky dataset with lower SNR
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((n_epoch, n_sid), 10.0)),  # 10 dB
-            "phi": (["epoch", "sid"], canopy_ds["phi"].values),
-            "theta": (["epoch", "sid"], canopy_ds["theta"].values),
-        })
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((n_epoch, n_sid), 10.0)),  # 10 dB
+                "phi": (["epoch", "sid"], canopy_ds["phi"].values),
+                "theta": (["epoch", "sid"], canopy_ds["theta"].values),
+            }
+        )
 
         return canopy_ds, sky_ds
 
@@ -131,17 +152,21 @@ class TestTauOmegaZerothOrder:
         n_epoch, n_sid = 5, 3
 
         # Canopy has LOWER SNR than sky (attenuation through vegetation)
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((n_epoch, n_sid), 10.0)),
-            "phi": (["epoch", "sid"], np.zeros((n_epoch, n_sid))),
-            "theta": (["epoch", "sid"], np.full((n_epoch, n_sid), np.pi / 4)),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((n_epoch, n_sid), 10.0)),
+                "phi": (["epoch", "sid"], np.zeros((n_epoch, n_sid))),
+                "theta": (["epoch", "sid"], np.full((n_epoch, n_sid), np.pi / 4)),
+            }
+        )
 
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((n_epoch, n_sid), 20.0)),
-            "phi": (["epoch", "sid"], np.zeros((n_epoch, n_sid))),
-            "theta": (["epoch", "sid"], np.full((n_epoch, n_sid), np.pi / 4)),
-        })
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((n_epoch, n_sid), 20.0)),
+                "phi": (["epoch", "sid"], np.zeros((n_epoch, n_sid))),
+                "theta": (["epoch", "sid"], np.full((n_epoch, n_sid), np.pi / 4)),
+            }
+        )
 
         calculator = TauOmegaZerothOrder(canopy_ds=canopy_ds, sky_ds=sky_ds)
         vod_ds = calculator.calculate_vod()
@@ -157,16 +182,20 @@ class TestTauOmegaZerothOrder:
 
     def test_calculate_vod_all_nan(self):
         """Test that all NaN delta_snr raises error."""
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((10, 5), np.nan)),
-            "phi": (["epoch", "sid"], np.zeros((10, 5))),
-            "theta": (["epoch", "sid"], np.zeros((10, 5))),
-        })
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((10, 5), np.nan)),
-            "phi": (["epoch", "sid"], np.zeros((10, 5))),
-            "theta": (["epoch", "sid"], np.zeros((10, 5))),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((10, 5), np.nan)),
+                "phi": (["epoch", "sid"], np.zeros((10, 5))),
+                "theta": (["epoch", "sid"], np.zeros((10, 5))),
+            }
+        )
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((10, 5), np.nan)),
+                "phi": (["epoch", "sid"], np.zeros((10, 5))),
+                "theta": (["epoch", "sid"], np.zeros((10, 5))),
+            }
+        )
 
         calculator = TauOmegaZerothOrder(canopy_ds=canopy_ds, sky_ds=sky_ds)
 
@@ -184,16 +213,20 @@ class TestFromDatasets:
 
     def test_from_datasets_no_align(self):
         """Test from_datasets without alignment."""
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((10, 5), 10.0)),
-            "phi": (["epoch", "sid"], np.zeros((10, 5))),
-            "theta": (["epoch", "sid"], np.full((10, 5), np.pi / 4)),
-        })
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((10, 5), 20.0)),
-            "phi": (["epoch", "sid"], np.zeros((10, 5))),
-            "theta": (["epoch", "sid"], np.full((10, 5), np.pi / 4)),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((10, 5), 10.0)),
+                "phi": (["epoch", "sid"], np.zeros((10, 5))),
+                "theta": (["epoch", "sid"], np.full((10, 5), np.pi / 4)),
+            }
+        )
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((10, 5), 20.0)),
+                "phi": (["epoch", "sid"], np.zeros((10, 5))),
+                "theta": (["epoch", "sid"], np.full((10, 5), np.pi / 4)),
+            }
+        )
 
         vod_ds = TauOmegaZerothOrder.from_datasets(
             canopy_ds=canopy_ds, sky_ds=sky_ds, align=False
@@ -205,17 +238,23 @@ class TestFromDatasets:
     def test_from_datasets_with_align(self):
         """Test from_datasets with alignment."""
         # Create datasets with different coordinates
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((10, 5), 10.0)),
-            "phi": (["epoch", "sid"], np.zeros((10, 5))),
-            "theta": (["epoch", "sid"], np.full((10, 5), np.pi / 4)),
-        }, coords={"epoch": range(10), "sid": range(5)})
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((10, 5), 10.0)),
+                "phi": (["epoch", "sid"], np.zeros((10, 5))),
+                "theta": (["epoch", "sid"], np.full((10, 5), np.pi / 4)),
+            },
+            coords={"epoch": range(10), "sid": range(5)},
+        )
 
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((12, 6), 20.0)),
-            "phi": (["epoch", "sid"], np.zeros((12, 6))),
-            "theta": (["epoch", "sid"], np.full((12, 6), np.pi / 4)),
-        }, coords={"epoch": range(2, 14), "sid": range(1, 7)})
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((12, 6), 20.0)),
+                "phi": (["epoch", "sid"], np.zeros((12, 6))),
+                "theta": (["epoch", "sid"], np.full((12, 6), np.pi / 4)),
+            },
+            coords={"epoch": range(2, 14), "sid": range(1, 7)},
+        )
 
         vod_ds = TauOmegaZerothOrder.from_datasets(
             canopy_ds=canopy_ds, sky_ds=sky_ds, align=True
@@ -232,16 +271,20 @@ class TestEdgeCases:
 
     def test_zero_theta(self):
         """Test VOD calculation with theta = 0 (zenith)."""
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((5, 3), 10.0)),
-            "phi": (["epoch", "sid"], np.zeros((5, 3))),
-            "theta": (["epoch", "sid"], np.zeros((5, 3))),  # Zenith
-        })
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((5, 3), 20.0)),
-            "phi": (["epoch", "sid"], np.zeros((5, 3))),
-            "theta": (["epoch", "sid"], np.zeros((5, 3))),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((5, 3), 10.0)),
+                "phi": (["epoch", "sid"], np.zeros((5, 3))),
+                "theta": (["epoch", "sid"], np.zeros((5, 3))),  # Zenith
+            }
+        )
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((5, 3), 20.0)),
+                "phi": (["epoch", "sid"], np.zeros((5, 3))),
+                "theta": (["epoch", "sid"], np.zeros((5, 3))),
+            }
+        )
 
         calculator = TauOmegaZerothOrder(canopy_ds=canopy_ds, sky_ds=sky_ds)
         vod_ds = calculator.calculate_vod()
@@ -252,16 +295,20 @@ class TestEdgeCases:
 
     def test_horizon_theta(self):
         """Test VOD calculation with theta = π/2 (horizon)."""
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((5, 3), 10.0)),
-            "phi": (["epoch", "sid"], np.zeros((5, 3))),
-            "theta": (["epoch", "sid"], np.full((5, 3), np.pi / 2)),  # Horizon
-        })
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], np.full((5, 3), 20.0)),
-            "phi": (["epoch", "sid"], np.zeros((5, 3))),
-            "theta": (["epoch", "sid"], np.full((5, 3), np.pi / 2)),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((5, 3), 10.0)),
+                "phi": (["epoch", "sid"], np.zeros((5, 3))),
+                "theta": (["epoch", "sid"], np.full((5, 3), np.pi / 2)),  # Horizon
+            }
+        )
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (["epoch", "sid"], np.full((5, 3), 20.0)),
+                "phi": (["epoch", "sid"], np.zeros((5, 3))),
+                "theta": (["epoch", "sid"], np.full((5, 3), np.pi / 2)),
+            }
+        )
 
         calculator = TauOmegaZerothOrder(canopy_ds=canopy_ds, sky_ds=sky_ds)
         vod_ds = calculator.calculate_vod()
@@ -271,26 +318,40 @@ class TestEdgeCases:
 
     def test_mixed_valid_invalid(self):
         """Test with mix of valid and NaN values."""
-        canopy_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], [[10, 20, np.nan], [15, np.nan, 25], [np.nan, 18, 22]]),
-            "phi": (["epoch", "sid"], np.zeros((3, 3))),
-            "theta": (["epoch", "sid"], np.full((3, 3), np.pi / 4)),
-        })
-        sky_ds = xr.Dataset({
-            "SNR": (["epoch", "sid"], [[20, 30, np.nan], [25, np.nan, 35], [np.nan, 28, 32]]),
-            "phi": (["epoch", "sid"], np.zeros((3, 3))),
-            "theta": (["epoch", "sid"], np.full((3, 3), np.pi / 4)),
-        })
+        canopy_ds = xr.Dataset(
+            {
+                "SNR": (
+                    ["epoch", "sid"],
+                    [[10, 20, np.nan], [15, np.nan, 25], [np.nan, 18, 22]],
+                ),
+                "phi": (["epoch", "sid"], np.zeros((3, 3))),
+                "theta": (["epoch", "sid"], np.full((3, 3), np.pi / 4)),
+            }
+        )
+        sky_ds = xr.Dataset(
+            {
+                "SNR": (
+                    ["epoch", "sid"],
+                    [[20, 30, np.nan], [25, np.nan, 35], [np.nan, 28, 32]],
+                ),
+                "phi": (["epoch", "sid"], np.zeros((3, 3))),
+                "theta": (["epoch", "sid"], np.full((3, 3), np.pi / 4)),
+            }
+        )
 
         calculator = TauOmegaZerothOrder(canopy_ds=canopy_ds, sky_ds=sky_ds)
         vod_ds = calculator.calculate_vod()
 
         # Valid values should be finite
-        valid_mask = ~np.isnan(canopy_ds["SNR"].values) & ~np.isnan(sky_ds["SNR"].values)
+        valid_mask = ~np.isnan(canopy_ds["SNR"].values) & ~np.isnan(
+            sky_ds["SNR"].values
+        )
         assert np.all(np.isfinite(vod_ds["VOD"].values[valid_mask]))
 
         # NaN values should propagate
-        invalid_mask = np.isnan(canopy_ds["SNR"].values) | np.isnan(sky_ds["SNR"].values)
+        invalid_mask = np.isnan(canopy_ds["SNR"].values) | np.isnan(
+            sky_ds["SNR"].values
+        )
         assert np.all(np.isnan(vod_ds["VOD"].values[invalid_mask]))
 
 

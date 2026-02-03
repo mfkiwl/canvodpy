@@ -64,8 +64,8 @@ class TestECEFPosition:
         """Test string representation."""
         repr_str = repr(ecef_position)
 
-        assert 'ECEFPosition' in repr_str
-        assert '4075539.8' in repr_str or '4075539.800' in repr_str
+        assert "ECEFPosition" in repr_str
+        assert "4075539.8" in repr_str or "4075539.800" in repr_str
 
 
 class TestGeodeticPosition:
@@ -113,8 +113,8 @@ class TestGeodeticPosition:
         """Test string representation."""
         repr_str = repr(geodetic_position)
 
-        assert 'GeodeticPosition' in repr_str
-        assert '49.145' in repr_str
+        assert "GeodeticPosition" in repr_str
+        assert "49.145" in repr_str
 
 
 class TestComputeSphericalCoordinates:
@@ -215,9 +215,7 @@ class TestComputeSphericalCoordinates:
         sat_y = 5e6
         sat_z = 15e6
 
-        r, theta, phi = compute_spherical_coordinates(
-            sat_x, sat_y, sat_z, ecef_pos
-        )
+        r, theta, phi = compute_spherical_coordinates(sat_x, sat_y, sat_z, ecef_pos)
 
         assert r > 0
         assert 0 <= theta <= np.pi
@@ -230,9 +228,7 @@ class TestComputeSphericalCoordinates:
         sat_y = ecef_position.y + 1e6
         sat_z = ecef_position.z + 1e6
 
-        _, _, phi = compute_spherical_coordinates(
-            sat_x, sat_y, sat_z, ecef_position
-        )
+        _, _, phi = compute_spherical_coordinates(sat_x, sat_y, sat_z, ecef_position)
 
         # phi should be in valid range
         assert 0 <= phi < 2 * np.pi
@@ -244,55 +240,54 @@ class TestAddSphericalCoordsToDataset:
     def test_coords_added_to_dataset(self, sample_rinex_data):
         """Test spherical coordinates are added to dataset."""
         # Generate dummy spherical coordinates
-        r = np.random.uniform(2e7, 3e7, size=sample_rinex_data['SNR'].shape)
-        theta = np.random.uniform(0, np.pi, size=sample_rinex_data['SNR'].shape)
-        phi = np.random.uniform(0, 2*np.pi, size=sample_rinex_data['SNR'].shape)
+        r = np.random.uniform(2e7, 3e7, size=sample_rinex_data["SNR"].shape)
+        theta = np.random.uniform(0, np.pi, size=sample_rinex_data["SNR"].shape)
+        phi = np.random.uniform(0, 2 * np.pi, size=sample_rinex_data["SNR"].shape)
 
         result = add_spherical_coords_to_dataset(sample_rinex_data, r, theta, phi)
 
-        assert 'r' in result.data_vars
-        assert 'theta' in result.data_vars
-        assert 'phi' in result.data_vars
+        assert "r" in result.data_vars
+        assert "theta" in result.data_vars
+        assert "phi" in result.data_vars
 
     def test_original_data_preserved(self, sample_rinex_data):
         """Test original data variables are preserved."""
-        r = np.random.uniform(2e7, 3e7, size=sample_rinex_data['SNR'].shape)
-        theta = np.random.uniform(0, np.pi, size=sample_rinex_data['SNR'].shape)
-        phi = np.random.uniform(0, 2*np.pi, size=sample_rinex_data['SNR'].shape)
+        r = np.random.uniform(2e7, 3e7, size=sample_rinex_data["SNR"].shape)
+        theta = np.random.uniform(0, np.pi, size=sample_rinex_data["SNR"].shape)
+        phi = np.random.uniform(0, 2 * np.pi, size=sample_rinex_data["SNR"].shape)
 
         result = add_spherical_coords_to_dataset(sample_rinex_data, r, theta, phi)
 
         # Original data should still exist
-        assert 'SNR' in result.data_vars
+        assert "SNR" in result.data_vars
         np.testing.assert_array_equal(
-            result['SNR'].values,
-            sample_rinex_data['SNR'].values
+            result["SNR"].values, sample_rinex_data["SNR"].values
         )
 
     def test_shapes_match(self, sample_rinex_data):
         """Test added coordinates have correct shapes."""
-        r = np.random.uniform(2e7, 3e7, size=sample_rinex_data['SNR'].shape)
-        theta = np.random.uniform(0, np.pi, size=sample_rinex_data['SNR'].shape)
-        phi = np.random.uniform(0, 2*np.pi, size=sample_rinex_data['SNR'].shape)
+        r = np.random.uniform(2e7, 3e7, size=sample_rinex_data["SNR"].shape)
+        theta = np.random.uniform(0, np.pi, size=sample_rinex_data["SNR"].shape)
+        phi = np.random.uniform(0, 2 * np.pi, size=sample_rinex_data["SNR"].shape)
 
         result = add_spherical_coords_to_dataset(sample_rinex_data, r, theta, phi)
 
-        assert result['r'].shape == sample_rinex_data['SNR'].shape
-        assert result['theta'].shape == sample_rinex_data['SNR'].shape
-        assert result['phi'].shape == sample_rinex_data['SNR'].shape
+        assert result["r"].shape == sample_rinex_data["SNR"].shape
+        assert result["theta"].shape == sample_rinex_data["SNR"].shape
+        assert result["phi"].shape == sample_rinex_data["SNR"].shape
 
     def test_attributes_set(self, sample_rinex_data):
         """Test coordinate attributes are set correctly."""
-        r = np.random.uniform(2e7, 3e7, size=sample_rinex_data['SNR'].shape)
-        theta = np.random.uniform(0, np.pi, size=sample_rinex_data['SNR'].shape)
-        phi = np.random.uniform(0, 2*np.pi, size=sample_rinex_data['SNR'].shape)
+        r = np.random.uniform(2e7, 3e7, size=sample_rinex_data["SNR"].shape)
+        theta = np.random.uniform(0, np.pi, size=sample_rinex_data["SNR"].shape)
+        phi = np.random.uniform(0, 2 * np.pi, size=sample_rinex_data["SNR"].shape)
 
         result = add_spherical_coords_to_dataset(sample_rinex_data, r, theta, phi)
 
         # Check units exist
-        assert 'units' in result['r'].attrs
-        assert 'units' in result['theta'].attrs
-        assert 'units' in result['phi'].attrs
+        assert "units" in result["r"].attrs
+        assert "units" in result["theta"].attrs
+        assert "units" in result["phi"].attrs
 
 
 class TestCoordinateTransformationIntegration:
@@ -301,9 +296,9 @@ class TestCoordinateTransformationIntegration:
     def test_complete_augmentation_workflow(self, sample_rinex_data, ecef_position):
         """Test complete workflow from satellite ECEF to augmented RINEX."""
         # Step 1: Simulate satellite positions
-        sat_x = np.random.uniform(20e6, 30e6, size=sample_rinex_data['SNR'].shape)
-        sat_y = np.random.uniform(1e6, 5e6, size=sample_rinex_data['SNR'].shape)
-        sat_z = np.random.uniform(10e6, 20e6, size=sample_rinex_data['SNR'].shape)
+        sat_x = np.random.uniform(20e6, 30e6, size=sample_rinex_data["SNR"].shape)
+        sat_y = np.random.uniform(1e6, 5e6, size=sample_rinex_data["SNR"].shape)
+        sat_z = np.random.uniform(10e6, 20e6, size=sample_rinex_data["SNR"].shape)
 
         # Step 2: Compute spherical coordinates
         r, theta, phi = compute_spherical_coordinates(
@@ -314,10 +309,10 @@ class TestCoordinateTransformationIntegration:
         augmented = add_spherical_coords_to_dataset(sample_rinex_data, r, theta, phi)
 
         # Verify complete
-        assert 'SNR' in augmented.data_vars  # Original
-        assert 'r' in augmented.data_vars     # Added
-        assert 'theta' in augmented.data_vars
-        assert 'phi' in augmented.data_vars
+        assert "SNR" in augmented.data_vars  # Original
+        assert "r" in augmented.data_vars  # Added
+        assert "theta" in augmented.data_vars
+        assert "phi" in augmented.data_vars
 
     def test_physical_validity(self, ecef_position):
         """Test physically valid transformations."""
@@ -348,9 +343,7 @@ class TestCoordinateTransformationIntegration:
         ecef = geodetic_position.to_ecef()
 
         # Compute with ECEF representation
-        r1, theta1, phi1 = compute_spherical_coordinates(
-            sat_x, sat_y, sat_z, ecef
-        )
+        r1, theta1, phi1 = compute_spherical_coordinates(sat_x, sat_y, sat_z, ecef)
 
         # Should get valid results
         assert r1 > 0

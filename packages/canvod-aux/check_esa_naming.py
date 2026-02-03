@@ -13,15 +13,15 @@ def check_esa_ftp_files():
 
     try:
         with urllib.request.urlopen(url, timeout=10) as response:
-            listing = response.read().decode('utf-8')
+            listing = response.read().decode("utf-8")
 
             # Find all GFZ/GBM related files
-            lines = listing.strip().split('\n')
+            lines = listing.strip().split("\n")
             gfz_files = []
 
             for line in lines:
                 # Look for GFZ or GBM in the line
-                if 'GFZ' in line or 'GBM' in line or 'GF' in line or 'GB' in line:
+                if "GFZ" in line or "GBM" in line or "GF" in line or "GB" in line:
                     gfz_files.append(line)
 
             print("=" * 80)
@@ -42,7 +42,11 @@ def check_esa_ftp_files():
             filenames = []
             for line in lines:
                 # Match patterns like GFZ0... or GBM0...
-                match = re.search(r'(G[BF][MZ]0[A-Z]+_\d+_\d+_\d+_[A-Z]+\.(SP3|CLK))', line, re.IGNORECASE)
+                match = re.search(
+                    r"(G[BF][MZ]0[A-Z]+_\d+_\d+_\d+_[A-Z]+\.(SP3|CLK))",
+                    line,
+                    re.IGNORECASE,
+                )
                 if match:
                     filenames.append(match.group(1))
 
@@ -53,6 +57,7 @@ def check_esa_ftp_files():
         print(f"Error accessing ESA FTP: {e}")
         print("\nThis might be due to network issues.")
         print("Try manually checking: ftp://gssc.esa.int/gnss/products/2279/")
+
 
 if __name__ == "__main__":
     check_esa_ftp_files()

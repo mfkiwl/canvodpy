@@ -14,22 +14,22 @@ class FtpServerConfig(BaseModel):
     This is a Pydantic `BaseModel`.
     """
 
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
 
-    url: str = Field(pattern=r'^ftps?://')
+    url: str = Field(pattern=r"^ftps?://")
     priority: int = Field(ge=1, le=100)
     description: str = ""
     requires_auth: bool = False
 
-    @field_validator('url')
+    @field_validator("url")
     @classmethod
     def validate_url_scheme(cls, v: str) -> str:
         """Validate URL scheme is ftp or ftps."""
-        if not (v.startswith('ftp://') or v.startswith('ftps://')):
-            raise ValueError('URL must start with ftp:// or ftps://')
+        if not (v.startswith("ftp://") or v.startswith("ftps://")):
+            raise ValueError("URL must start with ftp:// or ftps://")
         return v
 
-    #TODO: Check
+    # TODO: Check
 
 
 class ProductSpec(BaseModel):
@@ -44,39 +44,38 @@ class ProductSpec(BaseModel):
     This is a Pydantic `BaseModel`.
     """
 
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
 
     agency_code: str = Field(
         min_length=3,
         max_length=3,
-        pattern=r'^[A-Z]{3}$',
+        pattern=r"^[A-Z]{3}$",
     )
     agency_name: str
     product_type: str = Field(
-        pattern=r'^(final|rapid|ultrarapid|real-time|near-real-time)$',
+        pattern=r"^(final|rapid|ultrarapid|real-time|near-real-time)$",
     )
     prefix: str = Field(
         min_length=9,
         max_length=10,
-        pattern=r'^[A-Z0-9]+$',
+        pattern=r"^[A-Z0-9]+$",
     )
-    sampling_rate: str = Field(pattern=r'^\d{2}[SMHD]$')
-    duration: str = Field(pattern=r'^\d{2}[DH]$')
+    sampling_rate: str = Field(pattern=r"^\d{2}[SMHD]$")
+    duration: str = Field(pattern=r"^\d{2}[DH]$")
     available_formats: list[str]
     ftp_servers: list[FtpServerConfig]
     ftp_path_pattern: str
     latency_hours: int = Field(ge=0)
     description: str = ""
 
-    @field_validator('prefix')
+    @field_validator("prefix")
     @classmethod
     def validate_prefix_matches_agency(cls, v: str, info) -> str:
         """Validate prefix starts with agency code."""
-        if 'agency_code' in info.data:
-            agency = info.data['agency_code']
+        if "agency_code" in info.data:
+            agency = info.data["agency_code"]
             if not v.startswith(agency):
-                raise ValueError(
-                    f'Prefix must start with agency code {agency}')
+                raise ValueError(f"Prefix must start with agency code {agency}")
         return v
 
 
@@ -128,8 +127,8 @@ class ProductRegistry:
             spec = ProductSpec(
                 agency_code=product_data["agency"],
                 agency_name=self._agencies.get(
-                    product_data["agency"],
-                    f"{product_data['agency']} Analysis Center"),
+                    product_data["agency"], f"{product_data['agency']} Analysis Center"
+                ),
                 product_type=product_data["type"],
                 prefix=product_data["prefix"],
                 sampling_rate=product_data["sampling"],
@@ -174,11 +173,15 @@ class ProductRegistry:
             available = [f"{ag}/{pt}" for ag, pt in self.list_products()]
             raise KeyError(
                 f"Product not found: {agency}/{product_type}\n"
-                f"Available products ({len(available)}):\n" +
-                "\n".join(f"  - {p}" for p in sorted(available)[:10]) +
-                (f"\n  ... and {len(available) - 10} more" if len(available) >
-                 10 else "") +
-                f"\n\nTo add this product, edit: {self.config_path}")
+                f"Available products ({len(available)}):\n"
+                + "\n".join(f"  - {p}" for p in sorted(available)[:10])
+                + (
+                    f"\n  ... and {len(available) - 10} more"
+                    if len(available) > 10
+                    else ""
+                )
+                + f"\n\nTo add this product, edit: {self.config_path}"
+            )
 
         return self._products[key]
 
@@ -193,14 +196,15 @@ class ProductRegistry:
     def get_products_for_agency(self, agency: str) -> list[str]:
         """Get all product types for an agency."""
         agency_upper = agency.upper()
-        return sorted(product_type
-                      for (ag, product_type) in self._products.keys()
-                      if ag == agency_upper)
+        return sorted(
+            product_type
+            for (ag, product_type) in self._products.keys()
+            if ag == agency_upper
+        )
 
     def get_agency_name(self, agency: str) -> str:
         """Get full agency name."""
-        return self._agencies.get(agency.upper(),
-                                  f"{agency.upper()} Analysis Center")
+        return self._agencies.get(agency.upper(), f"{agency.upper()} Analysis Center")
 
 
 # Global registry instance (lazy-loaded)

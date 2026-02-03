@@ -6,21 +6,20 @@ It's currently disabled because it uses outdated config structure.
 
 import pytest
 
-pytest.skip("Integration test needs updating for new config structure", 
-            allow_module_level=True)
+pytest.skip(
+    "Integration test needs updating for new config structure", allow_module_level=True
+)
 
-from pathlib import Path
-import xarray as xr
+from canvod.aux.position import ECEFPosition
 from canvod.utils.config import load_config
 from canvodpy.orchestrator.processor import preprocess_with_hermite_aux
-from canvod.aux.position import ECEFPosition
 
 # Load config
 config = load_config()
-rosalia = config.sites.sites['rosalia']
+rosalia = config.sites.sites["rosalia"]
 
 # Get first reference receiver
-ref_receiver = rosalia.receivers['reference_01']
+ref_receiver = rosalia.receivers["reference_01"]
 receiver_pos = ECEFPosition(
     x=ref_receiver.position.x,
     y=ref_receiver.position.y,
@@ -60,29 +59,32 @@ try:
         receiver_type="reference",
         keep_sids=keep_sids,
     )
-    
-    print(f"\n✅ Processing successful!")
+
+    print("\n✅ Processing successful!")
     print(f"Dataset SIDs: {ds.sizes['sid']}")
     print(f"Dataset epochs: {ds.sizes['epoch']}")
-    
+
     # Verify spherical coords exist
-    if 'phi' in ds.data_vars and 'theta' in ds.data_vars and 'r' in ds.data_vars:
-        print(f"✅ Spherical coordinates added")
+    if "phi" in ds.data_vars and "theta" in ds.data_vars and "r" in ds.data_vars:
+        print("✅ Spherical coordinates added")
         print(f"   phi shape: {ds.phi.shape}")
         print(f"   theta shape: {ds.theta.shape}")
         print(f"   r shape: {ds.r.shape}")
     else:
-        print(f"❌ Missing spherical coordinates")
-    
+        print("❌ Missing spherical coordinates")
+
     # Verify SID count matches config
-    if ds.sizes['sid'] == len(keep_sids):
+    if ds.sizes["sid"] == len(keep_sids):
         print(f"✅ SID count matches config ({len(keep_sids)})")
     else:
-        print(f"❌ SID count mismatch: dataset has {ds.sizes['sid']}, config has {len(keep_sids)}")
+        print(
+            f"❌ SID count mismatch: dataset has {ds.sizes['sid']}, config has {len(keep_sids)}"
+        )
 
 except Exception as e:
     print(f"\n❌ Processing failed: {e}")
     import traceback
+
     traceback.print_exc()
     exit(1)
 

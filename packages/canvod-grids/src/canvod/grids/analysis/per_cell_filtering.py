@@ -123,13 +123,9 @@ class PerCellFilter(ABC):
         if var_name not in ds:
             raise ValueError(f"Variable '{var_name}' not found in dataset")
         if cell_id_var not in ds:
-            raise ValueError(
-                f"Cell ID variable '{cell_id_var}' not found in dataset"
-            )
+            raise ValueError(f"Cell ID variable '{cell_id_var}' not found in dataset")
 
-        logger.info(
-            "Applying %s filter per-cell to '%s'", self.filter_name, var_name
-        )
+        logger.info("Applying %s filter per-cell to '%s'", self.filter_name, var_name)
 
         var_data = ds[var_name]
         cell_ids = ds[cell_id_var]
@@ -193,9 +189,7 @@ class PerCellFilter(ABC):
         total_filtered = 0
 
         for cell_id in unique_cells:
-            cell_mask = (
-                (cells == cell_id) & np.isfinite(values) & np.isfinite(cells)
-            )
+            cell_mask = (cells == cell_id) & np.isfinite(values) & np.isfinite(cells)
             cell_indices = np.where(cell_mask)
 
             if len(cell_indices[0]) < min_observations:
@@ -205,9 +199,7 @@ class PerCellFilter(ABC):
             cell_filter_mask = self.compute_cell_mask(cell_data, **kwargs)
 
             mask_values[cell_mask] = cell_filter_mask
-            filtered_values[cell_mask] = np.where(
-                cell_filter_mask, cell_data, np.nan
-            )
+            filtered_values[cell_mask] = np.where(cell_filter_mask, cell_data, np.nan)
 
             cells_processed += 1
             if not np.all(cell_filter_mask):
@@ -222,12 +214,12 @@ class PerCellFilter(ABC):
         )
 
         filtered_da = xr.DataArray(
-            filtered_values, dims=var_data.dims, coords=var_data.coords,
+            filtered_values,
+            dims=var_data.dims,
+            coords=var_data.coords,
             attrs=var_data.attrs,
         )
-        mask_da = xr.DataArray(
-            mask_values, dims=var_data.dims, coords=var_data.coords
-        )
+        mask_da = xr.DataArray(mask_values, dims=var_data.dims, coords=var_data.coords)
 
         return filtered_da, mask_da
 
@@ -500,9 +492,7 @@ class PerCellFilterPipeline:
         if mode == "sequential":
             for i, (filter_obj, kwargs) in enumerate(self.filters):
                 suffix = (
-                    f"{filter_obj.filter_name}_{i}"
-                    if i > 0
-                    else filter_obj.filter_name
+                    f"{filter_obj.filter_name}_{i}" if i > 0 else filter_obj.filter_name
                 )
                 result = filter_obj.apply(
                     result, current_var, output_suffix=suffix, **kwargs
@@ -514,9 +504,7 @@ class PerCellFilterPipeline:
             filter_names: list[str] = []
 
             for filter_obj, kwargs in self.filters:
-                filtered = filter_obj.apply(
-                    result, self.var_name, **kwargs
-                )
+                filtered = filter_obj.apply(result, self.var_name, **kwargs)
                 mask = filtered[f"mask_{filter_obj.filter_name}"]
 
                 if combined_mask is None:
@@ -552,8 +540,11 @@ def create_per_cell_iqr_filter(
 ) -> xr.Dataset:
     """One-liner per-cell IQR filter."""
     return PerCellIQRFilter().apply(
-        ds, var_name, cell_id_var=cell_id_var,
-        factor=factor, min_observations=min_observations,
+        ds,
+        var_name,
+        cell_id_var=cell_id_var,
+        factor=factor,
+        min_observations=min_observations,
     )
 
 
@@ -566,6 +557,9 @@ def create_per_cell_zscore_filter(
 ) -> xr.Dataset:
     """One-liner per-cell z-score filter."""
     return PerCellZScoreFilter().apply(
-        ds, var_name, cell_id_var=cell_id_var,
-        threshold=threshold, min_observations=min_observations,
+        ds,
+        var_name,
+        cell_id_var=cell_id_var,
+        threshold=threshold,
+        min_observations=min_observations,
     )

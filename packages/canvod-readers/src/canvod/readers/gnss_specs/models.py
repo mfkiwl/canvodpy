@@ -36,9 +36,11 @@ RINEX_VERSION_MIN = 3
 RINEX_VERSION_MAX = 4
 
 
-@dataclass(kw_only=True,
-           frozen=True,
-           config=ConfigDict(arbitrary_types_allowed=True, slots=True))
+@dataclass(
+    kw_only=True,
+    frozen=True,
+    config=ConfigDict(arbitrary_types_allowed=True, slots=True),
+)
 class Observation:
     """Represents a single GNSS observation.
 
@@ -96,11 +98,9 @@ class Observation:
                 msg = f"Invalid observation type in code: {obs_type}"
                 _raise_value_error(msg)
 
-            return v  # noqa: TRY300
+            return v
         except ValueError as e:
-            msg = (
-                f'Invalid observation code format: {v}. Should be "SVN|OBSCODE"'
-            )
+            msg = f'Invalid observation code format: {v}. Should be "SVN|OBSCODE"'
             raise ValueError(msg) from e
 
     @field_validator("frequency")
@@ -157,8 +157,7 @@ class Observation:
         """
         if v is not None and not (INDICATOR_MIN <= v <= INDICATOR_MAX):
             msg = (
-                "Indicator values must be between "
-                f"{INDICATOR_MIN} and {INDICATOR_MAX}"
+                f"Indicator values must be between {INDICATOR_MIN} and {INDICATOR_MAX}"
             )
             _raise_value_error(msg)
         return v
@@ -244,8 +243,11 @@ class Satellite:
 
         """
         return next(
-            (obs for obs in self.observations
-             if obs.observation_freq_tag == observation_freq_tag),
+            (
+                obs
+                for obs in self.observations
+                if obs.observation_freq_tag == observation_freq_tag
+            ),
             None,
         )
 
@@ -264,7 +266,8 @@ class Satellite:
 
         """
         return [
-            obs.value for obs in self.observations
+            obs.value
+            for obs in self.observations
             if obs.observation_freq_tag == obs_code and obs.value is not None
         ]
 
@@ -358,16 +361,19 @@ class Quantity(pint.Quantity):
                 msg = f"Invalid unit for {value}"
                 _raise_value_error(msg)
 
-        python_schema = core_schema.union_schema([
-            core_schema.is_instance_schema(pint.Quantity),
-            core_schema.no_info_plain_validator_function(validate_from_str),
-        ])
+        python_schema = core_schema.union_schema(
+            [
+                core_schema.is_instance_schema(pint.Quantity),
+                core_schema.no_info_plain_validator_function(validate_from_str),
+            ]
+        )
 
         return core_schema.json_or_python_schema(
             json_schema=core_schema.str_schema(),
             python_schema=python_schema,
             serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda instance: str(instance)),
+                lambda instance: str(instance)
+            ),
         )
 
 
@@ -427,8 +433,7 @@ class RnxObsFileModel(BaseModel):
             If suffix doesn't match RINEX observation pattern.
 
         """
-        rinex_suffix_pattern = re.compile(
-            r"\.2\d[o]$")  # Ensures the format ".2Xo"
+        rinex_suffix_pattern = re.compile(r"\.2\d[o]$")  # Ensures the format ".2Xo"
 
         if not (rinex_suffix_pattern.fullmatch(v.suffix) or v.suffix == ".o"):
             msg = (
@@ -584,10 +589,10 @@ class Rnxv3ObsEpochRecordCompletenessModel(BaseModel):
         sampling_interval = self.sampling_interval
 
         if epoch_records_indeces and rnx_file_dump_interval and sampling_interval:
-            total_sampling_time = len(
-                epoch_records_indeces) * sampling_interval.to(UREG.seconds)
-            rnx_file_dump_interval_in_seconds = rnx_file_dump_interval.to(
-                UREG.seconds)
+            total_sampling_time = len(epoch_records_indeces) * sampling_interval.to(
+                UREG.seconds
+            )
+            rnx_file_dump_interval_in_seconds = rnx_file_dump_interval.to(UREG.seconds)
             if total_sampling_time != rnx_file_dump_interval_in_seconds:
                 warnings.warn(
                     "Mismatch in expected dump interval: "
@@ -665,8 +670,7 @@ class Rnxv3ObsEpochRecordLineModel(BaseModel):
             )
             _raise_value_error(msg)
 
-        values["epoch_record_indicator"] = match.group(
-            "epoch_record_indicator")
+        values["epoch_record_indicator"] = match.group("epoch_record_indicator")
         values["year"] = int(match.group("year"))
         values["month"] = int(match.group("month"))
         values["day"] = int(match.group("day"))
@@ -675,11 +679,14 @@ class Rnxv3ObsEpochRecordLineModel(BaseModel):
         values["seconds"] = float(match.group("seconds"))
         values["epoch_flag"] = int(match.group("epoch_flag"))
         values["num_satellites"] = int(match.group("num_satellites"))
-        values["reserved"] = int(
-            match.group("reserved")) if match.group("reserved") else None
+        values["reserved"] = (
+            int(match.group("reserved")) if match.group("reserved") else None
+        )
         values["receiver_clock_offset"] = (
             float(match.group("receiver_clock_offset"))
-            if match.group("receiver_clock_offset") else None)
+            if match.group("receiver_clock_offset")
+            else None
+        )
 
         return values
 
@@ -910,9 +917,7 @@ class RINEX304ComplianceValidator(BaseModel):
                     )
 
         if issues:
-            msg = "Observation code validation issues:\n  - " + "\n  - ".join(
-                issues
-            )
+            msg = "Observation code validation issues:\n  - " + "\n  - ".join(issues)
             warnings.warn(msg, stacklevel=2)
 
         return v
@@ -937,10 +942,6 @@ class RINEX304ComplianceValidator(BaseModel):
             If strict mode and GLONASS headers missing
 
         """
-        from canvod.readers.gnss_specs.validation_constants import (
-            REQUIRED_GLONASS_HEADER_RECORDS,
-        )
-
         # Check if GLONASS data is present
         has_glonass = "R" in self.obs_codes_per_system
 

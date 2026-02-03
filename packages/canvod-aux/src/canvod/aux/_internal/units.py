@@ -4,6 +4,7 @@ Unit registry for canvod-aux package.
 Canonical source: This file is the authoritative version.
 See /DUPLICATION_TRACKER.md for copy locations.
 """
+
 import pint
 
 # Use application registry to avoid redefinition warnings in multiprocessing

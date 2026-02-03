@@ -22,6 +22,7 @@ _ENV_DIR = Path(__file__).parent.parent.parent.parent
 # Load environment variables from .env file in _ENV_DIR
 try:
     from dotenv import load_dotenv
+
     load_dotenv(_ENV_DIR / ".env")
 except ImportError:
     # dotenv not available, skip loading
@@ -54,24 +55,21 @@ RESEARCH_SITES: dict[str, dict[str, Any]] = {
                 "type": "canopy",
                 "directory": "03_canopy_ext1",
                 "description": "Second canopy receiver (under vegetation)",
-            }
+            },
         },
         "vod_analyses": {
             "canopy_01_vs_reference_01": {
                 "canopy_receiver": "canopy_01",
                 "reference_receiver": "reference_01",
-                "description":
-                "VOD analysis: canopy_01 compared to reference_01",
+                "description": "VOD analysis: canopy_01 compared to reference_01",
             },
             "canopy_02_vs_reference_01": {
                 "canopy_receiver": "canopy_02",
                 "reference_receiver": "reference_01",
-                "description":
-                "VOD analysis: canopy_02 compared to reference_01",
-            }
-        }
+                "description": "VOD analysis: canopy_02 compared to reference_01",
+            },
+        },
     }
-
     # Future sites can be added here
 }
 

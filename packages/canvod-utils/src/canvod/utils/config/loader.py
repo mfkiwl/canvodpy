@@ -80,7 +80,7 @@ class ConfigLoader:
             except RuntimeError:
                 # Fallback if monorepo root cannot be found
                 config_dir = Path.cwd() / "config"
-        
+
         self.config_dir = Path(config_dir)
         self.defaults_dir = Path(__file__).parent / "defaults"
 
@@ -136,7 +136,7 @@ class ConfigLoader:
 
     def _load_sites(self) -> SitesConfig:
         """Load sites config.
-        
+
         Raises
         ------
         FileNotFoundError

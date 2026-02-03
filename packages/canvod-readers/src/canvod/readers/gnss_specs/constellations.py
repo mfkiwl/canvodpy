@@ -54,8 +54,7 @@ class WikipediaCache:
 
     def _init_db(self) -> None:
         """Initialize SQLite database if it does not exist."""
-        conn = sqlite3.connect(self.cache_file,
-                               detect_types=sqlite3.PARSE_DECLTYPES)
+        conn = sqlite3.connect(self.cache_file, detect_types=sqlite3.PARSE_DECLTYPES)
         conn.execute("""
             CREATE TABLE IF NOT EXISTS satellite_cache (
                 constellation TEXT PRIMARY KEY,
@@ -135,13 +134,13 @@ class WikipediaCache:
         cursor = conn.execute(
             "SELECT svs_data FROM satellite_cache WHERE constellation = ? "
             "ORDER BY fetched_at DESC LIMIT 1",
-            (constellation, ),
+            (constellation,),
         )
         result = cursor.fetchone()
         conn.close()
         return json.loads(result[0]) if result else None
 
-    def fetch_and_cache(  # noqa: PLR0913
+    def fetch_and_cache(
         self,
         constellation: str,
         url: str,
@@ -203,21 +202,18 @@ class WikipediaCache:
                     ]
 
                 if prn_column not in df.columns:
-                    potential_cols = [
-                        col for col in df.columns if "prn" in col.lower()
-                    ]
+                    potential_cols = [col for col in df.columns if "prn" in col.lower()]
                     if potential_cols:
                         prn_column = potential_cols[0]
                     else:
-                        msg = (
-                            f"PRN column '{prn_column}' not found in "
-                            f"{df.columns}"
-                        )
+                        msg = f"PRN column '{prn_column}' not found in {df.columns}"
                         self._raise_value_error(msg)
 
                 prn_data: list[str] = list(df[prn_column])
                 clean_list: list[str] = [
-                    m.group() for item in prn_data if isinstance(item, str)
+                    m.group()
+                    for item in prn_data
+                    if isinstance(item, str)
                     if (m := re.search(re_pattern, item))
                 ]
                 if not clean_list:
@@ -274,8 +270,7 @@ _wikipedia_cache = WikipediaCache()
 
 # Pre-compiled regex patterns used for better perfromance in data validation
 SV_PATTERN = re.compile(r"^[GRECJSI]\d{2}$")  # e.g., G01, R12, E25
-OBS_TYPE_PATTERN = re.compile(
-    r"^[A-Z0-9][A-Z0-9\d]?[A-Z0-9]?$")  # e.g., *1C, *5X
+OBS_TYPE_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9\d]?[A-Z0-9]?$")  # e.g., *1C, *5X
 
 
 # ================================================================
@@ -316,7 +311,7 @@ class ConstellationBase(ABC):
     BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {}
     AUX_FREQ: ClassVar[pint.Quantity] = 1575.42 * UREG.MHz
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         constellation: str,
         url: str | None = None,
@@ -324,9 +319,9 @@ class ConstellationBase(ABC):
         table_index: int = 0,
         prn_column: str = "PRN",
         status_filter: dict[str, str] | None = None,
-        use_wiki: bool = True,  # noqa: FBT001, FBT002
+        use_wiki: bool = True,
         static_svs: list[str] | None = None,
-        aggregate_fdma: bool = True,  # noqa: FBT001, FBT002
+        aggregate_fdma: bool = True,
     ) -> None:
         """Initialize the constellation base."""
         self.constellation: str = constellation
@@ -335,8 +330,9 @@ class ConstellationBase(ABC):
         self.table_index: int = table_index
         self.prn_column: str = prn_column
         self.status_filter: dict[str, str] | None = status_filter
-        self.svs: list[str] = static_svs if static_svs else (
-            self.get_svs() if use_wiki and url else [])
+        self.svs: list[str] = (
+            static_svs if static_svs else (self.get_svs() if use_wiki and url else [])
+        )
         self.x1: dict[str, pint.Quantity] = {"X1": self.AUX_FREQ}
         self.aggregate_fdma = aggregate_fdma
 
@@ -437,27 +433,27 @@ class GALILEO(ConstellationBase):
         "E1": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 24.552 * UREG.MHz,
-            "system": "E"
+            "system": "E",
         },
         "E5a": {
             "freq": 1176.45 * UREG.MHz,
             "bandwidth": 20.46 * UREG.MHz,
-            "system": "E"
+            "system": "E",
         },
         "E5b": {
             "freq": 1207.14 * UREG.MHz,
             "bandwidth": 20.46 * UREG.MHz,
-            "system": "E"
+            "system": "E",
         },
         "E6": {
             "freq": 1278.75 * UREG.MHz,
             "bandwidth": 40.92 * UREG.MHz,
-            "system": "E"
+            "system": "E",
         },
         "E5": {
             "freq": 1191.795 * UREG.MHz,
             "bandwidth": 51.15 * UREG.MHz,
-            "system": "E"
+            "system": "E",
         },
     }
 
@@ -527,21 +523,17 @@ class GPS(ConstellationBase):
         "L1": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 30.69 * UREG.MHz,
-            "system": "G"
+            "system": "G",
         },
         "L2": {
             "freq": 1227.60 * UREG.MHz,
             "bandwidth": 30.69 * UREG.MHz,
-            "system": "G"
+            "system": "G",
         },
-        "L5": {
-            "freq": 1176.45 * UREG.MHz,
-            "bandwidth": 24 * UREG.MHz,
-            "system": "G"
-        },
+        "L5": {"freq": 1176.45 * UREG.MHz, "bandwidth": 24 * UREG.MHz, "system": "G"},
     }
 
-    def __init__(self, use_wiki: bool = False) -> None:  # noqa: FBT001, FBT002
+    def __init__(self, use_wiki: bool = False) -> None:
         """Initialize GPS constellation."""
         super().__init__(
             constellation="GPS",
@@ -549,10 +541,7 @@ class GPS(ConstellationBase):
             re_pattern=r"\bG\d{2}\b",
             table_index=0,
             prn_column="PRN",
-            status_filter={
-                "column": "Status",
-                "value": "Operational"
-            },
+            status_filter={"column": "Status", "value": "Operational"},
             use_wiki=use_wiki,
             static_svs=[f"G{x:02d}" for x in range(1, 33)],
         )
@@ -628,32 +617,32 @@ class BEIDOU(ConstellationBase):
         "B1I": {
             "freq": 1561.098 * UREG.MHz,
             "bandwidth": 4.092 * UREG.MHz,
-            "system": "C"
+            "system": "C",
         },
         "B1C": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 32.736 * UREG.MHz,
-            "system": "C"
+            "system": "C",
         },
         "B2a": {
             "freq": 1176.45 * UREG.MHz,
             "bandwidth": 20.46 * UREG.MHz,
-            "system": "C"
+            "system": "C",
         },
         "B2b": {
             "freq": 1207.14 * UREG.MHz,
             "bandwidth": 20.46 * UREG.MHz,
-            "system": "C"
+            "system": "C",
         },
         "B3I": {
             "freq": 1268.52 * UREG.MHz,
             "bandwidth": 20.46 * UREG.MHz,
-            "system": "C"
+            "system": "C",
         },
         "B2": {
             "freq": 1191.795 * UREG.MHz,
             "bandwidth": 51.15 * UREG.MHz,  # speculative
-            "system": "C"
+            "system": "C",
         },
     }
 
@@ -665,10 +654,7 @@ class BEIDOU(ConstellationBase):
             re_pattern=r"\bC\d{2}\b",
             table_index=2,
             prn_column="PRN[8]",
-            status_filter={
-                "column": "Status[8][9]",
-                "value": "Operational"
-            },
+            status_filter={"column": "Status[8][9]", "value": "Operational"},
             use_wiki=False,
             static_svs=[f"C{x:02d}" for x in range(1, 64)],  # C01-C63
         )
@@ -690,7 +676,9 @@ class GLONASS(ConstellationBase):
 
     Notes
     -----
+
     References
+    ----------
       - Band numbers, codes, frequencies and FDMA equations from RINEX v3.04
         Guide: http://acc.igs.org/misc/rinex304.pdf (Table 5).
       - Bandwidths from GLONASS ICD:
@@ -726,23 +714,23 @@ class GLONASS(ConstellationBase):
         "G2": ["C", "P"],
         "G3": ["I", "Q", "X"],
         "G1a": ["A", "B", "X"],
-        "G2a": ["A", "B", "X"]
+        "G2a": ["A", "B", "X"],
     }
     BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "G1a": {
             "freq": 1600.995 * UREG.MHz,
             "bandwidth": 7.875 * UREG.MHz,
-            "system": "R"
+            "system": "R",
         },
         "G2a": {
             "freq": 1248.06 * UREG.MHz,
             "bandwidth": 7.875 * UREG.MHz,
-            "system": "R"
+            "system": "R",
         },
         "G3": {
             "freq": 1202.025 * UREG.MHz,
             "bandwidth": 7.875 * UREG.MHz,
-            "system": "R"
+            "system": "R",
         },
     }
 
@@ -755,31 +743,27 @@ class GLONASS(ConstellationBase):
         "G2": ["C", "P"],
     }
 
-    AGGR_G1_G2_BAND_PROPERTIES: ClassVar[
-        dict[str, dict[str, pint.Quantity]]
-    ] = {
+    AGGR_G1_G2_BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
         "G1": {
             "freq": 1602.28125 * UREG.MHz,  # see Note on G1 & G2
             "bandwidth": 8.3345 * UREG.MHz,  # see Note on G1 & G2
-            "system": "R"
+            "system": "R",
         },
         "G2": {
             "freq": 1246.21875 * UREG.MHz,  # see Note on G1 & G2
             "bandwidth": 6.7095 * UREG.MHz,  # see Note on G1 & G2
-            "system": "R"
+            "system": "R",
         },
     }
 
     SV_DEPENDENT_BANDS: ClassVar[list[str]] = ["*1C", "*1P", "*2C", "*2P"]
-    G1_G2_subband_bandwidth: ClassVar[pint.Quantity] = (
-        1.022 * UREG.MHz
-    )
+    G1_G2_subband_bandwidth: ClassVar[pint.Quantity] = 1.022 * UREG.MHz
 
     def __init__(
         self,
-        glonass_channel_pth: Path | None = Path(__file__).parent /
-        "GLONASS_channels.txt",
-        aggregate_fdma: bool = True,  # noqa: FBT001, FBT002
+        glonass_channel_pth: Path | None = Path(__file__).parent
+        / "GLONASS_channels.txt",
+        aggregate_fdma: bool = True,
     ) -> None:
         """Initialize GLONASS constellation with FDMA channel assignments."""
         if not glonass_channel_pth.exists():
@@ -796,15 +780,16 @@ class GLONASS(ConstellationBase):
             self.BAND_CODES = {**self.BAND_CODES, **self.AGGR_BAND_CODES}
             self.BAND_PROPERTIES = {
                 **self.BAND_PROPERTIES,
-                **self.AGGR_G1_G2_BAND_PROPERTIES
+                **self.AGGR_G1_G2_BAND_PROPERTIES,
             }
         else:
             # Non-aggregate mode: Map 1/2 to FDMA bands
             # Note: Frequencies will be computed per-SV in freqs_lut
             self.BANDS = {**self.BANDS, "1": "G1_FDMA", "2": "G2_FDMA"}
             self.BAND_CODES = {
-                **self.BAND_CODES, "G1_FDMA": ["C", "P"],
-                "G2_FDMA": ["C", "P"]
+                **self.BAND_CODES,
+                "G1_FDMA": ["C", "P"],
+                "G2_FDMA": ["C", "P"],
             }
             # Add placeholder properties (actual freqs are SV-dependent)
             self.BAND_PROPERTIES = {
@@ -813,14 +798,14 @@ class GLONASS(ConstellationBase):
                     "freq": 1602.0 * UREG.MHz,  # Nominal center
                     "bandwidth": 9.0 * UREG.MHz,  # FDMA range
                     "system": "R",
-                    "fdma": True  # Flag for SV-dependent frequency
+                    "fdma": True,  # Flag for SV-dependent frequency
                 },
                 "G2_FDMA": {
                     "freq": 1246.0 * UREG.MHz,  # Nominal center
                     "bandwidth": 7.0 * UREG.MHz,  # FDMA range
                     "system": "R",
-                    "fdma": True  # Flag for SV-dependent frequency
-                }
+                    "fdma": True,  # Flag for SV-dependent frequency
+                },
             }
 
     def get_channel_used_by_SV(self, sv: str) -> int:  # noqa: N802
@@ -857,24 +842,25 @@ class GLONASS(ConstellationBase):
                 if "slot" in lines[i] and "Channel" in lines[i + 1]:
                     slots_line = lines[i].strip().split("|")[1:-1]
                     channels_line = lines[i + 1].strip().split("|")[1:-1]
-                    for slot, channel in zip(slots_line,
-                                             channels_line,
-                                             strict=False):
-                        if slot.strip().isdigit() and channel.strip().lstrip(
-                                "-").isdigit():
-                            slot_channel_dict[int(slot.strip())] = int(
-                                channel.strip())
+                    for slot, channel in zip(slots_line, channels_line, strict=False):
+                        if (
+                            slot.strip().isdigit()
+                            and channel.strip().lstrip("-").isdigit()
+                        ):
+                            slot_channel_dict[int(slot.strip())] = int(channel.strip())
         return slot_channel_dict
 
     def band_G1_equation(self, sv: str) -> pint.Quantity:  # noqa: N802
         """Compute L1 frequency for a given SV."""
-        return ((1602 + self.get_channel_used_by_SV(sv) * 9 / 16) *
-                UREG.MHz).to(FREQ_UNIT)
+        return ((1602 + self.get_channel_used_by_SV(sv) * 9 / 16) * UREG.MHz).to(
+            FREQ_UNIT
+        )
 
     def band_G2_equation(self, sv: str) -> pint.Quantity:  # noqa: N802
         """Compute L2 frequency for a given SV."""
-        return ((1246 + self.get_channel_used_by_SV(sv) * 7 / 16) *
-                UREG.MHz).to(FREQ_UNIT)
+        return ((1246 + self.get_channel_used_by_SV(sv) * 7 / 16) * UREG.MHz).to(
+            FREQ_UNIT
+        )
 
     def freqs_G1_G2_lut(self) -> dict[str, pint.Quantity]:  # noqa: N802
         """Build the FDMA-dependent L1/L2 frequency LUT.
@@ -888,8 +874,11 @@ class GLONASS(ConstellationBase):
         out: dict[str, pint.Quantity] = {}
         for band in self.SV_DEPENDENT_BANDS:
             for sv in self.svs:
-                freq = self.band_G1_equation(sv) if band.startswith(
-                    "*1") else self.band_G2_equation(sv)
+                freq = (
+                    self.band_G1_equation(sv)
+                    if band.startswith("*1")
+                    else self.band_G2_equation(sv)
+                )
                 out[f"{sv}|{band}"] = freq
         return out
 
@@ -949,13 +938,9 @@ class SBAS(ConstellationBase):
         "L1": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 30.69 * UREG.MHz,
-            "system": "S"
+            "system": "S",
         },
-        "L5": {
-            "freq": 1176.45 * UREG.MHz,
-            "bandwidth": 24.0 * UREG.MHz,
-            "system": "S"
-        },
+        "L5": {"freq": 1176.45 * UREG.MHz, "bandwidth": 24.0 * UREG.MHz, "system": "S"},
     }
 
     def __init__(self) -> None:
@@ -1010,31 +995,19 @@ class IRNSS(ConstellationBase):
         "S": ["A", "B", "C", "X"],
     }
     BAND_PROPERTIES: ClassVar[dict[str, dict[str, pint.Quantity]]] = {
-        "L5": {
-            "freq": 1176.45 * UREG.MHz,
-            "bandwidth": 24.0 * UREG.MHz,
-            "system": "I"
-        },
-        "S": {
-            "freq": 2492.028 * UREG.MHz,
-            "bandwidth": 16.5 * UREG.MHz,
-            "system": "I"
-        },
+        "L5": {"freq": 1176.45 * UREG.MHz, "bandwidth": 24.0 * UREG.MHz, "system": "I"},
+        "S": {"freq": 2492.028 * UREG.MHz, "bandwidth": 16.5 * UREG.MHz, "system": "I"},
     }
 
     def __init__(self) -> None:
         """Initialize IRNSS (NavIC) constellation."""
         super().__init__(
             constellation="IRNSS",
-            url=
-            "https://en.wikipedia.org/wiki/Indian_Regional_Navigation_Satellite_System#List_of_satellites",
+            url="https://en.wikipedia.org/wiki/Indian_Regional_Navigation_Satellite_System#List_of_satellites",
             re_pattern=r"\bI\d{2}\b",
             table_index=3,
             prn_column="PRN",
-            status_filter={
-                "column": "Status",
-                "value": "Operational"
-            },
+            status_filter={"column": "Status", "value": "Operational"},
             use_wiki=False,
             static_svs=[f"I{x:02d}" for x in range(1, 15)],  # I01-I14
         )
@@ -1089,23 +1062,15 @@ class QZSS(ConstellationBase):
         "L1": {
             "freq": 1575.42 * UREG.MHz,
             "bandwidth": 30.69 * UREG.MHz,
-            "system": "J"
+            "system": "J",
         },
         "L2": {
             "freq": 1227.60 * UREG.MHz,
             "bandwidth": 30.69 * UREG.MHz,
-            "system": "J"
+            "system": "J",
         },
-        "L5": {
-            "freq": 1176.45 * UREG.MHz,
-            "bandwidth": 24.0 * UREG.MHz,
-            "system": "J"
-        },
-        "L6": {
-            "freq": 1278.75 * UREG.MHz,
-            "bandwidth": 42.0 * UREG.MHz,
-            "system": "J"
-        },
+        "L5": {"freq": 1176.45 * UREG.MHz, "bandwidth": 24.0 * UREG.MHz, "system": "J"},
+        "L6": {"freq": 1278.75 * UREG.MHz, "bandwidth": 42.0 * UREG.MHz, "system": "J"},
     }
 
     def __init__(self) -> None:
@@ -1133,7 +1098,6 @@ class QZSS(ConstellationBase):
 
 
 if __name__ == "__main__":
-
     gal = GALILEO()
     gps = GPS()
     bds = BEIDOU()

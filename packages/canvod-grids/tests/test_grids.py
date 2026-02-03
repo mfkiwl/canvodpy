@@ -1,16 +1,13 @@
 """Tests for grid implementations."""
-import pytest
+
 import numpy as np
 import polars as pl
-
+import pytest
 from canvod.grids import (
-    create_hemigrid,
     EqualAreaBuilder,
-    EqualAngleBuilder,
-    EquirectangularBuilder,
-    GeodesicBuilder,
-    HTMBuilder,
     GridData,
+    HTMBuilder,
+    create_hemigrid,
 )
 
 
@@ -20,12 +17,12 @@ class TestGridCreation:
     def test_equal_area_grid(self):
         """Test equal area grid creation."""
         grid = create_hemigrid("equal_area", angular_resolution=10.0)
-        
+
         assert isinstance(grid, GridData)
         assert grid.grid_type == "equal_area"
         assert grid.ncells > 0
         assert len(grid.grid) == grid.ncells
-        
+
         # Check required columns
         assert "phi" in grid.grid.columns
         assert "theta" in grid.grid.columns
@@ -38,7 +35,7 @@ class TestGridCreation:
     def test_equal_angle_grid(self):
         """Test equal angle grid creation."""
         grid = create_hemigrid("equal_angle", angular_resolution=15.0)
-        
+
         assert grid.grid_type == "equal_angle"
         assert grid.ncells > 0
 
@@ -46,7 +43,7 @@ class TestGridCreation:
         """Test rectangular grid creation."""
         grid1 = create_hemigrid("rectangular", angular_resolution=20.0)
         grid2 = create_hemigrid("equirectangular", angular_resolution=20.0)
-        
+
         assert grid1.grid_type == "equirectangular"
         assert grid2.grid_type == "equirectangular"
         assert grid1.ncells == grid2.ncells
@@ -54,10 +51,10 @@ class TestGridCreation:
     def test_geodesic_grid(self):
         """Test geodesic grid creation."""
         grid = create_hemigrid("geodesic", angular_resolution=15.0)
-        
+
         assert grid.grid_type == "geodesic"
         assert grid.ncells > 0
-        
+
         # Check for geodesic-specific columns
         assert "geodesic_vertices" in grid.grid.columns
         assert "geodesic_subdivision" in grid.grid.columns
@@ -65,10 +62,10 @@ class TestGridCreation:
     def test_htm_grid(self):
         """Test HTM grid creation."""
         grid = create_hemigrid("HTM", angular_resolution=10.0)
-        
+
         assert grid.grid_type == "htm"
         assert grid.ncells > 0
-        
+
         # Check for HTM-specific columns
         assert "htm_id" in grid.grid.columns
         assert "htm_level" in grid.grid.columns
@@ -87,7 +84,7 @@ class TestGridBuilder:
         """Test EqualAreaBuilder."""
         builder = EqualAreaBuilder(angular_resolution=10.0)
         grid = builder.build()
-        
+
         assert grid.grid_type == "equal_area"
         assert grid.ncells > 0
 
@@ -95,7 +92,7 @@ class TestGridBuilder:
         """Test builder with theta cutoff."""
         builder = EqualAreaBuilder(angular_resolution=10.0, cutoff_theta=10.0)
         grid = builder.build()
-        
+
         # All cells should have theta_max >= cutoff
         # (theta_min can be 0 for the zenith cell that spans the cutoff)
         min_theta_max = grid.grid["theta_max"].min()
@@ -105,7 +102,7 @@ class TestGridBuilder:
         """Test builder with phi rotation."""
         builder = EqualAreaBuilder(angular_resolution=10.0, phi_rotation=45.0)
         grid = builder.build()
-        
+
         assert grid.ncells > 0
 
 
@@ -116,7 +113,7 @@ class TestGridProperties:
         """Test coords property."""
         grid = create_hemigrid("equal_area", angular_resolution=15.0)
         coords = grid.coords
-        
+
         assert isinstance(coords, pl.DataFrame)
         assert "phi" in coords.columns
         assert "theta" in coords.columns
@@ -126,10 +123,10 @@ class TestGridProperties:
         """Test solid angle calculation."""
         grid = create_hemigrid("equal_area", angular_resolution=15.0)
         solid_angles = grid.get_solid_angles()
-        
+
         assert len(solid_angles) == grid.ncells
         assert np.all(solid_angles > 0)
-        
+
         # Total solid angle should be approximately 2π (hemisphere)
         # Note: Will be less than 2π due to not covering to exact horizon
         total = np.sum(solid_angles)
@@ -142,13 +139,13 @@ class TestGridProperties:
         """Test grid statistics."""
         grid = create_hemigrid("equal_area", angular_resolution=10.0)
         stats = grid.get_grid_stats()
-        
+
         assert "total_cells" in stats
         assert "grid_type" in stats
         assert "solid_angle_mean_sr" in stats
         assert "solid_angle_std_sr" in stats
         assert "hemisphere_solid_angle_sr" in stats
-        
+
         assert stats["total_cells"] == grid.ncells
         assert stats["grid_type"] == "equal_area"
         assert np.isclose(stats["hemisphere_solid_angle_sr"], 2 * np.pi)
@@ -161,14 +158,14 @@ class TestGridResolution:
         """Test that finer resolution creates more cells."""
         grid_coarse = create_hemigrid("equal_area", angular_resolution=20.0)
         grid_fine = create_hemigrid("equal_area", angular_resolution=10.0)
-        
+
         assert grid_fine.ncells > grid_coarse.ncells
 
     def test_htm_level_scaling(self):
         """Test HTM level scaling."""
         grid_level1 = create_hemigrid("HTM", htm_level=1)
         grid_level2 = create_hemigrid("HTM", htm_level=2)
-        
+
         # Each level multiplies triangles by 4
         assert grid_level2.ncells > grid_level1.ncells
 
@@ -176,7 +173,7 @@ class TestGridResolution:
         """Test geodesic subdivision scaling."""
         grid_sub1 = create_hemigrid("geodesic", subdivision_level=1)
         grid_sub2 = create_hemigrid("geodesic", subdivision_level=2)
-        
+
         assert grid_sub2.ncells > grid_sub1.ncells
 
 
@@ -186,7 +183,7 @@ class TestGridCoordinates:
     def test_phi_range(self):
         """Test phi is in [0, 2π)."""
         grid = create_hemigrid("equal_area", angular_resolution=10.0)
-        
+
         phi_vals = grid.grid["phi"]
         assert phi_vals.min() >= 0
         assert phi_vals.max() < 2 * np.pi
@@ -194,7 +191,7 @@ class TestGridCoordinates:
     def test_theta_range(self):
         """Test theta is in [0, π/2]."""
         grid = create_hemigrid("equal_area", angular_resolution=10.0)
-        
+
         theta_vals = grid.grid["theta"]
         assert theta_vals.min() >= 0
         assert theta_vals.max() <= np.pi / 2
@@ -202,7 +199,7 @@ class TestGridCoordinates:
     def test_cell_bounds(self):
         """Test cell bounds are consistent."""
         grid = create_hemigrid("equal_area", angular_resolution=10.0)
-        
+
         for row in grid.grid.iter_rows(named=True):
             # phi bounds
             assert row["phi_min"] <= row["phi"] <= row["phi_max"]
@@ -217,7 +214,7 @@ class TestSpecializedGrids:
     def test_triangular_grids(self, grid_type):
         """Test triangular grid types."""
         grid = create_hemigrid(grid_type, angular_resolution=15.0)
-        
+
         assert grid.ncells > 0
         assert grid.grid_type in ["geodesic", "htm"]
 
@@ -225,7 +222,7 @@ class TestSpecializedGrids:
         """Test HTM with custom level."""
         grid = create_hemigrid("HTM", htm_level=3)
         builder = HTMBuilder(htm_level=3)
-        
+
         assert grid.grid_type == "htm"
         info = builder.get_htm_info()
         assert info["htm_level"] == 3
@@ -233,7 +230,7 @@ class TestSpecializedGrids:
     def test_geodesic_with_custom_subdivision(self):
         """Test geodesic with custom subdivision."""
         grid = create_hemigrid("geodesic", subdivision_level=2)
-        
+
         assert grid.grid_type == "geodesic"
         # Check subdivision level is stored
         if grid.grid.height > 0:

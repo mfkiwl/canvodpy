@@ -5,7 +5,6 @@ and bandwidth information. Handles all major GNSS constellations and
 special cases like auxiliary observations.
 """
 
-
 from canvod.readers.gnss_specs.bands import Bands
 
 OBS_CODE_LEN = 3
@@ -62,7 +61,7 @@ class SignalIDMapper:
 
     def __init__(
         self,
-        aggregate_glonass_fdma: bool = True,  # noqa: FBT001, FBT002
+        aggregate_glonass_fdma: bool = True,
     ) -> None:
         """Initialize SignalIDMapper."""
         self.aggregate_glonass_fdma = aggregate_glonass_fdma
@@ -71,9 +70,7 @@ class SignalIDMapper:
         self.BAND_PROPERTIES: dict[str, dict[str, float | str | bool]] = (
             self._bands.BAND_PROPERTIES
         )
-        self.OVERLAPPING_GROUPS: dict[str, list[str]] = (
-            self._bands.OVERLAPPING_GROUPS
-        )
+        self.OVERLAPPING_GROUPS: dict[str, list[str]] = self._bands.OVERLAPPING_GROUPS
 
     def create_signal_id(self, sv: str, obs_code: str) -> str:
         """Create standardized signal ID from satellite and observation code.
@@ -132,19 +129,19 @@ class SignalIDMapper:
                 # Get system-specific band name
                 if system in self.SYSTEM_BANDS:
                     band_name = self.SYSTEM_BANDS[system].get(
-                        band_num, f"UnknownBand{band_num}")
+                        band_num, f"UnknownBand{band_num}"
+                    )
                 else:
                     band_name = f"UnknownBand{band_num}"
 
                 return f"{sv}|{band_name}|{code}"
 
             # Fallback for unexpected observation code formats
-            return f"{sv}|{observation_code}|Unknown"  # noqa: TRY300
+            return f"{sv}|{observation_code}|Unknown"
 
         except (ValueError, IndexError) as e:
             # Fallback for malformed input
-            print(
-                f"Warning: Could not parse observation code '{obs_code}': {e}")
+            print(f"Warning: Could not parse observation code '{obs_code}': {e}")
             return f"{sv}|Unknown|Unknown"
 
     def parse_signal_id(self, signal_id: str) -> tuple[str, str, str]:

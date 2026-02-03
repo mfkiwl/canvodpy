@@ -10,7 +10,6 @@ This script tests:
 
 import os
 import sys
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -24,24 +23,23 @@ def test_no_env():
     # Save original environment
     orig_cddis = os.environ.get("CDDIS_MAIL")
     orig_gnss = os.environ.get("GNSS_ROOT_DIR")
-    
+
     try:
         # Clear credentials from environment
         os.environ.pop("CDDIS_MAIL", None)
         os.environ.pop("GNSS_ROOT_DIR", None)
-        
+
         # Remove module from cache so it reimports
-        if 'canvodpy.settings' in sys.modules:
-            del sys.modules['canvodpy.settings']
-        
+        if "canvodpy.settings" in sys.modules:
+            del sys.modules["canvodpy.settings"]
+
         # Mock load_dotenv to do nothing (prevent .env loading)
-        with patch('dotenv.load_dotenv'):
+        with patch("dotenv.load_dotenv"):
             from canvodpy.settings import AppSettings
+
             settings = AppSettings()
 
-        assert not settings.has_cddis_credentials, (
-            "Should not have CDDIS credentials"
-        )
+        assert not settings.has_cddis_credentials, "Should not have CDDIS credentials"
         assert settings.cddis_mail is None, "CDDIS mail should be None"
 
         print("✅ Settings loaded successfully")
@@ -59,8 +57,8 @@ def test_no_env():
         if orig_gnss:
             os.environ["GNSS_ROOT_DIR"] = orig_gnss
         # Remove from cache for clean slate
-        if 'canvodpy.settings' in sys.modules:
-            del sys.modules['canvodpy.settings']
+        if "canvodpy.settings" in sys.modules:
+            del sys.modules["canvodpy.settings"]
 
 
 def test_with_env():
@@ -72,18 +70,19 @@ def test_with_env():
     # Save original environment
     orig_cddis = os.environ.get("CDDIS_MAIL")
     orig_gnss = os.environ.get("GNSS_ROOT_DIR")
-    
+
     try:
         # Set test credentials in environment
         os.environ["CDDIS_MAIL"] = "test@example.com"
         os.environ["GNSS_ROOT_DIR"] = "/tmp/test_gnss"
-        
+
         # Remove module from cache so it reimports
-        if 'canvodpy.settings' in sys.modules:
-            del sys.modules['canvodpy.settings']
-        
+        if "canvodpy.settings" in sys.modules:
+            del sys.modules["canvodpy.settings"]
+
         # Don't mock load_dotenv - let it run but env vars override
         from canvodpy.settings import AppSettings
+
         settings = AppSettings()
 
         assert settings.has_cddis_credentials, "Should have CDDIS credentials"
@@ -109,8 +108,8 @@ def test_with_env():
         else:
             os.environ.pop("GNSS_ROOT_DIR", None)
         # Remove from cache for clean slate
-        if 'canvodpy.settings' in sys.modules:
-            del sys.modules['canvodpy.settings']
+        if "canvodpy.settings" in sys.modules:
+            del sys.modules["canvodpy.settings"]
 
 
 def test_aux_integration():
@@ -142,8 +141,7 @@ def test_aux_integration():
 def test_processing_yaml():
     """Test processing.yaml loads correctly."""
     import pytest
-    from pathlib import Path
-    
+
     print("=" * 70)
     print("TEST 4: Processing config from YAML")
     print("=" * 70)
@@ -151,7 +149,7 @@ def test_processing_yaml():
     # Check if config files exist (they're user-specific)
     config_dir = Path("config")
     sites_yaml = config_dir / "sites.yaml"
-    
+
     if not sites_yaml.exists():
         pytest.skip(
             "Config files not found (user-specific). "
@@ -167,7 +165,9 @@ def test_processing_yaml():
     print(f"   Agency: {config.processing.aux_data.agency}")
     print(f"   Product type: {config.processing.aux_data.product_type}")
     print(f"   KEEP_RNX_VARS: {config.processing.processing.keep_rnx_vars}")
-    print(f"   Time aggregation: {config.processing.processing.time_aggregation_seconds}s")
+    print(
+        f"   Time aggregation: {config.processing.processing.time_aggregation_seconds}s"
+    )
     print()
 
     # Check credentials NOT in YAML (or deprecated)
@@ -190,15 +190,19 @@ def test_imports():
 
     try:
         from canvodpy.settings import get_settings
+
         print("✅ canvodpy.settings imports")
 
         from canvod.utils.config import load_config
+
         print("✅ canvod.utils.config imports")
 
         from canvod.aux.pipeline import AuxDataPipeline
+
         print("✅ canvod.aux.pipeline imports (uses settings)")
 
         from canvodpy.orchestrator.processor import RinexDataProcessor
+
         print("✅ canvodpy.orchestrator.processor imports (uses settings)")
 
         print()

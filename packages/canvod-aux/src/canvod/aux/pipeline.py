@@ -11,7 +11,6 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
-from canvod.aux.preprocessing import prep_aux_ds
 from canvod.readers.matching import MatchedDirs
 from canvod.readers.matching.dir_matcher import DataDirMatcher
 from canvod.utils.tools import YYYYDOY
@@ -28,6 +27,7 @@ from canvod.aux._internal import get_logger
 from canvod.aux.clock import ClkFile
 from canvod.aux.core.base import AuxFile
 from canvod.aux.ephemeris import Sp3File
+from canvod.aux.preprocessing import prep_aux_ds
 
 
 class AuxDataPipeline:
@@ -79,10 +79,7 @@ class AuxDataPipeline:
             f"Initialized AuxDataPipeline for {self.matched_dirs.yyyydoy.to_str()}"
         )
 
-    def register(self,
-                 name: str,
-                 aux_file: AuxFile,
-                 required: bool = False) -> None:
+    def register(self, name: str, aux_file: AuxFile, required: bool = False) -> None:
         """Register an auxiliary file handler.
 
         Parameters
@@ -102,8 +99,7 @@ class AuxDataPipeline:
         >>> pipeline.register('ionex', IonexFile(...), required=False)
         """
         if name in self._registry:
-            self._logger.warning(
-                f"Overwriting existing aux file registration: {name}")
+            self._logger.warning(f"Overwriting existing aux file registration: {name}")
 
         self._registry[name] = {
             "handler": aux_file,
@@ -111,8 +107,7 @@ class AuxDataPipeline:
             "loaded": False,
         }
 
-        self._logger.info(
-            f"Registered aux file '{name}' (required={required})")
+        self._logger.info(f"Registered aux file '{name}' (required={required})")
 
     def load_all(self) -> None:
         """Load all registered auxiliary files.
@@ -139,9 +134,7 @@ class AuxDataPipeline:
                 raw_ds = handler.data
 
                 # Stage 2: Preprocess (sv → sid mapping) with keep_sids filter
-                preprocessed_ds = prep_aux_ds(
-                    raw_ds, keep_sids=self.keep_sids
-                )
+                preprocessed_ds = prep_aux_ds(raw_ds, keep_sids=self.keep_sids)
 
                 # Cache the preprocessed version
                 with self._lock:
@@ -162,7 +155,8 @@ class AuxDataPipeline:
                 else:
                     self._logger.warning(
                         f"Optional auxiliary file '{name}' failed to load, "
-                        f"continuing...")
+                        f"continuing..."
+                    )
 
     def get(self, name: str) -> xr.Dataset:
         """Get a preprocessed (sid-mapped) auxiliary dataset.
@@ -192,8 +186,10 @@ class AuxDataPipeline:
         >>> clk_ds = pipeline.get('clock')
         """
         if name not in self._registry:
-            raise KeyError(f"Aux file '{name}' not registered. "
-                           f"Available: {list(self._registry.keys())}")
+            raise KeyError(
+                f"Aux file '{name}' not registered. "
+                f"Available: {list(self._registry.keys())}"
+            )
 
         if not self._registry[name]["loaded"]:
             raise ValueError(
@@ -265,21 +261,22 @@ class AuxDataPipeline:
         else:
             # Fallback if epoch dimension has different name
             time_dim = [
-                d for d in full_ds.sizes
-                if "time" in d.lower() or "epoch" in d.lower()
+                d for d in full_ds.sizes if "time" in d.lower() or "epoch" in d.lower()
             ]
             if time_dim:
                 sliced_ds = full_ds.sel(
-                    {time_dim[0]: slice(buffered_start, buffered_end)})
+                    {time_dim[0]: slice(buffered_start, buffered_end)}
+                )
             else:
                 self._logger.warning(
-                    f"Could not find time dimension in '{name}', "
-                    f"returning full dataset")
+                    f"Could not find time dimension in '{name}', returning full dataset"
+                )
                 sliced_ds = full_ds
 
         self._logger.debug(
             f"Sliced '{name}' from {buffered_start} to {buffered_end}: "
-            f"{dict(sliced_ds.sizes)}")
+            f"{dict(sliced_ds.sizes)}"
+        )
 
         return sliced_ds
 
@@ -368,8 +365,7 @@ class AuxDataPipeline:
         product_type = product_type or DEFAULT_PRODUCT_TYPE
         ftp_server = ftp_server or DEFAULT_FTP_SERVER
         # Use user_email from settings if not explicitly provided
-        user_email = (user_email
-                      if user_email is not None else settings.get_user_email())
+        user_email = user_email if user_email is not None else settings.get_user_email()
 
         # Determine aux file paths
         if aux_file_path is None:
@@ -407,15 +403,18 @@ class AuxDataPipeline:
 
         pipeline._logger.info(
             f"Created standard pipeline with ephemerides and clock "
-            f"for {matched_dirs.yyyydoy.to_str()}")
+            f"for {matched_dirs.yyyydoy.to_str()}"
+        )
 
         return pipeline
 
     def __repr__(self) -> str:
         """String representation showing registered files."""
         loaded_count = sum(1 for e in self._registry.values() if e["loaded"])
-        return (f"AuxDataPipeline(date={self.matched_dirs.yyyydoy.to_str()}, "
-                f"registered={len(self._registry)}, loaded={loaded_count})")
+        return (
+            f"AuxDataPipeline(date={self.matched_dirs.yyyydoy.to_str()}, "
+            f"registered={len(self._registry)}, loaded={loaded_count})"
+        )
 
 
 if __name__ == "__main__":
@@ -429,8 +428,9 @@ if __name__ == "__main__":
     4. Access cached data (thread-safe for parallel processing)
     """
 
-    def create_aux_pipeline(matched_dirs: MatchedDirs,
-                            aux_file_path: Path = None) -> AuxDataPipeline:
+    def create_aux_pipeline(
+        matched_dirs: MatchedDirs, aux_file_path: Path = None
+    ) -> AuxDataPipeline:
         """Factory function to create a standard AuxDataPipeline with
         ephemerides and clock.
 
@@ -490,13 +490,18 @@ if __name__ == "__main__":
 
     # Create matched directories
     matcher = DataDirMatcher.from_root(
-        Path("/home/nbader/shares/climers/Studies/"
-             "GNSS_Vegetation_Study/05_data/01_Rosalia"))
+        Path(
+            "/home/nbader/shares/climers/Studies/"
+            "GNSS_Vegetation_Study/05_data/01_Rosalia"
+        )
+    )
     md = MatchedDirs(
         canopy_data_dir=Path(
-            "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302"),
+            "/home/nbader/Music/testdir/02_canopy/01_GNSS/01_raw/24302"
+        ),
         reference_data_dir=Path(
-            "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302"),
+            "/home/nbader/Music/testdir/01_reference/01_GNSS/01_raw/24302"
+        ),
         yyyydoy=YYYYDOY.from_str("2024302"),
     )
     """Example usage of the auxiliary data pipeline."""
@@ -535,9 +540,7 @@ if __name__ == "__main__":
     ephem_ds = pipeline.get_ephemerides()
     print(f"\nEphemerides shape: {dict(ephem_ds.sizes)}")
     print(f"Variables: {list(ephem_ds.data_vars)}")
-    print(
-        f"Time range: {ephem_ds.epoch.min().values} to {ephem_ds.epoch.max().values}"
-    )
+    print(f"Time range: {ephem_ds.epoch.min().values} to {ephem_ds.epoch.max().values}")
 
     clk_ds = pipeline.get_clock()
     print(f"\nClock shape: {dict(clk_ds.sizes)}")
@@ -562,8 +565,10 @@ if __name__ == "__main__":
     )
 
     print(f"\nSliced ephemerides shape: {dict(ephem_slice.sizes)}")
-    print(f"Time range: {ephem_slice.epoch.min().values} to "
-          f"{ephem_slice.epoch.max().values}")
+    print(
+        f"Time range: {ephem_slice.epoch.min().values} to "
+        f"{ephem_slice.epoch.max().values}"
+    )
 
     # ==========================================
     # Thread-safe access in parallel context

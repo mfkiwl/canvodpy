@@ -85,9 +85,7 @@ class DatasetStructureValidator(BaseModel):
             actual_dtype = str(self.dataset[coord].dtype)
             if expected_dtype == "object":
                 # String coordinates can be stored as object or Unicode string (<U)
-                if actual_dtype not in [
-                        "object"
-                ] and not actual_dtype.startswith("<U"):
+                if actual_dtype not in ["object"] and not actual_dtype.startswith("<U"):
                     msg = (
                         f"Coordinate {coord} has wrong dtype: "
                         f"expected string, got {actual_dtype}"
@@ -100,8 +98,7 @@ class DatasetStructureValidator(BaseModel):
                 )
                 raise ValueError(msg)
 
-    def validate_data_variables(self, required_vars: list[str] | None = None
-                                ) -> None:
+    def validate_data_variables(self, required_vars: list[str] | None = None) -> None:
         """Validate required data variables exist.
 
         Parameters
@@ -284,9 +281,9 @@ class GNSSDataReader(ABC):
 
         """
 
-    def validate_output(self,
-                        dataset: xr.Dataset,
-                        required_vars: list[str] | None = None) -> None:
+    def validate_output(
+        self, dataset: xr.Dataset, required_vars: list[str] | None = None
+    ) -> None:
         """Validate output Dataset structure.
 
         Called automatically by to_ds() to ensure compatibility.
@@ -374,10 +371,12 @@ class GNSSDataReader(ABC):
 
     def __repr__(self) -> str:
         """Return the string representation."""
-        return (f"{self.__class__.__name__}("
-                f"file='{self.fpath.name}', "
-                f"systems={self.systems}, "
-                f"epochs={self.num_epochs})")
+        return (
+            f"{self.__class__.__name__}("
+            f"file='{self.fpath.name}', "
+            f"systems={self.systems}, "
+            f"epochs={self.num_epochs})"
+        )
 
 
 class ReaderFactory:

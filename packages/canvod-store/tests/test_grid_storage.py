@@ -21,8 +21,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 import xarray as xr
-
 from canvod.grids import create_hemigrid, load_grid, store_grid
+
 from canvod.store import create_vod_store
 
 
@@ -48,9 +48,7 @@ def small_htm_grid():
 class TestStoreEqualAreaGrid:
     """Test storing equal-area grids."""
 
-    def test_store_equal_area_grid(
-        self, vod_store, small_equal_area_grid
-    ) -> None:
+    def test_store_equal_area_grid(self, vod_store, small_equal_area_grid) -> None:
         """Store equal-area grid and verify group created."""
         grid = small_equal_area_grid
         grid_name = "test_equal_area_15deg"
@@ -112,9 +110,7 @@ class TestStoreEqualAreaGrid:
 class TestLoadEqualAreaGrid:
     """Test loading equal-area grids."""
 
-    def test_load_equal_area_grid(
-        self, vod_store, small_equal_area_grid
-    ) -> None:
+    def test_load_equal_area_grid(self, vod_store, small_equal_area_grid) -> None:
         """Load equal-area grid and verify structure."""
         original_grid = small_equal_area_grid
         grid_name = "test_load_grid"
@@ -155,8 +151,15 @@ class TestLoadEqualAreaGrid:
         store_grid(grid, vod_store, grid_name)
         loaded_grid = load_grid(vod_store, grid_name)
 
-        required_cols = ["cell_id", "phi", "theta", "phi_min", "phi_max",
-                        "theta_min", "theta_max"]
+        required_cols = [
+            "cell_id",
+            "phi",
+            "theta",
+            "phi_min",
+            "phi_max",
+            "theta_min",
+            "theta_max",
+        ]
         for col in required_cols:
             assert col in loaded_grid.grid.columns
 
@@ -164,9 +167,7 @@ class TestLoadEqualAreaGrid:
 class TestGridRoundTrip:
     """Test store → load → compare for data integrity."""
 
-    def test_grid_round_trip_cell_count(
-        self, vod_store, small_equal_area_grid
-    ) -> None:
+    def test_grid_round_trip_cell_count(self, vod_store, small_equal_area_grid) -> None:
         """Verify cell count preserved in round-trip."""
         original_grid = small_equal_area_grid
         grid_name = "roundtrip_test"
@@ -195,9 +196,7 @@ class TestGridRoundTrip:
         load_theta = loaded_grid.grid["theta"].to_numpy()
         np.testing.assert_allclose(orig_theta, load_theta, rtol=1e-10)
 
-    def test_grid_round_trip_grid_type(
-        self, vod_store, small_equal_area_grid
-    ) -> None:
+    def test_grid_round_trip_grid_type(self, vod_store, small_equal_area_grid) -> None:
         """Verify grid type preserved."""
         original_grid = small_equal_area_grid
         grid_name = "roundtrip_type"
@@ -230,9 +229,7 @@ class TestStoreHTMGrid:
             )
             assert "cell_phi" in ds.data_vars
 
-    def test_htm_grid_has_vertex_columns(
-        self, vod_store, small_htm_grid
-    ) -> None:
+    def test_htm_grid_has_vertex_columns(self, vod_store, small_htm_grid) -> None:
         """Verify HTM grid has vertex data stored."""
         grid = small_htm_grid
         grid_name = "test_htm_vertices"
@@ -277,18 +274,14 @@ class TestLoadHTMGrid:
         loaded_grid = load_grid(vod_store, grid_name)
 
         # Check for HTM vertex columns
-        htm_cols = [
-            c for c in loaded_grid.grid.columns if c.startswith("htm_vertex")
-        ]
+        htm_cols = [c for c in loaded_grid.grid.columns if c.startswith("htm_vertex")]
         assert len(htm_cols) > 0  # Should have vertex columns
 
 
 class TestGridMetadataPreservation:
     """Test metadata preservation through store/load cycle."""
 
-    def test_grid_metadata_preserved(
-        self, vod_store, small_equal_area_grid
-    ) -> None:
+    def test_grid_metadata_preserved(self, vod_store, small_equal_area_grid) -> None:
         """Verify metadata survives round-trip."""
         grid = small_equal_area_grid
         grid_name = "test_metadata"
@@ -326,9 +319,7 @@ class TestErrorHandling:
 class TestConcurrentAccess:
     """Test concurrent grid access from multiple sessions."""
 
-    def test_concurrent_grid_reads(
-        self, vod_store, small_equal_area_grid
-    ) -> None:
+    def test_concurrent_grid_reads(self, vod_store, small_equal_area_grid) -> None:
         """Read grid from multiple sessions simultaneously."""
         grid = small_equal_area_grid
         grid_name = "concurrent_test"

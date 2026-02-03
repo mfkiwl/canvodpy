@@ -7,7 +7,8 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
-    return (mo, )
+
+    return (mo,)
 
 
 @app.cell
@@ -52,7 +53,7 @@ def _(mo):
 def _(mo):
     # File state - persists downloaded file object
     file_state = mo.state(None)
-    return (file_state, )
+    return (file_state,)
 
 
 @app.cell
@@ -64,11 +65,13 @@ def _(mo):
 @app.cell
 def _(mo):
     # File type selector
-    file_type_selector = mo.ui.radio(options=["SP3 Ephemeris", "CLK Clock"],
-                                     value="SP3 Ephemeris",
-                                     label="File Type:")
+    file_type_selector = mo.ui.radio(
+        options=["SP3 Ephemeris", "CLK Clock"],
+        value="SP3 Ephemeris",
+        label="File Type:",
+    )
     file_type_selector
-    return (file_type_selector, )
+    return (file_type_selector,)
 
 
 @app.cell
@@ -81,11 +84,11 @@ def _(mo):
 def _(list_agencies, mo):
     # Agency selector
     _agencies = sorted(list_agencies())
-    agency_selector = mo.ui.dropdown(options=_agencies,
-                                     value="COD",
-                                     label="Analysis Center:")
+    agency_selector = mo.ui.dropdown(
+        options=_agencies, value="COD", label="Analysis Center:"
+    )
     agency_selector
-    return (agency_selector, )
+    return (agency_selector,)
 
 
 @app.cell
@@ -95,9 +98,10 @@ def _(agency_selector, get_products_for_agency, mo):
     product_selector = mo.ui.dropdown(
         options=sorted(_products) if _products else [],
         value=sorted(_products)[0] if _products else None,
-        label="Product Type:")
+        label="Product Type:",
+    )
     product_selector
-    return (product_selector, )
+    return (product_selector,)
 
 
 @app.cell
@@ -105,23 +109,20 @@ def _(datetime, mo):
     # Date selector
     date_selector = mo.ui.date(value=datetime.date(2023, 9, 11), label="Date:")
     date_selector
-    return (date_selector, )
+    return (date_selector,)
 
 
 @app.cell
 def _(mo, os):
     # Server selector
-    server_selector = mo.ui.radio(options=["ESA", "NASA+ESA"],
-                                  value="ESA",
-                                  label="FTP Server:")
+    server_selector = mo.ui.radio(
+        options=["ESA", "NASA+ESA"], value="ESA", label="FTP Server:"
+    )
 
-    _cddis_status = "✓ Enabled" if os.environ.get(
-        "CDDIS_MAIL") else "✗ Disabled"
+    _cddis_status = "✓ Enabled" if os.environ.get("CDDIS_MAIL") else "✗ Disabled"
 
-    mo.vstack(
-        [server_selector,
-         mo.md(f"*NASA CDDIS fallback: {_cddis_status}*")])
-    return (server_selector, )
+    mo.vstack([server_selector, mo.md(f"*NASA CDDIS fallback: {_cddis_status}*")])
+    return (server_selector,)
 
 
 @app.cell
@@ -129,7 +130,7 @@ def _(mo):
     # Download button
     download_button = mo.ui.button(label="Download File", kind="success")
     download_button
-    return (download_button, )
+    return (download_button,)
 
 
 @app.cell
@@ -158,8 +159,11 @@ def _(
 
         try:
             # Setup downloader
-            _user_email = os.environ.get(
-                "CDDIS_MAIL") if server_selector.value == "NASA+ESA" else None
+            _user_email = (
+                os.environ.get("CDDIS_MAIL")
+                if server_selector.value == "NASA+ESA"
+                else None
+            )
             _downloader = FtpDownloader(user_email=_user_email)
 
             # Download based on file type
@@ -197,13 +201,13 @@ def _(
         except Exception as _e:
             file_state.value = None
             _download_status = mo.callout(
-                mo.md(f"**Download Failed:** {str(_e)[:400]}"), kind="danger")
+                mo.md(f"**Download Failed:** {str(_e)[:400]}"), kind="danger"
+            )
     else:
         if file_state.value is None:
             _download_status = mo.md("*Click Download to fetch file*")
         else:
-            _download_status = mo.md(
-                f"*Current file: `{file_state.value.fpath.name}`*")
+            _download_status = mo.md(f"*Current file: `{file_state.value.fpath.name}`*")
 
     _download_status
     return
@@ -223,11 +227,12 @@ def _(file_state, mo):
 @app.cell
 def _(file_state, mo):
     # Read button - only shown if file exists
-    read_button = mo.ui.button(label="Load Dataset",
-                               kind="success") if file_state.value else None
+    read_button = (
+        mo.ui.button(label="Load Dataset", kind="success") if file_state.value else None
+    )
 
     read_button if read_button else None
-    return (read_button, )
+    return (read_button,)
 
 
 @app.cell
@@ -248,38 +253,43 @@ def _(file_state, mo, read_button):
                 ]
 
                 # Add type-specific info
-                if 'epoch' in _ds.coords:
+                if "epoch" in _ds.coords:
                     _info_lines.append(
                         f"**Time Range:** {_ds.epoch.values[0]} to {_ds.epoch.values[-1]}"
                     )
 
-                if 'sv' in _ds.sizes:
+                if "sv" in _ds.sizes:
                     _info_lines.append(f"**Satellites:** {len(_ds.sv)}")
 
-                if 'clock_offset' in _ds.data_vars:
+                if "clock_offset" in _ds.data_vars:
                     _min_clk = float(_ds.clock_offset.min())
                     _max_clk = float(_ds.clock_offset.max())
                     _info_lines.append(
-                        f"**Clock Range:** {_min_clk:.6e} to {_max_clk:.6e} s")
+                        f"**Clock Range:** {_min_clk:.6e} to {_max_clk:.6e} s"
+                    )
 
-                _dataset_view = mo.vstack([
-                    mo.md("### Dataset Information"),
-                    mo.md("\n\n".join(_info_lines)),
-                    mo.md("### Attributes"),
-                    mo.md("\n".join(
-                        [f"- `{k}`: {v}" for k, v in _ds.attrs.items()])),
-                ])
+                _dataset_view = mo.vstack(
+                    [
+                        mo.md("### Dataset Information"),
+                        mo.md("\n\n".join(_info_lines)),
+                        mo.md("### Attributes"),
+                        mo.md(
+                            "\n".join([f"- `{k}`: {v}" for k, v in _ds.attrs.items()])
+                        ),
+                    ]
+                )
 
                 print("\nFull Dataset:")
                 print(_ds)
 
             except Exception as _e:
                 _dataset_view = mo.callout(
-                    mo.md(f"**Error loading dataset:** {str(_e)}"),
-                    kind="danger")
+                    mo.md(f"**Error loading dataset:** {str(_e)}"), kind="danger"
+                )
     else:
-        _dataset_view = mo.md(
-            "*Click Load Dataset to view*") if file_state.value else None
+        _dataset_view = (
+            mo.md("*Click Load Dataset to view*") if file_state.value else None
+        )
 
     _dataset_view if _dataset_view else None
     return
@@ -301,13 +311,14 @@ def _(file_state, file_type_selector, mo):
 @app.cell
 def _(file_state, file_type_selector, mo):
     # Velocity button - only for SP3
-    velocity_button = mo.ui.button(
-        label="Load with Velocities", kind="neutral") if (
-            file_state.value
-            and file_type_selector.value == "SP3 Ephemeris") else None
+    velocity_button = (
+        mo.ui.button(label="Load with Velocities", kind="neutral")
+        if (file_state.value and file_type_selector.value == "SP3 Ephemeris")
+        else None
+    )
 
     velocity_button if velocity_button else None
-    return (velocity_button, )
+    return (velocity_button,)
 
 
 @app.cell
@@ -332,32 +343,40 @@ def _(Sp3File, file_state, mo, np, velocity_button):
                     f"**Has Velocities:** {'Vx' in _ds_vel.data_vars}",
                 ]
 
-                if 'Vx' in _ds_vel.data_vars:
-                    _v_mag = np.sqrt(_ds_vel.Vx**2 + _ds_vel.Vy**2 +
-                                     _ds_vel.Vz**2)
-                    _info.extend([
-                        "", "**Velocity Statistics:**",
-                        f"- Mean: {float(_v_mag.mean()):.2f} m/s",
-                        f"- Min: {float(_v_mag.min()):.2f} m/s",
-                        f"- Max: {float(_v_mag.max()):.2f} m/s", "",
-                        "*Typical GNSS orbital velocity: ~3,874 m/s*"
-                    ])
+                if "Vx" in _ds_vel.data_vars:
+                    _v_mag = np.sqrt(_ds_vel.Vx**2 + _ds_vel.Vy**2 + _ds_vel.Vz**2)
+                    _info.extend(
+                        [
+                            "",
+                            "**Velocity Statistics:**",
+                            f"- Mean: {float(_v_mag.mean()):.2f} m/s",
+                            f"- Min: {float(_v_mag.min()):.2f} m/s",
+                            f"- Max: {float(_v_mag.max()):.2f} m/s",
+                            "",
+                            "*Typical GNSS orbital velocity: ~3,874 m/s*",
+                        ]
+                    )
 
-                _velocity_view = mo.vstack([
-                    mo.md("### SP3 with Computed Velocities"),
-                    mo.md("\n\n".join(_info)),
-                ])
+                _velocity_view = mo.vstack(
+                    [
+                        mo.md("### SP3 with Computed Velocities"),
+                        mo.md("\n\n".join(_info)),
+                    ]
+                )
 
                 print("\nDataset with Velocities:")
                 print(_ds_vel)
 
             except Exception as _e:
-                _velocity_view = mo.callout(mo.md(f"**Error:** {str(_e)}"),
-                                            kind="danger")
+                _velocity_view = mo.callout(
+                    mo.md(f"**Error:** {str(_e)}"), kind="danger"
+                )
     else:
-        _velocity_view = mo.md(
-            "*Click to compute velocities from position data*"
-        ) if velocity_button else None
+        _velocity_view = (
+            mo.md("*Click to compute velocities from position data*")
+            if velocity_button
+            else None
+        )
 
     _velocity_view if _velocity_view else None
     return

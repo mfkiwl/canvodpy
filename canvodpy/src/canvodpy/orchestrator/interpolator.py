@@ -74,7 +74,7 @@ class Interpolator(ABC):
         """Convert interpolator to attrs-compatible dictionary."""
         return {
             "interpolator_type": self.__class__.__name__,
-            "config": self.config.to_dict()
+            "config": self.config.to_dict(),
         }
 
 
@@ -96,27 +96,31 @@ class ClockInterpolationStrategy(Interpolator):
         target_epochs: np.ndarray,
     ) -> xr.Dataset:
         """Optimized clock interpolation using vectorized operations."""
-        result_ds = xr.Dataset(coords={
-            "epoch": target_epochs,
-            "sid": ds["sid"]
-        })
+        result_ds = xr.Dataset(coords={"epoch": target_epochs, "sid": ds["sid"]})
 
         # Convert epochs to seconds once
         t_source = (
-            ds["epoch"] -
-            ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
-        ).values.astype("timedelta64[s]").astype(float)
+            (
+                ds["epoch"] - ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
+            )
+            .values.astype("timedelta64[s]")
+            .astype(float)
+        )
 
         t_target = (
-            target_epochs -
-            ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
-        ).astype("timedelta64[s]").astype(float)
+            (
+                target_epochs
+                - ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
+            )
+            .astype("timedelta64[s]")
+            .astype(float)
+        )
 
         # Find clock variables
         clock_vars = [
-            var for var in ds.data_vars
-            if any(c in var
-                   for c in ["clock", "clk", "Clock", "CLK", "clock_offset"])
+            var
+            for var in ds.data_vars
+            if any(c in var for c in ["clock", "clk", "Clock", "CLK", "clock_offset"])
         ]
 
         if not clock_vars:
@@ -191,10 +195,9 @@ class ClockInterpolationStrategy(Interpolator):
                 continue
 
             # Use linear interpolation within segment
-            interpolator = interp1d(seg_time,
-                                    seg_data,
-                                    bounds_error=False,
-                                    fill_value=np.nan)
+            interpolator = interp1d(
+                seg_time, seg_data, bounds_error=False, fill_value=np.nan
+            )
             output[mask] = interpolator(t_target[mask])
 
         return output
@@ -218,8 +221,7 @@ class Sp3InterpolationStrategy(Interpolator):
         target_epochs: np.ndarray,
     ) -> xr.Dataset:
         """Optimized SP3 orbit interpolation."""
-        if self.config.use_velocities and all(v in ds
-                                              for v in ["Vx", "Vy", "Vz"]):
+        if self.config.use_velocities and all(v in ds for v in ["Vx", "Vy", "Vz"]):
             return self._interpolate_with_velocities(ds, target_epochs)
         return self._interpolate_positions_only(ds, target_epochs)
 
@@ -229,21 +231,25 @@ class Sp3InterpolationStrategy(Interpolator):
         target_epochs: np.ndarray,
     ) -> xr.Dataset:
         """Optimized Hermite interpolation using vectorized operations."""
-        result_ds = xr.Dataset(coords={
-            "epoch": target_epochs,
-            "sid": ds["sid"]
-        })
+        result_ds = xr.Dataset(coords={"epoch": target_epochs, "sid": ds["sid"]})
 
         # Convert epochs to seconds once
         t_source = (
-            ds["epoch"] -
-            ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
-        ).values.astype("timedelta64[s]").astype(float)
+            (
+                ds["epoch"] - ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
+            )
+            .values.astype("timedelta64[s]")
+            .astype(float)
+        )
 
         t_target = (
-            target_epochs -
-            ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
-        ).astype("timedelta64[s]").astype(float)
+            (
+                target_epochs
+                - ds["epoch"].values[0]  # ← Fix: .values[0] instead of [0]
+            )
+            .astype("timedelta64[s]")
+            .astype(float)
+        )
 
         # Pre-allocate all arrays at once
         n_targets = len(target_epochs)
@@ -251,14 +257,14 @@ class Sp3InterpolationStrategy(Interpolator):
         coords = {
             "X": np.empty((n_targets, n_svs)),
             "Y": np.empty((n_targets, n_svs)),
-            "Z": np.empty((n_targets, n_svs))
+            "Z": np.empty((n_targets, n_svs)),
         }
 
         if all(v in ds for v in ["Vx", "Vy", "Vz"]):
             vels = {
                 "Vx": np.empty((n_targets, n_svs)),
                 "Vy": np.empty((n_targets, n_svs)),
-                "Vz": np.empty((n_targets, n_svs))
+                "Vz": np.empty((n_targets, n_svs)),
             }
 
         # Process each sv in parallel
@@ -266,9 +272,17 @@ class Sp3InterpolationStrategy(Interpolator):
             futures = []
             for i, sv in enumerate(ds["sid"].values):
                 futures.append(
-                    executor.submit(self._interpolate_sv, ds, sv, t_source,
-                                    t_target, i, coords,
-                                    vels if "Vx" in ds else None))
+                    executor.submit(
+                        self._interpolate_sv,
+                        ds,
+                        sv,
+                        t_source,
+                        t_target,
+                        i,
+                        coords,
+                        vels if "Vx" in ds else None,
+                    )
+                )
 
             # Wait for all interpolations to complete
             for future in futures:
@@ -288,7 +302,7 @@ class Sp3InterpolationStrategy(Interpolator):
 
         return result_ds
 
-    def _interpolate_sv(  # noqa: PLR0913
+    def _interpolate_sv(
         self,
         ds: xr.Dataset,
         sv: str,
@@ -304,7 +318,6 @@ class Sp3InterpolationStrategy(Interpolator):
 
             # Skip if pos is all-NaN
             if not np.isfinite(pos).any():
-
                 continue
 
             if vels is not None:
@@ -312,7 +325,6 @@ class Sp3InterpolationStrategy(Interpolator):
 
                 # Also skip if velocities are NaN
                 if not np.isfinite(vel_data).any():
-
                     continue
 
                 interpolator = CubicHermiteSpline(t_source, pos, vel_data)

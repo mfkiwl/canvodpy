@@ -10,7 +10,7 @@ Examples
 
     from canvod.viz import HemisphereVisualizer2D
     from canvod.grids import create_hemigrid
-    
+
     grid = create_hemigrid(grid_type='equal_area', angular_resolution=10.0)
     viz = HemisphereVisualizer2D(grid)
     fig, ax = viz.plot_grid_patches(data=vod_data, title="VOD Distribution")
@@ -18,14 +18,14 @@ Examples
 Convenience function::
 
     from canvod.viz import visualize_grid, add_tissot_indicatrix
-    
+
     fig, ax = visualize_grid(grid, data=vod_data, cmap='viridis')
     add_tissot_indicatrix(ax, grid, n_sample=5)
 
 3D interactive visualization::
 
     from canvod.viz import HemisphereVisualizer3D
-    
+
     viz3d = HemisphereVisualizer3D(grid)
     fig = viz3d.plot_hemisphere_surface(data=vod_data, title="Interactive VOD")
     fig.show()
@@ -33,7 +33,7 @@ Convenience function::
 Unified API::
 
     from canvod.viz import HemisphereVisualizer
-    
+
     viz = HemisphereVisualizer(grid)
     fig_2d, ax_2d = viz.plot_2d(data=vod_data)
     fig_3d = viz.plot_3d(data=vod_data)

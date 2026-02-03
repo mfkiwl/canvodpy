@@ -166,9 +166,7 @@ class TestCoordinatePreservation:
 
     def test_time_coords_preserved(self, vod_store) -> None:
         """Verify datetime64 time coordinates preserved."""
-        time_vals = np.arange(
-            "2024-01-01", "2024-01-10", dtype="datetime64[D]"
-        )
+        time_vals = np.arange("2024-01-01", "2024-01-10", dtype="datetime64[D]")
         ds = xr.Dataset(
             {"data": (["time"], np.random.rand(len(time_vals)))},
             coords={"time": time_vals},
@@ -187,8 +185,7 @@ class TestCoordinatePreservation:
             )
             assert "time" in loaded_ds.coords
             # Datetime64 should be preserved
-            assert np.issubdtype(loaded_ds.coords["time"].dtype,
-                                np.datetime64)
+            assert np.issubdtype(loaded_ds.coords["time"].dtype, np.datetime64)
 
 
 class TestAttributePreservation:
@@ -241,10 +238,7 @@ class TestAttributePreservation:
                 session.store, group="test_var_attrs", consolidated=False
             )
             assert loaded_ds["temperature"].attrs["units"] == "kelvin"
-            assert (
-                loaded_ds["temperature"].attrs["long_name"]
-                == "Air Temperature"
-            )
+            assert loaded_ds["temperature"].attrs["long_name"] == "Air Temperature"
 
 
 class TestNaNHandling:
@@ -362,9 +356,7 @@ class TestCompression:
         # Actual compression verification would require low-level inspection
         assert vod_store.store_path.exists()
         store_size = sum(
-            f.stat().st_size
-            for f in vod_store.store_path.rglob("*")
-            if f.is_file()
+            f.stat().st_size for f in vod_store.store_path.rglob("*") if f.is_file()
         )
 
         # Store should be much smaller than raw data

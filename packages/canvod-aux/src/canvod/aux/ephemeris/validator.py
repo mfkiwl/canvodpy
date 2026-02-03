@@ -48,31 +48,27 @@ class Sp3Validator:
 
     def _check_required_variables(self) -> None:
         """Check that required variables are present."""
-        required = ['X', 'Y', 'Z']
-        missing = [
-            var for var in required if var not in self.dataset.data_vars
-        ]
+        required = ["X", "Y", "Z"]
+        missing = [var for var in required if var not in self.dataset.data_vars]
 
         if missing:
             self.result.add_error(f"Missing required variables: {missing}")
 
     def _check_required_coordinates(self) -> None:
         """Check that required coordinates are present."""
-        required = ['epoch', 'sv']
-        missing = [
-            coord for coord in required if coord not in self.dataset.coords
-        ]
+        required = ["epoch", "sv"]
+        missing = [coord for coord in required if coord not in self.dataset.coords]
 
         if missing:
             self.result.add_error(f"Missing required coordinates: {missing}")
 
     def _check_data_quality(self) -> None:
         """Check data quality metrics."""
-        if 'X' not in self.dataset:
+        if "X" not in self.dataset:
             return
 
         # Check for excessive NaN values
-        for var in ['X', 'Y', 'Z']:
+        for var in ["X", "Y", "Z"]:
             nan_count = self.dataset[var].isnull().sum().item()
             total_count = self.dataset[var].size
             nan_percentage = (nan_count / total_count) * 100
@@ -84,7 +80,8 @@ class Sp3Validator:
                 )
             elif nan_percentage > 10:
                 self.result.add_warning(
-                    f"Variable {var} has {nan_percentage:.1f}% NaN values")
+                    f"Variable {var} has {nan_percentage:.1f}% NaN values"
+                )
 
     def get_summary(self) -> str:
         """Get validation summary."""

@@ -54,6 +54,7 @@ class ClkFile(AuxFile):
     dimensionless : bool | None, default True
         If True, outputs magnitude-only values (no units attached).
     """
+
     date: str
     agency: str
     product_type: str
@@ -130,11 +131,11 @@ class ClkFile(AuxFile):
 
         # File info for NASA CDDIS URL construction
         file_info = {
-            'gps_week': gps_week,
-            'filename': clock_file,
-            'type': 'clock',
-            'agency': self.agency,
-            'latency': spec.latency_hours,
+            "gps_week": gps_week,
+            "filename": clock_file,
+            "type": "clock",
+            "agency": self.agency,
+            "latency": spec.latency_hours,
         }
 
         try:
@@ -161,18 +162,18 @@ class ClkFile(AuxFile):
         epochs, satellites, clock_offsets = parse_clk_file(self.fpath)
 
         # Convert units (microseconds → seconds)
-        clock_offsets = (UREG.microsecond * clock_offsets).to('s')
+        clock_offsets = (UREG.microsecond * clock_offsets).to("s")
 
         if self.dimensionless:
             clock_offsets = clock_offsets.magnitude
 
         # Create dataset
         ds = xr.Dataset(
-            data_vars={'clock_offset': (('epoch', 'sv'), clock_offsets)},
+            data_vars={"clock_offset": (("epoch", "sv"), clock_offsets)},
             coords={
-                'epoch': np.array(epochs, dtype='datetime64[ns]'),
-                'sv': np.array(satellites)
-            }
+                "epoch": np.array(epochs, dtype="datetime64[ns]"),
+                "sv": np.array(satellites),
+            },
         )
 
         # Validate and add metadata
@@ -197,22 +198,22 @@ class ClkFile(AuxFile):
             Dataset with complete metadata.
         """
         ds.attrs = {
-            'file': str(self.fpath.name),
-            'agency': self.agency,
-            'product_type': self.product_type,
-            'ftp_server': self.ftp_server,
-            'date': self.date,
-            'valid_data_percent': validation['valid_data_percent'],
-            'num_epochs': validation['num_epochs'],
-            'num_satellites': validation['num_satellites'],
+            "file": str(self.fpath.name),
+            "agency": self.agency,
+            "product_type": self.product_type,
+            "ftp_server": self.ftp_server,
+            "date": self.date,
+            "valid_data_percent": validation["valid_data_percent"],
+            "num_epochs": validation["num_epochs"],
+            "num_satellites": validation["num_satellites"],
         }
 
         # Add variable attributes
         ds.clock_offset.attrs = {
-            'long_name': 'Satellite clock offset',
-            'standard_name': 'clock_offset',
-            'units': 'seconds',
-            'description': 'Clock correction for each satellite'
+            "long_name": "Satellite clock offset",
+            "standard_name": "clock_offset",
+            "units": "seconds",
+            "description": "Clock correction for each satellite",
         }
 
         return ds

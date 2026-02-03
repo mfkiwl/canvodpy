@@ -33,11 +33,14 @@ def __getattr__(name: str):
     """Lazy import to avoid circular dependencies."""
     if name == "PipelineOrchestrator":
         from canvodpy.orchestrator.pipeline import PipelineOrchestrator
+
         return PipelineOrchestrator
     if name == "SingleReceiverProcessor":
         from canvodpy.orchestrator.pipeline import SingleReceiverProcessor
+
         return SingleReceiverProcessor
     if name == "RinexDataProcessor":
         from canvodpy.orchestrator.processor import RinexDataProcessor
+
         return RinexDataProcessor
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

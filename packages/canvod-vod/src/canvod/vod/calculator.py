@@ -16,6 +16,7 @@ class VODCalculator(ABC, BaseModel):
     -----
     This is an abstract base class (ABC) and a Pydantic model.
     """
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     canopy_ds: xr.Dataset

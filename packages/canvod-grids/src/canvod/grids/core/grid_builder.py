@@ -1,4 +1,5 @@
 """Base class for hemisphere grid builders."""
+
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -51,9 +52,12 @@ class BaseGridBuilder(ABC):
     @abstractmethod
     def _build_grid(
         self,
-    ) -> tuple[pl.DataFrame, np.ndarray, list[np.ndarray], list[np.ndarray]] | tuple[
-        pl.DataFrame, np.ndarray, list[np.ndarray], list[np.ndarray], dict[str, Any]
-    ]:
+    ) -> (
+        tuple[pl.DataFrame, np.ndarray, list[np.ndarray], list[np.ndarray]]
+        | tuple[
+            pl.DataFrame, np.ndarray, list[np.ndarray], list[np.ndarray], dict[str, Any]
+        ]
+    ):
         """Build grid.
 
         Returns
@@ -107,10 +111,12 @@ class BaseGridBuilder(ABC):
             if "phi_min" in grid.columns:
                 grid = grid.with_columns(
                     [
-                        ((pl.col("phi_min") + self.phi_rotation_rad)
-                         % (2 * np.pi)).alias("phi_min"),
-                        ((pl.col("phi_max") + self.phi_rotation_rad)
-                         % (2 * np.pi)).alias("phi_max"),
+                        (
+                            (pl.col("phi_min") + self.phi_rotation_rad) % (2 * np.pi)
+                        ).alias("phi_min"),
+                        (
+                            (pl.col("phi_max") + self.phi_rotation_rad) % (2 * np.pi)
+                        ).alias("phi_max"),
                     ]
                 )
 

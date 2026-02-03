@@ -3,6 +3,7 @@ Tests for internal logger utilities.
 
 Tests logging context management and logger configuration.
 """
+
 import logging
 from pathlib import Path
 

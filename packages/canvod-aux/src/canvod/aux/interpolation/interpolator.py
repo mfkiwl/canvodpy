@@ -38,8 +38,9 @@ class Sp3Config(InterpolatorConfig):
     fallback_method : str, default 'linear'
         Interpolation method when velocities are unavailable.
     """
+
     use_velocities: bool = True
-    fallback_method: str = 'linear'
+    fallback_method: str = "linear"
 
 
 @dataclass
@@ -53,6 +54,7 @@ class ClockConfig(InterpolatorConfig):
     jump_threshold : float, default 1e-6
         Threshold for detecting clock jumps (seconds).
     """
+
     window_size: int = 9
     jump_threshold: float = 1e-6
 
@@ -66,11 +68,11 @@ class Interpolator(ABC):
     This is a Pydantic dataclass with `arbitrary_types_allowed=True` and
     uses `ABC` to define required interpolation hooks.
     """
+
     config: InterpolatorConfig
 
     @abstractmethod
-    def interpolate(self, ds: xr.Dataset,
-                    target_epochs: np.ndarray) -> xr.Dataset:
+    def interpolate(self, ds: xr.Dataset, target_epochs: np.ndarray) -> xr.Dataset:
         """Interpolate dataset to match target epochs.
 
         Parameters
@@ -90,8 +92,8 @@ class Interpolator(ABC):
     def to_attrs(self) -> dict[str, Any]:
         """Convert interpolator to attrs-compatible dictionary."""
         return {
-            'interpolator_type': self.__class__.__name__,
-            'config': self.config.to_dict()
+            "interpolator_type": self.__class__.__name__,
+            "config": self.config.to_dict(),
         }
 
 
@@ -112,49 +114,51 @@ class Sp3InterpolationStrategy(Interpolator):
     >>> # Interpolate to RINEX epochs
     >>> sp3_interp = interpolator.interpolate(sp3_data, rinex_epochs)
     """
+
     config: Sp3Config
 
-    def interpolate(self, ds: xr.Dataset,
-                    target_epochs: np.ndarray) -> xr.Dataset:
+    def interpolate(self, ds: xr.Dataset, target_epochs: np.ndarray) -> xr.Dataset:
         """Interpolate SP3 ephemeris to target epochs."""
-        if self.config.use_velocities and all(v in ds
-                                              for v in ['Vx', 'Vy', 'Vz']):
+        if self.config.use_velocities and all(v in ds for v in ["Vx", "Vy", "Vz"]):
             return self._interpolate_with_velocities(ds, target_epochs)
         return self._interpolate_positions_only(ds, target_epochs)
 
-    def _interpolate_with_velocities(self, ds: xr.Dataset,
-                                     target_epochs: np.ndarray) -> xr.Dataset:
+    def _interpolate_with_velocities(
+        self, ds: xr.Dataset, target_epochs: np.ndarray
+    ) -> xr.Dataset:
         """Hermite interpolation using satellite velocities."""
         # Determine satellite dimension (sv or sid)
-        sat_dim = 'sv' if 'sv' in ds.dims else 'sid'
+        sat_dim = "sv" if "sv" in ds.dims else "sid"
         sat_values = ds[sat_dim].values
 
-        result_ds = xr.Dataset(coords={
-            'epoch': target_epochs,
-            sat_dim: sat_values
-        })
+        result_ds = xr.Dataset(coords={"epoch": target_epochs, sat_dim: sat_values})
 
         # Convert epochs to seconds (relative to first epoch)
-        t_source = (ds['epoch'] -
-                    ds['epoch'].values[0]).values.astype(
-                        'timedelta64[s]').astype(float)
+        t_source = (
+            (ds["epoch"] - ds["epoch"].values[0])
+            .values.astype("timedelta64[s]")
+            .astype(float)
+        )
 
-        t_target = (target_epochs - ds['epoch'].values[0]).astype(
-            'timedelta64[s]').astype(float)
+        t_target = (
+            (target_epochs - ds["epoch"].values[0])
+            .astype("timedelta64[s]")
+            .astype(float)
+        )
 
         # Pre-allocate output arrays
         n_targets = len(target_epochs)
         n_sats = len(sat_values)
         coords = {
-            'X': np.empty((n_targets, n_sats)),
-            'Y': np.empty((n_targets, n_sats)),
-            'Z': np.empty((n_targets, n_sats))
+            "X": np.empty((n_targets, n_sats)),
+            "Y": np.empty((n_targets, n_sats)),
+            "Z": np.empty((n_targets, n_sats)),
         }
 
         vels = {
-            'Vx': np.empty((n_targets, n_sats)),
-            'Vy': np.empty((n_targets, n_sats)),
-            'Vz': np.empty((n_targets, n_sats))
+            "Vx": np.empty((n_targets, n_sats)),
+            "Vy": np.empty((n_targets, n_sats)),
+            "Vz": np.empty((n_targets, n_sats)),
         }
 
         # Parallel interpolation per satellite
@@ -181,12 +185,12 @@ class Sp3InterpolationStrategy(Interpolator):
 
         # Assign results to dataset
         for coord, data in coords.items():
-            result_ds[coord] = (('epoch', sat_dim), data)
+            result_ds[coord] = (("epoch", sat_dim), data)
             if coord in ds:
                 result_ds[coord].attrs = ds[coord].attrs
 
         for vel, data in vels.items():
-            result_ds[vel] = (('epoch', sat_dim), data)
+            result_ds[vel] = (("epoch", sat_dim), data)
             if vel in ds:
                 result_ds[vel].attrs = ds[vel].attrs
 
@@ -224,7 +228,7 @@ class Sp3InterpolationStrategy(Interpolator):
         vels : dict[str, np.ndarray]
             Output velocity arrays to fill.
         """
-        for coord, vel in [('X', 'Vx'), ('Y', 'Vy'), ('Z', 'Vz')]:
+        for coord, vel in [("X", "Vx"), ("Y", "Vy"), ("Z", "Vz")]:
             # Select by satellite dimension name
             pos = ds[coord].sel({sat_dim: sat}).values
             vel_data = ds[vel].sel({sat_dim: sat}).values
@@ -242,11 +246,11 @@ class Sp3InterpolationStrategy(Interpolator):
             if vels is not None:
                 vels[vel][:, idx] = interpolator.derivative()(t_target)
 
-    def _interpolate_positions_only(self, ds: xr.Dataset,
-                                    target_epochs: np.ndarray) -> xr.Dataset:
+    def _interpolate_positions_only(
+        self, ds: xr.Dataset, target_epochs: np.ndarray
+    ) -> xr.Dataset:
         """Fallback: simple linear interpolation for positions only."""
-        return ds.interp(epoch=target_epochs,
-                         method=self.config.fallback_method)
+        return ds.interp(epoch=target_epochs, method=self.config.fallback_method)
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
@@ -265,33 +269,35 @@ class ClockInterpolationStrategy(Interpolator):
     >>> # Interpolate to RINEX epochs
     >>> clk_interp = interpolator.interpolate(clk_data, rinex_epochs)
     """
+
     config: ClockConfig
 
-    def interpolate(self, ds: xr.Dataset,
-                    target_epochs: np.ndarray) -> xr.Dataset:
+    def interpolate(self, ds: xr.Dataset, target_epochs: np.ndarray) -> xr.Dataset:
         """Interpolate clock corrections with discontinuity handling."""
         # Determine satellite dimension (sv or sid)
-        sat_dim = 'sv' if 'sv' in ds.dims else 'sid'
+        sat_dim = "sv" if "sv" in ds.dims else "sid"
         sat_values = ds[sat_dim].values
 
-        result_ds = xr.Dataset(coords={
-            'epoch': target_epochs,
-            sat_dim: sat_values
-        })
+        result_ds = xr.Dataset(coords={"epoch": target_epochs, sat_dim: sat_values})
 
         # Convert epochs to seconds
-        t_source = (ds['epoch'] -
-                    ds['epoch'].values[0]).values.astype(
-                        'timedelta64[s]').astype(float)
+        t_source = (
+            (ds["epoch"] - ds["epoch"].values[0])
+            .values.astype("timedelta64[s]")
+            .astype(float)
+        )
 
-        t_target = (target_epochs - ds['epoch'].values[0]).astype(
-            'timedelta64[s]').astype(float)
+        t_target = (
+            (target_epochs - ds["epoch"].values[0])
+            .astype("timedelta64[s]")
+            .astype(float)
+        )
 
         # Find clock variables
         clock_vars = [
-            var for var in ds.data_vars
-            if any(c in var
-                   for c in ['clock', 'clk', 'Clock', 'CLK', 'clock_offset'])
+            var
+            for var in ds.data_vars
+            if any(c in var for c in ["clock", "clk", "Clock", "CLK", "clock_offset"])
         ]
 
         if not clock_vars:
@@ -307,15 +313,20 @@ class ClockInterpolationStrategy(Interpolator):
                 futures = []
                 for sat_idx in range(len(sat_values)):
                     futures.append(
-                        executor.submit(self._interpolate_sat_clock,
-                                        data[:, sat_idx], t_source, t_target,
-                                        self.config.jump_threshold))
+                        executor.submit(
+                            self._interpolate_sat_clock,
+                            data[:, sat_idx],
+                            t_source,
+                            t_target,
+                            self.config.jump_threshold,
+                        )
+                    )
 
                 # Collect results
                 for sat_idx, future in enumerate(futures):
                     output[:, sat_idx] = future.result()
 
-            result_ds[var] = (('epoch', sat_dim), output)
+            result_ds[var] = (("epoch", sat_dim), output)
             if var in ds:
                 result_ds[var].attrs = ds[var].attrs
 
@@ -380,10 +391,9 @@ class ClockInterpolationStrategy(Interpolator):
                 continue
 
             # Linear interpolation within segment
-            interpolator = interp1d(seg_time,
-                                    seg_data,
-                                    bounds_error=False,
-                                    fill_value=np.nan)
+            interpolator = interp1d(
+                seg_time, seg_data, bounds_error=False, fill_value=np.nan
+            )
             output[mask] = interpolator(t_target[mask])
 
         return output
@@ -410,13 +420,13 @@ def create_interpolator_from_attrs(attrs: dict[str, Any]) -> Interpolator:
     >>> # Later, recreate interpolator
     >>> interpolator = create_interpolator_from_attrs(ds.attrs)
     """
-    interpolator_type = attrs['interpolator_config']['interpolator_type']
-    config_dict = attrs['interpolator_config']['config']
+    interpolator_type = attrs["interpolator_config"]["interpolator_type"]
+    config_dict = attrs["interpolator_config"]["config"]
 
-    if interpolator_type == 'Sp3InterpolationStrategy':
+    if interpolator_type == "Sp3InterpolationStrategy":
         config = Sp3Config(**config_dict)
         return Sp3InterpolationStrategy(config=config)
-    elif interpolator_type == 'ClockInterpolationStrategy':
+    elif interpolator_type == "ClockInterpolationStrategy":
         config = ClockConfig(**config_dict)
         return ClockInterpolationStrategy(config=config)
     else:

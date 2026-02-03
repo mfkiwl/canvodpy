@@ -1,6 +1,5 @@
 """File downloaders for auxiliary GNSS data."""
 
-import errno
 import gzip
 import shutil
 from abc import ABC, abstractmethod
@@ -74,9 +73,7 @@ class FtpDownloader(FileDownloader):
                 )
         else:
             if user_email is None:
-                self.alt_servers = [
-                    s for s in alt_servers if "cddis" not in s.lower()
-                ]
+                self.alt_servers = [s for s in alt_servers if "cddis" not in s.lower()]
                 if len(self.alt_servers) < len(alt_servers):
                     print("⚠ Skipping CDDIS servers (no credentials)")
             else:
@@ -118,7 +115,7 @@ class FtpDownloader(FileDownloader):
                     "❌ No internet connection detected.\n"
                     "   Please check your network and try again."
                 ) from e
-            
+
             print(f"Primary download failed: {str(e)}")
 
             all_errors = [f"Primary server error: {str(e)}"]
@@ -154,7 +151,7 @@ class FtpDownloader(FileDownloader):
                             "❌ No internet connection detected.\n"
                             "   Please check your network and try again."
                         ) from alt_e
-                    
+
                     error_msg = f"Alternate server {alt_server} error: {str(alt_e)}"
                     print(error_msg)
                     all_errors.append(error_msg)
@@ -218,9 +215,7 @@ class FtpDownloader(FileDownloader):
                     )
 
         if filename not in ftps.nlst():
-            raise RuntimeError(
-                f"File {filename} not found in directory {directory}"
-            )
+            raise RuntimeError(f"File {filename} not found in directory {directory}")
 
         temp_path = destination.with_suffix(destination.suffix + ".tmp")
         with temp_path.open("wb") as f:
@@ -254,12 +249,12 @@ class FtpDownloader(FileDownloader):
 
     def _is_network_error(self, exception: Exception) -> bool:
         """Check if exception indicates a network connectivity issue.
-        
+
         Parameters
         ----------
         exception : Exception
             The exception to check.
-            
+
         Returns
         -------
         bool
@@ -269,34 +264,34 @@ class FtpDownloader(FileDownloader):
         error_str = str(exception).lower()
         network_indicators = [
             "nodename nor servname provided",  # DNS failure (errno 8)
-            "no route to host",                 # Network unreachable
+            "no route to host",  # Network unreachable
             "network is unreachable",
             "temporary failure in name resolution",
             "connection refused",
             "no address associated with hostname",
         ]
-        
+
         # Check error message
         if any(indicator in error_str for indicator in network_indicators):
             return True
-        
+
         # Check errno codes for network issues
         if isinstance(exception, OSError):
             # Common network-related errno values
             network_errnos = {
-                8,    # EAI_NONAME: nodename nor servname provided
+                8,  # EAI_NONAME: nodename nor servname provided
                 101,  # ENETUNREACH: Network unreachable
                 113,  # EHOSTUNREACH: No route to host
                 111,  # ECONNREFUSED: Connection refused
             }
             if exception.errno in network_errnos:
                 return True
-        
+
         # Check urllib errors
         if isinstance(exception, urlerror.URLError):
             if isinstance(exception.reason, OSError):
                 return self._is_network_error(exception.reason)
-        
+
         return False
 
     def _construct_alternate_url(self, original_url: str, alt_server: str) -> str:

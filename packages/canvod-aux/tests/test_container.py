@@ -3,6 +3,7 @@ Tests for container module.
 
 Tests GnssData dataclass and FileMetadata.
 """
+
 from pathlib import Path
 
 import numpy as np
@@ -22,7 +23,7 @@ class TestFileMetadata:
             agency="COD",
             product_type="final",
             local_dir=Path("/tmp/data"),
-            ftp_server="ftp.example.com"
+            ftp_server="ftp.example.com",
         )
 
         assert metadata.date == "2024015"
@@ -44,7 +45,7 @@ class TestGnssData:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         data = GnssData(dataset=ds)
 
@@ -63,7 +64,7 @@ class TestGnssData:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         data = GnssData(dataset=ds)
 
@@ -82,7 +83,7 @@ class TestGnssData:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         data = GnssData(dataset=ds)
 
@@ -99,7 +100,7 @@ class TestGnssData:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         data = GnssData(dataset=ds)
 
@@ -114,7 +115,7 @@ class TestGnssData:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         df = pd.DataFrame({"sid": ["G01", "G02"], "value": [1.0, 2.0]})
         data = GnssData(dataset=ds, dataframe=df)
@@ -136,7 +137,7 @@ class TestDataclassFeatures:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         ds2 = xr.Dataset(
             {
@@ -145,7 +146,7 @@ class TestDataclassFeatures:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         data1 = GnssData(dataset=ds1)
         data2 = GnssData(dataset=ds2)
@@ -162,7 +163,7 @@ class TestDataclassFeatures:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         ds2 = xr.Dataset(
             {
@@ -171,7 +172,7 @@ class TestDataclassFeatures:
             coords={
                 "epoch": [np.datetime64("2024-01-15T12:00:00")],
                 "sid": ["G01", "G02"],
-            }
+            },
         )
         data1 = GnssData(dataset=ds1)
         data2 = GnssData(dataset=ds2)
@@ -185,7 +186,7 @@ class TestDataclassFeatures:
             agency="COD",
             product_type="final",
             local_dir=Path("/tmp/data"),
-            ftp_server="ftp.example.com"
+            ftp_server="ftp.example.com",
         )
 
         repr_str = repr(metadata)

@@ -15,7 +15,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import xarray as xr
-
 from canvod.grids import create_hemigrid
 from canvod.grids.operations import (
     _build_kdtree,
@@ -58,13 +57,9 @@ def sample_vod_dataset():
 class TestCellAssignmentBasic:
     """Test basic cell assignment functionality."""
 
-    def test_add_cell_ids_to_vod_fast(
-        self, sample_grid, sample_vod_dataset
-    ) -> None:
+    def test_add_cell_ids_to_vod_fast(self, sample_grid, sample_vod_dataset) -> None:
         """Test KDTree-based cell assignment."""
-        result = add_cell_ids_to_vod_fast(
-            sample_vod_dataset, sample_grid, "test_grid"
-        )
+        result = add_cell_ids_to_vod_fast(sample_vod_dataset, sample_grid, "test_grid")
 
         # Should return Dataset with cell_id variable
         assert isinstance(result, xr.Dataset)
@@ -83,9 +78,7 @@ class TestCellAssignmentBasic:
         self, sample_grid, sample_vod_dataset
     ) -> None:
         """Verify original data is preserved."""
-        result = add_cell_ids_to_vod_fast(
-            sample_vod_dataset, sample_grid, "test_grid"
-        )
+        result = add_cell_ids_to_vod_fast(sample_vod_dataset, sample_grid, "test_grid")
 
         # Original variables should be present
         assert "VOD" in result.variables
@@ -180,7 +173,10 @@ class TestEdgeCaseCoordinates:
             {"VOD": (["epoch", "sid"], [[0.5, 0.6, 0.7, 0.8]])},
             coords={
                 "phi": (["epoch", "sid"], [[0.0, np.pi / 2, np.pi, 3 * np.pi / 2]]),
-                "theta": (["epoch", "sid"], [[np.pi / 2, np.pi / 2, np.pi / 2, np.pi / 2]]),
+                "theta": (
+                    ["epoch", "sid"],
+                    [[np.pi / 2, np.pi / 2, np.pi / 2, np.pi / 2]],
+                ),
                 "epoch": [0],
                 "sid": [0, 1, 2, 3],
             },

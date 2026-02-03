@@ -13,10 +13,11 @@ DEMO_ROOT = Path(__file__).parent / "demo"
 # Test Data Fixtures (canvodpy-test-data submodule)
 # ============================================================================
 
+
 @pytest.fixture(scope="session")
 def test_data_dir() -> Path:
     """Root directory for test data.
-    
+
     Location: packages/canvod-readers/tests/test_data
     Repository: https://github.com/nfb2021/canvodpy-test-data.git
     Purpose: Validation testing with falsified/corrupted files
@@ -54,7 +55,11 @@ def rosalia_reference_test_rinex(valid_rinex_dir: Path) -> Path:
     if not rinex_dir.exists():
         pytest.skip(f"RINEX directory not found: {rinex_dir}")
     # Find any RINEX file (*.rnx, *.RNX, *.o, *.[0-9][0-9]o, etc.)
-    files = list(rinex_dir.rglob("*.[0-9][0-9]o")) + list(rinex_dir.glob("*.rnx")) + list(rinex_dir.glob("*.RNX"))
+    files = (
+        list(rinex_dir.rglob("*.[0-9][0-9]o"))
+        + list(rinex_dir.glob("*.rnx"))
+        + list(rinex_dir.glob("*.RNX"))
+    )
     if not files:
         pytest.skip(f"No RINEX files in {rinex_dir}")
     return files[0]
@@ -67,7 +72,11 @@ def rosalia_canopy_test_rinex(valid_rinex_dir: Path) -> Path:
     if not rinex_dir.exists():
         pytest.skip(f"RINEX directory not found: {rinex_dir}")
     # Find any RINEX file
-    files = list(rinex_dir.rglob("*.[0-9][0-9]o")) + list(rinex_dir.glob("*.rnx")) + list(rinex_dir.glob("*.RNX"))
+    files = (
+        list(rinex_dir.rglob("*.[0-9][0-9]o"))
+        + list(rinex_dir.glob("*.rnx"))
+        + list(rinex_dir.glob("*.RNX"))
+    )
     if not files:
         pytest.skip(f"No RINEX files in {rinex_dir}")
     return files[0]
@@ -117,8 +126,7 @@ def sample_clk_file(valid_aux_dir: Path) -> Path:
 
 # Mark for tests that require test data
 requires_test_data = pytest.mark.skipif(
-    not TEST_DATA_ROOT.exists(),
-    reason="Test data submodule not initialized"
+    not TEST_DATA_ROOT.exists(), reason="Test data submodule not initialized"
 )
 
 
@@ -126,18 +134,18 @@ requires_test_data = pytest.mark.skipif(
 # Demo Data Fixtures (canvodpy-demo submodule)
 # ============================================================================
 
+
 @pytest.fixture(scope="session")
 def demo_dir() -> Path:
     """Root directory for demo data.
-    
+
     Location: demo
     Repository: https://github.com/nfb2021/canvodpy-demo.git
     Purpose: Clean real-world data for demos and documentation
     """
     if not DEMO_ROOT.exists():
         pytest.skip(
-            "Demo submodule not initialized. Run: "
-            "git submodule update --init demo"
+            "Demo submodule not initialized. Run: git submodule update --init demo"
         )
     return DEMO_ROOT
 
@@ -167,7 +175,11 @@ def demo_rosalia_reference(demo_rosalia_dir: Path) -> Path:
     if not rinex_dir.exists():
         pytest.skip(f"RINEX directory not found: {rinex_dir}")
     # Find any RINEX file in any subdirectory (25001, 25002, etc.)
-    files = list(rinex_dir.rglob("*.[0-9][0-9]o")) + list(rinex_dir.rglob("*.rnx")) + list(rinex_dir.rglob("*.RNX"))
+    files = (
+        list(rinex_dir.rglob("*.[0-9][0-9]o"))
+        + list(rinex_dir.rglob("*.rnx"))
+        + list(rinex_dir.rglob("*.RNX"))
+    )
     if not files:
         pytest.skip(f"No RINEX files in {rinex_dir}")
     return files[0]
@@ -180,7 +192,11 @@ def demo_rosalia_canopy(demo_rosalia_dir: Path) -> Path:
     if not rinex_dir.exists():
         pytest.skip(f"RINEX directory not found: {rinex_dir}")
     # Find any RINEX file in any subdirectory
-    files = list(rinex_dir.rglob("*.[0-9][0-9]o")) + list(rinex_dir.rglob("*.rnx")) + list(rinex_dir.rglob("*.RNX"))
+    files = (
+        list(rinex_dir.rglob("*.[0-9][0-9]o"))
+        + list(rinex_dir.rglob("*.rnx"))
+        + list(rinex_dir.rglob("*.RNX"))
+    )
     if not files:
         pytest.skip(f"No RINEX files in {rinex_dir}")
     return files[0]
@@ -206,6 +222,5 @@ def demo_rosalia_canopy_day(demo_rosalia_dir: Path) -> Path:
 
 # Mark for tests that require demo data
 requires_demo = pytest.mark.skipif(
-    not DEMO_ROOT.exists(),
-    reason="Demo submodule not initialized"
+    not DEMO_ROOT.exists(), reason="Demo submodule not initialized"
 )

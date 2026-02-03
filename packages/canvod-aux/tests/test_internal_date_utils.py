@@ -3,6 +3,7 @@ Tests for internal date utilities.
 
 Tests YYYYDOY class and GPS week conversion functions.
 """
+
 import datetime
 from pathlib import Path
 
@@ -45,12 +46,14 @@ class TestYYYYDOY:
     def test_invalid_doy_too_low(self):
         """Test that invalid DOY (< 1) raises ValidationError."""
         from pydantic_core import ValidationError
+
         with pytest.raises(ValidationError):
             YYYYDOY(year=2024, doy=0)
 
     def test_invalid_doy_too_high(self):
         """Test that invalid DOY (> 366) raises ValidationError."""
         from pydantic_core import ValidationError
+
         with pytest.raises(ValidationError):
             YYYYDOY(year=2024, doy=367)
 

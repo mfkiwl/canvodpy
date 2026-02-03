@@ -39,15 +39,15 @@ def parse_clk_header(file_handle: TextIO) -> set[str]:
     satellites = set()
 
     for line in file_handle:
-        if 'OF SOLN SATS' in line:
+        if "OF SOLN SATS" in line:
             _ = int(line[4:6])
-        elif 'PRN LIST' in line:
+        elif "PRN LIST" in line:
             # Parse PRN list line(s)
             parts = line.split()[2:]  # Skip 'PRN' and 'LIST'
             for prn in parts:
                 if len(prn) == 3:  # Valid PRN format (e.g., G01)
                     satellites.add(prn)
-        elif 'END OF HEADER' in line:
+        elif "END OF HEADER" in line:
             break
 
     return satellites
@@ -85,7 +85,7 @@ def parse_clk_data(
     current_epoch = None
 
     for line in file_handle:
-        if line.startswith('AS'):
+        if line.startswith("AS"):
             parts = line.split()
 
             # Parse epoch
@@ -95,7 +95,7 @@ def parse_clk_data(
                 day=int(parts[4]),
                 hour=int(parts[5]),
                 minute=int(parts[6]),
-                second=int(float(parts[7]))
+                second=int(float(parts[7])),
             )
 
             # Store unique epochs and satellites

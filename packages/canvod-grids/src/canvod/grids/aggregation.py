@@ -96,10 +96,12 @@ def aggregate_data_to_grid(
     cell_flat = np.asarray(cell_ids.values).ravel()
     valid = np.isfinite(vod_flat) & np.isfinite(cell_flat)
 
-    df = pl.DataFrame({
-        "cell_id": cell_flat[valid].astype(np.int64),
-        "vod": vod_flat[valid],
-    })
+    df = pl.DataFrame(
+        {
+            "cell_id": cell_flat[valid].astype(np.int64),
+            "vod": vod_flat[valid],
+        }
+    )
 
     agg_expr = {
         "mean": pl.col("vod").mean(),
@@ -162,9 +164,7 @@ class CellAggregator:
             raise ValueError(f"Unknown method: {method}")
 
         return (
-            df.group_by("cell_id")
-            .agg(agg_map[method].alias(value_var))
-            .sort("cell_id")
+            df.group_by("cell_id").agg(agg_map[method].alias(value_var)).sort("cell_id")
         )
 
 
@@ -366,12 +366,14 @@ def compute_global_average(percell_ds: xr.Dataset) -> xr.Dataset:
     valid_mask = np.isfinite(values)
     spatial_std = values.where(valid_mask).std(dim="cell", skipna=True)
 
-    return xr.Dataset({
-        "global_timeseries": global_mean,
-        "spatial_std": spatial_std,
-        "total_weights": total_weights,
-        "active_cells": valid_mask.sum(dim="cell"),
-    })
+    return xr.Dataset(
+        {
+            "global_timeseries": global_mean,
+            "spatial_std": spatial_std,
+            "total_weights": total_weights,
+            "active_cells": valid_mask.sum(dim="cell"),
+        }
+    )
 
 
 def compute_regional_average(
@@ -563,19 +565,23 @@ def _process_chunk_percell(
 
     try:
         result = (
-            pl.DataFrame({
-                "epoch": pd.to_datetime(flat_epochs),
-                "cell_id": flat_cells,
-                "vod": flat_vod,
-            })
+            pl.DataFrame(
+                {
+                    "epoch": pd.to_datetime(flat_epochs),
+                    "cell_id": flat_cells,
+                    "vod": flat_vod,
+                }
+            )
             .with_columns(
                 pl.col("epoch").dt.truncate(polars_resolution).alias("time_bin")
             )
             .group_by(["time_bin", "cell_id"])
-            .agg([
-                pl.col("vod").mean().alias("cell_mean"),
-                pl.col("vod").count().alias("cell_count"),
-            ])
+            .agg(
+                [
+                    pl.col("vod").mean().alias("cell_mean"),
+                    pl.col("vod").count().alias("cell_count"),
+                ]
+            )
             .filter(pl.col("cell_count") >= min_obs_per_cell_time)
             .sort(["time_bin", "cell_id"])
         )
@@ -652,31 +658,51 @@ def _create_percell_dataset(
 
     return xr.Dataset(
         data_vars={
-            "cell_timeseries": (["cell", "time"], cell_timeseries, {
-                "long_name": "VOD time series per cell",
-                "units": "dimensionless",
-                "description": "SID-aggregated VOD per cell per time bin",
-            }),
-            "cell_weights": (["cell", "time"], cell_weights, {
-                "long_name": "Observation weights per cell",
-                "units": "count",
-                "description": "Number of SID observations per cell per time bin",
-            }),
-            "cell_counts": (["cell", "time"], cell_counts, {
-                "long_name": "Observation counts per cell",
-                "units": "count",
-                "description": "Same as cell_weights (for compatibility)",
-            }),
-            "cell_theta": (["cell"], cell_theta, {
-                "long_name": "Cell elevation angle",
-                "units": "degrees",
-                "description": "Elevation angle from zenith",
-            }),
-            "cell_phi": (["cell"], cell_phi, {
-                "long_name": "Cell azimuth angle",
-                "units": "degrees",
-                "description": "Azimuth angle",
-            }),
+            "cell_timeseries": (
+                ["cell", "time"],
+                cell_timeseries,
+                {
+                    "long_name": "VOD time series per cell",
+                    "units": "dimensionless",
+                    "description": "SID-aggregated VOD per cell per time bin",
+                },
+            ),
+            "cell_weights": (
+                ["cell", "time"],
+                cell_weights,
+                {
+                    "long_name": "Observation weights per cell",
+                    "units": "count",
+                    "description": "Number of SID observations per cell per time bin",
+                },
+            ),
+            "cell_counts": (
+                ["cell", "time"],
+                cell_counts,
+                {
+                    "long_name": "Observation counts per cell",
+                    "units": "count",
+                    "description": "Same as cell_weights (for compatibility)",
+                },
+            ),
+            "cell_theta": (
+                ["cell"],
+                cell_theta,
+                {
+                    "long_name": "Cell elevation angle",
+                    "units": "degrees",
+                    "description": "Elevation angle from zenith",
+                },
+            ),
+            "cell_phi": (
+                ["cell"],
+                cell_phi,
+                {
+                    "long_name": "Cell azimuth angle",
+                    "units": "degrees",
+                    "description": "Azimuth angle",
+                },
+            ),
         },
         coords={
             "cell": selected_cells,

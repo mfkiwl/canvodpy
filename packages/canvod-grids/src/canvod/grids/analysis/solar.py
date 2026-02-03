@@ -171,8 +171,7 @@ class SolarPositionCalculator:
         sun_eq_ctr = (
             np.sin(np.radians(geom_mean_anom))
             * (1.914602 - jc * (0.004817 + 0.000014 * jc))
-            + np.sin(np.radians(2 * geom_mean_anom))
-            * (0.019993 - 0.000101 * jc)
+            + np.sin(np.radians(2 * geom_mean_anom)) * (0.019993 - 0.000101 * jc)
             + np.sin(np.radians(3 * geom_mean_anom)) * 0.000289
         )
 
@@ -180,14 +179,17 @@ class SolarPositionCalculator:
         sun_true_long = geom_mean_long + sun_eq_ctr
 
         # Sun apparent longitude (degrees)
-        sun_app_long = sun_true_long - 0.00569 - 0.00478 * np.sin(
-            np.radians(125.04 - 1934.136 * jc)
+        sun_app_long = (
+            sun_true_long
+            - 0.00569
+            - 0.00478 * np.sin(np.radians(125.04 - 1934.136 * jc))
         )
 
         # Mean obliquity of ecliptic (degrees)
-        mean_obliq_ecliptic = 23 + (
-            26 + (21.448 - jc * (46.815 + jc * (0.00059 - jc * 0.001813))) / 60
-        ) / 60
+        mean_obliq_ecliptic = (
+            23
+            + (26 + (21.448 - jc * (46.815 + jc * (0.00059 - jc * 0.001813))) / 60) / 60
+        )
 
         # Obliquity correction (degrees)
         obliq_corr = mean_obliq_ecliptic + 0.00256 * np.cos(
@@ -196,9 +198,7 @@ class SolarPositionCalculator:
 
         # Sun declination (degrees)
         sun_decl = np.degrees(
-            np.arcsin(
-                np.sin(np.radians(obliq_corr)) * np.sin(np.radians(sun_app_long))
-            )
+            np.arcsin(np.sin(np.radians(obliq_corr)) * np.sin(np.radians(sun_app_long)))
         )
 
         # Equation of time (minutes)
@@ -206,7 +206,9 @@ class SolarPositionCalculator:
         eq_of_time = 4 * np.degrees(
             var_y * np.sin(2 * np.radians(geom_mean_long))
             - 2 * eccent * np.sin(np.radians(geom_mean_anom))
-            + 4 * eccent * var_y
+            + 4
+            * eccent
+            * var_y
             * np.sin(np.radians(geom_mean_anom))
             * np.cos(2 * np.radians(geom_mean_long))
             - 0.5 * var_y * var_y * np.sin(4 * np.radians(geom_mean_long))
@@ -359,8 +361,8 @@ class SolarPositionCalculator:
         )
 
         if method == "normalize":
-            correction_factor = (
-                np.cos(np.radians(reference_zenith)) / np.cos(np.radians(zenith_da))
+            correction_factor = np.cos(np.radians(reference_zenith)) / np.cos(
+                np.radians(zenith_da)
             )
             correction_factor = correction_factor.clip(0.5, 2.0)
 
@@ -399,8 +401,8 @@ class SolarPositionCalculator:
                     "Residual correction for multi-dimensional data not yet "
                     "implemented, using normalize instead"
                 )
-                correction_factor = (
-                    np.cos(np.radians(reference_zenith)) / np.cos(np.radians(zenith_da))
+                correction_factor = np.cos(np.radians(reference_zenith)) / np.cos(
+                    np.radians(zenith_da)
                 )
                 correction_factor = correction_factor.clip(0.5, 2.0)
                 corrected = data * correction_factor

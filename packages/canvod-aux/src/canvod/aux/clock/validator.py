@@ -37,34 +37,34 @@ def validate_clk_dataset(ds: xr.Dataset) -> dict[str, bool | float | int]:
     results = {}
 
     # Check required variable
-    results['has_clock_offset'] = 'clock_offset' in ds.data_vars
+    results["has_clock_offset"] = "clock_offset" in ds.data_vars
 
     # Check required coordinates
-    results['has_epoch'] = 'epoch' in ds.coords
-    results['has_sv'] = 'sv' in ds.coords
+    results["has_epoch"] = "epoch" in ds.coords
+    results["has_sv"] = "sv" in ds.coords
 
-    if results['has_clock_offset']:
+    if results["has_clock_offset"]:
         # Calculate data completeness
-        clock_data = ds['clock_offset'].values
+        clock_data = ds["clock_offset"].values
         total_values = clock_data.size
         valid_values = np.sum(~np.isnan(clock_data))
-        results['valid_data_percent'] = (valid_values / total_values) * 100
+        results["valid_data_percent"] = (valid_values / total_values) * 100
     else:
-        results['valid_data_percent'] = 0.0
+        results["valid_data_percent"] = 0.0
 
-    if results['has_epoch']:
+    if results["has_epoch"]:
         # Check temporal consistency
-        epochs = ds['epoch'].values
-        results['epochs_monotonic'] = np.all(epochs[:-1] <= epochs[1:])
-        results['num_epochs'] = len(epochs)
+        epochs = ds["epoch"].values
+        results["epochs_monotonic"] = np.all(epochs[:-1] <= epochs[1:])
+        results["num_epochs"] = len(epochs)
     else:
-        results['epochs_monotonic'] = False
-        results['num_epochs'] = 0
+        results["epochs_monotonic"] = False
+        results["num_epochs"] = 0
 
-    if results['has_sv']:
-        results['num_satellites'] = len(ds['sv'])
+    if results["has_sv"]:
+        results["num_satellites"] = len(ds["sv"])
     else:
-        results['num_satellites'] = 0
+        results["num_satellites"] = 0
 
     return results
 
@@ -87,17 +87,15 @@ def check_clk_data_quality(ds: xr.Dataset, min_coverage: float = 80.0) -> bool:
     results = validate_clk_dataset(ds)
 
     # Must have all required components
-    if not (results['has_clock_offset'] and
-            results['has_epoch'] and
-            results['has_sv']):
+    if not (results["has_clock_offset"] and results["has_epoch"] and results["has_sv"]):
         return False
 
     # Must have monotonic epochs
-    if not results['epochs_monotonic']:
+    if not results["epochs_monotonic"]:
         return False
 
     # Must meet minimum coverage requirement
-    if results['valid_data_percent'] < min_coverage:
+    if results["valid_data_percent"] < min_coverage:
         return False
 
     return True

@@ -10,7 +10,7 @@ from typing import Any
 @dataclass
 class PolarPlotStyle:
     """Configuration for 2D polar plot styling (matplotlib).
-    
+
     Parameters
     ----------
     cmap : str, default 'viridis'
@@ -75,7 +75,7 @@ class PolarPlotStyle:
 @dataclass
 class PlotStyle:
     """Unified styling configuration for both 2D and 3D plots.
-    
+
     Parameters
     ----------
     colormap : str, default 'viridis'
@@ -129,7 +129,7 @@ class PlotStyle:
 
     def to_polar_style(self) -> PolarPlotStyle:
         """Convert to PolarPlotStyle for 2D matplotlib plots.
-        
+
         Returns
         -------
         PolarPlotStyle
@@ -146,7 +146,7 @@ class PlotStyle:
 
     def to_plotly_layout(self) -> dict[str, Any]:
         """Convert to plotly layout configuration.
-        
+
         Returns
         -------
         dict
@@ -161,8 +161,8 @@ class PlotStyle:
                 "font": {
                     "family": self.font_family,
                     "size": self.font_size,
-                    "color": "white"
-                }
+                    "color": "white",
+                },
             }
         return {
             "template": "plotly",
@@ -171,19 +171,19 @@ class PlotStyle:
             "font": {
                 "family": self.font_family,
                 "size": self.font_size,
-                "color": self.text_color
-            }
+                "color": self.text_color,
+            },
         }
 
 
 def create_publication_style() -> PlotStyle:
     """Create styling optimized for publication-quality figures.
-    
+
     Returns
     -------
     PlotStyle
         Publication-optimized styling configuration
-    
+
     Examples
     --------
     >>> style = create_publication_style()
@@ -201,23 +201,23 @@ def create_publication_style() -> PlotStyle:
         label_size=14,
         edge_linewidth=0.3,
         opacity=0.9,
-        dark_mode=False
+        dark_mode=False,
     )
 
 
 def create_interactive_style(dark_mode: bool = True) -> PlotStyle:
     """Create styling optimized for interactive exploration.
-    
+
     Parameters
     ----------
     dark_mode : bool, default True
         Use dark theme for better screen viewing
-    
+
     Returns
     -------
     PlotStyle
         Interactive-optimized styling configuration
-    
+
     Examples
     --------
     >>> style = create_interactive_style(dark_mode=True)
@@ -237,5 +237,5 @@ def create_interactive_style(dark_mode: bool = True) -> PlotStyle:
         opacity=0.85,
         marker_size=6,
         wireframe_opacity=0.15,
-        dark_mode=dark_mode
+        dark_mode=dark_mode,
     )

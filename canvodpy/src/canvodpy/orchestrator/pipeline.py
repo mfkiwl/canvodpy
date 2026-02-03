@@ -32,12 +32,12 @@ class PipelineOrchestrator:
 
     """
 
-    def __init__(  # noqa: D107
+    def __init__(
         self,
         site: GnssResearchSite,
         receiver_subpath_template: str = "{receiver_dir}/01_GNSS/01_raw",
         n_max_workers: int = 12,
-        dry_run: bool = False,  # noqa: FBT001, FBT002
+        dry_run: bool = False,
     ) -> None:
         self.site = site
         self.n_max_workers = n_max_workers
@@ -48,7 +48,8 @@ class PipelineOrchestrator:
             base_dir=site.site_config["base_dir"],
             receivers=site.receivers,
             analysis_pairs=site.vod_analyses,
-            receiver_subpath_template=receiver_subpath_template)
+            receiver_subpath_template=receiver_subpath_template,
+        )
 
         self._logger.info(
             "Initialized pipeline for site '%s' with %s analysis pairs%s",
@@ -76,12 +77,16 @@ class PipelineOrchestrator:
             # Add canopy receiver if not already present
             if pair_dirs.canopy_receiver not in grouped[date_key]:
                 grouped[date_key][pair_dirs.canopy_receiver] = (
-                    pair_dirs.canopy_data_dir, "canopy")
+                    pair_dirs.canopy_data_dir,
+                    "canopy",
+                )
 
             # Add reference receiver if not already present
             if pair_dirs.reference_receiver not in grouped[date_key]:
                 grouped[date_key][pair_dirs.reference_receiver] = (
-                    pair_dirs.reference_data_dir, "reference")
+                    pair_dirs.reference_data_dir,
+                    "reference",
+                )
 
         return grouped
 
@@ -100,21 +105,20 @@ class PipelineOrchestrator:
             "site": self.site.site_name,
             "dates": [],
             "total_receivers": 0,
-            "total_files": 0
+            "total_files": 0,
         }
 
         for date_key, receivers in sorted(grouped.items()):
             date_info = {"date": date_key, "receivers": []}
 
-            for receiver_name, (data_dir,
-                                receiver_type) in sorted(receivers.items()):
+            for receiver_name, (data_dir, receiver_type) in sorted(receivers.items()):
                 files = list(data_dir.glob("*.2*o"))
 
                 receiver_info = {
                     "name": receiver_name,
                     "type": receiver_type,
                     "files": len(files),
-                    "dir": str(data_dir)
+                    "dir": str(data_dir),
                 }
 
                 date_info["receivers"].append(receiver_info)
@@ -129,18 +133,20 @@ class PipelineOrchestrator:
         """Print a formatted preview of the processing plan."""
         plan = self.preview_processing_plan()
 
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print(f"PROCESSING PLAN FOR SITE: {plan['site']}")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
         print(f"Total unique receivers to process: {plan['total_receivers']}")
         print(f"Total RINEX files: {plan['total_files']}")
-        print(f"{'='*70}\n")
+        print(f"{'=' * 70}\n")
 
         for date_info in plan["dates"]:
             print(f"Date: {date_info['date']}")
             for receiver_info in date_info["receivers"]:
-                print(f"  {receiver_info['name']} ({receiver_info['type']}): "
-                      f"{receiver_info['files']} files")
+                print(
+                    f"  {receiver_info['name']} ({receiver_info['type']}): "
+                    f"{receiver_info['files']} files"
+                )
                 print(f"    {receiver_info['dir']}")
             print()
 
@@ -149,8 +155,7 @@ class PipelineOrchestrator:
         keep_vars: list[str] | None = None,
         start_from: str | None = None,
         end_at: str | None = None,
-    ) -> Generator[tuple[str, dict[str, xr.Dataset], dict[str, float]],
-                   None, None]:
+    ) -> Generator[tuple[str, dict[str, xr.Dataset], dict[str, float]], None, None]:
         """Process all receivers grouped by date.
 
         Each unique receiver is processed once per day with its actual name
@@ -172,8 +177,7 @@ class PipelineOrchestrator:
 
         """
         if self.dry_run:
-            self._logger.info(
-                "DRY RUN: Simulating processing without execution")
+            self._logger.info("DRY RUN: Simulating processing without execution")
             self.print_preview()
             return
 
@@ -206,24 +210,26 @@ class PipelineOrchestrator:
             # Build receiver_configs for this date
             receiver_configs = [
                 (receiver_name, receiver_type, data_dir)
-                for receiver_name, (data_dir,
-                                    receiver_type) in sorted(receivers.items())
+                for receiver_name, (data_dir, receiver_type) in sorted(
+                    receivers.items()
+                )
             ]
 
             # Convert to MatchedDirs for aux data (use any dir, aux is date-based)
             first_data_dir = receiver_configs[0][2]
             matched_dirs = MatchedDirs(
                 canopy_data_dir=first_data_dir,
-                reference_data_dir=
-                first_data_dir,  # Dummy, only date matters for aux
-                yyyydoy=YYYYDOY.from_str(date_key))
+                reference_data_dir=first_data_dir,  # Dummy, only date matters for aux
+                yyyydoy=YYYYDOY.from_str(date_key),
+            )
 
             # Process all receivers for this date in one go
             try:
                 processor = RinexDataProcessor(
                     matched_data_dirs=matched_dirs,
                     site=self.site,
-                    n_max_workers=self.n_max_workers)
+                    n_max_workers=self.n_max_workers,
+                )
             except RuntimeError as e:
                 if "Failed to download" in str(e):
                     self._logger.warning(
@@ -239,11 +245,8 @@ class PipelineOrchestrator:
             datasets = {}
             timings = {}
             try:
-                for receiver_name, ds, proc_time in (
-                        processor.parsed_rinex_data_gen(
-                            keep_vars=keep_vars,
-                            receiver_configs=receiver_configs
-                        )
+                for receiver_name, ds, proc_time in processor.parsed_rinex_data_gen(
+                    keep_vars=keep_vars, receiver_configs=receiver_configs
                 ):
                     # Receiver name is already correct from the generator.
                     datasets[receiver_name] = ds
@@ -278,7 +281,7 @@ class SingleReceiverProcessor:
 
     """
 
-    def __init__(  # noqa: D107, PLR0913
+    def __init__(
         self,
         receiver_name: str,
         receiver_type: str,
@@ -331,20 +334,24 @@ class SingleReceiverProcessor:
         matched_dirs = MatchedDirs(
             canopy_data_dir=self.data_dir,
             reference_data_dir=self.data_dir,  # Dummy, aux data is date-based
-            yyyydoy=self.yyyydoy)
+            yyyydoy=self.yyyydoy,
+        )
 
         # Initialize processor with receiver name override
-        processor = RinexDataProcessor(matched_data_dirs=matched_dirs,
-                                       site=self.site,
-                                       n_max_workers=self.n_max_workers)
+        processor = RinexDataProcessor(
+            matched_data_dirs=matched_dirs,
+            site=self.site,
+            n_max_workers=self.n_max_workers,
+        )
 
         # Process with actual receiver name (NOT type)
         # This requires modifying RinexDataProcessor to accept receiver_name parameter
-        return processor._process_receiver(  # noqa: SLF001
+        return processor._process_receiver(
             rinex_files=rinex_files,
             receiver_name=self.receiver_name,  # Use actual name as group
             receiver_type=self.receiver_type,
-            keep_vars=keep_vars)
+            keep_vars=keep_vars,
+        )
 
 
 if __name__ == "__main__":
@@ -361,8 +368,7 @@ if __name__ == "__main__":
     )
 
     # Process all dates
-    for date_key, datasets in orchestrator.process_by_date(
-            keep_vars=KEEP_RNX_VARS):
+    for date_key, datasets in orchestrator.process_by_date(keep_vars=KEEP_RNX_VARS):
         print(f"\nProcessed date: {date_key}")
         for receiver_name, ds in datasets.items():
             print(f"  {receiver_name}: {dict(ds.sizes)}")

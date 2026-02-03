@@ -18,24 +18,19 @@ from __future__ import annotations
 import numpy as np
 import polars as pl
 import pytest
-from hypothesis import assume, given, settings
-from hypothesis import strategies as st
-
 from canvod.grids import create_hemigrid
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 
 class TestGridInvariants:
     """Property-based tests for grid structural invariants."""
 
     @given(
-        angular_resolution=st.floats(
-            min_value=2.0, max_value=45.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=2.0, max_value=45.0, exclude_min=False)
     )
     @settings(max_examples=50, deadline=None)
-    def test_grid_ncells_always_positive(
-        self, angular_resolution: float
-    ) -> None:
+    def test_grid_ncells_always_positive(self, angular_resolution: float) -> None:
         """Any valid resolution should create grid with positive cells."""
         # Create equal-area grid
         grid = create_hemigrid("equal_area", angular_resolution)
@@ -45,14 +40,10 @@ class TestGridInvariants:
         assert isinstance(grid.ncells, int)
 
     @given(
-        angular_resolution=st.floats(
-            min_value=5.0, max_value=30.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=5.0, max_value=30.0, exclude_min=False)
     )
     @settings(max_examples=30, deadline=None)
-    def test_grid_coords_in_hemisphere(
-        self, angular_resolution: float
-    ) -> None:
+    def test_grid_coords_in_hemisphere(self, angular_resolution: float) -> None:
         """All cell centers must be within hemisphere bounds."""
         grid = create_hemigrid("equal_area", angular_resolution)
 
@@ -69,9 +60,7 @@ class TestGridInvariants:
         assert np.all(theta <= np.pi / 2)
 
     @given(
-        angular_resolution=st.floats(
-            min_value=5.0, max_value=30.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=5.0, max_value=30.0, exclude_min=False)
     )
     @settings(max_examples=30, deadline=None)
     def test_cell_ids_unique(self, angular_resolution: float) -> None:
@@ -86,16 +75,14 @@ class TestGridInvariants:
         # IDs should be sequential starting from 0
         assert np.all(cell_ids == np.arange(grid.ncells))
 
-    @pytest.mark.skip(reason="Solid angle calculation may not sum exactly to hemisphere")
+    @pytest.mark.skip(
+        reason="Solid angle calculation may not sum exactly to hemisphere"
+    )
     @given(
-        angular_resolution=st.floats(
-            min_value=10.0, max_value=30.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=10.0, max_value=30.0, exclude_min=False)
     )
     @settings(max_examples=20, deadline=None)
-    def test_solid_angles_sum_to_hemisphere(
-        self, angular_resolution: float
-    ) -> None:
+    def test_solid_angles_sum_to_hemisphere(self, angular_resolution: float) -> None:
         """Sum of solid angles should approximately equal hemisphere area."""
         grid = create_hemigrid("equal_area", angular_resolution)
 
@@ -107,19 +94,15 @@ class TestGridInvariants:
 
         # Allow 10% tolerance - grids may not cover exact hemisphere
         # (edge effects, discrete bins)
-        assert (
-            total_solid_angle > expected_area * 0.90
-        ), f"Got {total_solid_angle}, expected ~{expected_area}"
+        assert total_solid_angle > expected_area * 0.90, (
+            f"Got {total_solid_angle}, expected ~{expected_area}"
+        )
 
     @given(
-        angular_resolution=st.floats(
-            min_value=5.0, max_value=30.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=5.0, max_value=30.0, exclude_min=False)
     )
     @settings(max_examples=30, deadline=None)
-    def test_phi_theta_bounds_valid(
-        self, angular_resolution: float
-    ) -> None:
+    def test_phi_theta_bounds_valid(self, angular_resolution: float) -> None:
         """Cell boundaries must satisfy min < max for phi and theta."""
         grid = create_hemigrid("equal_area", angular_resolution)
 
@@ -139,14 +122,10 @@ class TestGridInvariants:
             assert np.all(theta_max > theta_min)
 
     @given(
-        angular_resolution=st.floats(
-            min_value=5.0, max_value=30.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=5.0, max_value=30.0, exclude_min=False)
     )
     @settings(max_examples=30, deadline=None)
-    def test_polars_dataframe_invariant(
-        self, angular_resolution: float
-    ) -> None:
+    def test_polars_dataframe_invariant(self, angular_resolution: float) -> None:
         """Grid structure is always a Polars DataFrame."""
         grid = create_hemigrid("equal_area", angular_resolution)
 
@@ -166,14 +145,10 @@ class TestEqualAreaSpecificProperties:
     """Property tests specific to equal-area grids."""
 
     @given(
-        angular_resolution=st.floats(
-            min_value=10.0, max_value=30.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=10.0, max_value=30.0, exclude_min=False)
     )
     @settings(max_examples=20, deadline=None)
-    def test_equal_area_cells_similar_size(
-        self, angular_resolution: float
-    ) -> None:
+    def test_equal_area_cells_similar_size(self, angular_resolution: float) -> None:
         """Equal-area grids should have cells with similar solid angles."""
         grid = create_hemigrid("equal_area", angular_resolution)
 
@@ -189,9 +164,7 @@ class TestEqualAreaSpecificProperties:
         assert cv < 0.2, f"Coeff of variation {cv:.2%} too high for equal-area"
 
     @given(
-        angular_resolution=st.floats(
-            min_value=10.0, max_value=30.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=10.0, max_value=30.0, exclude_min=False)
     )
     @settings(max_examples=20, deadline=None)
     def test_equal_area_has_rectangular_columns(
@@ -211,14 +184,10 @@ class TestHTMSpecificProperties:
     """Property tests specific to HTM grids."""
 
     @given(
-        angular_resolution=st.floats(
-            min_value=5.0, max_value=20.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=5.0, max_value=20.0, exclude_min=False)
     )
     @settings(max_examples=15, deadline=None)
-    def test_htm_has_vertex_columns(
-        self, angular_resolution: float
-    ) -> None:
+    def test_htm_has_vertex_columns(self, angular_resolution: float) -> None:
         """HTM grids must have htm_vertex_N columns."""
         grid = create_hemigrid("htm", angular_resolution)
 
@@ -228,9 +197,7 @@ class TestHTMSpecificProperties:
         assert "htm_vertex_2" in grid.grid.columns
 
     @given(
-        angular_resolution=st.floats(
-            min_value=5.0, max_value=20.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=5.0, max_value=20.0, exclude_min=False)
     )
     @settings(max_examples=15, deadline=None)
     def test_htm_vertices_are_3d(self, angular_resolution: float) -> None:
@@ -258,9 +225,7 @@ class TestGridMetadataProperties:
     """Property tests for grid metadata."""
 
     @given(
-        angular_resolution=st.floats(
-            min_value=5.0, max_value=30.0, exclude_min=False
-        )
+        angular_resolution=st.floats(min_value=5.0, max_value=30.0, exclude_min=False)
     )
     @settings(max_examples=30, deadline=None)
     def test_grid_type_is_set(self, angular_resolution: float) -> None:

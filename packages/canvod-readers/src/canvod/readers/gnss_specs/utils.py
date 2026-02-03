@@ -103,6 +103,6 @@ def isfloat(value: str) -> bool:
     """
     try:
         float(value)
-        return True  # noqa: TRY300
+        return True
     except ValueError:
         return False

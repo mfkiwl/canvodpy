@@ -58,25 +58,23 @@ class DependencyGraphGenerator:
             return None
 
         cmd = [
-            str(Path.home() / ".local/bin/uv"), "run", "pydeps",
+            str(Path.home() / ".local/bin/uv"),
+            "run",
+            "pydeps",
             module_path,
             "--max-bacon=2",  # Only show 2 levels deep
             "--cluster",  # Cluster by module
             "--noshow",  # Don't open browser
-            "-o", str(output_file),
+            "-o",
+            str(output_file),
             "--exclude=tests",
             "--exclude=setup",
-            "--rmprefix", "canvod.",  # Simplify labels
+            "--rmprefix",
+            "canvod.",  # Simplify labels
         ]
 
         try:
-            subprocess.run(
-                cmd,
-                cwd=pkg_dir,
-                capture_output=True,
-                check=True,
-                text=True
-            )
+            subprocess.run(cmd, cwd=pkg_dir, capture_output=True, check=True, text=True)
             print(f"  ✅ Created {output_file.name}")
             return output_file
         except subprocess.CalledProcessError as e:
@@ -96,27 +94,29 @@ class DependencyGraphGenerator:
         imports = []
         for pkg in self.get_packages():
             module_name = pkg.replace("-", ".")
-            imports.append(f"try:\n    import {module_name}\nexcept ImportError:\n    pass")
+            imports.append(
+                f"try:\n    import {module_name}\nexcept ImportError:\n    pass"
+            )
 
         temp_script.write_text("\n".join(imports))
 
         cmd = [
-            str(Path.home() / ".local/bin/uv"), "run", "pydeps",
+            str(Path.home() / ".local/bin/uv"),
+            "run",
+            "pydeps",
             str(temp_script),
             "--max-bacon=2",
             "--cluster",
             "--noshow",
-            "-o", str(output_file),
-            "--only", "canvod",  # Only show canvod packages
+            "-o",
+            str(output_file),
+            "--only",
+            "canvod",  # Only show canvod packages
         ]
 
         try:
             subprocess.run(
-                cmd,
-                cwd=self.root_dir,
-                capture_output=True,
-                check=True,
-                text=True
+                cmd, cwd=self.root_dir, capture_output=True, check=True, text=True
             )
             print(f"  ✅ Created {output_file.name}")
             temp_script.unlink()  # Clean up
@@ -141,22 +141,22 @@ class DependencyGraphGenerator:
         print("🎯 Generating API orchestration view...")
 
         cmd = [
-            str(Path.home() / ".local/bin/uv"), "run", "pydeps",
+            str(Path.home() / ".local/bin/uv"),
+            "run",
+            "pydeps",
             "canvodpy",
             "--max-bacon=3",
             "--cluster",
             "--noshow",
-            "-o", str(output_file),
-            "--only", "canvod",
+            "-o",
+            str(output_file),
+            "--only",
+            "canvod",
         ]
 
         try:
             subprocess.run(
-                cmd,
-                cwd=self.root_dir,
-                capture_output=True,
-                check=True,
-                text=True
+                cmd, cwd=self.root_dir, capture_output=True, check=True, text=True
             )
             print(f"  ✅ Created {output_file.name}")
             return output_file
@@ -167,7 +167,9 @@ class DependencyGraphGenerator:
     def generate_all_internal(self):
         """Generate internal graphs for all packages."""
         packages = self.get_packages()
-        print(f"\n📊 Generating internal dependencies for {len(packages)} packages...\n")
+        print(
+            f"\n📊 Generating internal dependencies for {len(packages)} packages...\n"
+        )
 
         for pkg in packages:
             self.generate_package_internal(pkg)
@@ -308,16 +310,13 @@ def main():
         "--type",
         choices=["internal", "cross-package", "api", "all"],
         default="all",
-        help="Type of graph to generate"
+        help="Type of graph to generate",
     )
     parser.add_argument(
-        "--package",
-        help="Generate only for specific package (with --type internal)"
+        "--package", help="Generate only for specific package (with --type internal)"
     )
     parser.add_argument(
-        "--open",
-        action="store_true",
-        help="Open index.html after generation"
+        "--open", action="store_true", help="Open index.html after generation"
     )
     args = parser.parse_args()
 
@@ -329,6 +328,7 @@ def main():
         generator.create_index_html()
         if args.open:
             import webbrowser
+
             webbrowser.open((generator.graphs_dir / "index.html").as_uri())
 
     elif args.type == "internal":

@@ -204,7 +204,9 @@ class AdaptedVODWorkflow:
             ratio = proc_days / main_days if main_days > 0 else 0.0
             logger.info(
                 "Coverage check: main=%d days, processed=%d days, ratio=%.1f%%",
-                main_days, proc_days, ratio * 100,
+                main_days,
+                proc_days,
+                ratio * 100,
             )
             return ratio >= 0.7, coverage_info
 
@@ -217,7 +219,10 @@ class AdaptedVODWorkflow:
         if not compatible:
             logger.warning(
                 "Temporal coverage mismatch: processed=%s→%s, requested=%s→%s",
-                proc_start, proc_end, req_start, req_end,
+                proc_start,
+                proc_end,
+                req_start,
+                req_end,
             )
         return compatible, coverage_info
 
@@ -336,8 +341,12 @@ class AdaptedVODWorkflow:
         logger.info("PARALLEL HAMPEL — complete temporal coverage")
         logger.info(
             "Range: %s → %s | threshold=%.1f | min_obs=%d | batch=%d | workers=%s",
-            start_date, end_date, threshold, min_obs_per_sid,
-            spatial_batch_size, n_workers or "auto",
+            start_date,
+            end_date,
+            threshold,
+            min_obs_per_sid,
+            spatial_batch_size,
+            n_workers or "auto",
         )
 
         # --- guard: existing data ---
@@ -429,14 +438,12 @@ class AdaptedVODWorkflow:
                     dataset_start = pd.to_datetime(hampel_ds.epoch.min().values).date()
                     dataset_end = pd.to_datetime(hampel_ds.epoch.max().values).date()
 
-                    start_ok = (
-                        normalize_datetime_for_comparison(time_range[0])
-                        >= normalize_datetime_for_comparison(dataset_start)
-                    )
-                    end_ok = (
-                        normalize_datetime_for_comparison(time_range[1])
-                        <= normalize_datetime_for_comparison(dataset_end)
-                    )
+                    start_ok = normalize_datetime_for_comparison(
+                        time_range[0]
+                    ) >= normalize_datetime_for_comparison(dataset_start)
+                    end_ok = normalize_datetime_for_comparison(
+                        time_range[1]
+                    ) <= normalize_datetime_for_comparison(dataset_end)
 
                     if start_ok and end_ok:
                         hampel_ds = hampel_ds.sel(
@@ -510,8 +517,7 @@ class AdaptedVODWorkflow:
         exists = self._try_load_hampel() is not None
         if exists and not force_recreate:
             logger.warning(
-                "Filtered data already exists. Pass force_recreate=True "
-                "to overwrite."
+                "Filtered data already exists. Pass force_recreate=True to overwrite."
             )
             return False
         if exists and force_recreate:
@@ -620,7 +626,10 @@ def _create_processed_data_fast_hampel(
     logger.info("CREATING %s HAMPEL FILTERED DATA", mode_name)
     logger.info(
         "window=%.1fh sigma=%.1f min_points=%d cell_batch=%d workers=%s",
-        window_hours, sigma_threshold, min_points, cell_batch_size,
+        window_hours,
+        sigma_threshold,
+        min_points,
+        cell_batch_size,
         n_workers or "auto",
     )
 
@@ -633,6 +642,7 @@ def _create_processed_data_fast_hampel(
         from canvod.store.grid_adapters.complete_grid_vod_workflow import (
             store_grid_to_vod_store,
         )
+
         grid = create_hemigrid(grid_type="equal_area", angular_resolution=2)
         store_grid_to_vod_store(
             store_path=workflow_instance.vod_store_path,

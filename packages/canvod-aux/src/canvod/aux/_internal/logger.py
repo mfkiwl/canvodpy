@@ -6,6 +6,7 @@ See /DUPLICATION_TRACKER.md for copy locations.
 
 Provides lightweight logging with optional file-based context.
 """
+
 import contextvars
 import logging
 from pathlib import Path
@@ -31,8 +32,8 @@ def _configure_base_logger() -> logging.Logger:
 
         # Formatter
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
         console_handler.setFormatter(formatter)
 

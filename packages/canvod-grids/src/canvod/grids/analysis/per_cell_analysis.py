@@ -86,9 +86,7 @@ class PerCellVODAnalyzer:
             self.labels = ["Dataset"] if labels is None else [labels[0]]
         else:
             self.datasets = datasets
-            self.labels = labels or [
-                f"Dataset {i + 1}" for i in range(len(datasets))
-            ]
+            self.labels = labels or [f"Dataset {i + 1}" for i in range(len(datasets))]
 
         self._validate_datasets()
         logger.info(
@@ -103,7 +101,7 @@ class PerCellVODAnalyzer:
         for i, ds in enumerate(self.datasets):
             missing = required - set(ds.data_vars)
             if missing:
-                raise ValueError(f"Dataset {i+1} missing variables: {missing}")
+                raise ValueError(f"Dataset {i + 1} missing variables: {missing}")
 
     # ------------------------------------------------------------------
     # Computation helpers
@@ -238,9 +236,7 @@ class PerCellVODAnalyzer:
                     h_counts.append(d["counts"][idx[0]])
             if h_means:
                 avg_means.append(np.nanmean(h_means))
-                avg_stds.append(
-                    np.sqrt(np.nansum(np.array(h_stds) ** 2)) / len(h_stds)
-                )
+                avg_stds.append(np.sqrt(np.nansum(np.array(h_stds) ** 2)) / len(h_stds))
                 avg_counts.append(int(np.sum(h_counts)))
 
         return {
@@ -281,7 +277,7 @@ class PerCellVODAnalyzer:
                 clean = clean[np.isfinite(clean)]
                 if len(clean) > 0:
                     binned.append(clean)
-                    labels.append(f"{edges[i]:.0f}-{edges[i+1]:.0f}°")
+                    labels.append(f"{edges[i]:.0f}-{edges[i + 1]:.0f}°")
 
         return {
             "binned_data": binned,
@@ -304,7 +300,7 @@ class PerCellVODAnalyzer:
                     combined.extend(d["binned_data"][idx[0]])
             if combined:
                 avg_binned.append(combined)
-                avg_labels.append(f"{c-2.5:.0f}-{c+2.5:.0f}°")
+                avg_labels.append(f"{c - 2.5:.0f}-{c + 2.5:.0f}°")
 
         return {
             "binned_data": avg_binned,
@@ -379,9 +375,7 @@ class PerCellVODAnalyzer:
             n = len(time_coord)
             ticks = np.arange(0, n, max(1, n // 10))
             tick_labels = (
-                pd.to_datetime(time_coord)[ticks]
-                .strftime("%Y-%m-%d")
-                .tolist()
+                pd.to_datetime(time_coord)[ticks].strftime("%Y-%m-%d").tolist()
             )
             xlabel = "Date"
 

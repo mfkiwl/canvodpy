@@ -53,8 +53,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
     # ========================================
     # CODE (Center for Orbit Determination in Europe)
     # ========================================
-    ("COD", "final"):
-    ProductSpec(
+    ("COD", "final"): ProductSpec(
         agency_code="COD",
         agency_name="Center for Orbit Determination in Europe",
         product_type="final",
@@ -66,8 +65,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=168,  # ~7 days
         description="CODE final multi-GNSS orbits and clocks",
     ),
-    ("COD", "rapid"):
-    ProductSpec(
+    ("COD", "rapid"): ProductSpec(
         agency_code="COD",
         agency_name="Center for Orbit Determination in Europe",
         product_type="rapid",
@@ -79,7 +77,6 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=17,  # ~17 hours
         description="CODE rapid multi-GNSS orbits and clocks",
     ),
-
     # ========================================
     # GFZ (GeoForschungsZentrum Potsdam)
     # Note: GFZ products use different naming conventions by date:
@@ -87,8 +84,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
     #     (not yet supported)
     #   - GPS week >=2038 (Jan 27, 2019+): Long name format "GFZ0MGXRAP" (supported)
     # ========================================
-    ("GFZ", "final"):
-    ProductSpec(
+    ("GFZ", "final"): ProductSpec(
         agency_code="GFZ",
         agency_name="GeoForschungsZentrum Potsdam",
         product_type="final",
@@ -100,8 +96,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=336,  # ~14 days
         description="GFZ final multi-GNSS orbits and clocks",
     ),
-    ("GFZ", "rapid"):
-    ProductSpec(
+    ("GFZ", "rapid"): ProductSpec(
         agency_code="GFZ",
         agency_name="GeoForschungsZentrum Potsdam",
         product_type="rapid",
@@ -113,12 +108,10 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=17,  # ~17 hours
         description="GFZ rapid multi-GNSS orbits and clocks",
     ),
-
     # ========================================
     # ESA (European Space Agency)
     # ========================================
-    ("ESA", "final"):
-    ProductSpec(
+    ("ESA", "final"): ProductSpec(
         agency_code="ESA",
         agency_name="European Space Agency",
         product_type="final",
@@ -130,8 +123,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=168,  # ~7 days
         description="ESA final multi-GNSS orbits and clocks",
     ),
-    ("ESA", "rapid"):
-    ProductSpec(
+    ("ESA", "rapid"): ProductSpec(
         agency_code="ESA",
         agency_name="European Space Agency",
         product_type="rapid",
@@ -143,12 +135,10 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=17,  # ~17 hours
         description="ESA rapid multi-GNSS orbits and clocks",
     ),
-
     # ========================================
     # JPL (Jet Propulsion Laboratory)
     # ========================================
-    ("JPL", "final"):
-    ProductSpec(
+    ("JPL", "final"): ProductSpec(
         agency_code="JPL",
         agency_name="Jet Propulsion Laboratory",
         product_type="final",
@@ -160,8 +150,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=240,  # ~10 days
         description="JPL final multi-GNSS orbits and clocks",
     ),
-    ("JPL", "rapid"):
-    ProductSpec(
+    ("JPL", "rapid"): ProductSpec(
         agency_code="JPL",
         agency_name="Jet Propulsion Laboratory",
         product_type="rapid",
@@ -173,12 +162,10 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=24,  # ~24 hours
         description="JPL rapid multi-GNSS orbits and clocks",
     ),
-
     # ========================================
     # IGS (International GNSS Service)
     # ========================================
-    ("IGS", "final"):
-    ProductSpec(
+    ("IGS", "final"): ProductSpec(
         agency_code="IGS",
         agency_name="International GNSS Service",
         product_type="final",
@@ -190,8 +177,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=336,  # ~14 days
         description="IGS combined final multi-GNSS orbits and clocks",
     ),
-    ("IGS", "rapid"):
-    ProductSpec(
+    ("IGS", "rapid"): ProductSpec(
         agency_code="IGS",
         agency_name="International GNSS Service",
         product_type="rapid",
@@ -203,12 +189,10 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=17,  # ~17 hours
         description="IGS combined rapid multi-GNSS orbits and clocks",
     ),
-
     # ========================================
     # WHU (Wuhan University)
     # ========================================
-    ("WHU", "final"):
-    ProductSpec(
+    ("WHU", "final"): ProductSpec(
         agency_code="WHU",
         agency_name="Wuhan University",
         product_type="final",
@@ -220,12 +204,10 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=168,  # ~7 days
         description="WHU final multi-GNSS orbits and clocks",
     ),
-
     # ========================================
     # CNES (Centre National d'Études Spatiales)
     # ========================================
-    ("GRG", "final"):
-    ProductSpec(
+    ("GRG", "final"): ProductSpec(
         agency_code="GRG",
         agency_name="Centre National d'Études Spatiales",
         product_type="final",
@@ -237,12 +219,10 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         latency_hours=192,  # ~8 days
         description="CNES/GRG final multi-GNSS orbits and clocks",
     ),
-
     # ========================================
     # SHA (Shanghai Observatory)
     # ========================================
-    ("SHA", "final"):
-    ProductSpec(
+    ("SHA", "final"): ProductSpec(
         agency_code="SHA",
         agency_name="Shanghai Observatory",
         product_type="final",
@@ -279,8 +259,10 @@ def get_product_spec(agency: str, product_type: str) -> ProductSpec:
     key = (agency.upper(), product_type.lower())
     if key not in PRODUCT_REGISTRY:
         available = list(PRODUCT_REGISTRY.keys())
-        raise ValueError(f"Product {agency}/{product_type} not supported.\n"
-                         f"Available products: {available}")
+        raise ValueError(
+            f"Product {agency}/{product_type} not supported.\n"
+            f"Available products: {available}"
+        )
     return PRODUCT_REGISTRY[key]
 
 
@@ -331,7 +313,8 @@ def get_products_for_agency(agency: str) -> list[str]:
     """
     agency_upper = agency.upper()
     return [
-        product_type for (ag, product_type) in PRODUCT_REGISTRY.keys()
+        product_type
+        for (ag, product_type) in PRODUCT_REGISTRY.keys()
         if ag == agency_upper
     ]
 

@@ -133,8 +133,7 @@ class DataDirMatcher:
 
         with ThreadPoolExecutor() as executor:
             future_to_dir = {
-                executor.submit(self._has_rinex_files, d): d
-                for d in date_dirs
+                executor.submit(self._has_rinex_files, d): d for d in date_dirs
             }
 
             for future in as_completed(future_to_dir):
@@ -265,9 +264,7 @@ class PairDataDirMatcher:
         mapping = {}
         for receiver_name, config in self.receivers.items():
             if "directory" not in config:
-                msg = (
-                    f"Receiver '{receiver_name}' missing 'directory' in config"
-                )
+                msg = f"Receiver '{receiver_name}' missing 'directory' in config"
                 raise ValueError(msg)
             mapping[receiver_name] = config["directory"]
         return mapping
@@ -321,10 +318,7 @@ class PairDataDirMatcher:
                     continue
 
                 # Check if directory name is 5 digits
-                if (
-                    len(date_dir.name) != DATE_DIR_LEN
-                    or not date_dir.name.isdigit()
-                ):
+                if len(date_dir.name) != DATE_DIR_LEN or not date_dir.name.isdigit():
                     continue
 
                 # Skip placeholder directories
@@ -361,11 +355,11 @@ class PairDataDirMatcher:
                 reference_path = self._get_receiver_path(reference_rx, yyyydoy)
 
                 # Check for RINEX files
-                canopy_has_files = (
-                    canopy_path.exists() and any(canopy_path.glob("*.2*o"))
+                canopy_has_files = canopy_path.exists() and any(
+                    canopy_path.glob("*.2*o")
                 )
-                reference_has_files = (
-                    reference_path.exists() and any(reference_path.glob("*.2*o"))
+                reference_has_files = reference_path.exists() and any(
+                    reference_path.glob("*.2*o")
                 )
 
                 # Only yield if both directories exist and have data
