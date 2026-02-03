@@ -43,6 +43,8 @@ module-name = "canvod.vod"
 [tool.ruff]
 line-length = 88
 target-version = "py313"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = []
 
