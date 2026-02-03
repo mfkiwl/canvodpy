@@ -1,13 +1,31 @@
 #!/usr/bin/env python3
-"""Quick test to verify SID filtering works."""
+"""Integration test to verify SID filtering works.
 
-import sys
+This test is skipped in CI environments where config files are not available.
+"""
 
-print("=" * 80, flush=True)
-print("SID FILTERING TEST", flush=True)
-print("=" * 80, flush=True)
+import os
+from pathlib import Path
 
-try:
+import pytest
+
+
+# Check if config files exist
+CONFIG_DIR = Path.cwd() / "config"
+HAS_CONFIG = (CONFIG_DIR / "sites.yaml").exists()
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    not HAS_CONFIG,
+    reason="Integration test requires config files (not available in CI)"
+)
+def test_sid_filtering_integration():
+    """Test SID filtering with full orchestrator."""
+    print("=" * 80, flush=True)
+    print("SID FILTERING TEST", flush=True)
+    print("=" * 80, flush=True)
+    
     print("\n1. Importing modules...", flush=True)
     from canvodpy.globals import KEEP_RNX_VARS
     from canvod.store import GnssResearchSite
@@ -36,9 +54,23 @@ try:
     print("\n" + "=" * 80, flush=True)
     print("✅ TEST COMPLETE - NO ERRORS!", flush=True)
     print("=" * 80, flush=True)
+    
+    # Test assertions
+    assert counter == 1, "Should have processed exactly one date"
 
-except Exception as e:
-    print(f"\n❌ ERROR: {e}", flush=True)
-    import traceback
-    traceback.print_exc()
-    sys.exit(1)
+
+if __name__ == "__main__":
+    # Allow running as script for local testing
+    import sys
+    try:
+        if not HAS_CONFIG:
+            print("⚠️  Skipping: Config files not found")
+            sys.exit(0)
+        test_sid_filtering_integration()
+    except Exception as e:
+        print(f"\n❌ ERROR: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
