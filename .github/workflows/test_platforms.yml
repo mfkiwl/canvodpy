@@ -11,26 +11,17 @@ jobs:
             matrix:
                 include:
                     - os: ubuntu-latest
-                      python-version: '3.12'
-                      name: '🐍 3.12 • 🐧 Ubuntu'
-                    - os: ubuntu-latest
                       python-version: '3.13'
                       name: '🐍 3.13 • 🐧 Ubuntu'
                     - os: ubuntu-latest
                       python-version: '3.14'
                       name: '🐍 3.14 • 🐧 Ubuntu'
-                    # - os: windows-latest  # Disabled: 'aux' is a reserved name on Windows
-                    #   python-version: '3.12'
-                    #   name: "🐍 3.12 • 🪟 Windows"
-                    # - os: windows-latest
+                    # - os: windows-latest # Disabled: 'aux' is a reserved name on Windows
                     #   python-version: '3.13'
                     #   name: "🐍 3.13 • 🪟 Windows"
                     # - os: windows-latest
                     #   python-version: '3.14'
                     #   name: "🐍 3.14 • 🪟 Windows"
-                    - os: macos-latest
-                      python-version: '3.12'
-                      name: '🐍 3.12 • 🍎 macOS'
                     - os: macos-latest
                       python-version: '3.13'
                       name: '🐍 3.13 • 🍎 macOS'
