@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Test config loader works from any directory."""
 
+import shutil
 import subprocess
 from pathlib import Path
 
-# Find monorepo root (has pyproject.toml)
+import pytest
+
+
 def find_monorepo_root(start_path: Path) -> Path:
+    """Find monorepo root by looking for pyproject.toml."""
     current = start_path
     while current != current.parent:
         if (current / "pyproject.toml").exists():
@@ -13,10 +17,14 @@ def find_monorepo_root(start_path: Path) -> Path:
         current = current.parent
     raise RuntimeError("Could not find monorepo root")
 
-monorepo_root = find_monorepo_root(Path(__file__).parent)
+
+# Find monorepo and check if config exists
+MONOREPO_ROOT = find_monorepo_root(Path(__file__).parent)
+CONFIG_DIR = MONOREPO_ROOT / "config"
+HAS_CONFIG = (CONFIG_DIR / "sites.yaml").exists()
 
 # Test directories (relative to monorepo root)
-test_dirs = [
+TEST_DIRS = [
     ".",
     "canvodpy",
     "packages/canvod-readers",
@@ -24,44 +32,85 @@ test_dirs = [
     "packages/canvod-utils/src/canvod/utils/config",
 ]
 
-print("=" * 70)
-print("Testing config loader from multiple directories")
-print("=" * 70)
 
-failed = []
-for test_dir in test_dirs:
-    full_path = monorepo_root / test_dir
-    if not full_path.exists():
-        print(f"\n📁 Testing from: {test_dir}")
-        print(f"   ⏭️  SKIPPED (directory doesn't exist)")
-        continue
-        
-    print(f"\n📁 Testing from: {test_dir}")
+@pytest.mark.skipif(
+    not HAS_CONFIG,
+    reason="Integration test requires config files"
+)
+@pytest.mark.parametrize("test_dir", TEST_DIRS)
+def test_config_loader_from_directory(test_dir: str):
+    """Test that config loader works from various directories in monorepo."""
+    full_path = MONOREPO_ROOT / test_dir
     
+    # Skip if directory doesn't exist
+    if not full_path.exists():
+        pytest.skip(f"Directory doesn't exist: {test_dir}")
+    
+    # Find python executable (use current interpreter)
+    python_exe = shutil.which("python") or shutil.which("python3")
+    if not python_exe:
+        pytest.skip("Python executable not found")
+    
+    # Test loading config from this directory
     result = subprocess.run(
-        [str(Path.home() / ".local/bin/uv"), "run", "python", "-c", 
-         "from canvod.utils.config import load_config; "
-         "config = load_config(); "
-         "print(f'✅ Sites: {list(config.sites.sites.keys())}')"],
+        [
+            python_exe, "-c",
+            "from canvod.utils.config import load_config; "
+            "config = load_config(); "
+            "print(f'Sites: {list(config.sites.sites.keys())}')"
+        ],
         cwd=full_path,
         capture_output=True,
         text=True,
+        timeout=10,
     )
     
-    if result.returncode == 0 and "rosalia" in result.stdout:
-        print(f"   ✅ SUCCESS")
-        print(f"   {result.stdout.strip()}")
-    else:
-        print(f"   ❌ FAILED")
-        print(f"   stdout: {result.stdout}")
-        print(f"   stderr: {result.stderr}")
-        failed.append(test_dir)
+    # Verify it worked
+    assert result.returncode == 0, (
+        f"Config loading failed from {test_dir}\n"
+        f"stdout: {result.stdout}\n"
+        f"stderr: {result.stderr}"
+    )
+    
+    # Verify expected site exists in config
+    assert "rosalia" in result.stdout.lower(), (
+        f"Expected 'rosalia' site in output from {test_dir}\n"
+        f"Got: {result.stdout}"
+    )
 
-print("\n" + "=" * 70)
-if failed:
-    print(f"❌ FAILED: {len(failed)}/{len(test_dirs)} directories")
-    for d in failed:
-        print(f"   - {d}")
-else:
-    print(f"✅ SUCCESS: All {len(test_dirs)} directories passed!")
-print("=" * 70)
+
+if __name__ == "__main__":
+    """Allow running as script for manual testing."""
+    if not HAS_CONFIG:
+        print("⚠️  Skipping: Config files not found")
+        exit(0)
+    
+    print("=" * 70)
+    print("Testing config loader from multiple directories")
+    print("=" * 70)
+    
+    failed = []
+    for test_dir in TEST_DIRS:
+        full_path = MONOREPO_ROOT / test_dir
+        if not full_path.exists():
+            print(f"\n📁 Testing from: {test_dir}")
+            print(f"   ⏭️  SKIPPED (directory doesn't exist)")
+            continue
+        
+        print(f"\n📁 Testing from: {test_dir}")
+        
+        try:
+            test_config_loader_from_directory(test_dir)
+            print(f"   ✅ SUCCESS")
+        except Exception as e:
+            print(f"   ❌ FAILED: {e}")
+            failed.append(test_dir)
+    
+    print("\n" + "=" * 70)
+    if failed:
+        print(f"❌ FAILED: {len(failed)}/{len(TEST_DIRS)} directories")
+        for d in failed:
+            print(f"   - {d}")
+    else:
+        print(f"✅ SUCCESS: All {len(TEST_DIRS)} directories passed!")
+    print("=" * 70)

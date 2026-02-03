@@ -63,6 +63,9 @@ docstring-code-line-length = "dynamic"
 
 [tool.pytest.ini_options]
 addopts = "--cov --cov-report term-missing -rsx --verbose --color=yes"
+markers = [
+    "integration: marks tests as integration tests (may require config files or external resources)",
+]
 
 [tool.coverage.run]
 relative_files = true
