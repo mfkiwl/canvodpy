@@ -17,38 +17,40 @@ from .models import CanvodConfig, ProcessingConfig, SidsConfig, SitesConfig
 
 
 def find_monorepo_root() -> Path:
-    """Find the monorepo root by looking for .git directory.
-    
+    """Find the monorepo root by looking for a .git directory.
+
     Returns
     -------
     Path
-        Monorepo root directory
-        
+        Monorepo root directory.
+
     Raises
     ------
     RuntimeError
-        If monorepo root cannot be found
+        If the monorepo root cannot be found.
     """
     current = Path.cwd().resolve()
-    
-    # Walk up directory tree looking for .git DIRECTORY (not file, which indicates submodule)
+
+    # Walk up directory tree looking for .git directory (not file).
     for parent in [current] + list(current.parents):
         git_path = parent / ".git"
         if git_path.exists() and git_path.is_dir():
             return parent
-    
-    # Fallback: if this file is in packages/canvod-utils/src/canvod/utils/config/loader.py
-    # then monorepo root is 7 levels up
+
+    # Fallback: if this file is in
+    # packages/canvod-utils/src/canvod/utils/config/loader.py then monorepo root
+    # is 7 levels up.
     try:
         loader_file = Path(__file__).resolve()
-        # loader.py -> config -> utils -> canvod -> src -> canvod-utils -> packages -> root
+        # loader.py -> config -> utils -> canvod -> src -> canvod-utils ->
+        # packages -> root.
         monorepo_root = loader_file.parent.parent.parent.parent.parent.parent.parent
         git_path = monorepo_root / ".git"
         if git_path.exists() and git_path.is_dir():
             return monorepo_root
     except Exception:
         pass
-    
+
     raise RuntimeError("Cannot find monorepo root (no .git directory found)")
 
 
@@ -63,6 +65,14 @@ class ConfigLoader:
     """
 
     def __init__(self, config_dir: Path | None = None) -> None:
+        """Initialize the loader with an optional config directory.
+
+        Parameters
+        ----------
+        config_dir : Path | None, optional
+            Directory containing config files. If None, uses the monorepo
+            root config directory or a local fallback.
+        """
         if config_dir is None:
             try:
                 monorepo_root = find_monorepo_root()
@@ -125,13 +135,20 @@ class ConfigLoader:
         return ProcessingConfig(**defaults)
 
     def _load_sites(self) -> SitesConfig:
-        """Load sites config."""
+        """Load sites config.
+        
+        Raises
+        ------
+        FileNotFoundError
+            If sites.yaml config file is missing.
+        """
         user_file = self.config_dir / "sites.yaml"
 
         if not user_file.exists():
-            print(f"\n❌ Required configuration file missing: {user_file}")
-            print("   Run: canvodpy config init\n")
-            sys.exit(1)
+            raise FileNotFoundError(
+                f"Required configuration file missing: {user_file}\n"
+                f"Run: canvodpy config init"
+            )
 
         data = self._load_yaml(user_file)
         return SitesConfig(**data)
@@ -197,7 +214,17 @@ class ConfigLoader:
         return result
 
     def _show_validation_error(self, error: ValidationError) -> None:
-        """Show user-friendly validation error."""
+        """Show a user-friendly validation error.
+
+        Parameters
+        ----------
+        error : ValidationError
+            Validation error raised by Pydantic.
+
+        Returns
+        -------
+        None
+        """
         print("\n" + "=" * 70)
         print("❌ Configuration Validation Error")
         print("=" * 70)

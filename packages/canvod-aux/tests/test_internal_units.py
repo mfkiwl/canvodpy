@@ -9,23 +9,30 @@ from canvod.aux._internal import SPEEDOFLIGHT, UREG
 
 
 def test_ureg_import():
-    """Test that UREG can be imported and is a UnitRegistry."""
+    """Test that UREG can be imported and is a valid registry."""
     import pint
-    assert isinstance(UREG, pint.UnitRegistry)
+    # get_application_registry() returns an ApplicationRegistry
+    assert isinstance(UREG, (pint.UnitRegistry, 
+                             pint.registry.LazyRegistry,
+                             pint.registry.ApplicationRegistry))
+    # Verify it works by accessing a unit
+    assert hasattr(UREG, 'meter')
+    meter = UREG.meter
+    assert meter is not None
 
 
 def test_custom_db_unit():
     """Test that custom dB unit is defined."""
-    # Create a quantity with dB units
-    db_value = 10 * UREG.dB
-    assert db_value.units == UREG.dB
+    # dB is an offset unit in Pint - use Quantity constructor
+    db_value = UREG.Quantity(10, 'dB')
+    assert str(db_value.units) == 'decibel'
 
 
 def test_custom_dbhz_unit():
     """Test that custom dBHz unit is defined."""
-    # Create a quantity with dBHz units
-    dbhz_value = 40 * UREG.dBHz
-    assert dbhz_value.units == UREG.dBHz
+    # dBHz is a logarithmic unit - use Quantity constructor
+    dbhz_value = UREG.Quantity(40, 'dBHz')
+    assert str(dbhz_value.units) == 'dBHz'
 
 
 def test_speedoflight_constant():
