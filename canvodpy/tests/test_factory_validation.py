@@ -5,9 +5,7 @@ Tests factory registration, validation, and component creation.
 """
 
 import pytest
-
 from canvodpy.factories import (
-    AugmentationFactory,
     GridFactory,
     ReaderFactory,
     VODFactory,
@@ -44,9 +42,7 @@ class TestFactoryCreation:
 
     def test_create_grid_builder(self):
         """Should create grid builder instance."""
-        builder = GridFactory.create(
-            "equal_area", angular_resolution=10.0
-        )
+        builder = GridFactory.create("equal_area", angular_resolution=10.0)
         assert builder is not None
         assert hasattr(builder, "build")
 
@@ -74,8 +70,6 @@ class TestFactoryABCValidation:
 
         class NotABuilder:
             """Not a grid builder."""
-
-            pass
 
         # Set ABC class first
         GridFactory._set_abc_class()
@@ -113,15 +107,12 @@ class TestFactoryPydanticValidation:
         # So invalid types raise TypeError, not ValidationError
         with pytest.raises(TypeError):
             # angular_resolution should be float, not string
-            GridFactory.create(
-                "equal_area", angular_resolution="invalid"
-            )
+            GridFactory.create("equal_area", angular_resolution="invalid")
 
     def test_missing_required_params_fail(self):
         """Should fail if required parameters missing."""
         # Note: Most components have defaults, but this tests the pattern
         # Implementation depends on specific component requirements
-        pass
 
 
 class TestFactoryIsolation:
@@ -172,12 +163,8 @@ class TestFactoryThreadSafety:
 
     def test_multiple_creates_dont_interfere(self):
         """Multiple create calls should be independent."""
-        grid1 = GridFactory.create(
-            "equal_area", angular_resolution=5.0
-        )
-        grid2 = GridFactory.create(
-            "equal_area", angular_resolution=10.0
-        )
+        grid1 = GridFactory.create("equal_area", angular_resolution=5.0)
+        grid2 = GridFactory.create("equal_area", angular_resolution=10.0)
 
         # Should create independent builders
         assert grid1 is not grid2

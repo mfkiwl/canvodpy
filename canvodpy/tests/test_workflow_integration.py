@@ -5,9 +5,9 @@ Tests workflow orchestration, factory integration, and logging.
 """
 
 import pytest
+from canvodpy.factories import GridFactory, ReaderFactory
 
 from canvodpy import VODWorkflow
-from canvodpy.factories import GridFactory, ReaderFactory
 
 
 class TestWorkflowInitialization:
@@ -149,7 +149,6 @@ class TestWorkflowFactoryIntegration:
         """Should use registered factories."""
         # If we register a custom component, workflow should find it
         # This is tested implicitly in factory tests
-        pass
 
 
 class TestWorkflowErrorHandling:
@@ -157,12 +156,12 @@ class TestWorkflowErrorHandling:
 
     def test_workflow_invalid_site_fails(self):
         """Should fail gracefully with invalid site."""
-        with pytest.raises(Exception):
+        with pytest.raises(Exception, match=r"NonexistentSite123|not found"):
             VODWorkflow(site="NonexistentSite123")
 
     def test_workflow_invalid_grid_type_fails(self):
         """Should fail with invalid grid type."""
-        with pytest.raises(ValueError):
+        with pytest.raises(KeyError, match="nonexistent_grid"):
             VODWorkflow(site="Rosalia", grid="nonexistent_grid")
 
     def test_workflow_invalid_reader_fails(self):

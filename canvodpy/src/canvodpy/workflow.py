@@ -274,9 +274,7 @@ class VODWorkflow:
         Uses VODFactory to create calculator. Supports community
         extensions via factory registration.
         """
-        log = self.log.bind(
-            date=date, canopy=canopy_receiver, sky=sky_receiver
-        )
+        log = self.log.bind(date=date, canopy=canopy_receiver, sky=sky_receiver)
         log.info("calculate_vod_started")
 
         # Load or retrieve datasets
@@ -315,9 +313,7 @@ class VODWorkflow:
         )
         return vod_ds
 
-    def _load_rinex(
-        self, receiver: str, date: str, log: BoundLogger
-    ) -> xr.Dataset:
+    def _load_rinex(self, receiver: str, date: str, log: BoundLogger) -> xr.Dataset:
         """
         Load RINEX using factory.
 
@@ -398,9 +394,7 @@ class VODWorkflow:
         log.debug("augment_data_complete")
         return ds
 
-    def _assign_grid_cells(
-        self, ds: xr.Dataset, log: BoundLogger
-    ) -> xr.Dataset:
+    def _assign_grid_cells(self, ds: xr.Dataset, log: BoundLogger) -> xr.Dataset:
         """
         Assign grid cells to observations.
 

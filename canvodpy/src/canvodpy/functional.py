@@ -21,7 +21,7 @@ Airflow DAG:
     ...     read_rinex_to_file,
     ...     calculate_vod_to_file,
     ... )
-    >>> 
+    >>>
     >>> @task
     >>> def process():
     ...     canopy = read_rinex_to_file("canopy.rnx", "/tmp/canopy.nc")
@@ -290,7 +290,7 @@ def read_rinex_to_file(
     Airflow task:
 
         >>> from airflow.decorators import task
-        >>> 
+        >>>
         >>> @task
         >>> def load_rinex():
         ...     return read_rinex_to_file(
@@ -303,9 +303,7 @@ def read_rinex_to_file(
     Suitable for use in Airflow tasks with @task decorator.
     Returns path string that can be serialized in XCom.
     """
-    log.info(
-        "read_rinex_to_file", rinex=str(rinex_path), output=str(output_path)
-    )
+    log.info("read_rinex_to_file", rinex=str(rinex_path), output=str(output_path))
 
     # Use data-returning version
     ds = read_rinex(rinex_path, reader, **reader_kwargs)
@@ -484,7 +482,7 @@ def calculate_vod_to_file(
 
         >>> from airflow import DAG
         >>> from airflow.decorators import task
-        >>> 
+        >>>
         >>> @task
         >>> def pipeline():
         ...     canopy = read_rinex_to_file("c.rnx", "/tmp/c.nc")

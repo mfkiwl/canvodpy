@@ -10,7 +10,7 @@ Register and create a reader:
 
     >>> from canvodpy.factories import ReaderFactory
     >>> from canvod.readers import Rnxv3Obs
-    >>> 
+    >>>
     >>> ReaderFactory.register("rinex3", Rnxv3Obs)
     >>> reader = ReaderFactory.create("rinex3", path="data.rnx")
 
@@ -27,7 +27,7 @@ Community extension:
 
     >>> from canvodpy.factories import VODFactory
     >>> from my_package import MLVODCalculator
-    >>> 
+    >>>
     >>> VODFactory.register("ml_vod", MLVODCalculator)
     >>> calc = VODFactory.create("ml_vod", model_path="model.pt")
 """
@@ -35,7 +35,7 @@ Community extension:
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Generic, TypeVar
+from typing import Any, ClassVar, Generic, TypeVar
 
 from canvodpy.logging import get_logger
 
@@ -61,8 +61,8 @@ class ComponentFactory(Generic[T]):
     ReaderFactory, GridFactory, VODFactory, AugmentationFactory.
     """
 
-    _registry: dict[str, type[T]] = {}
-    _abc_class: type[ABC] | None = None
+    _registry: ClassVar[dict[str, type[T]]] = {}
+    _abc_class: ClassVar[type[ABC] | None] = None
 
     @classmethod
     def register(cls, name: str, component_class: type[T]) -> None:
@@ -85,9 +85,7 @@ class ComponentFactory(Generic[T]):
         --------
         >>> ReaderFactory.register("rinex3", Rnxv3Obs)
         """
-        if cls._abc_class and not issubclass(
-            component_class, cls._abc_class
-        ):
+        if cls._abc_class and not issubclass(component_class, cls._abc_class):
             msg = (
                 f"{component_class.__name__} must inherit from "
                 f"{cls._abc_class.__name__}"
@@ -184,7 +182,7 @@ class ReaderFactory(ComponentFactory):
     >>> data = reader.read()
     """
 
-    _registry: dict[str, type] = {}
+    _registry: ClassVar[dict[str, type]] = {}
 
     @classmethod
     def _set_abc_class(cls) -> None:
@@ -212,7 +210,7 @@ class GridFactory(ComponentFactory):
     ... )
     """
 
-    _registry: dict[str, type] = {}
+    _registry: ClassVar[dict[str, type]] = {}
 
     @classmethod
     def _set_abc_class(cls) -> None:
@@ -241,7 +239,7 @@ class VODFactory(ComponentFactory):
     >>> vod = calc.calculate_vod()
     """
 
-    _registry: dict[str, type] = {}
+    _registry: ClassVar[dict[str, type]] = {}
 
     @classmethod
     def _set_abc_class(cls) -> None:
@@ -269,7 +267,7 @@ class AugmentationFactory(ComponentFactory):
     ... )
     """
 
-    _registry: dict[str, type] = {}
+    _registry: ClassVar[dict[str, type]] = {}
 
     @classmethod
     def _set_abc_class(cls) -> None:
