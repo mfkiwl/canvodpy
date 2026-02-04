@@ -142,6 +142,46 @@ release VERSION: test
     @echo "  2. Push with: git push && git push --tags"
     @echo "  3. GitHub Actions will create the release draft"
 
+# ============================================================================
+# Build & Publish Recipes
+# ============================================================================
+
+# Build all 8 packages (outputs to workspace root dist/)
+build-all:
+    @echo "🔨 Building all 8 packages..."
+    @rm -rf dist/
+    @mkdir -p dist/
+    cd packages/canvod-readers && uv build
+    cd packages/canvod-aux && uv build
+    cd packages/canvod-grids && uv build
+    cd packages/canvod-store && uv build
+    cd packages/canvod-utils && uv build
+    cd packages/canvod-viz && uv build
+    cd packages/canvod-vod && uv build
+    cd canvodpy && uv build
+    @echo "✅ Built 8 packages to dist/"
+    @ls -lh dist/*.whl
+
+# Publish all packages to TestPyPI (requires credentials)
+publish-testpypi:
+    @echo "📦 Publishing to TestPyPI..."
+    @if [ ! -d "dist" ] || [ -z "$$(ls -A dist)" ]; then \
+        echo "❌ No dist/ found. Run 'just build-all' first"; \
+        exit 1; \
+    fi
+    uv tool run twine upload --repository testpypi dist/*
+    @echo "✅ Published to https://test.pypi.org"
+
+# Publish all packages to PyPI (requires credentials or OIDC)
+publish-pypi:
+    @echo "📦 Publishing to PyPI..."
+    @if [ ! -d "dist" ] || [ -z "$$(ls -A dist)" ]; then \
+        echo "❌ No dist/ found. Run 'just build-all' first"; \
+        exit 1; \
+    fi
+    uv tool run twine upload dist/*
+    @echo "✅ Published to https://pypi.org"
+
 # print the current status of the project
 status:
     @echo "canVODpy Monorepo"

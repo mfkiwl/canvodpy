@@ -1,0 +1,79 @@
+name: Publish to TestPyPI
+
+# Trigger on tags or manual dispatch
+on:
+  push:
+    tags:
+      - 'v*.*.*-beta.*'  # e.g., v0.1.0-beta.1
+      - 'v*.*.*-alpha.*'  # e.g., v0.1.0-alpha.1
+      - 'v*.*.*-rc.*'     # e.g., v0.1.0-rc.1
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write  # Required for OIDC authentication
+
+jobs:
+  build-and-publish:
+    name: Build and publish to TestPyPI
+    runs-on: ubuntu-latest
+    environment: testpypi  # GitHub environment for protection rules
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Build all 8 packages
+        run: |
+          rm -rf dist/
+          mkdir -p dist/
+          
+          # Build each package
+          echo "Building canvod-readers..."
+          cd packages/canvod-readers && uv build && cd ../..
+          
+          echo "Building canvod-aux..."
+          cd packages/canvod-aux && uv build && cd ../..
+          
+          echo "Building canvod-grids..."
+          cd packages/canvod-grids && uv build && cd ../..
+          
+          echo "Building canvod-store..."
+          cd packages/canvod-store && uv build && cd ../..
+          
+          echo "Building canvod-utils..."
+          cd packages/canvod-utils && uv build && cd ../..
+          
+          echo "Building canvod-viz..."
+          cd packages/canvod-viz && uv build && cd ../..
+          
+          echo "Building canvod-vod..."
+          cd packages/canvod-vod && uv build && cd ../..
+          
+          echo "Building canvodpy..."
+          cd canvodpy && uv build && cd ..
+          
+          echo "Built packages:"
+          ls -lh dist/*.whl
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true  # Don't fail if version already exists
+          verbose: true
