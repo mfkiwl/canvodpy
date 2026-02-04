@@ -7,7 +7,10 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"  # Matches v0.1.0, v1.0.0, etc.
+      - "v*.*.*"           # Production: v0.1.0, v1.0.0
+      - "v*.*.*-beta.*"    # Beta: v0.1.0-beta.1
+      - "v*.*.*-alpha.*"   # Alpha: v0.1.0-alpha.1
+      - "v*.*.*-rc.*"      # Release candidate: v0.1.0-rc.1
 
 permissions:
   contents: write  # Required to create releases
@@ -48,11 +51,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Determine if this is a pre-release
+          if echo "${{ github.ref_name }}" | grep -qE '(alpha|beta|rc)'; then
+            PRERELEASE="--prerelease"
+          else
+            PRERELEASE=""
+          fi
+          
           gh release create ${{ github.ref_name }} \
             --repo ${{ github.repository }} \
             --title "canvodpy ${{ github.ref_name }}" \
             --notes-file release-notes.md \
             --draft \
+            $PRERELEASE \
             --verify-tag
       
       - name: Summary
