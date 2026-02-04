@@ -6,10 +6,39 @@ runs:
     - name: Install just
       shell: bash
       run: |
-        # Install just from official installer
-        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+        # Determine platform
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
         
-        # Verify installation
+        # Map architecture names
+        case "$ARCH" in
+          x86_64) ARCH="x86_64" ;;
+          aarch64|arm64) ARCH="aarch64" ;;
+          *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+        esac
+        
+        # Set version
+        VERSION="1.38.0"
+        
+        # Download from GitHub releases
+        if [ "$OS" = "darwin" ]; then
+          TARGET="just-$VERSION-$ARCH-apple-darwin"
+        elif [ "$OS" = "linux" ]; then
+          TARGET="just-$VERSION-$ARCH-unknown-linux-musl"
+        else
+          echo "Unsupported OS: $OS"
+          exit 1
+        fi
+        
+        echo "Downloading just $VERSION for $OS ($ARCH)..."
+        curl -fsSL "https://github.com/casey/just/releases/download/$VERSION/$TARGET.tar.gz" -o just.tar.gz
+        
+        # Extract and install
+        tar -xzf just.tar.gz
+        sudo mv just /usr/local/bin/just
+        sudo chmod +x /usr/local/bin/just
+        rm just.tar.gz
+        
+        # Verify
         just --version
-        
-        echo "✅ just installed successfully"
+        echo "✅ just $VERSION installed successfully"
