@@ -24,6 +24,15 @@ Three levels of API to match your needs:
     >>> from canvod.vod import VODCalculator
     >>> # Direct access to all internals
 
+Community Extensions
+--------------------
+Extend canvodpy with custom components using factories:
+
+    >>> from canvodpy import VODFactory
+    >>> from my_package import CustomCalculator
+    >>> VODFactory.register("custom", CustomCalculator)
+    >>> calc = VODFactory.create("custom", **params)
+
 Package Structure
 -----------------
 - canvod.readers - RINEX file parsing
@@ -65,6 +74,31 @@ from canvodpy.api import (
     calculate_vod,
     preview_processing,
     process_date,
+)
+
+# New workflow API
+from canvodpy.workflow import VODWorkflow
+
+# Functional API (Airflow-compatible)
+from canvodpy.functional import (
+    assign_grid_cells,
+    assign_grid_cells_to_file,
+    calculate_vod_to_file,
+    create_grid,
+    create_grid_to_file,
+    read_rinex,
+    read_rinex_to_file,
+)
+
+# Logging (for all users)
+from canvodpy.logging import get_logger, setup_logging
+
+# Factories (for community extensions)
+from canvodpy.factories import (
+    AugmentationFactory,
+    GridFactory,
+    ReaderFactory,
+    VODFactory,
 )
 from canvodpy.globals import KEEP_RNX_VARS
 from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
@@ -117,6 +151,24 @@ __all__ = [  # noqa: RUF022
     "process_date",
     "calculate_vod",
     "preview_processing",
+    # New workflow API
+    "VODWorkflow",
+    # Functional API (notebooks & Airflow)
+    "read_rinex",
+    "read_rinex_to_file",
+    "create_grid",
+    "create_grid_to_file",
+    "assign_grid_cells",
+    "assign_grid_cells_to_file",
+    "calculate_vod_to_file",
+    # Logging
+    "setup_logging",
+    "get_logger",
+    # Factories (community extensions)
+    "ReaderFactory",
+    "GridFactory",
+    "VODFactory",
+    "AugmentationFactory",
     # Configuration (useful for all users)
     "KEEP_RNX_VARS",
     "RESEARCH_SITES",
@@ -129,3 +181,60 @@ __all__ = [  # noqa: RUF022
     "viz",
     "store",
 ]
+
+
+# ============================================================================
+# Auto-register built-in components
+# ============================================================================
+
+
+def _register_builtin_components() -> None:
+    """
+    Register built-in component implementations.
+
+    Called automatically on package import. Registers:
+    - Rnxv3Obs reader (rinex3)
+    - EqualAreaGridBuilder (equal_area)
+    - TauOmegaZerothOrder calculator (tau_omega)
+
+    Notes
+    -----
+    Uses lazy imports to avoid loading heavy dependencies unless needed.
+    """
+    log = get_logger(__name__)
+
+    # Set ABC classes for validation
+    ReaderFactory._set_abc_class()
+    GridFactory._set_abc_class()
+    VODFactory._set_abc_class()
+    AugmentationFactory._set_abc_class()
+
+    try:
+        from canvod.readers import Rnxv3Obs
+
+        ReaderFactory.register("rinex3", Rnxv3Obs)
+    except ImportError:
+        log.debug(
+            "canvod-readers not available, skipping reader registration"
+        )
+
+    try:
+        from canvod.grids import EqualAreaBuilder
+
+        GridFactory.register("equal_area", EqualAreaBuilder)
+    except ImportError:
+        log.debug("canvod-grids not available, skipping grid registration")
+
+    try:
+        from canvod.vod.calculator import TauOmegaZerothOrder
+
+        VODFactory.register("tau_omega", TauOmegaZerothOrder)
+    except ImportError:
+        log.debug("canvod-vod not available, skipping VOD registration")
+
+    log.info("builtin_components_registered")
+
+
+# Auto-register on import
+_register_builtin_components()
+
