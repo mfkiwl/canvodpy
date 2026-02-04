@@ -1,33 +1,103 @@
-# PyPI Setup Guide - Step by Step
+## Overview: Multi-Package Monorepo Publishing
 
-**Goal:** Enable `pip install canvodpy` with secure OIDC publishing
+This monorepo publishes **8 separate packages** to PyPI:
 
-**Time needed:** ~20 minutes  
-**Difficulty:** Easy (just follow the steps!)
+**Individual packages:**
+1. `canvod-readers` - GNSS data readers
+2. `canvod-aux` - Auxiliary data handling
+3. `canvod-grids` - Grid operations
+4. `canvod-store` - Storage backends
+5. `canvod-utils` - Utility functions
+6. `canvod-viz` - Visualization tools
+7. `canvod-vod` - VOD calculation
+
+**Umbrella package:**
+8. `canvodpy` - Depends on all 7 above
+
+**User experience:**
+```bash
+pip install canvodpy  # Gets all 8 packages automatically
+```
 
 ---
 
-## Phase 1: TestPyPI Setup (Do This First!)
+## Quick Commands
 
-### Why TestPyPI?
-- Safe sandbox for testing
-- Same process as real PyPI
-- Mistakes don't matter here
-- Free practice!
-
-### Step 1: Create TestPyPI Account
-
-1. Go to: https://test.pypi.org/account/register/
-2. Fill in:
-   - Username: `your_username`
-   - Email: `your_email@example.com`
-   - Password: (strong password)
-3. Check email and verify
-
-### Step 2: Reserve Package Name
-
-**Build the package:**
 ```bash
+# Build all 8 packages locally
+just build-all
+
+# Manual publish to TestPyPI (requires credentials)
+just publish-testpypi
+
+# Manual publish to PyPI (requires credentials)
+just publish-pypi
+
+# Automated publish (beta) - triggers workflow
+git tag v0.1.0-beta.1 && git push --tags
+
+# Automated publish (production) - triggers workflow
+git tag v0.1.0 && git push --tags
+```
+
+---
+
+## Phase 1: TestPyPI Setup (COMPLETED ✅)
+
+### Step 1: Create TestPyPI Account ✅
+
+Already done! Account created at https://test.pypi.org
+
+### Step 2: Manual First Publish ✅
+
+Already completed with `twine upload --repository testpypi dist/*`
+
+All 8 packages published:
+- https://test.pypi.org/project/canvod-readers/
+- https://test.pypi.org/project/canvod-aux/
+- https://test.pypi.org/project/canvod-grids/
+- https://test.pypi.org/project/canvod-store/
+- https://test.pypi.org/project/canvod-utils/
+- https://test.pypi.org/project/canvod-viz/
+- https://test.pypi.org/project/canvod-vod/
+- https://test.pypi.org/project/canvodpy/
+
+### Step 3: Set Up OIDC Automation ✅
+
+**3.1: Create GitHub Environment**
+
+1. Go to: https://github.com/nfb2021/canvodpy/settings/environments
+2. Click "New environment"
+3. Name: `testpypi`
+4. Save
+
+**3.2: Register Trusted Publishers (FOR EACH OF 8 PACKAGES)**
+
+For each package, go to its publishing settings:
+- https://test.pypi.org/manage/project/canvod-readers/settings/publishing/
+- https://test.pypi.org/manage/project/canvod-aux/settings/publishing/
+- https://test.pypi.org/manage/project/canvod-grids/settings/publishing/
+- https://test.pypi.org/manage/project/canvod-store/settings/publishing/
+- https://test.pypi.org/manage/project/canvod-utils/settings/publishing/
+- https://test.pypi.org/manage/project/canvod-viz/settings/publishing/
+- https://test.pypi.org/manage/project/canvod-vod/settings/publishing/
+- https://test.pypi.org/manage/project/canvodpy/settings/publishing/
+
+On each page:
+1. Click "Add a new publisher"
+2. Select "GitHub"
+3. Fill in:
+   - Owner: `nfb2021`
+   - Repository: `canvodpy`
+   - Workflow: `publish_testpypi.yml`
+   - Environment: `testpypi`
+4. Click "Add"
+
+**3.3: Test OIDC Publishing**
+
+```bash
+git tag v0.1.0-beta.1 -m "Test OIDC"
+git push --tags
 cd /path/to/canvodpy
 uv build
 ```
