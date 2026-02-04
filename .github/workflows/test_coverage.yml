@@ -23,15 +23,14 @@ jobs:
             - name: Set up Python
               run: uv python install
 
+            - name: Install just
+              uses: ./.github/actions/setup-just
+
             - name: Install the Project
               run: uv sync --locked --dev
 
-            - name: Run Tests
-              run: |
-                  uv run pytest --verbose --color=yes \
-                    --cov=canvodpy \
-                    --cov=canvod \
-                    --cov-report=term-missing
+            - name: Run Tests with Coverage
+              run: just test-coverage
 
             - name: Coverage comment
               id: coverage_comment

@@ -38,15 +38,9 @@ jobs:
                   enable-cache: true
             - name: Set up Python
               run: uv python install
+            - name: Install just
+              uses: ./.github/actions/setup-just
             - name: Install the Project
               run: uv sync --locked --dev
             - name: Run Tests
-              run: |
-                  echo "Running tests per package to avoid namespace collisions..."
-                  uv run pytest canvodpy/tests/ --verbose --color=yes
-                  uv run pytest packages/canvod-aux/tests/ --verbose --color=yes
-                  uv run pytest packages/canvod-readers/tests/ --verbose --color=yes
-                  uv run pytest packages/canvod-store/tests/ --verbose --color=yes
-                  uv run pytest packages/canvod-grids/tests/ --verbose --color=yes
-                  uv run pytest packages/canvod-viz/tests/ --verbose --color=yes
-                  uv run pytest packages/canvod-vod/tests/ --verbose --color=yes
+              run: just test-all-packages

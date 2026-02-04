@@ -1,0 +1,15 @@
+name: "Setup just"
+description: "Install just command runner for use in workflows"
+runs:
+  using: composite
+  steps:
+    - name: Install just
+      shell: bash
+      run: |
+        # Install just from official installer
+        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+        
+        # Verify installation
+        just --version
+        
+        echo "✅ just installed successfully"

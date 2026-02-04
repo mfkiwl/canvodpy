@@ -1,0 +1,62 @@
+# GitHub Release Workflow
+# Automatically creates a draft release when a version tag is pushed
+# https://docs.github.com/en/actions/using-workflows
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"  # Matches v0.1.0, v1.0.0, etc.
+
+permissions:
+  contents: write  # Required to create releases
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Need full history for changelog
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9.27"
+      
+      - name: Set up Python
+        run: uv python install 3.13
+      
+      - name: Generate release notes from git commits
+        run: |
+          uvx git-changelog --release-notes > release-notes.md
+          echo "Generated release notes:"
+          cat release-notes.md
+      
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+      
+      - name: Create GitHub release (draft)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ github.ref_name }} \
+            --repo ${{ github.repository }} \
+            --title "canvodpy ${{ github.ref_name }}" \
+            --notes-file release-notes.md \
+            --draft \
+            --verify-tag
+      
+      - name: Summary
+        run: |
+          echo "✅ Draft release created: ${{ github.ref_name }}"
+          echo "📝 Review at: https://github.com/${{ github.repository }}/releases"
+          echo "🚀 Publish the release manually when ready"

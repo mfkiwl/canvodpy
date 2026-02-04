@@ -21,15 +21,27 @@ alias t := test
 # Code Quality (All Packages)
 # ============================================================================
 
+# check uv.lock is up to date
+check-lock:
+    uv lock --check
+
 # lint python code using ruff
 [private]
 check-lint:
     uv run ruff check . --fix
 
+# lint python code without auto-fixing (for CI)
+check-lint-only:
+    uv run ruff check .
+
 # format python code using ruff
 [private]
 check-format:
     uv run ruff format .
+
+# check formatting without modifying files (for CI)
+check-format-only:
+    uv run ruff format --check . --exclude "*.ipynb"
 
 # run the type checker ty
 [private]
@@ -51,6 +63,24 @@ test:
 testall:
     uv run --python=3.13 pytest
 
+# run tests per package to avoid namespace collisions (for CI)
+test-all-packages:
+    @echo "Running tests per package to avoid namespace collisions..."
+    uv run pytest canvodpy/tests/ --verbose --color=yes
+    uv run pytest packages/canvod-aux/tests/ --verbose --color=yes
+    uv run pytest packages/canvod-readers/tests/ --verbose --color=yes
+    uv run pytest packages/canvod-store/tests/ --verbose --color=yes
+    uv run pytest packages/canvod-grids/tests/ --verbose --color=yes
+    uv run pytest packages/canvod-viz/tests/ --verbose --color=yes
+    uv run pytest packages/canvod-vod/tests/ --verbose --color=yes
+
+# run tests with coverage report
+test-coverage:
+    uv run pytest --verbose --color=yes \
+      --cov=canvodpy \
+      --cov=canvod \
+      --cov-report=term-missing
+
 # run all formatting, linting, and testing commands
 ci PYTHON="3.13":
     uv run --python={{ PYTHON }} ruff format .
@@ -62,9 +92,55 @@ ci PYTHON="3.13":
 # Utilities
 # ============================================================================
 
+# check if required development tools are installed
+check-dev-tools:
+    @bash scripts/check_dev_tools.sh
+
 # setup the pre-commit hooks
 hooks:
     uvx pre-commit install
+    uvx pre-commit install --hook-type commit-msg
+
+# ============================================================================
+# Release Management
+# ============================================================================
+
+# generate CHANGELOG.md from git commits (VERSION can be "auto" or specific like "v0.2.0")
+changelog VERSION="auto":
+    uvx git-changelog -Tio CHANGELOG.md -B="{{VERSION}}" -c angular
+
+# bump version across all packages (major, minor, patch, or explicit like 0.2.0)
+bump VERSION:
+    @echo "{{GREEN}}{{BOLD}}Bumping all packages to {{VERSION}}{{NORMAL}}"
+    uv run cz bump --increment {{VERSION}} --yes
+    uv lock
+    @echo "{{GREEN}}Version bumped to $(uv version --short){{NORMAL}}"
+
+# bump a single package version (for testing/development only)
+[private]
+bump-package PKG VERSION:
+    @echo "{{GREEN}}Bumping {{PKG}} to {{VERSION}}{{NORMAL}}"
+    cd packages/{{PKG}} && uv version {{VERSION}}
+    uv lock
+    @echo "{{GREEN}}{{PKG}} bumped to {{VERSION}}{{NORMAL}}"
+
+# create a new release (runs tests, updates changelog, bumps version, tags)
+release VERSION: test
+    @echo "{{GREEN}}{{BOLD}}Creating release {{VERSION}}{{NORMAL}}"
+    @just changelog "v{{VERSION}}"
+    git add CHANGELOG.md
+    git commit -m "chore: update changelog for v{{VERSION}}"
+    @just bump {{VERSION}}
+    git add .
+    git commit -m "chore: bump version to {{VERSION}}"
+    git tag -a "v{{VERSION}}" -m "Release v{{VERSION}}"
+    @echo ""
+    @echo "{{GREEN}}{{BOLD}}✅ Release v{{VERSION}} created!{{NORMAL}}"
+    @echo ""
+    @echo "Next steps:"
+    @echo "  1. Review the commits and tag"
+    @echo "  2. Push with: git push && git push --tags"
+    @echo "  3. GitHub Actions will create the release draft"
 
 # print the current status of the project
 status:

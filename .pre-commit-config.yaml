@@ -21,3 +21,9 @@ repos:
       - id: check-added-large-files
       - id: detect-private-key
       - id: end-of-file-fixer
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.13.3
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]

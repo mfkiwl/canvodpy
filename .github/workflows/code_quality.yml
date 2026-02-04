@@ -8,7 +8,9 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: ./.github/actions/setup
-            - run: uv lock --check
+            - uses: ./.github/actions/setup-just
+            - name: Check uv.lock is up to date
+              run: just check-lock
 
     linting:
         runs-on: ubuntu-latest
@@ -16,8 +18,9 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: ./.github/actions/setup
+            - uses: ./.github/actions/setup-just
             - name: Lint with ruff
-              run: uv run ruff check .
+              run: just check-lint-only
               # Allow failure for now - we have 512 known issues
               # Will address systematically during type hints/docstrings phase
               continue-on-error: true
@@ -28,8 +31,9 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: ./.github/actions/setup
+            - uses: ./.github/actions/setup-just
             - name: Check formatting
-              run: uv run ruff format --check .
+              run: just check-format-only
 
     type_consistency:
         runs-on: ubuntu-latest
@@ -37,9 +41,10 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: ./.github/actions/setup
+            - uses: ./.github/actions/setup-just
             - run: uv sync --locked --dev
             - name: Type check with ty
-              run: uv run ty check .
+              run: just check-types
               # Allow failure for now - type hints not yet added
               # This is a future goal after testing is complete
               continue-on-error: true

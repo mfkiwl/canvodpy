@@ -11,6 +11,7 @@ members = ["packages/*", "canvodpy"]
 
 [dependency-groups]
 dev = [
+    "commitizen>=4.13.3",
     "hypothesis>=6.151.4",
     "ipykernel>=7.1.0",
     "marimo>=0.19.5",
@@ -90,3 +91,42 @@ markers = [
 
 [tool.coverage.run]
 relative_files = true
+
+# ============================================================================
+# Commitizen Configuration (Conventional Commits)
+# ============================================================================
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+version_files = [
+    "canvodpy/pyproject.toml:version",
+    "packages/canvod-readers/pyproject.toml:version",
+    "packages/canvod-aux/pyproject.toml:version",
+    "packages/canvod-grids/pyproject.toml:version",
+    "packages/canvod-vod/pyproject.toml:version",
+    "packages/canvod-store/pyproject.toml:version",
+    "packages/canvod-viz/pyproject.toml:version",
+    "packages/canvod-utils/pyproject.toml:version",
+]
+tag_format = "v$version"
+update_changelog_on_bump = true
+changelog_incremental = true
+annotated_tag = true
+
+[tool.commitizen.customize]
+# Monorepo scopes for canvodpy
+scopes = [
+    "readers",
+    "aux",
+    "grids",
+    "vod",
+    "store",
+    "viz",
+    "utils",
+    "orchestrator",
+    "diagnostics",
+    "ci",
+    "docs",
+    "deps",
+]
