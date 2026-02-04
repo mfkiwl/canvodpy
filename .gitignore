@@ -324,3 +324,6 @@ config/sids.yaml
 # Prevent config directory in packages
 canvodpy/config/
 packages/*/config/
+
+# Session documentation archive
+.archive/

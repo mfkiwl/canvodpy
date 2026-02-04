@@ -68,6 +68,25 @@ project:
       children:
         - file: CONTRIBUTING.md
           title: Contributing Guide
+        - file: docs/guides/DEVELOPMENT.md
+          title: Development Guide
+        - file: docs/guides/ARCHITECTURE.md
+          title: Architecture & Design
+    
+    - title: Release & Publishing
+      children:
+        - file: VERSIONING.md
+          title: Versioning Strategy
+        - file: RELEASING.md
+          title: Release Process
+        - file: docs/guides/PYPI_SETUP.md
+          title: PyPI Setup
+        - file: docs/guides/ZENODO_SETUP.md
+          title: Zenodo DOI Setup
+        - file: docs/guides/OIDC_EXPLAINED.md
+          title: OIDC Authentication
+        - file: docs/guides/HOW_RELEASE_WORKS.md
+          title: How Releases Work
   
   error_rules:
     - rule: image-downloads
