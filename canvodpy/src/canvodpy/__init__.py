@@ -214,9 +214,7 @@ def _register_builtin_components() -> None:
 
         ReaderFactory.register("rinex3", Rnxv3Obs)
     except ImportError:
-        log.debug(
-            "canvod-readers not available, skipping reader registration"
-        )
+        log.debug("canvod-readers not available, skipping reader registration")
 
     try:
         from canvod.grids import EqualAreaBuilder
@@ -237,4 +235,3 @@ def _register_builtin_components() -> None:
 
 # Auto-register on import
 _register_builtin_components()
-

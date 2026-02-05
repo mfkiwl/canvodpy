@@ -14,10 +14,12 @@ try:
         create_grid,
         read_rinex,
     )
+
     print("   ✅ Imports successful")
 except Exception as e:
     print(f"   ❌ Import failed: {e}")
     import traceback
+
     traceback.print_exc()
     exit(1)
 
@@ -37,6 +39,7 @@ try:
 except Exception as e:
     print(f"   ❌ VODWorkflow creation failed: {e}")
     import traceback
+
     traceback.print_exc()
 
 # Test 3: Functional API - create_grid
@@ -47,31 +50,33 @@ try:
 except Exception as e:
     print(f"   ❌ create_grid failed: {e}")
     import traceback
+
     traceback.print_exc()
 
 # Test 4: Check __all__ exports
 print("\n4. Testing API exports...")
 try:
     import canvodpy
-    
+
     # Check new exports
-    assert hasattr(canvodpy, 'VODWorkflow')
-    assert hasattr(canvodpy, 'read_rinex')
-    assert hasattr(canvodpy, 'create_grid')
-    assert hasattr(canvodpy, 'assign_grid_cells')
-    assert hasattr(canvodpy, 'calculate_vod_to_file')
-    
+    assert hasattr(canvodpy, "VODWorkflow")
+    assert hasattr(canvodpy, "read_rinex")
+    assert hasattr(canvodpy, "create_grid")
+    assert hasattr(canvodpy, "assign_grid_cells")
+    assert hasattr(canvodpy, "calculate_vod_to_file")
+
     print("   ✅ All new APIs exported")
 except AssertionError as e:
     print(f"   ❌ Missing export: {e}")
     import traceback
+
     traceback.print_exc()
 
 # Test 5: Check backward compatibility
 print("\n5. Testing backward compatibility...")
 try:
     from canvodpy import Site, Pipeline, process_date
-    
+
     print("   ✅ Legacy API still available")
 except Exception as e:
     print(f"   ❌ Legacy API broken: {e}")
@@ -80,12 +85,12 @@ except Exception as e:
 print("\n6. Testing factory integration...")
 try:
     from canvodpy import GridFactory, ReaderFactory, VODFactory
-    
+
     # Check factories still work
     grids = GridFactory.list_available()
     readers = ReaderFactory.list_available()
     vods = VODFactory.list_available()
-    
+
     print(f"   ✅ Factories integrated")
     print(f"      Grids: {grids}")
     print(f"      Readers: {readers}")

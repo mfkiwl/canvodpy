@@ -39,7 +39,9 @@ def migrate_file(filepath: Path) -> tuple[bool, str]:
             # Find the import section
             import_section_end = 0
             for i, line in enumerate(content.split("\n")):
-                if line.strip() and not line.strip().startswith(("from ", "import ", '"""', "#")):
+                if line.strip() and not line.strip().startswith(
+                    ("from ", "import ", '"""', "#")
+                ):
                     import_section_end = i
                     break
 
@@ -54,7 +56,9 @@ def migrate_file(filepath: Path) -> tuple[bool, str]:
                 "    return get_logger(__name__)",
                 "",
             ]
-            lines = lines[:import_section_end] + lazy_import + lines[import_section_end:]
+            lines = (
+                lines[:import_section_end] + lazy_import + lines[import_section_end:]
+            )
             content = "\n".join(lines)
             changes.append("Added lazy _get_logger()")
 
@@ -64,7 +68,10 @@ def migrate_file(filepath: Path) -> tuple[bool, str]:
         r"\1self._logger = _get_logger()",
         content,
     )
-    if "self._logger = _get_logger()" in content and "self._logger = logger" not in original:
+    if (
+        "self._logger = _get_logger()" in content
+        and "self._logger = logger" not in original
+    ):
         changes.append("Updated logger assignment")
 
     # 3. Convert f-string logging to structured logging

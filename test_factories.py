@@ -8,6 +8,7 @@ print("=" * 60)
 print("\n1. Testing import...")
 try:
     import canvodpy
+
     print("   ✅ Import successful")
     print(f"   Version: {canvodpy.__version__}")
 except Exception as e:
@@ -17,10 +18,10 @@ except Exception as e:
 # Test 2: Check factories are available
 print("\n2. Testing factory availability...")
 try:
-    assert hasattr(canvodpy, 'ReaderFactory')
-    assert hasattr(canvodpy, 'GridFactory')
-    assert hasattr(canvodpy, 'VODFactory')
-    assert hasattr(canvodpy, 'AugmentationFactory')
+    assert hasattr(canvodpy, "ReaderFactory")
+    assert hasattr(canvodpy, "GridFactory")
+    assert hasattr(canvodpy, "VODFactory")
+    assert hasattr(canvodpy, "AugmentationFactory")
     print("   ✅ All factories available")
 except Exception as e:
     print(f"   ❌ Factory availability failed: {e}")
@@ -29,8 +30,8 @@ except Exception as e:
 # Test 3: Check logging is available
 print("\n3. Testing logging...")
 try:
-    assert hasattr(canvodpy, 'setup_logging')
-    assert hasattr(canvodpy, 'get_logger')
+    assert hasattr(canvodpy, "setup_logging")
+    assert hasattr(canvodpy, "get_logger")
     log = canvodpy.get_logger(__name__)
     print("   ✅ Logging available")
 except Exception as e:
@@ -43,29 +44,30 @@ try:
     readers = canvodpy.ReaderFactory.list_available()
     grids = canvodpy.GridFactory.list_available()
     vods = canvodpy.VODFactory.list_available()
-    
+
     print(f"   Readers: {readers}")
     print(f"   Grids: {grids}")
     print(f"   VOD calculators: {vods}")
-    
+
     if "rinex3" in readers:
         print("   ✅ Reader registered")
     else:
         print("   ⚠️  No readers registered (canvod-readers missing?)")
-    
+
     if "equal_area" in grids:
         print("   ✅ Grid registered")
     else:
         print("   ⚠️  No grids registered (canvod-grids missing?)")
-    
+
     if "tau_omega" in vods:
         print("   ✅ VOD calculator registered")
     else:
         print("   ⚠️  No VOD calculators registered (canvod-vod missing?)")
-        
+
 except Exception as e:
     print(f"   ❌ Registration check failed: {e}")
     import traceback
+
     traceback.print_exc()
     exit(1)
 
@@ -84,6 +86,7 @@ try:
 except Exception as e:
     print(f"   ❌ Factory creation failed: {e}")
     import traceback
+
     traceback.print_exc()
 
 print("\n" + "=" * 60)

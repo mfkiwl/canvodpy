@@ -162,11 +162,12 @@ class TestWorkflowErrorHandling:
         try:
             # Try to create a workflow to check if config exists
             from canvodpy import Site
+
             _ = Site("Rosalia")  # Will raise if config missing
         except FileNotFoundError as e:
             pytest.skip(f"Site not configured: {e}")
             return
-        
+
         # Now test that invalid site fails appropriately
         with pytest.raises(Exception, match=r"NonexistentSite123|not found"):
             VODWorkflow(site="NonexistentSite123")
@@ -179,11 +180,12 @@ class TestWorkflowErrorHandling:
         try:
             # Try to create a workflow to check if config exists
             from canvodpy import Site
+
             _ = Site("Rosalia")  # Will raise if config missing
         except FileNotFoundError as e:
             pytest.skip(f"Site not configured: {e}")
             return
-        
+
         # Now test that invalid grid type fails appropriately
         with pytest.raises(ValueError, match="nonexistent_grid"):
             VODWorkflow(site="Rosalia", grid="nonexistent_grid")
