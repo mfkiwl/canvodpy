@@ -1,5 +1,6 @@
 """VOD calculators based on Tau-Omega model variants."""
 
+import logging
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -9,9 +10,7 @@ import numpy as np
 import xarray as xr
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from canvod.vod._internal import get_logger
-
-log = get_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class VODCalculator(ABC, BaseModel):
