@@ -93,7 +93,11 @@ def preprocess_with_hermite_aux(
     token = set_file_context(rnx_file)
     try:
         log = get_logger()
-        log.info("Processing RINEX with Hermite-interpolated aux data")
+        log.info(
+            "rinex_preprocessing_started",
+            file=str(rnx_file.name),
+            receiver_type=receiver_type,
+        )
 
         # 1. Read RINEX file
         rnx = Rnxv3Obs(fpath=rnx_file, include_auxiliary=False)

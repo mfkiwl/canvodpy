@@ -52,10 +52,11 @@ class PipelineOrchestrator:
         )
 
         self._logger.info(
-            "Initialized pipeline for site '%s' with %s analysis pairs%s",
-            site.site_name,
-            len(site.active_vod_analyses),
-            " [DRY RUN]" if dry_run else "",
+            "pipeline_initialized",
+            site=site.site_name,
+            analysis_pairs=len(site.active_vod_analyses),
+            n_max_workers=n_max_workers,
+            dry_run=dry_run,
         )
 
     def _group_by_date_and_receiver(
@@ -177,7 +178,10 @@ class PipelineOrchestrator:
 
         """
         if self.dry_run:
-            self._logger.info("DRY RUN: Simulating processing without execution")
+            self._logger.info(
+                "dry_run_mode",
+                message="Simulating processing without execution"
+            )
             self.print_preview()
             return
 
@@ -187,24 +191,25 @@ class PipelineOrchestrator:
             # Filter dates before processing
             if start_from and date_key < start_from:
                 self._logger.info(
-                    "Skipping %s - before %s",
-                    date_key,
-                    start_from,
+                    "date_skipped_before_range",
+                    date=date_key,
+                    start_from=start_from,
                 )
                 continue
 
             if end_at and date_key > end_at:
                 self._logger.info(
-                    "Stopping at %s - after %s",
-                    date_key,
-                    end_at,
+                    "date_range_complete",
+                    date=date_key,
+                    end_at=end_at,
                 )
                 break
 
             self._logger.info(
-                "Processing date %s with %s unique receivers",
-                date_key,
-                len(receivers),
+                "date_processing_started",
+                date=date_key,
+                receivers=len(receivers),
+                receiver_names=sorted(receivers.keys()),
             )
 
             # Build receiver_configs for this date
@@ -233,9 +238,10 @@ class PipelineOrchestrator:
             except RuntimeError as e:
                 if "Failed to download" in str(e):
                     self._logger.warning(
-                        "Skipping %s - auxiliary files not available: %s",
-                        date_key,
-                        e,
+                        "auxiliary_download_failed",
+                        date=date_key,
+                        error=str(e),
+                        exception=type(e).__name__,
                     )
                     continue
                 else:
@@ -251,10 +257,13 @@ class PipelineOrchestrator:
                     # Receiver name is already correct from the generator.
                     datasets[receiver_name] = ds
                     timings[receiver_name] = proc_time
-            except (OSError, RuntimeError, ValueError):
-                self._logger.exception(
-                    "Error processing RINEX data for date %s",
-                    date_key,
+            except (OSError, RuntimeError, ValueError) as e:
+                self._logger.error(
+                    "rinex_processing_failed",
+                    date=date_key,
+                    error=str(e),
+                    exception=type(e).__name__,
+                    exc_info=True,
                 )
                 continue
 
@@ -322,12 +331,16 @@ class SingleReceiverProcessor:
         rinex_files = self._get_rinex_files()
 
         if not rinex_files:
+            self._logger.error(
+                "no_rinex_files_found",
+                data_dir=str(self.data_dir),
+            )
             msg = f"No RINEX files found in {self.data_dir}"
             raise ValueError(msg)
 
         self._logger.info(
-            "Processing %s RINEX files",
-            len(rinex_files),
+            "receiver_processing_started",
+            rinex_files=len(rinex_files),
         )
 
         # Create matched dirs for aux data (using first available dir as dummy)
