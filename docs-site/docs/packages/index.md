@@ -5,7 +5,7 @@ This page links to the documentation for each canVODpy package.
 ## Core packages
 
 - [canvod-readers](/packages/canvod-readers/overview.md)
-- [canvod-aux](/packages/canvod-aux/overview.md)
+- [canvod-auxiliary](/packages/canvod-auxiliary/overview.md)
 - [canvod-store](/packages/canvod-store/overview.md)
 - [canvod-utils](/packages/canvod-utils/overview.md)
 

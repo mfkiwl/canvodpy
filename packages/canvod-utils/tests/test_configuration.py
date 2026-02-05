@@ -197,9 +197,9 @@ def test_imports():
 
         print("✅ canvod.utils.config imports")
 
-        from canvod.aux.pipeline import AuxDataPipeline
+        from canvod.auxiliary.pipeline import AuxDataPipeline
 
-        print("✅ canvod.aux.pipeline imports (uses settings)")
+        print("✅ canvod.auxiliary.pipeline imports (uses settings)")
 
         from canvodpy.orchestrator.processor import RinexDataProcessor
 

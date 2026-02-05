@@ -29,6 +29,10 @@ jobs:
                       python-version: '3.14'
                       name: '🐍 3.14 • 🍎 macOS'
 
+        defaults:
+            run:
+                shell: bash
+        
         steps:
             - uses: actions/checkout@v4
             - name: Install uv and set the python version

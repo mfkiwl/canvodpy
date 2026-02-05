@@ -1670,13 +1670,13 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
                 ds = ds.drop_vars(var)
 
         if pad_global_sid:
-            from canvod.aux.preprocessing import pad_to_global_sid
+            from canvod.auxiliary.preprocessing import pad_to_global_sid
 
             # Pad/filter to specified sids or all possible sids
             ds = pad_to_global_sid(ds, keep_sids=keep_sids)
 
         if strip_fillval:
-            from canvod.aux.preprocessing import strip_fillvalue
+            from canvod.auxiliary.preprocessing import strip_fillvalue
 
             ds = strip_fillvalue(ds)
 

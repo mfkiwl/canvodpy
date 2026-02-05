@@ -240,7 +240,7 @@ class TestVisualizer3DOutput:
         assert output_file.stat().st_size > 0
 
         # Check HTML contains plotly
-        content = output_file.read_text()
+        content = output_file.read_text(encoding="utf-8")
         assert "plotly" in content.lower()
 
     def test_create_3d_scatter(self, mock_equal_area_grid, sample_vod_data):
@@ -322,7 +322,7 @@ class TestUnifiedVisualizerOutput:
         assert output_file.exists()
         assert output_file.stat().st_size > 0
 
-        content = output_file.read_text()
+        content = output_file.read_text(encoding="utf-8")
         assert "VOD Explorer" in content
 
     def test_comparison_plot_workflow(

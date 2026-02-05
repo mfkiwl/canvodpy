@@ -16,8 +16,8 @@ import polars as pl
 import pydantic_core
 import xarray as xr
 import zarr
-from canvod.aux.pipeline import AuxDataPipeline
-from canvod.aux.position import (
+from canvod.auxiliary.pipeline import AuxDataPipeline
+from canvod.auxiliary.position import (
     ECEFPosition,
     add_spherical_coords_to_dataset,
     compute_spherical_coordinates,

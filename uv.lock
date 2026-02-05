@@ -14,7 +14,7 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "canvod-aux",
+    "canvod-auxiliary",
     "canvod-grids",
     "canvod-readers",
     "canvod-store",
@@ -178,9 +178,9 @@ wheels = [
 ]
 
 [[package]]
-name = "canvod-aux"
+name = "canvod-auxiliary"
 version = "0.1.0"
-source = { editable = "packages/canvod-aux" }
+source = { editable = "packages/canvod-auxiliary" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "canvod-readers" },
@@ -480,7 +480,7 @@ name = "canvodpy"
 version = "0.1.0"
 source = { editable = "canvodpy" }
 dependencies = [
-    { name = "canvod-aux" },
+    { name = "canvod-auxiliary" },
     { name = "canvod-grids" },
     { name = "canvod-readers" },
     { name = "canvod-store" },
@@ -510,7 +510,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "canvod-aux", editable = "packages/canvod-aux" },
+    { name = "canvod-auxiliary", editable = "packages/canvod-auxiliary" },
     { name = "canvod-grids", editable = "packages/canvod-grids" },
     { name = "canvod-readers", editable = "packages/canvod-readers" },
     { name = "canvod-store", editable = "packages/canvod-store" },

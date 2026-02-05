@@ -67,7 +67,7 @@ testall:
 test-all-packages:
     @echo "Running tests per package to avoid namespace collisions..."
     uv run pytest canvodpy/tests/ --verbose --color=yes
-    uv run pytest packages/canvod-aux/tests/ --verbose --color=yes
+    uv run pytest packages/canvod-auxiliary/tests/ --verbose --color=yes
     uv run pytest packages/canvod-readers/tests/ --verbose --color=yes
     uv run pytest packages/canvod-store/tests/ --verbose --color=yes
     uv run pytest packages/canvod-grids/tests/ --verbose --color=yes

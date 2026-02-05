@@ -20,7 +20,7 @@ classifiers = [
 # Core dependencies - sub-packages from workspace
 dependencies = [
     "canvod-readers",
-    "canvod-aux",
+    "canvod-auxiliary",
     "canvod-grids",
     "canvod-store",
     "canvod-utils",
@@ -55,7 +55,7 @@ build-backend = "uv_build"
 # This tells uv where to find the local packages
 [tool.uv.sources]
 canvod-readers = { workspace = true }
-canvod-aux = { workspace = true }
+canvod-auxiliary = { workspace = true }
 canvod-grids = { workspace = true }
 canvod-store = { workspace = true }
 canvod-utils = { workspace = true }

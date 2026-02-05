@@ -258,7 +258,7 @@ class AugmentationFactory(ComponentFactory):
 
     Examples
     --------
-    >>> from canvod.aux.augmentation import HampelFilter
+    >>> from canvod.auxiliary.augmentation import HampelFilter
     >>> AugmentationFactory.register("hampel", HampelFilter)
     >>> step = AugmentationFactory.create(
     ...     "hampel",
@@ -273,6 +273,6 @@ class AugmentationFactory(ComponentFactory):
     def _set_abc_class(cls) -> None:
         """Lazy import to avoid circular dependencies."""
         if cls._abc_class is None:
-            from canvod.aux.augmentation import AugmentationStep
+            from canvod.auxiliary.augmentation import AugmentationStep
 
             cls._abc_class = AugmentationStep

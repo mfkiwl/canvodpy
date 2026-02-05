@@ -60,7 +60,7 @@ canvodpy/
 ├── uv.lock                 # Shared lockfile
 └── packages/               # Your packages
     ├── canvod-readers/
-    └── canvod-aux/
+    └── canvod-auxiliary/
 ```
 
 ### Activating the Environment

@@ -186,7 +186,7 @@ version = "0.1.0"  # Current version
 version_files = [
     "canvodpy/pyproject.toml:version",
     "packages/canvod-readers/pyproject.toml:version",
-    "packages/canvod-aux/pyproject.toml:version",
+    "packages/canvod-auxiliary/pyproject.toml:version",
     # ... all 8 packages
 ]
 
@@ -213,7 +213,7 @@ just bump 0.2.0
    ```
    canvodpy/pyproject.toml:     version = "0.2.0"
    packages/canvod-readers/...: version = "0.2.0"
-   packages/canvod-aux/...:     version = "0.2.0"
+   packages/canvod-auxiliary/...:     version = "0.2.0"
    # ... all packages updated
    ```
 

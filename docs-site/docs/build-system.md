@@ -241,7 +241,7 @@ packages/
 │   └── dist/
 │       ├── canvod_readers-0.1.0.tar.gz
 │       └── canvod_readers-0.1.0-py3-none-any.whl
-├── canvod-aux/
+├── canvod-auxiliary/
 │   └── dist/
 │       ├── canvod_aux-0.1.0.tar.gz
 │       └── canvod_aux-0.1.0-py3-none-any.whl
@@ -399,7 +399,7 @@ When one package depends on another:
 [project]
 dependencies = [
     "canvod-readers>=0.1.0",    # Any version ≥ 0.1.0
-    "canvod-aux>=0.1.0,<0.2.0", # Pin to 0.1.x
+    "canvod-auxiliary>=0.1.0,<0.2.0", # Pin to 0.1.x
     "numpy~=1.24.0",            # Compatible with 1.24.x
 ]
 ```

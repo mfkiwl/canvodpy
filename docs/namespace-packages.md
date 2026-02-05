@@ -40,7 +40,7 @@ In canVODpy, we have seven packages that all share the `canvod` namespace:
 
 ```python
 from canvod.readers import Rnxv3Obs      # canvod-readers package
-from canvod.aux import AuxData            # canvod-aux package
+from canvod.aux import AuxData            # canvod-auxiliary package
 from canvod.grids import HemiGrid         # canvod-grids package
 from canvod.vod import calculate_vod      # canvod-vod package
 from canvod.store import IcechunkStore    # canvod-store package
@@ -233,7 +233,7 @@ wheel: canvod_readers-0.1.0.whl
         └── __init__.py
 ```
 
-**Package: canvod-aux**
+**Package: canvod-auxiliary**
 ```
 wheel: canvod_aux-0.1.0.whl
 └── canvod/
@@ -254,7 +254,7 @@ wheel: canvod_grids-0.1.0.whl
 site-packages/
 └── canvod/
     ├── readers/      # From canvod-readers
-    ├── aux/          # From canvod-aux
+    ├── aux/          # From canvod-auxiliary
     ├── grids/        # From canvod-grids
     ├── vod/          # From canvod-vod
     ├── store/        # From canvod-store

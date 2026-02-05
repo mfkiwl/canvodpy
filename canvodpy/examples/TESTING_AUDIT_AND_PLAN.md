@@ -12,7 +12,7 @@
 **Total:** 32 test files across 8 packages
 
 ```
-canvod-aux       : 12 files  ⭐ Best coverage
+canvod-auxiliary       : 12 files  ⭐ Best coverage
 canvod-grids     :  2 files  ⚠️  Needs expansion
 canvod-readers   :  5 files  ✅ Good
 canvod-store     :  1 file   🚨 Minimal
@@ -72,7 +72,7 @@ def test_grid_creation_properties(angular_resolution, cutoff_theta):
 **Packages needing this:**
 - `canvod-grids` - Grid generation invariants
 - `canvod-vod` - VOD calculation properties
-- `canvod-aux` - Interpolation behavior
+- `canvod-auxiliary` - Interpolation behavior
 
 ---
 
@@ -227,7 +227,7 @@ def test_grid_type_signatures():
 
 **Current coverage by package** (estimated from audit):
 ```
-canvod-aux:     ~60%  ⚠️  Missing: download retry logic, error handling
+canvod-auxiliary:     ~60%  ⚠️  Missing: download retry logic, error handling
 canvod-grids:   ~40%  🚨 Missing: geodesic, HEALPix, fibonacci grids
 canvod-readers: ~50%  ⚠️  Missing: corrupted file handling
 canvod-store:   ~10%  🚨 Missing: almost everything!

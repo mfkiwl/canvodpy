@@ -51,8 +51,8 @@ project:
       children:
         - file: packages/canvod-readers/README.md
           title: canvod-readers
-        - file: packages/canvod-aux/README.md
-          title: canvod-aux
+        - file: packages/canvod-auxiliary/README.md
+          title: canvod-auxiliary
         - file: packages/canvod-grids/README.md
           title: canvod-grids
         - file: packages/canvod-vod/README.md

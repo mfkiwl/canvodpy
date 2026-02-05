@@ -17,7 +17,7 @@ GNSS Vegetation Optical Depth (VOD) analysis package - Modern monorepo architect
 canVODpy is a modular ecosystem for GNSS-T-based vegetation optical depth analysis, organized as a monorepo with independent packages:
 
 - **canvod-readers** - RINEX and GNSS data format readers
-- **canvod-aux** - Auxiliary data handling
+- **canvod-auxiliary** - Auxiliary data handling
 - **canvod-grids** - HEALPix and hemispheric grid operations
 - **canvod-vod** - Vegetation Optical Depth calculations
 - **canvod-store** - Icechunk and Zarr storage backends
@@ -128,7 +128,7 @@ import canvodpy
 canvodpy/                    # Monorepo root
 ├── packages/                # Independent packages
 │   ├── canvod-readers/
-│   ├── canvod-aux/
+│   ├── canvod-auxiliary/
 │   ├── canvod-grids/
 │   ├── canvod-vod/
 │   ├── canvod-store/

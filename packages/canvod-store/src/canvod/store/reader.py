@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 import xarray as xr
-from canvod.aux.preprocessing import prep_aux_ds
+from canvod.auxiliary.preprocessing import prep_aux_ds
 from canvod.readers import MatchedDirs, Rnxv3Obs
 from canvod.utils.tools import get_version_from_pyproject
 from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY

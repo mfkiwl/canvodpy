@@ -139,7 +139,7 @@ version = "0.1.0"
 version_files = [
     "canvodpy/pyproject.toml:version",
     "packages/canvod-readers/pyproject.toml:version",
-    "packages/canvod-aux/pyproject.toml:version",
+    "packages/canvod-auxiliary/pyproject.toml:version",
     "packages/canvod-grids/pyproject.toml:version",
     "packages/canvod-vod/pyproject.toml:version",
     "packages/canvod-store/pyproject.toml:version",
