@@ -1,8 +1,28 @@
 # canVODpy
 
+<!-- Build & Quality -->
+[![Platform Tests](https://github.com/nfb2021/canvodpy/actions/workflows/test_platforms.yml/badge.svg)](https://github.com/nfb2021/canvodpy/actions/workflows/test_platforms.yml)
+[![Code Coverage](https://github.com/nfb2021/canvodpy/actions/workflows/test_coverage.yml/badge.svg)](https://github.com/nfb2021/canvodpy/actions/workflows/test_coverage.yml)
+[![Code Quality](https://github.com/nfb2021/canvodpy/actions/workflows/code_quality.yml/badge.svg)](https://github.com/nfb2021/canvodpy/actions/workflows/code_quality.yml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+<!-- Python & Platforms -->
+[![Python Version](https://img.shields.io/badge/python-3.13%20|%203.14-blue.svg)](https://www.python.org/)
+[![Platforms](https://img.shields.io/badge/platform-Linux%20|%20macOS%20|%20Windows-lightgrey)](https://github.com/nfb2021/canvodpy/actions/workflows/test_platforms.yml)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+
+<!-- Modern Stack -->
+[![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![MyST Markdown](https://img.shields.io/badge/MyST-Markdown-orange?logo=markdown&logoColor=white)](https://mystmd.org/)
+[![Zarr](https://img.shields.io/badge/Zarr-v3-00A3E0?logo=databricks&logoColor=white)](https://zarr.dev/)
+
+<!-- Standards & Best Practices -->
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
-[![Static Badge](https://img.shields.io/badge/CLIMERS_@_GEO_TU_WIEN-Project-gray?style=flat&labelColor=%23006699&color=gray&link=https%3A%2F%2Fwww.tuwien.at%2Fen%2Fmg%2Fgeo%2Fclimers)](https://www.tuwien.at/en/mg/geo/climers)
+[![FAIR Principles](https://img.shields.io/badge/FAIR-Principles-00A3E0)](https://www.go-fair.org/fair-principles/)
+[![OIDC Publishing](https://img.shields.io/badge/OIDC-Trusted_Publisher-4285F4?logo=openid&logoColor=white)](https://docs.pypi.org/trusted-publishers/)
+
+<!-- Project & License -->
+[![CLIMERS @ TU Wien](https://img.shields.io/badge/CLIMERS_@_GEO_TU_WIEN-Project-gray?style=flat&labelColor=%23006699&color=gray&link=https%3A%2F%2Fwww.tuwien.at%2Fen%2Fmg%2Fgeo%2Fclimers)](https://www.tuwien.at/en/mg/geo/climers)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 GNSS Vegetation Optical Depth (VOD) analysis package - Modern monorepo architecture.
