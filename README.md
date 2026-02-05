@@ -37,7 +37,7 @@
 | packages/canvod-auxiliary/src/canvod/auxiliary/container.py                  |       10 |        0 |    100% |           |
 | packages/canvod-auxiliary/src/canvod/auxiliary/core/\_\_init\_\_.py          |        3 |        0 |    100% |           |
 | packages/canvod-auxiliary/src/canvod/auxiliary/core/base.py                  |       68 |       34 |     50% |57-65, 99-100, 130-137, 169-171, 182, 187, 192-196, 206-213, 218, 223 |
-| packages/canvod-auxiliary/src/canvod/auxiliary/core/downloader.py            |      135 |      114 |     16% |41, 63-82, 106-159, 165-187, 191-248, 264-295, 299-301, 305-307 |
+| packages/canvod-auxiliary/src/canvod/auxiliary/core/downloader.py            |      150 |      126 |     16% |46, 68-87, 111-214, 220-242, 246-303, 319-350, 354-356, 360-362 |
 | packages/canvod-auxiliary/src/canvod/auxiliary/ephemeris/\_\_init\_\_.py     |        4 |        0 |    100% |           |
 | packages/canvod-auxiliary/src/canvod/auxiliary/ephemeris/parser.py           |       79 |       67 |     15% |29-30, 47-135, 155-156, 185-198, 202 |
 | packages/canvod-auxiliary/src/canvod/auxiliary/ephemeris/reader.py           |       83 |       59 |     29% |64-71, 75-79, 88-92, 104-128, 148-165, 169-179, 198-239, 246-253 |
@@ -46,7 +46,7 @@
 | packages/canvod-auxiliary/src/canvod/auxiliary/interpolation/interpolator.py |      129 |       53 |     59% |27, 90, 94, 123, 131-197, 231-247, 304, 366, 371, 391, 423-433 |
 | packages/canvod-auxiliary/src/canvod/auxiliary/matching/\_\_init\_\_.py      |        2 |        0 |    100% |           |
 | packages/canvod-auxiliary/src/canvod/auxiliary/matching/dataset\_matcher.py  |       38 |       28 |     26% |95-102, 128-135, 152-153, 172-173, 192-193, 221-250 |
-| packages/canvod-auxiliary/src/canvod/auxiliary/pipeline.py                   |      172 |      143 |     17% |71-78, 101-110, 124-156, 188-200, 204, 208, 248-281, 285, 295, 350-409, 413-414, 421-646 |
+| packages/canvod-auxiliary/src/canvod/auxiliary/pipeline.py                   |      183 |      154 |     16% |71-81, 105-119, 139-210, 245-257, 261, 265, 305-338, 342, 352, 407-466, 470-471, 478-703 |
 | packages/canvod-auxiliary/src/canvod/auxiliary/position/\_\_init\_\_.py      |        3 |        0 |    100% |           |
 | packages/canvod-auxiliary/src/canvod/auxiliary/position/position.py          |       34 |        9 |     74% |    97-109 |
 | packages/canvod-auxiliary/src/canvod/auxiliary/position/spherical\_coords.py |       23 |        0 |    100% |           |
@@ -151,7 +151,7 @@
 | packages/canvod-vod/tests/test\_vod\_properties.py                           |      138 |        9 |     93% |27, 36, 45, 183, 235, 299, 466, 469, 481 |
 | test\_factories.py                                                           |       64 |       22 |     66% |14-16, 26-28, 37-39, 55, 60, 65-72, 85-90 |
 | test\_new\_api.py                                                            |       69 |       23 |     67% |19-24, 32, 38-43, 50-54, 69-73, 81-82, 98-99 |
-| **TOTAL**                                                                    | **13006** | **6058** | **53%** |           |
+| **TOTAL**                                                                    | **13032** | **6081** | **53%** |           |
 
 
 ## Setup coverage badge
