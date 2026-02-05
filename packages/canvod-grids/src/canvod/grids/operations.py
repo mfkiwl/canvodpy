@@ -17,14 +17,19 @@ Vertex / grid conversion
 
 from __future__ import annotations
 
+import time
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import xarray as xr
 from scipy.spatial import cKDTree
 
+from canvod.grids._internal import get_logger
+
 if TYPE_CHECKING:
     from canvod.grids.core import GridData
+
+log = get_logger(__name__)
 
 
 # ==============================================================================
@@ -101,7 +106,16 @@ def add_cell_ids_to_vod_fast(
         variable.  Observations with non-finite φ or θ receive NaN.
 
     """
+    start_time = time.time()
     print(f"\nAssigning cells for '{grid_name}'...")
+    
+    log.info(
+        "cell_assignment_started",
+        grid_name=grid_name,
+        grid_cells=len(grid.grid),
+        observations=vod_ds["VOD"].size,
+        method="kdtree_fast",
+    )
 
     tree = _build_kdtree(grid)
     cell_id_col = grid.grid["cell_id"].to_numpy()
@@ -122,8 +136,21 @@ def add_cell_ids_to_vod_fast(
     vod_ds[coord_name] = (("epoch", "sid"), cell_ids_2d)
 
     n_assigned = np.sum(np.isfinite(cell_ids_2d))
+    n_unique = len(np.unique(cell_ids[np.isfinite(cell_ids)]))
+    duration = time.time() - start_time
+    
     print(f"  ✓ Assigned: {n_assigned:,} / {cell_ids_2d.size:,} observations")
-    print(f"  ✓ Unique cells: {len(np.unique(cell_ids[np.isfinite(cell_ids)])):,}")
+    print(f"  ✓ Unique cells: {n_unique:,}")
+    
+    log.info(
+        "cell_assignment_complete",
+        grid_name=grid_name,
+        duration_seconds=round(duration, 2),
+        observations_assigned=int(n_assigned),
+        observations_total=cell_ids_2d.size,
+        unique_cells=int(n_unique),
+        coverage_percent=round(100 * n_assigned / cell_ids_2d.size, 2),
+    )
 
     return vod_ds
 

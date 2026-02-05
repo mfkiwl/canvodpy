@@ -1,5 +1,6 @@
 """VOD calculators based on Tau-Omega model variants."""
 
+import time
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
@@ -7,6 +8,10 @@ from typing import Any
 import numpy as np
 import xarray as xr
 from pydantic import BaseModel, ConfigDict, field_validator
+
+from canvod.vod._internal import get_logger
+
+log = get_logger(__name__)
 
 
 class VODCalculator(ABC, BaseModel):
@@ -184,9 +189,21 @@ class TauOmegaZerothOrder(VODCalculator):
         ValueError
             If all delta SNR values are NaN.
         """
+        start_time = time.time()
+        log.info(
+            "vod_calculation_started",
+            canopy_epochs=len(self.canopy_ds.epoch),
+            sky_epochs=len(self.sky_ds.epoch),
+            sids=len(self.canopy_ds.sid),
+        )
+        
         delta_snr = self.get_delta_snr()
 
         if delta_snr.isnull().all():
+            log.error(
+                "vod_calculation_failed",
+                reason="all_delta_snr_nan",
+            )
             raise ValueError(
                 "All delta_snr values are NaN - check data alignment",
             )
@@ -200,6 +217,12 @@ class TauOmegaZerothOrder(VODCalculator):
                 f"Warning: {n_invalid}/{total} transmissivity values <= 0 "
                 "(will produce NaN)"
             )
+            log.warning(
+                "invalid_transmissivity",
+                invalid_count=n_invalid,
+                total_count=total,
+                percent=round(100 * n_invalid / total, 2),
+            )
 
         theta = self.canopy_ds["theta"]
         vod = -np.log(canopy_transmissivity) * np.cos(theta)
@@ -211,6 +234,17 @@ class TauOmegaZerothOrder(VODCalculator):
                 "theta": self.canopy_ds["theta"],
             },
             coords=self.canopy_ds.coords,
+        )
+        
+        duration = time.time() - start_time
+        n_valid = (~vod.isnull()).sum().item()
+        
+        log.info(
+            "vod_calculation_complete",
+            duration_seconds=round(duration, 2),
+            vod_values=vod.size,
+            valid_values=n_valid,
+            valid_percent=round(100 * n_valid / vod.size, 2),
         )
 
         return vod_ds
