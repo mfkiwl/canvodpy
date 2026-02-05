@@ -196,7 +196,7 @@ class TauOmegaZerothOrder(VODCalculator):
             sky_epochs=len(self.sky_ds.epoch),
             sids=len(self.canopy_ds.sid),
         )
-        
+
         delta_snr = self.get_delta_snr()
 
         if delta_snr.isnull().all():
@@ -235,10 +235,10 @@ class TauOmegaZerothOrder(VODCalculator):
             },
             coords=self.canopy_ds.coords,
         )
-        
+
         duration = time.time() - start_time
         n_valid = (~vod.isnull()).sum().item()
-        
+
         log.info(
             "vod_calculation_complete",
             duration_seconds=round(duration, 2),

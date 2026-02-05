@@ -110,7 +110,7 @@ class FtpDownloader(FileDownloader):
         """
         start_time = time.time()
         destination.parent.mkdir(parents=True, exist_ok=True)
-        
+
         log.info(
             "file_download_started",
             url=url,
@@ -122,7 +122,7 @@ class FtpDownloader(FileDownloader):
             print(f"Attempting to download from primary server: {url}")
             result = self._try_download_url(url, destination)
             duration = time.time() - start_time
-            
+
             log.info(
                 "file_download_complete",
                 url=url,
@@ -189,7 +189,7 @@ class FtpDownloader(FileDownloader):
                     )
                     result = self._try_download_url(alt_url, destination)
                     duration = time.time() - start_time
-                    
+
                     log.info(
                         "file_download_complete",
                         url=alt_url,

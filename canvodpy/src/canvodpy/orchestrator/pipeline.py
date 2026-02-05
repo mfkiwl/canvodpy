@@ -179,8 +179,7 @@ class PipelineOrchestrator:
         """
         if self.dry_run:
             self._logger.info(
-                "dry_run_mode",
-                message="Simulating processing without execution"
+                "dry_run_mode", message="Simulating processing without execution"
             )
             self.print_preview()
             return

@@ -469,12 +469,14 @@ class RinexDataProcessor:
 
         # Load all auxiliary files into memory
         pipeline.load_all()
-        
+
         duration = time.time() - start_time
         self._logger.info(
             "aux_pipeline_initialization_complete",
             duration_seconds=round(duration, 2),
-            products=list(pipeline._cache.keys()) if hasattr(pipeline, "_cache") else [],
+            products=list(pipeline._cache.keys())
+            if hasattr(pipeline, "_cache")
+            else [],
         )
         return pipeline
 
@@ -678,7 +680,9 @@ class RinexDataProcessor:
             files_total=len(rinex_files),
             files_failed=len(rinex_files) - len(results),
             duration_seconds=round(duration, 2),
-            avg_time_per_file=round(duration / len(rinex_files), 2) if rinex_files else 0,
+            avg_time_per_file=round(duration / len(rinex_files), 2)
+            if rinex_files
+            else 0,
         )
         return results
 
@@ -715,7 +719,7 @@ class RinexDataProcessor:
 
         groups = self.site.rinex_store.list_groups() or []
         version = get_version_from_pyproject()
-        
+
         write_count = 0
         skip_count = 0
         append_count = 0
@@ -766,7 +770,9 @@ class RinexDataProcessor:
                         write_count += 1
 
                     case (True, "skip"):
-                        log.debug("file_skipped", file=fname.name, reason="already_exists")
+                        log.debug(
+                            "file_skipped", file=fname.name, reason="already_exists"
+                        )
                         self.site.rinex_store.append_metadata(
                             group_name=receiver_name,
                             rinex_hash=rinex_hash,
@@ -1806,7 +1812,7 @@ class RinexDataProcessor:
             )
 
             yield receiver_name, daily_dataset, receiver_duration
-        
+
         pipeline_duration = time.time() - pipeline_start
         self._logger.info(
             "rinex_pipeline_complete",

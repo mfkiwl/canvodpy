@@ -219,7 +219,7 @@ class Pipeline:
 
         # Setup logging
         from canvodpy.logging import get_logger
-        
+
         self.log = get_logger(__name__).bind(
             site=site.name,
             component="pipeline",
@@ -234,7 +234,7 @@ class Pipeline:
             n_max_workers=n_workers,
             dry_run=dry_run,
         )
-        
+
         self.log.info(
             "pipeline_initialized",
             aux_agency=aux_agency,
@@ -271,7 +271,7 @@ class Pipeline:
         """
         log = self.log.bind(date=date)
         log.info("date_processing_started")
-        
+
         # Use proven orchestrator logic
         for _date_key, datasets, _timing in self._orchestrator.process_by_date(
             keep_vars=self.keep_vars,
@@ -357,7 +357,7 @@ class Pipeline:
         """
         log = self.log.bind(date=date, canopy=canopy, reference=reference)
         log.info("vod_calculation_started")
-        
+
         try:
             # Load processed data from stores
             canopy_data = self.site.rinex_store.read_group(canopy, date=date)
@@ -377,7 +377,9 @@ class Pipeline:
             log.info(
                 "vod_calculation_complete",
                 analysis=analysis_name,
-                vod_mean=float(vod_results.vod.mean().values) if "vod" in vod_results else None,
+                vod_mean=float(vod_results.vod.mean().values)
+                if "vod" in vod_results
+                else None,
             )
             return vod_results
         except Exception as e:

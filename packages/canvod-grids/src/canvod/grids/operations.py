@@ -108,7 +108,7 @@ def add_cell_ids_to_vod_fast(
     """
     start_time = time.time()
     print(f"\nAssigning cells for '{grid_name}'...")
-    
+
     log.info(
         "cell_assignment_started",
         grid_name=grid_name,
@@ -138,10 +138,10 @@ def add_cell_ids_to_vod_fast(
     n_assigned = np.sum(np.isfinite(cell_ids_2d))
     n_unique = len(np.unique(cell_ids[np.isfinite(cell_ids)]))
     duration = time.time() - start_time
-    
+
     print(f"  ✓ Assigned: {n_assigned:,} / {cell_ids_2d.size:,} observations")
     print(f"  ✓ Unique cells: {n_unique:,}")
-    
+
     log.info(
         "cell_assignment_complete",
         grid_name=grid_name,

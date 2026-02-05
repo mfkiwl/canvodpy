@@ -137,7 +137,7 @@ class AuxDataPipeline:
             If a required aux file fails to load.
         """
         import time
-        
+
         start_time = time.time()
         self._logger.info(
             "aux_load_all_started",
@@ -151,7 +151,7 @@ class AuxDataPipeline:
         for name, entry in self._registry.items():
             handler = entry["handler"]
             required = entry["required"]
-            
+
             file_start = time.time()
 
             try:
@@ -173,7 +173,7 @@ class AuxDataPipeline:
 
                 entry["loaded"] = True
                 file_duration = time.time() - file_start
-                
+
                 self._logger.info(
                     "aux_file_load_complete",
                     name=name,
@@ -205,7 +205,7 @@ class AuxDataPipeline:
                         name=name,
                         reason="load_failed",
                     )
-        
+
         duration = time.time() - start_time
         self._logger.info(
             "aux_load_all_complete",
