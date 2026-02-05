@@ -13,8 +13,8 @@
             "path": "packages/canvod-readers",
         },
         {
-            "name": "🔗 canvod-aux",
-            "path": "packages/canvod-aux",
+            "name": "🔗 canvod-auxiliary",
+            "path": "packages/canvod-auxiliary",
         },
         {
             "name": "🌐 canvod-grids",

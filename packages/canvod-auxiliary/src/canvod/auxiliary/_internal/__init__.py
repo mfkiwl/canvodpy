@@ -9,7 +9,11 @@ Logger and units are specific to canvod-aux package.
 from canvod.utils.tools import YYYYDOY, get_gps_week_from_filename
 
 # Import aux-specific utilities
-from canvod.auxiliary._internal.logger import get_logger, reset_context, set_file_context
+from canvod.auxiliary._internal.logger import (
+    get_logger,
+    reset_context,
+    set_file_context,
+)
 from canvod.auxiliary._internal.units import SPEEDOFLIGHT, UREG
 
 __all__ = [
