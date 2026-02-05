@@ -45,11 +45,11 @@ runs:
         
         # Extract and install
         if [ "$EXT" = "zip" ]; then
-          unzip -q "just.$EXT"
+          unzip -o -q "just.$EXT"
           mkdir -p "$HOME/.local/bin"
           mv just.exe "$HOME/.local/bin/"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-          rm "just.$EXT"
+          rm "just.$EXT" LICENSE
         else
           tar -xzf "just.$EXT"
           sudo mv just /usr/local/bin/just
