@@ -217,6 +217,14 @@ class Pipeline:
         self.n_workers = n_workers
         self.dry_run = dry_run
 
+        # Setup logging
+        from canvodpy.logging import get_logger
+        
+        self.log = get_logger(__name__).bind(
+            site=site.name,
+            component="pipeline",
+        )
+
         # Lazy import to avoid circular dependency
         from canvodpy.orchestrator import PipelineOrchestrator
 
@@ -224,6 +232,14 @@ class Pipeline:
         self._orchestrator = PipelineOrchestrator(
             site=site._site,
             n_max_workers=n_workers,
+            dry_run=dry_run,
+        )
+        
+        self.log.info(
+            "pipeline_initialized",
+            aux_agency=aux_agency,
+            n_workers=n_workers,
+            keep_vars=len(keep_vars or KEEP_RNX_VARS),
             dry_run=dry_run,
         )
 
@@ -253,14 +269,23 @@ class Pipeline:
         Dimensions: (epoch: 2880, sv: 32, ...)
 
         """
+        log = self.log.bind(date=date)
+        log.info("date_processing_started")
+        
         # Use proven orchestrator logic
         for _date_key, datasets, _timing in self._orchestrator.process_by_date(
             keep_vars=self.keep_vars,
             start_from=date,
             end_at=date,
         ):
+            log.info(
+                "date_processing_complete",
+                receivers=len(datasets),
+                receiver_names=list(datasets.keys()),
+            )
             return datasets  # Return first (only) date
 
+        log.warning("no_data_processed", date=date)
         return {}  # No data processed
 
     def process_range(
@@ -330,22 +355,39 @@ class Pipeline:
         0.42
 
         """
-        # Load processed data from stores
-        canopy_data = self.site.rinex_store.read_group(canopy, date=date)
-        ref_data = self.site.rinex_store.read_group(reference, date=date)
+        log = self.log.bind(date=date, canopy=canopy, reference=reference)
+        log.info("vod_calculation_started")
+        
+        try:
+            # Load processed data from stores
+            canopy_data = self.site.rinex_store.read_group(canopy, date=date)
+            ref_data = self.site.rinex_store.read_group(reference, date=date)
 
-        # Lazy import to avoid circular dependency
-        from canvod.vod import VODCalculator
+            # Lazy import to avoid circular dependency
+            from canvod.vod import VODCalculator
 
-        # Use proven VOD calculator
-        calculator = VODCalculator()
-        vod_results = calculator.compute(canopy_data, ref_data)
+            # Use proven VOD calculator
+            calculator = VODCalculator()
+            vod_results = calculator.compute(canopy_data, ref_data)
 
-        # Store results
-        analysis_name = f"{canopy}_vs_{reference}"
-        self.site.vod_store.write_group(analysis_name, vod_results)
+            # Store results
+            analysis_name = f"{canopy}_vs_{reference}"
+            self.site.vod_store.write_group(analysis_name, vod_results)
 
-        return vod_results
+            log.info(
+                "vod_calculation_complete",
+                analysis=analysis_name,
+                vod_mean=float(vod_results.vod.mean().values) if "vod" in vod_results else None,
+            )
+            return vod_results
+        except Exception as e:
+            log.error(
+                "vod_calculation_failed",
+                error=str(e),
+                exception=type(e).__name__,
+                exc_info=True,
+            )
+            raise
 
     def preview(self) -> dict:
         """Preview processing plan without execution.

@@ -4,7 +4,7 @@ Migrated from: gnssvodpy/rinexreader/rinex_reader.py
 
 Changes from original:
 - Updated imports to use canvod.readers.gnss_specs
-- Removed logging (commented out with # log.method(...))
+- Added structured logging for LLM-friendly diagnostics
 - Removed IcechunkPreprocessor calls (TODO: move to canvod-store)
 - Preserved all other functionality
 
