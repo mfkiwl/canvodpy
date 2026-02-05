@@ -2,6 +2,7 @@
 
 import gzip
 import shutil
+import time
 from abc import ABC, abstractmethod
 from ftplib import FTP_TLS, error_perm
 from pathlib import Path
@@ -10,6 +11,10 @@ from urllib import error as urlerror
 from urllib import request
 
 from tqdm import tqdm
+
+from canvod.auxiliary._internal import get_logger
+
+log = get_logger(__name__)
 
 
 class FileDownloader(ABC):
@@ -103,25 +108,59 @@ class FtpDownloader(FileDownloader):
         Path
             Path to the downloaded file.
         """
+        start_time = time.time()
         destination.parent.mkdir(parents=True, exist_ok=True)
+        
+        log.info(
+            "file_download_started",
+            url=url,
+            destination=str(destination),
+            file_info=file_info,
+        )
 
         try:
             print(f"Attempting to download from primary server: {url}")
-            return self._try_download_url(url, destination)
+            result = self._try_download_url(url, destination)
+            duration = time.time() - start_time
+            
+            log.info(
+                "file_download_complete",
+                url=url,
+                destination=str(destination),
+                duration_seconds=round(duration, 2),
+                server="primary",
+            )
+            return result
         except Exception as e:
             # Check if this is a network connectivity issue
             if self._is_network_error(e):
+                log.error(
+                    "network_error",
+                    error=str(e),
+                    exception=type(e).__name__,
+                )
                 raise RuntimeError(
                     "❌ No internet connection detected.\n"
                     "   Please check your network and try again."
                 ) from e
 
             print(f"Primary download failed: {str(e)}")
+            log.warning(
+                "primary_download_failed",
+                url=url,
+                error=str(e),
+                exception=type(e).__name__,
+            )
 
             all_errors = [f"Primary server error: {str(e)}"]
 
             if not self.alt_servers:
                 print("ℹ No fallback servers available")
+                log.error(
+                    "no_fallback_servers",
+                    url=url,
+                    alt_servers_configured=False,
+                )
                 raise RuntimeError(
                     f"Failed to download file from primary server.\n"
                     f"\nPrimary URL: {url}\n"
@@ -143,7 +182,23 @@ class FtpDownloader(FileDownloader):
                         alt_url = self._construct_alternate_url(url, alt_server)
 
                     print(f"Trying alternate server: {alt_url}")
-                    return self._try_download_url(alt_url, destination)
+                    log.info(
+                        "fallback_download_started",
+                        alt_url=alt_url,
+                        alt_server=alt_server,
+                    )
+                    result = self._try_download_url(alt_url, destination)
+                    duration = time.time() - start_time
+                    
+                    log.info(
+                        "file_download_complete",
+                        url=alt_url,
+                        destination=str(destination),
+                        duration_seconds=round(duration, 2),
+                        server="fallback",
+                        fallback_server=alt_server,
+                    )
+                    return result
                 except Exception as alt_e:
                     # Check for network error on alternate server too
                     if self._is_network_error(alt_e):

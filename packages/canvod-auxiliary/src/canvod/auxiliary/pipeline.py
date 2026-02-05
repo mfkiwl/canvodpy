@@ -73,10 +73,14 @@ class AuxDataPipeline:
         self._registry: dict[str, dict] = {}
         self._cache: dict[str, xr.Dataset] = {}
         self._lock = threading.Lock()
-        self._logger = get_logger()
+        self._logger = get_logger(__name__).bind(
+            date=self.matched_dirs.yyyydoy.to_str(),
+            sid_filtering=len(keep_sids) if keep_sids else "all",
+        )
 
         self._logger.info(
-            f"Initialized AuxDataPipeline for {self.matched_dirs.yyyydoy.to_str()}"
+            "aux_pipeline_initialized",
+            keep_sids_count=len(keep_sids) if keep_sids else None,
         )
 
     def register(self, name: str, aux_file: AuxFile, required: bool = False) -> None:
@@ -99,7 +103,12 @@ class AuxDataPipeline:
         >>> pipeline.register('ionex', IonexFile(...), required=False)
         """
         if name in self._registry:
-            self._logger.warning(f"Overwriting existing aux file registration: {name}")
+            self._logger.warning(
+                "aux_file_overwrite",
+                name=name,
+                old_handler=self._registry[name]["handler"].__class__.__name__,
+                new_handler=aux_file.__class__.__name__,
+            )
 
         self._registry[name] = {
             "handler": aux_file,
@@ -107,7 +116,13 @@ class AuxDataPipeline:
             "loaded": False,
         }
 
-        self._logger.info(f"Registered aux file '{name}' (required={required})")
+        self._logger.info(
+            "aux_file_registered",
+            name=name,
+            handler=aux_file.__class__.__name__,
+            required=required,
+            file_path=str(aux_file.fpath),
+        )
 
     def load_all(self) -> None:
         """Load all registered auxiliary files.
@@ -121,14 +136,30 @@ class AuxDataPipeline:
         RuntimeError
             If a required aux file fails to load.
         """
-        self._logger.info("Loading all registered auxiliary files...")
+        import time
+        
+        start_time = time.time()
+        self._logger.info(
+            "aux_load_all_started",
+            registered_files=len(self._registry),
+            file_names=list(self._registry.keys()),
+        )
+
+        loaded_count = 0
+        failed_count = 0
 
         for name, entry in self._registry.items():
             handler = entry["handler"]
             required = entry["required"]
+            
+            file_start = time.time()
 
             try:
-                self._logger.info(f"Loading '{name}' from {handler.fpath}")
+                self._logger.info(
+                    "aux_file_load_started",
+                    name=name,
+                    file_path=str(handler.fpath),
+                )
 
                 # Stage 1: Download & read raw dataset
                 raw_ds = handler.data
@@ -141,12 +172,28 @@ class AuxDataPipeline:
                     self._cache[name] = preprocessed_ds
 
                 entry["loaded"] = True
+                file_duration = time.time() - file_start
+                
                 self._logger.info(
-                    f"Successfully loaded '{name}': {dict(preprocessed_ds.sizes)}"
+                    "aux_file_load_complete",
+                    name=name,
+                    duration_seconds=round(file_duration, 2),
+                    dataset_size=dict(preprocessed_ds.sizes),
                 )
+                loaded_count += 1
 
             except Exception as e:
-                self._logger.error(f"Failed to load '{name}': {e}")
+                file_duration = time.time() - file_start
+                self._logger.error(
+                    "aux_file_load_failed",
+                    name=name,
+                    duration_seconds=round(file_duration, 2),
+                    error=str(e),
+                    exception=type(e).__name__,
+                    required=required,
+                    exc_info=True,
+                )
+                failed_count += 1
 
                 if required:
                     raise RuntimeError(
@@ -154,9 +201,19 @@ class AuxDataPipeline:
                     ) from e
                 else:
                     self._logger.warning(
-                        f"Optional auxiliary file '{name}' failed to load, "
-                        f"continuing..."
+                        "aux_file_optional_skip",
+                        name=name,
+                        reason="load_failed",
                     )
+        
+        duration = time.time() - start_time
+        self._logger.info(
+            "aux_load_all_complete",
+            duration_seconds=round(duration, 2),
+            loaded=loaded_count,
+            failed=failed_count,
+            total=len(self._registry),
+        )
 
     def get(self, name: str) -> xr.Dataset:
         """Get a preprocessed (sid-mapped) auxiliary dataset.
