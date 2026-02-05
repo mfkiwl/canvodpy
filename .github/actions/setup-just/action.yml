@@ -50,13 +50,15 @@ runs:
           mv just.exe "$HOME/.local/bin/"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           rm "just.$EXT" LICENSE
+          # Verify (use full path since GITHUB_PATH takes effect in next step)
+          "$HOME/.local/bin/just.exe" --version
         else
           tar -xzf "just.$EXT"
           sudo mv just /usr/local/bin/just
           sudo chmod +x /usr/local/bin/just
           rm "just.$EXT"
+          # Verify
+          just --version
         fi
         
-        # Verify
-        just --version
         echo "✅ just $VERSION installed successfully"
