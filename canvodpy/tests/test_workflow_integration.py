@@ -161,7 +161,7 @@ class TestWorkflowErrorHandling:
 
     def test_workflow_invalid_grid_type_fails(self):
         """Should fail with invalid grid type."""
-        with pytest.raises(KeyError, match="nonexistent_grid"):
+        with pytest.raises(ValueError, match="nonexistent_grid"):
             VODWorkflow(site="Rosalia", grid="nonexistent_grid")
 
     def test_workflow_invalid_reader_fails(self):

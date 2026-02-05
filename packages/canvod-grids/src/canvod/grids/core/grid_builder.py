@@ -6,7 +6,13 @@ from typing import Any
 import numpy as np
 import polars as pl
 from canvod.grids.core.grid_data import GridData
-from loguru import logger
+
+
+def _get_logger():
+    """Lazy import to avoid circular dependency."""
+    from canvodpy.logging import get_logger
+
+    return get_logger(__name__)
 
 
 class BaseGridBuilder(ABC):
@@ -47,7 +53,7 @@ class BaseGridBuilder(ABC):
         self.cutoff_theta_rad = np.deg2rad(cutoff_theta)
         self.phi_rotation = phi_rotation
         self.phi_rotation_rad = np.deg2rad(phi_rotation)
-        self._logger = logger
+        self._logger = _get_logger()
 
     @abstractmethod
     def _build_grid(
@@ -89,7 +95,9 @@ class BaseGridBuilder(ABC):
 
         """
         self._logger.info(
-            f"Building {self.get_grid_type()} grid: res={self.angular_resolution}°"
+            "grid_build_started",
+            grid_type=self.get_grid_type(),
+            angular_resolution=self.angular_resolution,
         )
 
         result = self._build_grid()
@@ -120,7 +128,7 @@ class BaseGridBuilder(ABC):
                     ]
                 )
 
-        self._logger.info(f"Built grid with {len(grid)} cells")
+        self._logger.info("grid_build_complete", ncells=len(grid))
 
         return GridData(
             grid=grid,
