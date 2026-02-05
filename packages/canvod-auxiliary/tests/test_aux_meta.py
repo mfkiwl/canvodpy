@@ -34,7 +34,7 @@ def test_package_imports():
     """Test that main package can be imported."""
     import canvod.auxiliary
 
-    assert canvod.aux is not None
+    assert canvod.auxiliary is not None
 
 
 def test_internal_utilities_import():
