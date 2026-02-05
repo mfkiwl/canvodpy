@@ -1,6 +1,7 @@
 # canVODpy
 
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 [![Static Badge](https://img.shields.io/badge/CLIMERS_@_GEO_TU_WIEN-Project-gray?style=flat&labelColor=%23006699&color=gray&link=https%3A%2F%2Fwww.tuwien.at%2Fen%2Fmg%2Fgeo%2Fclimers)](https://www.tuwien.at/en/mg/geo/climers)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -35,12 +36,44 @@ uv pip install canvod-readers canvod-grids
 
 ## Development Setup
 
+### Prerequisites
+
+This project requires two tools that need to be installed separately:
+
+1. **uv** - Fast Python package manager
+   ```bash
+   # macOS/Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # Windows
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+   # Or via package manager
+   brew install uv  # macOS
+   ```
+
+2. **just** - Command runner (like make, but better)
+   ```bash
+   # macOS/Linux
+   curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash
+
+   # Or via package manager
+   brew install just      # macOS
+   cargo install just     # Rust
+   apt install just       # Ubuntu 23.04+
+   ```
+
+### Setup Steps
+
 ```bash
 # Clone repository
 git clone https://github.com/nfb2021/canvodpy.git
 cd canvodpy
 
-# Install dependencies
+# Verify required tools are installed
+just check-dev-tools  # Checks uv, just, python3
+
+# Install Python dependencies
 uv sync
 
 # Install pre-commit hooks
@@ -52,6 +85,30 @@ just test
 # Check code quality
 just check
 ```
+
+### Available Commands
+
+See all available commands:
+```bash
+just --list
+```
+
+Common commands:
+- `just check` - Lint, format, and type-check
+- `just test` - Run all tests
+- `just test-coverage` - Run tests with coverage report
+- `just changelog` - Generate CHANGELOG from commits
+- `just release <VERSION>` - Create a new release
+
+## Documentation
+
+- **[docs/guides/HOW_RELEASE_WORKS.md](docs/guides/HOW_RELEASE_WORKS.md)** - Complete guide to the release system
+- **[docs/guides/PYPI_SETUP.md](docs/guides/PYPI_SETUP.md)** - PyPI publishing setup
+- **[VERSIONING.md](VERSIONING.md)** - Versioning strategy
+- **[RELEASING.md](RELEASING.md)** - Release process
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
+- `just clean` - Clean build artifacts
+- `just docs` - Preview documentation
 
 ## Usage
 

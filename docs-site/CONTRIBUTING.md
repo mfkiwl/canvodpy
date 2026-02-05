@@ -2,6 +2,52 @@
 
 Contributions are welcome, and they are greatly appreciated! Every little bit helps, and credit will always be given.
 
+## Development Environment Setup
+
+### Required Tools (Install These First!)
+
+This project requires two external tools that are **not** installed via `uv sync`:
+
+#### 1. uv (Python Package Manager)
+
+**Check if installed:** `uv --version`
+
+**Installation:**
+```bash
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Package managers
+brew install uv          # macOS
+cargo install uv         # Rust
+```
+
+📚 [uv documentation](https://docs.astral.sh/uv/)
+
+#### 2. just (Command Runner)
+
+**Check if installed:** `just --version`
+
+**Installation:**
+```bash
+# Quick install (macOS/Linux)
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash
+
+# Package managers
+brew install just        # macOS
+cargo install just       # Rust
+apt install just         # Ubuntu 23.04+
+```
+
+📚 [just documentation](https://github.com/casey/just)
+
+**Why just?** It's used for all development tasks (testing, linting, etc.) and in CI/CD.
+
+---
+
 ## Types of Contributions
 
 ### Report Bugs
@@ -40,14 +86,121 @@ If you are proposing a feature:
 
 Ready to contribute? Here's how to set up `canvodpy` for local development.
 
-1. Fork the `canvodpy` repo on GitHub.
+1. **Install required tools** (see "Required Tools" section above):
+   - Install `uv` (Python package manager)
+   - Install `just` (command runner)
 
-2. Clone your fork locally:
+2. Fork the `canvodpy` repo on GitHub.
+
+3. Clone your fork locally:
 
    ```sh
    git clone git@github.com:your_name_here/canvodpy.git
    cd canvodpy
    ```
+
+4. Verify required tools are installed:
+
+   ```sh
+   just check-dev-tools  # Checks uv, just, python3
+   ```
+
+4. Install Python dependencies:
+
+   ```sh
+   uv sync
+   ```
+
+5. Install pre-commit hooks (recommended):
+
+   ```sh
+   just hooks
+   ```
+
+6. Create a branch for local development:
+
+   ```sh
+   git checkout -b name-of-your-bugfix-or-feature
+   ```
+
+7. Make your changes and verify them:
+
+   ```sh
+   # Run tests
+   just test
+
+   # Check code quality (lint + format + type-check)
+   just check
+   ```
+
+8. Commit your changes using conventional commits:
+
+   ```sh
+   git add .
+   git commit -m "feat(readers): add support for RINEX 4.0 format"
+   # or use interactive helper
+   uv run cz commit
+   ```
+
+   **Commit Message Format:**
+   ```
+   <type>(<scope>): <subject>
+
+   <body>
+
+   <footer>
+   ```
+
+   **Types:**
+   - `feat`: New feature
+   - `fix`: Bug fix
+   - `docs`: Documentation changes
+   - `refactor`: Code restructure (no behavior change)
+   - `test`: Add/modify tests
+   - `chore`: Build/tools/dependencies
+   - `perf`: Performance improvements
+   - `ci`: CI/CD changes
+
+   **Scopes** (monorepo packages):
+   - `readers`, `aux`, `grids`, `vod`, `store`, `viz`, `utils`
+   - `orchestrator`, `diagnostics`, `ci`, `docs`, `deps`
+
+   **Examples:**
+   ```bash
+   git commit -m "feat(vod): add tau-omega calculator"
+   git commit -m "fix(readers): handle empty RINEX files"
+   git commit -m "docs: update installation instructions"
+   git commit -m "test(grids): add property tests for equal-area grid"
+   git commit -m "feat(viz)!: redesign 3D plotting API"  # ! = breaking change
+   ```
+
+   See [Conventional Commits](https://www.conventionalcommits.org/) for details.
+
+9. Push your branch and submit a pull request:
+
+   ```sh
+   git push origin name-of-your-bugfix-or-feature
+   ```
+
+### Common Development Commands
+
+```bash
+# See all available commands
+just --list
+
+# Run tests
+just test                  # Run all tests
+just test-coverage         # With coverage report
+just test-package canvod-grids  # Specific package
+
+# Code quality
+just check                 # Lint + format + type-check
+just check-lint            # Just linting
+just check-format          # Just formatting
+
+# Documentation
+just docs                  # Preview docs locally
+```
 
 3. Install your local copy into a virtualenv. Assuming you have [uv] and [Just] installed:
 

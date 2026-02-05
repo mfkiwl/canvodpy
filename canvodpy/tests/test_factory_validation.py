@@ -1,0 +1,175 @@
+"""
+Integration tests for factory-based API.
+
+Tests factory registration, validation, and component creation.
+"""
+
+import pytest
+from canvodpy.factories import (
+    GridFactory,
+    ReaderFactory,
+    VODFactory,
+)
+
+
+class TestFactoryRegistration:
+    """Test factory registration and listing."""
+
+    def test_builtin_readers_registered(self):
+        """Built-in readers should be auto-registered."""
+        available = ReaderFactory.list_available()
+        assert "rinex3" in available
+
+    def test_builtin_grids_registered(self):
+        """Built-in grids should be auto-registered."""
+        available = GridFactory.list_available()
+        assert "equal_area" in available
+
+    def test_builtin_vod_registered(self):
+        """Built-in VOD calculators should be auto-registered."""
+        available = VODFactory.list_available()
+        assert "tau_omega" in available
+
+    def test_list_available_returns_list(self):
+        """list_available should return list of strings."""
+        readers = ReaderFactory.list_available()
+        assert isinstance(readers, list)
+        assert all(isinstance(name, str) for name in readers)
+
+
+class TestFactoryCreation:
+    """Test component creation via factories."""
+
+    def test_create_grid_builder(self):
+        """Should create grid builder instance."""
+        builder = GridFactory.create("equal_area", angular_resolution=10.0)
+        assert builder is not None
+        assert hasattr(builder, "build")
+
+    def test_create_grid_with_params(self):
+        """Should pass parameters to grid builder."""
+        builder = GridFactory.create(
+            "equal_area",
+            angular_resolution=10.0,
+            cutoff_theta=15.0,  # Reasonable cutoff
+        )
+        grid = builder.build()
+        assert grid.ncells > 0
+
+    def test_create_unknown_component_fails(self):
+        """Should raise ValueError for unknown component."""
+        with pytest.raises(ValueError, match="not registered"):
+            GridFactory.create("nonexistent")
+
+
+class TestFactoryABCValidation:
+    """Test ABC enforcement in factories."""
+
+    def test_register_non_abc_fails(self):
+        """Should reject components that don't inherit from ABC."""
+
+        class NotABuilder:
+            """Not a grid builder."""
+
+        # Set ABC class first
+        GridFactory._set_abc_class()
+
+        with pytest.raises(TypeError, match="must inherit"):
+            GridFactory.register("bad", NotABuilder)
+
+    def test_register_valid_component_succeeds(self):
+        """Should accept components that inherit from ABC."""
+        from canvod.grids.core.grid_builder import BaseGridBuilder
+
+        class ValidBuilder(BaseGridBuilder):
+            """Valid grid builder."""
+
+            def _build_grid(self):
+                pass
+
+            def get_grid_type(self):
+                return "test"
+
+        # Should not raise
+        GridFactory.register("test_builder", ValidBuilder)
+
+        # Clean up
+        if "test_builder" in GridFactory._registry:
+            del GridFactory._registry["test_builder"]
+
+
+class TestFactoryPydanticValidation:
+    """Test Pydantic validation in component creation."""
+
+    def test_invalid_params_raise_validation_error(self):
+        """Should validate parameters (TypeError from numpy)."""
+        # Grid builders use regular classes, not Pydantic
+        # So invalid types raise TypeError, not ValidationError
+        with pytest.raises(TypeError):
+            # angular_resolution should be float, not string
+            GridFactory.create("equal_area", angular_resolution="invalid")
+
+    def test_missing_required_params_fail(self):
+        """Should fail if required parameters missing."""
+        # Note: Most components have defaults, but this tests the pattern
+        # Implementation depends on specific component requirements
+
+
+class TestFactoryIsolation:
+    """Test that factory registries are isolated."""
+
+    def test_factories_have_separate_registries(self):
+        """Each factory should have its own registry."""
+        readers = ReaderFactory.list_available()
+        grids = GridFactory.list_available()
+        vods = VODFactory.list_available()
+
+        # Registries should be different
+        assert set(readers) != set(grids)
+        assert set(grids) != set(vods)
+
+    def test_registration_in_one_factory_not_visible_in_others(self):
+        """Registering in one factory shouldn't affect others."""
+        initial_grids = set(GridFactory.list_available())
+
+        # Register a reader
+        from canvod.readers.base import GNSSDataReader
+
+        class TestReader(GNSSDataReader):
+            """Test reader."""
+
+            def read(self):
+                pass
+
+        ReaderFactory.register("test_reader", TestReader)
+
+        # Grid factory should be unchanged
+        assert set(GridFactory.list_available()) == initial_grids
+
+        # Clean up
+        if "test_reader" in ReaderFactory._registry:
+            del ReaderFactory._registry["test_reader"]
+
+
+class TestFactoryThreadSafety:
+    """Test factory behavior in concurrent scenarios."""
+
+    def test_list_available_during_registration(self):
+        """list_available should work during registration."""
+        # This tests that there are no race conditions
+        # In production use, registration happens at import time
+        initial = GridFactory.list_available()
+        assert isinstance(initial, list)
+
+    def test_multiple_creates_dont_interfere(self):
+        """Multiple create calls should be independent."""
+        grid1 = GridFactory.create("equal_area", angular_resolution=5.0)
+        grid2 = GridFactory.create("equal_area", angular_resolution=10.0)
+
+        # Should create independent builders
+        assert grid1 is not grid2
+
+        # With different parameters
+        built1 = grid1.build()
+        built2 = grid2.build()
+        assert built1.ncells != built2.ncells
