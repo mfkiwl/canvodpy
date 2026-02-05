@@ -73,9 +73,9 @@ def test_public_api_imports():
     import canvod.auxiliary
 
     # Core classes should always be available
-    assert hasattr(canvod.aux, "Sp3File")
-    assert hasattr(canvod.aux, "ClkFile")
-    assert hasattr(canvod.aux, "AuxFile")
+    assert hasattr(canvod.auxiliary, "Sp3File")
+    assert hasattr(canvod.auxiliary, "ClkFile")
+    assert hasattr(canvod.auxiliary, "AuxFile")
 
     # Optional classes (require gnssvodpy)
     # These may or may not be available depending on whether gnssvodpy is installed
@@ -133,5 +133,5 @@ def test_version_attribute():
     """Test that package has version attribute."""
     import canvod.auxiliary
 
-    assert hasattr(canvod.aux, "__version__")
+    assert hasattr(canvod.auxiliary, "__version__")
     assert canvod.auxiliary.__version__ == "0.1.0"
