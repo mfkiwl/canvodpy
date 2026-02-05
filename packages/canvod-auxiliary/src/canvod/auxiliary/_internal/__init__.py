@@ -1,19 +1,15 @@
 """
-Internal utilities for canvod-aux package.
+Internal utilities for canvod-auxiliary package.
 
 Date utilities are imported from canvod.utils.tools (canonical location).
-Logger and units are specific to canvod-aux package.
+Logger and units are specific to canvod-auxiliary package.
 """
 
 # Import date utilities from canonical location
 from canvod.utils.tools import YYYYDOY, get_gps_week_from_filename
 
 # Import aux-specific utilities
-from canvod.auxiliary._internal.logger import (
-    get_logger,
-    reset_context,
-    set_file_context,
-)
+from canvod.auxiliary._internal.logger import get_logger
 from canvod.auxiliary._internal.units import SPEEDOFLIGHT, UREG
 
 __all__ = [
@@ -25,6 +21,4 @@ __all__ = [
     "get_gps_week_from_filename",
     # Logging
     "get_logger",
-    "set_file_context",
-    "reset_context",
 ]

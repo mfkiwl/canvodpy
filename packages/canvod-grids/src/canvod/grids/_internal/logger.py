@@ -1,8 +1,4 @@
-"""
-Structlog-based logging for canvod-auxiliary package.
-
-Provides consistent logging with the main canvodpy package.
-"""
+"""Structlog-based logging for canvod-grids package."""
 
 import structlog
 
@@ -14,7 +10,7 @@ def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
     ----------
     name : str, optional
         Logger name, typically __name__ of the module.
-        If None, uses "canvod.auxiliary".
+        If None, uses "canvod.grids".
 
     Returns
     -------
@@ -24,8 +20,8 @@ def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
     Examples
     --------
     >>> log = get_logger(__name__)
-    >>> log.info("aux_pipeline_initialized", date="2025001")
+    >>> log.info("cell_assignment_started", grid_name="equal_area")
     """
     if name is None:
-        name = "canvod.auxiliary"
+        name = "canvod.grids"
     return structlog.get_logger(name)
