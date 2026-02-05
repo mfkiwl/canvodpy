@@ -1,11 +1,11 @@
 ---
 title: Installation Guide
-description: How to install and set up canvod-aux
+description: How to install and set up canvod-auxiliary
 ---
 
 # Installation Guide
 
-Complete guide to installing `canvod-aux` for different use cases.
+Complete guide to installing `canvod-auxiliary` for different use cases.
 
 ## Prerequisites
 
@@ -40,10 +40,10 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ```bash
 # Using pip
-pip install canvod-aux
+pip install canvod-auxiliary
 
 # Using uv
-uv pip install canvod-aux
+uv pip install canvod-auxiliary
 ```
 
 **Verify installation:**
@@ -58,7 +58,7 @@ python -c "from canvod.aux import Sp3File, ClkFile; print('✓ Works!')"
 ```bash
 # Clone repository
 git clone https://github.com/nfb2021/canvodpy.git
-cd canvodpy/packages/canvod-aux
+cd canvodpy/packages/canvod-auxiliary
 
 # Install in editable mode
 uv pip install -e .
@@ -77,7 +77,7 @@ python -c "import canvod.aux; print(canvod.aux.__version__)"
 **For running tests and code quality checks:**
 
 ```bash
-cd canvodpy/packages/canvod-aux
+cd canvodpy/packages/canvod-auxiliary
 
 # Install with dev dependencies
 uv pip install -e ".[dev]"
@@ -104,7 +104,7 @@ cd canvodpy
 # Install entire workspace
 uv sync
 
-# canvod-aux is now available along with all other packages
+# canvod-auxiliary is now available along with all other packages
 ```
 
 ---
@@ -151,8 +151,8 @@ Automatically installed with the package:
 cd my-project
 uv init
 
-# Add canvod-aux
-uv add canvod-aux
+# Add canvod-auxiliary
+uv add canvod-auxiliary
 
 # Install dependencies
 uv sync
@@ -169,7 +169,7 @@ source .venv/bin/activate  # macOS/Linux
 .venv\Scripts\activate     # Windows
 
 # Install
-pip install canvod-aux
+pip install canvod-auxiliary
 ```
 
 ### Using conda
@@ -180,7 +180,7 @@ conda create -n gnss python=3.13
 conda activate gnss
 
 # Install
-pip install canvod-aux
+pip install canvod-auxiliary
 ```
 
 ---
@@ -240,14 +240,14 @@ ModuleNotFoundError: No module named 'canvod'
 
 3. Reinstall:
    ```bash
-   pip install --force-reinstall canvod-aux
+   pip install --force-reinstall canvod-auxiliary
    ```
 
 ### Dependency Conflicts
 
 **Problem:**
 ```
-ERROR: Cannot install canvod-aux due to dependency conflicts
+ERROR: Cannot install canvod-auxiliary due to dependency conflicts
 ```
 
 **Solutions:**
@@ -258,7 +258,7 @@ ERROR: Cannot install canvod-aux due to dependency conflicts
    ```
 3. Install specific versions:
    ```bash
-   pip install canvod-aux==0.1.0
+   pip install canvod-auxiliary==0.1.0
    ```
 
 ### Permission Errors
@@ -272,7 +272,7 @@ PermissionError: [Errno 13] Permission denied
 1. Use virtual environment (recommended)
 2. Or install for user only:
    ```bash
-   pip install --user canvod-aux
+   pip install --user canvod-auxiliary
    ```
 
 ### Network Issues (FTP/HTTPS)
@@ -307,8 +307,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # Or use Homebrew
 brew install uv
 
-# Install canvod-aux
-uv pip install canvod-aux
+# Install canvod-auxiliary
+uv pip install canvod-auxiliary
 ```
 
 ### Linux
@@ -320,7 +320,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # Or use distribution package manager
 # Ubuntu/Debian:
 sudo apt install python3-pip
-pip install canvod-aux
+pip install canvod-auxiliary
 ```
 
 ### Windows
@@ -330,7 +330,7 @@ pip install canvod-aux
 irm https://astral.sh/uv/install.ps1 | iex
 
 # Or use pip
-pip install canvod-aux
+pip install canvod-auxiliary
 ```
 
 ---
@@ -348,8 +348,8 @@ WORKDIR /app
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 
-# Install canvod-aux
-RUN uv pip install canvod-aux
+# Install canvod-auxiliary
+RUN uv pip install canvod-auxiliary
 
 # Copy your application
 COPY . .

@@ -1,6 +1,6 @@
 """Interpolation strategies for GNSS auxiliary data."""
 
-from canvod.aux.interpolation.interpolator import (
+from canvod.auxiliary.interpolation.interpolator import (
     ClockConfig,
     ClockInterpolationStrategy,
     Interpolator,

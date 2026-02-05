@@ -358,7 +358,7 @@ If you use this package in your research, please cite:
 
 Part of the [canVODpy](https://github.com/nfb2021/canvodpy) ecosystem:
 - `canvod-readers`: RINEX file parsing
-- `canvod-aux`: Auxiliary GNSS data
+- `canvod-auxiliary`: Auxiliary GNSS data
 - `canvod-grids`: Hemisphere grid generation
 - `canvod-vod`: VOD calculations
 - `canvod-store`: Icechunk storage

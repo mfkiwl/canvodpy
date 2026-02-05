@@ -1,5 +1,5 @@
 [project]
-name = "canvod-aux"
+name = "canvod-auxiliary"
 version = "0.1.0"
 description = "Auxiliary data augmentation for GNSS VOD analysis"
 authors = [

@@ -7,7 +7,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from canvod.aux._internal import UREG
+from canvod.auxiliary._internal import UREG
 
 
 class Sp3Parser:

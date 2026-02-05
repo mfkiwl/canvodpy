@@ -1,7 +1,7 @@
 """Core abstractions for auxiliary file handling."""
 
-from canvod.aux.core.base import AuxFile
-from canvod.aux.core.downloader import FileDownloader, FtpDownloader
+from canvod.auxiliary.core.base import AuxFile
+from canvod.auxiliary.core.downloader import FileDownloader, FtpDownloader
 
 __all__ = [
     "AuxFile",

@@ -64,7 +64,7 @@ def get_logger(name: str | None = None) -> logging.Logger:
 
     # Return named logger if requested
     if name is not None:
-        return logging.getLogger(f"canvod.aux.{name}")
+        return logging.getLogger(f"canvod.auxiliary.{name}")
 
     # Return or create base logger
     if _BASE_LOGGER is None:
@@ -97,7 +97,7 @@ def set_file_context(filename: str | Path) -> contextvars.Token:
         filename = filename.name
 
     # Create file-specific logger
-    file_logger = logging.getLogger(f"canvod.aux.{filename}")
+    file_logger = logging.getLogger(f"canvod.auxiliary.{filename}")
 
     # Inherit configuration from base logger
     base_logger = get_logger()

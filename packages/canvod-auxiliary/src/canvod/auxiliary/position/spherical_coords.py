@@ -13,7 +13,7 @@ import numpy as np
 import pymap3d as pm
 import xarray as xr
 
-from canvod.aux.position.position import ECEFPosition
+from canvod.auxiliary.position.position import ECEFPosition
 
 
 def compute_spherical_coordinates(
@@ -71,7 +71,7 @@ def compute_spherical_coordinates(
 
     Examples
     --------
-    >>> from canvod.aux.position import ECEFPosition, compute_spherical_coordinates
+    >>> from canvod.auxiliary.position import ECEFPosition, compute_spherical_coordinates
     >>>
     >>> # Receiver position
     >>> rx = ECEFPosition(x=4194304.0, y=176481.0, z=4780013.0)

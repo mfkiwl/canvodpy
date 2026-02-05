@@ -6,7 +6,7 @@ Tests the UREG unit registry and custom unit definitions.
 
 import pytest
 
-from canvod.aux._internal import SPEEDOFLIGHT, UREG
+from canvod.auxiliary._internal import SPEEDOFLIGHT, UREG
 
 
 def test_ureg_import():

@@ -10,7 +10,7 @@ import warnings
 
 import xarray as xr
 
-from canvod.aux.interpolation import create_interpolator_from_attrs
+from canvod.auxiliary.interpolation import create_interpolator_from_attrs
 
 
 class DatasetMatcher:
@@ -30,7 +30,7 @@ class DatasetMatcher:
 
     Examples
     --------
-    >>> from canvod.aux.matching import DatasetMatcher
+    >>> from canvod.auxiliary.matching import DatasetMatcher
     >>>
     >>> matcher = DatasetMatcher()
     >>> matched = matcher.match_datasets(

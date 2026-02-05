@@ -10,8 +10,8 @@ from canvod.utils.tools import YYYYDOY
 from pydantic import ConfigDict, Field
 from pydantic.dataclasses import dataclass
 
-from canvod.aux.core.downloader import FileDownloader, FtpDownloader
-from canvod.aux.interpolation import Interpolator
+from canvod.auxiliary.core.downloader import FileDownloader, FtpDownloader
+from canvod.auxiliary.interpolation import Interpolator
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))

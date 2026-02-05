@@ -214,7 +214,7 @@ def _(sp3_state):
 - **Other cells** can safely check contents without errors (Step 3)
 - **Marimo's reactivity** still works - cells re-run when state changes
 
-## Applied to canvod-aux Demo
+## Applied to canvod-auxiliary Demo
 
 The demo uses this pattern for file operations:
 

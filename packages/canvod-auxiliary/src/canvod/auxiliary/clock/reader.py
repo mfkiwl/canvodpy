@@ -12,16 +12,16 @@ from canvod.utils.tools import get_gps_week_from_filename
 from pydantic import ConfigDict
 from pydantic.dataclasses import dataclass
 
-from canvod.aux._internal.units import UREG
-from canvod.aux.clock.parser import parse_clk_file
-from canvod.aux.clock.validator import validate_clk_dataset
-from canvod.aux.core.base import AuxFile
-from canvod.aux.interpolation import (
+from canvod.auxiliary._internal.units import UREG
+from canvod.auxiliary.clock.parser import parse_clk_file
+from canvod.auxiliary.clock.validator import validate_clk_dataset
+from canvod.auxiliary.core.base import AuxFile
+from canvod.auxiliary.interpolation import (
     ClockConfig,
     ClockInterpolationStrategy,
     Interpolator,
 )
-from canvod.aux.products.registry import get_product_spec
+from canvod.auxiliary.products.registry import get_product_spec
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))

@@ -212,7 +212,7 @@ canvodpy maintains excellent package independence:
 ✅ Maximum dependency depth: 1
 
 Foundation (0 deps):          Consumers (1 dep):
-  canvod-readers ────────────→ canvod-aux
+  canvod-readers ────────────→ canvod-auxiliary
   canvod-grids ──────────────→ canvod-viz
   canvod-grids ──────────────→ canvod-store
   canvod-vod
@@ -290,7 +290,7 @@ Warning signs:
 mkdir -p dependency-graphs
 
 # Generate per-package graphs
-for pkg in canvod-readers canvod-aux canvod-grids canvod-store canvod-utils canvod-viz canvod-vod; do
+for pkg in canvod-readers canvod-auxiliary canvod-grids canvod-store canvod-utils canvod-viz canvod-vod; do
   cd packages/$pkg
   uv run pydeps canvod.${pkg#canvod-} \
     --max-bacon=2 \
@@ -347,7 +347,7 @@ just test-fast
 Tests are located in each package's `tests/` directory:
 ```
 packages/canvod-readers/tests/
-packages/canvod-aux/tests/
+packages/canvod-auxiliary/tests/
 packages/canvod-grids/tests/
 ...
 ```
@@ -390,7 +390,7 @@ View at: http://localhost:3000
 **MyST (Package Docs)**
 ```
 packages/canvod-readers/docs/
-packages/canvod-aux/docs/
+packages/canvod-auxiliary/docs/
 packages/canvod-grids/docs/
 ...
 ```
@@ -493,7 +493,7 @@ canvodpy is a multi-package monorepo:
 ### The 8 Packages
 
 1. **canvod-readers** - RINEX readers (foundation)
-2. **canvod-aux** - Auxiliary GNSS data (depends on readers)
+2. **canvod-auxiliary** - Auxiliary GNSS data (depends on readers)
 3. **canvod-grids** - Grid implementations (foundation)
 4. **canvod-store** - Icechunk storage (depends on grids)
 5. **canvod-utils** - Shared utilities (foundation)

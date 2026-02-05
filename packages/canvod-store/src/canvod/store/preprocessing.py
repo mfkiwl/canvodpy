@@ -2,7 +2,7 @@
 Preprocessing wrapper for Icechunk storage.
 
 This module provides the IcechunkPreprocessor class which wraps
-preprocessing functions from canvod.aux.preprocessing. It maintains
+preprocessing functions from canvod.auxiliary.preprocessing. It maintains
 backward compatibility with gnssvodpy code while delegating to the
 new modular implementation.
 """
@@ -10,7 +10,7 @@ new modular implementation.
 from typing import Any
 
 import xarray as xr
-from canvod.aux.preprocessing import (
+from canvod.auxiliary.preprocessing import (
     add_future_datavars,
     map_aux_sv_to_sid,
     normalize_sid_dtype,
@@ -24,11 +24,11 @@ class IcechunkPreprocessor:
     """
     Handles preprocessing of RINEX-converted datasets before writing to Icechunk.
 
-    This class wraps functions from canvod.aux.preprocessing to provide
+    This class wraps functions from canvod.auxiliary.preprocessing to provide
     backward compatibility with existing gnssvodpy code.
 
     Note:
-        All methods now delegate to canvod.aux.preprocessing functions.
+        All methods now delegate to canvod.auxiliary.preprocessing functions.
         The aggregate_glonass_fdma parameter should be passed from configuration.
     """
 
@@ -41,7 +41,7 @@ class IcechunkPreprocessor:
         """
         Transform auxiliary dataset from sv → sid dimension.
 
-        Delegates to canvod.aux.preprocessing.map_aux_sv_to_sid()
+        Delegates to canvod.auxiliary.preprocessing.map_aux_sv_to_sid()
 
         Parameters
         ----------
@@ -72,7 +72,7 @@ class IcechunkPreprocessor:
         """
         Pad dataset so it has all possible SIDs across all constellations.
 
-        Delegates to canvod.aux.preprocessing.pad_to_global_sid()
+        Delegates to canvod.auxiliary.preprocessing.pad_to_global_sid()
 
         Parameters
         ----------
@@ -95,7 +95,7 @@ class IcechunkPreprocessor:
         """
         Ensure sid coordinate uses object dtype.
 
-        Delegates to canvod.aux.preprocessing.normalize_sid_dtype()
+        Delegates to canvod.auxiliary.preprocessing.normalize_sid_dtype()
 
         Parameters
         ----------
@@ -114,7 +114,7 @@ class IcechunkPreprocessor:
         """
         Remove _FillValue attrs/encodings.
 
-        Delegates to canvod.aux.preprocessing.strip_fillvalue()
+        Delegates to canvod.auxiliary.preprocessing.strip_fillvalue()
 
         Parameters
         ----------
@@ -136,7 +136,7 @@ class IcechunkPreprocessor:
         """
         Add placeholder data variables from configuration.
 
-        Delegates to canvod.aux.preprocessing.add_future_datavars()
+        Delegates to canvod.auxiliary.preprocessing.add_future_datavars()
 
         Parameters
         ----------
@@ -162,7 +162,7 @@ class IcechunkPreprocessor:
         """
         Preprocess auxiliary dataset before writing to Icechunk.
 
-        Delegates to canvod.aux.preprocessing.prep_aux_ds()
+        Delegates to canvod.auxiliary.preprocessing.prep_aux_ds()
 
         Performs complete 4-step preprocessing:
         1. Convert sv → sid dimension

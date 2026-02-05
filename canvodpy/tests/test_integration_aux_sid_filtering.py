@@ -10,7 +10,7 @@ pytest.skip(
     "Integration test needs updating for new config structure", allow_module_level=True
 )
 
-from canvod.aux.position import ECEFPosition
+from canvod.auxiliary.position import ECEFPosition
 from canvod.utils.config import load_config
 from canvodpy.orchestrator.processor import preprocess_with_hermite_aux
 

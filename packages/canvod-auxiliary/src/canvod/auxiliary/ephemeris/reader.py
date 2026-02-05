@@ -7,16 +7,16 @@ import xarray as xr
 from pydantic import ConfigDict
 from pydantic.dataclasses import dataclass
 
-from canvod.aux._internal import UREG, get_gps_week_from_filename
-from canvod.aux.core.base import AuxFile
-from canvod.aux.ephemeris.parser import Sp3Parser
-from canvod.aux.ephemeris.validator import Sp3Validator
-from canvod.aux.interpolation import (
+from canvod.auxiliary._internal import UREG, get_gps_week_from_filename
+from canvod.auxiliary.core.base import AuxFile
+from canvod.auxiliary.ephemeris.parser import Sp3Parser
+from canvod.auxiliary.ephemeris.validator import Sp3Validator
+from canvod.auxiliary.interpolation import (
     Interpolator,
     Sp3Config,
     Sp3InterpolationStrategy,
 )
-from canvod.aux.products.registry import ProductSpec, get_product_spec
+from canvod.auxiliary.products.registry import ProductSpec, get_product_spec
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))

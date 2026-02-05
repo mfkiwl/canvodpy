@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from canvod.aux.container import FileMetadata, GnssData
+from canvod.auxiliary.container import FileMetadata, GnssData
 
 
 class TestFileMetadata:

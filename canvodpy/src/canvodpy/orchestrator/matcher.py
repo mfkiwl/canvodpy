@@ -3,7 +3,7 @@
 import warnings
 
 import xarray as xr
-from canvod.aux.interpolation import create_interpolator_from_attrs
+from canvod.auxiliary.interpolation import create_interpolator_from_attrs
 
 
 class DatasetMatcher:

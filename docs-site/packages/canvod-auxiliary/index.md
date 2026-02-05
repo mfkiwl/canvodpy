@@ -1,4 +1,4 @@
-# canvod-aux Documentation
+# canvod-auxiliary Documentation
 
 **Auxiliary Data Augmentation for GNSS VOD Analysis**
 
@@ -27,9 +27,9 @@ Link: [products](products.md)
 Explore 39 validated GNSS products across 17 agencies
 
 
-## What is canvod-aux?
+## What is canvod-auxiliary?
 
-`canvod-aux` provides comprehensive auxiliary data handling for GNSS vegetation optical depth (VOD) analysis. It manages downloading, parsing, interpolating, and preprocessing SP3 ephemerides and clock corrections to augment RINEX observation data.
+`canvod-auxiliary` provides comprehensive auxiliary data handling for GNSS vegetation optical depth (VOD) analysis. It manages downloading, parsing, interpolating, and preprocessing SP3 ephemerides and clock corrections to augment RINEX observation data.
 
 ### Key Features
 
@@ -46,7 +46,7 @@ Explore 39 validated GNSS products across 17 agencies
 ```mermaid
 graph LR
     A[RINEX Files] --> B[canvod-readers]
-    C[SP3/CLK Files] --> D[canvod-aux]
+    C[SP3/CLK Files] --> D[canvod-auxiliary]
     B --> E[Augmented Dataset]
     D --> E
     E --> F[canvod-vod]
@@ -55,10 +55,10 @@ graph LR
     style D fill:#e1f5ff
 ```
 
-**canvod-aux** augments RINEX data with satellite positions and clock corrections:
+**canvod-auxiliary** augments RINEX data with satellite positions and clock corrections:
 
 1. **canvod-readers**: Parse RINEX → xarray.Dataset
-2. **canvod-aux** (this package): Download/interpolate SP3/CLK → augment with (φ, θ, r)
+2. **canvod-auxiliary** (this package): Download/interpolate SP3/CLK → augment with (φ, θ, r)
 3. **canvod-vod**: Calculate vegetation optical depth from augmented SNR
 4. **canvod-store**: Store data in Icechunk format
 
@@ -67,12 +67,12 @@ graph LR
 
 ### uv (Recommended)
 ```bash
-uv pip install canvod-aux
+uv pip install canvod-auxiliary
 ```
 
 ### pip
 ```bash
-pip install canvod-aux
+pip install canvod-auxiliary
 ```
 
 
@@ -191,7 +191,7 @@ r, theta, phi = compute_spherical_coordinates(
 ### Package Structure
 
 ```
-canvod-aux/
+canvod-auxiliary/
 ├── core/              # Base classes (AuxFile, FileDownloader)
 ├── ephemeris/         # SP3 file handler
 ├── clock/             # CLK file handler
@@ -207,7 +207,7 @@ canvod-aux/
 
 ```mermaid
 graph TD
-    A[canvod-readers] --> B[canvod-aux]
+    A[canvod-readers] --> B[canvod-auxiliary]
     B --> C[scipy: interpolation]
     B --> D[pydantic: validation]
     B --> E[xarray: datasets]
@@ -225,9 +225,9 @@ graph TD
 
 ## Comparison with gnssvodpy
 
-canvod-aux **exactly matches** gnssvodpy's preprocessing:
+canvod-auxiliary **exactly matches** gnssvodpy's preprocessing:
 
-| Feature | gnssvodpy | canvod-aux | Status |
+| Feature | gnssvodpy | canvod-auxiliary | Status |
 |---------|-----------|------------|--------|
 | sv→sid mapping | ✅ | ✅ | Identical |
 | Global sid padding | ✅ | ✅ | Identical |

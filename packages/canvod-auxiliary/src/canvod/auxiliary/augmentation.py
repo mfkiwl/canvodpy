@@ -19,9 +19,9 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import xarray as xr
 
-from canvod.aux._internal import get_logger
-from canvod.aux.matching import DatasetMatcher
-from canvod.aux.position import (
+from canvod.auxiliary._internal import get_logger
+from canvod.auxiliary.matching import DatasetMatcher
+from canvod.auxiliary.position import (
     ECEFPosition,
     add_spherical_coords_to_dataset,
     compute_spherical_coordinates,
@@ -30,7 +30,7 @@ from canvod.aux.position import (
 # Lazy import to avoid gnssvodpy dependency at module load
 # AuxDataPipeline requires gnssvodpy - only imported for type hints
 if TYPE_CHECKING:
-    from canvod.aux.pipeline import AuxDataPipeline
+    from canvod.auxiliary.pipeline import AuxDataPipeline
 
 
 class AugmentationContext:
@@ -479,7 +479,7 @@ Demonstrates:
 4. Caching receiver position across multiple files
 
 NOTE: These examples require gnssvodpy to be installed.
-Run with: python -m canvod.aux.augmentation
+Run with: python -m canvod.auxiliary.augmentation
 """
 
 
@@ -753,7 +753,7 @@ if __name__ == "__main__":
     from canvod.readers import MatchedDirs
     from canvod.utils.tools import YYYYDOY
 
-    from canvod.aux.pipeline import AuxDataPipeline
+    from canvod.auxiliary.pipeline import AuxDataPipeline
 
     print("\n" + "=" * 60)
     print("AUGMENTATION FRAMEWORK EXAMPLES")

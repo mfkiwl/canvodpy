@@ -1,11 +1,11 @@
-# Environment Setup for canvod-aux
+# Environment Setup for canvod-auxiliary
 
 ## Quick Start
 
 ### 1. Copy Environment Template
 
 ```bash
-cd packages/canvod-aux
+cd packages/canvod-auxiliary
 cp .env.example .env
 ```
 
@@ -173,7 +173,7 @@ os.environ["CDDIS_MAIL"] = "test@example.com"
 
 **Solutions:**
 1. Check file is named `.env` (not `env` or `.env.txt`)
-2. File must be in package root: `packages/canvod-aux/.env`
+2. File must be in package root: `packages/canvod-auxiliary/.env`
 3. Install python-dotenv: `uv add python-dotenv`
 4. Manually load: `load_dotenv(Path('.env'))`
 
@@ -181,7 +181,7 @@ os.environ["CDDIS_MAIL"] = "test@example.com"
 
 ```bash
 # 1. Initial setup (once)
-cd packages/canvod-aux
+cd packages/canvod-auxiliary
 cp .env.example .env
 nano .env  # Edit CDDIS_MAIL if desired
 

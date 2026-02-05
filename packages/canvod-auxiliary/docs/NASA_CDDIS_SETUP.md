@@ -44,7 +44,7 @@ export CDDIS_MAIL="your.email@example.com"
 
 Run test script:
 ```bash
-cd /Users/work/Developer/GNSS/canvodpy/packages/canvod-aux
+cd /Users/work/Developer/GNSS/canvodpy/packages/canvod-auxiliary
 uv run python test_download.py
 ```
 

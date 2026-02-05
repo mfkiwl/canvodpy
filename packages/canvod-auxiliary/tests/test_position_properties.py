@@ -9,7 +9,7 @@ import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from canvod.aux.position import ECEFPosition, GeodeticPosition
+from canvod.auxiliary.position import ECEFPosition, GeodeticPosition
 
 # ============================================================================
 # Hypothesis Strategies

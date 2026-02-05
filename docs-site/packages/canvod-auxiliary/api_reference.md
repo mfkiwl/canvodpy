@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API documentation for canvod-aux.
+Complete API documentation for canvod-auxiliary.
 
 ## File Handlers
 

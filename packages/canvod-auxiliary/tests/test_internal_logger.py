@@ -7,7 +7,7 @@ Tests logging context management and logger configuration.
 import logging
 from pathlib import Path
 
-from canvod.aux._internal import get_logger, reset_context, set_file_context
+from canvod.auxiliary._internal import get_logger, reset_context, set_file_context
 
 
 def test_get_logger_returns_logger():

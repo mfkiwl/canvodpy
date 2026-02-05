@@ -6,18 +6,18 @@ clock corrections for GNSS satellite data processing.
 """
 
 # Core abstractions
-from canvod.aux.clock import ClkFile
+from canvod.auxiliary.clock import ClkFile
 
 # Container classes
-from canvod.aux.container import GnssData
-from canvod.aux.core.base import AuxFile
-from canvod.aux.core.downloader import FileDownloader, FtpDownloader
+from canvod.auxiliary.container import GnssData
+from canvod.auxiliary.core.base import AuxFile
+from canvod.auxiliary.core.downloader import FileDownloader, FtpDownloader
 
 # File handlers by auxiliary data type
-from canvod.aux.ephemeris import Sp3File
+from canvod.auxiliary.ephemeris import Sp3File
 
 # Interpolation
-from canvod.aux.interpolation import (
+from canvod.auxiliary.interpolation import (
     ClockConfig,
     ClockInterpolationStrategy,
     Interpolator,
@@ -28,10 +28,10 @@ from canvod.aux.interpolation import (
 )
 
 # Dataset matching
-from canvod.aux.matching import DatasetMatcher
+from canvod.auxiliary.matching import DatasetMatcher
 
 # Position and coordinates
-from canvod.aux.position import (
+from canvod.auxiliary.position import (
     ECEFPosition,
     GeodeticPosition,
     add_spherical_coords_to_dataset,
@@ -39,7 +39,7 @@ from canvod.aux.position import (
 )
 
 # Preprocessing
-from canvod.aux.preprocessing import (
+from canvod.auxiliary.preprocessing import (
     add_future_datavars,
     create_sv_to_sid_mapping,
     map_aux_sv_to_sid,
@@ -51,7 +51,7 @@ from canvod.aux.preprocessing import (
 )
 
 # Product registry
-from canvod.aux.products import (
+from canvod.auxiliary.products import (
     PRODUCT_REGISTRY,
     ProductSpec,
     get_product_spec,
@@ -106,7 +106,7 @@ __all__ = [
 
 # Try to import pipeline (requires gnssvodpy)
 try:
-    from canvod.aux.pipeline import AuxDataPipeline as _AuxDataPipeline
+    from canvod.auxiliary.pipeline import AuxDataPipeline as _AuxDataPipeline
 
     __all__.append(_AuxDataPipeline.__name__)
     globals()[_AuxDataPipeline.__name__] = _AuxDataPipeline
@@ -115,7 +115,7 @@ except ImportError:
 
 # Try to import augmentation (requires gnssvodpy)
 try:
-    from canvod.aux.augmentation import (
+    from canvod.auxiliary.augmentation import (
         AugmentationContext,
         AugmentationStep,
         AuxDataAugmenter,

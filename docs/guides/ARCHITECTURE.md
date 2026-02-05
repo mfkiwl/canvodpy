@@ -43,7 +43,7 @@ Foundation Packages (0 dependencies):
   canvod-utils      → Shared utilities
 
 Consumer Packages (1 dependency):
-  canvod-aux        → depends on canvod-readers
+  canvod-auxiliary        → depends on canvod-readers
   canvod-viz        → depends on canvod-grids
   canvod-store      → depends on canvod-grids
 
@@ -288,7 +288,7 @@ canvodpy uses namespace packages for modular distribution:
 
 ```
 canvod.readers      → canvod-readers package
-canvod.aux          → canvod-aux package
+canvod.aux          → canvod-auxiliary package
 canvod.grids        → canvod-grids package
 canvod.store        → canvod-store package
 canvod.utils        → canvod-utils package

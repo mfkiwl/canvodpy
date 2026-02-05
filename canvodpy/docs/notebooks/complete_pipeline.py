@@ -275,9 +275,9 @@ def _(_aux_dir, _obs_date, agency_selector, download_aux_button, mo, product_sel
         """Download SP3 and CLK files."""
         import os
 
-        from canvod.aux.clock.reader import ClkFile
-        from canvod.aux.core.downloader import FtpDownloader
-        from canvod.aux.ephemeris.reader import Sp3File
+        from canvod.auxiliary.clock.reader import ClkFile
+        from canvod.auxiliary.core.downloader import FtpDownloader
+        from canvod.auxiliary.ephemeris.reader import Sp3File
 
         results = {}
 
@@ -396,7 +396,7 @@ def _(_aux_files, _rinex_ds, augment_button, mo, receiver_x, receiver_y, receive
         """Augment RINEX with auxiliary data."""
         from dataclasses import dataclass
 
-        from canvod.aux.augmentation import AugmentationContext, AuxDataAugmenter
+        from canvod.auxiliary.augmentation import AugmentationContext, AuxDataAugmenter
 
         # Simple ECEF position class (temporary until moved to canvod-core)
         @dataclass

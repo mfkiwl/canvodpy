@@ -245,7 +245,7 @@ uv run pydeps canvodpy/src/canvodpy \
 ### Generate Individual Package Graph
 ```bash
 # Example: canvod.aux
-uv run pydeps packages/canvod-aux/src/canvod/aux \
+uv run pydeps packages/canvod-auxiliary/src/canvod/aux \
     --only canvodpy canvod \
     -T svg \
     -o docs/dependency_graphs/canvod_aux.svg \

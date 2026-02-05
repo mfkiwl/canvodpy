@@ -12,7 +12,7 @@ import pytest
 def _can_import_pipeline():
     """Check if pipeline can be imported (requires gnssvodpy)."""
     try:
-        from canvod.aux import AuxDataPipeline
+        from canvod.auxiliary import AuxDataPipeline
 
         return True
     except (ImportError, AttributeError):
@@ -22,7 +22,7 @@ def _can_import_pipeline():
 def _can_import_augmentation():
     """Check if augmentation can be imported (requires gnssvodpy)."""
     try:
-        from canvod.aux import AuxDataAugmenter
+        from canvod.auxiliary import AuxDataAugmenter
 
         return True
     except (ImportError, AttributeError):
@@ -32,7 +32,7 @@ def _can_import_augmentation():
 # Tests
 def test_package_imports():
     """Test that main package can be imported."""
-    import canvod.aux
+    import canvod.auxiliary
 
     assert canvod.aux is not None
 
@@ -41,7 +41,7 @@ def test_internal_utilities_import():
     """Test that internal utilities can be imported."""
     from canvod.utils.tools import YYYYDOY
 
-    from canvod.aux._internal import UREG, get_logger
+    from canvod.auxiliary._internal import UREG, get_logger
 
     assert UREG is not None
     assert YYYYDOY is not None
@@ -50,7 +50,7 @@ def test_internal_utilities_import():
 
 def test_core_api_imports():
     """Test that core API classes can be imported (no gnssvodpy dependencies)."""
-    from canvod.aux import (
+    from canvod.auxiliary import (
         AuxFile,
         ClkFile,
         ClockConfig,
@@ -70,7 +70,7 @@ def test_core_api_imports():
 
 def test_public_api_imports():
     """Test that all available public API classes can be imported."""
-    import canvod.aux
+    import canvod.auxiliary
 
     # Core classes should always be available
     assert hasattr(canvod.aux, "Sp3File")
@@ -86,7 +86,7 @@ def test_public_api_imports():
 )
 def test_pipeline_import():
     """Test that pipeline can be imported (requires gnssvodpy)."""
-    from canvod.aux import AuxDataPipeline
+    from canvod.auxiliary import AuxDataPipeline
 
     assert AuxDataPipeline is not None
 
@@ -96,7 +96,7 @@ def test_pipeline_import():
 )
 def test_augmentation_imports():
     """Test that augmentation framework can be imported (requires gnssvodpy)."""
-    from canvod.aux import (
+    from canvod.auxiliary import (
         AugmentationContext,
         AugmentationStep,
         AuxDataAugmenter,
@@ -109,7 +109,7 @@ def test_augmentation_imports():
 
 def test_interpolation_imports():
     """Test that interpolation strategies can be imported."""
-    from canvod.aux import (
+    from canvod.auxiliary import (
         ClockInterpolationStrategy,
         Sp3InterpolationStrategy,
         create_interpolator_from_attrs,
@@ -122,7 +122,7 @@ def test_interpolation_imports():
 
 def test_container_imports():
     """Test that container utilities can be imported."""
-    from canvod.aux import FileDownloader, FtpDownloader, GnssData
+    from canvod.auxiliary import FileDownloader, FtpDownloader, GnssData
 
     assert FileDownloader is not None
     assert FtpDownloader is not None
@@ -131,7 +131,7 @@ def test_container_imports():
 
 def test_version_attribute():
     """Test that package has version attribute."""
-    import canvod.aux
+    import canvod.auxiliary
 
     assert hasattr(canvod.aux, "__version__")
-    assert canvod.aux.__version__ == "0.1.0"
+    assert canvod.auxiliary.__version__ == "0.1.0"

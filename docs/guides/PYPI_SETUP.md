@@ -4,7 +4,7 @@ This monorepo publishes **8 separate packages** to PyPI:
 
 **Individual packages:**
 1. `canvod-readers` - GNSS data readers
-2. `canvod-aux` - Auxiliary data handling
+2. `canvod-auxiliary` - Auxiliary data handling
 3. `canvod-grids` - Grid operations
 4. `canvod-store` - Storage backends
 5. `canvod-utils` - Utility functions
@@ -54,7 +54,7 @@ Already completed with `twine upload --repository testpypi dist/*`
 
 All 8 packages published:
 - https://test.pypi.org/project/canvod-readers/
-- https://test.pypi.org/project/canvod-aux/
+- https://test.pypi.org/project/canvod-auxiliary/
 - https://test.pypi.org/project/canvod-grids/
 - https://test.pypi.org/project/canvod-store/
 - https://test.pypi.org/project/canvod-utils/
@@ -75,7 +75,7 @@ All 8 packages published:
 
 For each package, go to its publishing settings:
 - https://test.pypi.org/manage/project/canvod-readers/settings/publishing/
-- https://test.pypi.org/manage/project/canvod-aux/settings/publishing/
+- https://test.pypi.org/manage/project/canvod-auxiliary/settings/publishing/
 - https://test.pypi.org/manage/project/canvod-grids/settings/publishing/
 - https://test.pypi.org/manage/project/canvod-store/settings/publishing/
 - https://test.pypi.org/manage/project/canvod-utils/settings/publishing/

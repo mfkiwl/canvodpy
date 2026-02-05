@@ -1,15 +1,15 @@
 ---
-title: canvod-aux Documentation
-description: Complete guide to using canvod-aux for GNSS auxiliary data processing
+title: canvod-auxiliary Documentation
+description: Complete guide to using canvod-auxiliary for GNSS auxiliary data processing
 ---
 
-# canvod-aux Documentation
+# canvod-auxiliary Documentation
 
-Welcome to the complete documentation for **canvod-aux**, the auxiliary data augmentation package for GNSS VOD analysis.
+Welcome to the complete documentation for **canvod-auxiliary**, the auxiliary data augmentation package for GNSS VOD analysis.
 
-## What is canvod-aux?
+## What is canvod-auxiliary?
 
-`canvod-aux` is a **Python package** for handling auxiliary GNSS data files including:
+`canvod-auxiliary` is a **Python package** for handling auxiliary GNSS data files including:
 
 - **SP3 Ephemerides** - Satellite orbit positions and velocities
 - **CLK Corrections** - Satellite clock corrections  
@@ -33,7 +33,7 @@ This package is for:
 
 ### 🚀 Getting Started
 
-**New to canvod-aux?** Start here:
+**New to canvod-auxiliary?** Start here:
 
 1. **[Installation →](installation.md)** - Install the package
 2. **[Quick Start →](quickstart.md)** - Your first 5 minutes
@@ -157,14 +157,14 @@ enriched = augmenter.augment(rinex_dataset, context)
 ### From PyPI (Recommended)
 
 ```bash
-pip install canvod-aux
+pip install canvod-auxiliary
 ```
 
 ### Development Install
 
 ```bash
 git clone https://github.com/nfb2021/canvodpy.git
-cd canvodpy/packages/canvod-aux
+cd canvodpy/packages/canvod-auxiliary
 uv pip install -e .
 ```
 
@@ -305,10 +305,10 @@ See **[Architecture Guide →](architecture.md)** for complete details.
 
 ## Integration with canVODpy
 
-`canvod-aux` is part of the canVODpy ecosystem:
+`canvod-auxiliary` is part of the canVODpy ecosystem:
 
 ```
-canvod-readers → canvod-aux → canvod-grids → canvod-vod
+canvod-readers → canvod-auxiliary → canvod-grids → canvod-vod
                      ↓
               canvod-store
                      ↓
@@ -317,7 +317,7 @@ canvod-readers → canvod-aux → canvod-grids → canvod-vod
 
 **Workflow:**
 1. **canvod-readers** - Read RINEX observations
-2. **canvod-aux** - Augment with auxiliary data ← **You are here**
+2. **canvod-auxiliary** - Augment with auxiliary data ← **You are here**
 3. **canvod-grids** - Map to hemisphere grids
 4. **canvod-vod** - Calculate VOD
 5. **canvod-store** - Store results
@@ -394,7 +394,7 @@ except FileNotFoundError:
 
 **Ready to get started?**
 
-1. 📦 **[Install canvod-aux →](installation.md)**
+1. 📦 **[Install canvod-auxiliary →](installation.md)**
 2. 🚀 **[Quick Start Tutorial →](quickstart.md)**
 3. 📖 **[Read Architecture Guide →](architecture.md)**
 

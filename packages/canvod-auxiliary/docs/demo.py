@@ -27,8 +27,8 @@ def _():
     import tempfile
     from pathlib import Path
 
-    from canvod.aux.clock.reader import ClkFile
-    from canvod.aux.ephemeris.reader import Sp3File
+    from canvod.auxiliary.clock.reader import ClkFile
+    from canvod.auxiliary.ephemeris.reader import Sp3File
 
     return ClkFile, Path, Sp3File, datetime, tempfile
 

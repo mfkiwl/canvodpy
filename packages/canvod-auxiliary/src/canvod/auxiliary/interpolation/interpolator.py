@@ -106,7 +106,7 @@ class Sp3InterpolationStrategy(Interpolator):
 
     Examples
     --------
-    >>> from canvod.aux.interpolation import Sp3InterpolationStrategy, Sp3Config
+    >>> from canvod.auxiliary.interpolation import Sp3InterpolationStrategy, Sp3Config
     >>>
     >>> config = Sp3Config(use_velocities=True, fallback_method='linear')
     >>> interpolator = Sp3InterpolationStrategy(config=config)
@@ -261,7 +261,7 @@ class ClockInterpolationStrategy(Interpolator):
 
     Examples
     --------
-    >>> from canvod.aux.interpolation import ClockInterpolationStrategy, ClockConfig
+    >>> from canvod.auxiliary.interpolation import ClockInterpolationStrategy, ClockConfig
     >>>
     >>> config = ClockConfig(window_size=9, jump_threshold=1e-6)
     >>> interpolator = ClockInterpolationStrategy(config=config)

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import xarray as xr
 
-from canvod.aux.products.models import FileValidationResult
+from canvod.auxiliary.products.models import FileValidationResult
 
 
 class Sp3Validator:

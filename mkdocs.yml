@@ -55,14 +55,14 @@ nav:
           - packages/canvod-readers/pydantic_guide.md
           - packages/canvod-readers/testing.md
           - packages/canvod-readers/extending_readers.md
-      - canvod-aux:
-          - packages/canvod-aux/README.md
-          - packages/canvod-aux/index.md
-          - packages/canvod-aux/overview.md
-          - packages/canvod-aux/preprocessing.md
-          - packages/canvod-aux/interpolation.md
-          - packages/canvod-aux/position.md
-          - packages/canvod-aux/products.md
+      - canvod-auxiliary:
+          - packages/canvod-auxiliary/README.md
+          - packages/canvod-auxiliary/index.md
+          - packages/canvod-auxiliary/overview.md
+          - packages/canvod-auxiliary/preprocessing.md
+          - packages/canvod-auxiliary/interpolation.md
+          - packages/canvod-auxiliary/position.md
+          - packages/canvod-auxiliary/products.md
       - canvod-store:
           - packages/canvod-store/README.md
           - packages/canvod-store/index.md
@@ -85,7 +85,7 @@ nav:
           - canvodpy/README.md
   - API Reference:
       - docs/api/canvod-readers.md
-      - docs/api/canvod-aux.md
+      - docs/api/canvod-auxiliary.md
       - docs/api/canvod-store.md
       - docs/api/canvod-utils.md
       - docs/api/canvod-vod.md
@@ -114,7 +114,7 @@ plugins:
         python:
           paths:
             - packages/canvod-readers/src
-            - packages/canvod-aux/src
+            - packages/canvod-auxiliary/src
             - packages/canvod-store/src
             - packages/canvod-utils/src
             - packages/canvod-grids/src

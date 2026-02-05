@@ -4,7 +4,7 @@ Three coordinate systems for GNSS positioning.
 
 ## Overview
 
-canvod-aux supports three coordinate systems:
+canvod-auxiliary supports three coordinate systems:
 1. **ECEF** (Earth-Centered, Earth-Fixed): Cartesian (X, Y, Z)
 2. **Geodetic** (WGS84): Latitude, Longitude, Altitude
 3. **Spherical** (Physics convention): (r, θ, φ) relative to receiver

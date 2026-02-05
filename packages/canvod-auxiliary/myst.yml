@@ -13,7 +13,7 @@ site:
     folders: true
 
 project:
-  title: canvod-aux
+  title: canvod-auxiliary
   subtitle: Auxiliary Data Augmentation for GNSS VOD Analysis
   authors:
     - name: Nicolas Bader

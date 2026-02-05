@@ -290,7 +290,7 @@ def sample_preprocessed_sp3():
 @pytest.fixture
 def ecef_position():
     """Fixture providing sample ECEF position (TU Wien station)."""
-    from canvod.aux import ECEFPosition
+    from canvod.auxiliary import ECEFPosition
 
     return ECEFPosition(x=4075539.8, y=931735.3, z=4801629.6)
 
@@ -302,7 +302,7 @@ def geodetic_position():
     Using coordinates that convert correctly to TU Wien ECEF position.
     These values were calculated by converting the TU Wien ECEF coordinates.
     """
-    from canvod.aux import GeodeticPosition
+    from canvod.auxiliary import GeodeticPosition
 
     # Convert TU Wien ECEF to geodetic to get correct values
     # ECEF(4075539.8, 931735.3, 4801629.6) → Geodetic(49.145°N, 12.877°E, 311.5m)

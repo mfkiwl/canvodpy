@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `canvod-aux` package provides comprehensive auxiliary data management for GNSS (Global Navigation Satellite System) vegetation optical depth (VOD) research. It handles the complete workflow of downloading, parsing, preprocessing, and interpolating SP3 ephemerides and CLK clock corrections to augment RINEX observation data with precise satellite positions and timing.
+The `canvod-auxiliary` package provides comprehensive auxiliary data management for GNSS (Global Navigation Satellite System) vegetation optical depth (VOD) research. It handles the complete workflow of downloading, parsing, preprocessing, and interpolating SP3 ephemerides and CLK clock corrections to augment RINEX observation data with precise satellite positions and timing.
 
 ## The Problem We Solve
 
@@ -27,7 +27,7 @@ GNSS VOD analysis requires combining two data sources with different characteris
 - ❌ **Coordinate systems**: ECEF → Geodetic → Spherical transformations
 - ❌ **Scientific accuracy**: Sub-millimeter positioning, sub-nanosecond timing
 
-**canvod-aux solves all these:**
+**canvod-auxiliary solves all these:**
 
 ✅ **Dimension alignment**: Converts sv → sid with proper signal replication  
 ✅ **Temporal alignment**: Hermite splines (ephemeris) + piecewise linear (clock)  
@@ -503,7 +503,7 @@ Typical timings (Intel i7-1165G7 @ 2.8GHz):
 
 ## Comparison with Other Tools
 
-| Feature | canvod-aux | georinex | gnssrefl | sp3 |
+| Feature | canvod-auxiliary | georinex | gnssrefl | sp3 |
 |---------|------------|----------|----------|-----|
 | SP3 parsing | ✅ Full | ✅ Full | ❌ | ✅ Full |
 | CLK parsing | ✅ Full | ⚠️ Basic | ❌ | ❌ |
@@ -516,7 +516,7 @@ Typical timings (Intel i7-1165G7 @ 2.8GHz):
 | Icechunk ready | ✅ | ❌ | ❌ | ❌ |
 
 **Key Differences:**
-- **sv→sid preprocessing**: Essential for VOD pipeline, unique to canvod-aux
+- **sv→sid preprocessing**: Essential for VOD pipeline, unique to canvod-auxiliary
 - **Interpolation strategies**: Scientifically validated, configurable
 - **Product registry**: 39 validated products from 17 agencies
 - **Type safety**: Pydantic configurations catch errors early

@@ -21,7 +21,7 @@ graph TB
     
     subgraph "Core Processing Packages"
         Readers["📖 canvod-readers<br/>RINEX v3.04 Parsing"]
-        Aux["📡 canvod-aux<br/>SP3/CLK/Position"]
+        Aux["📡 canvod-auxiliary<br/>SP3/CLK/Position"]
         Store["💾 canvod-store<br/>Icechunk Storage"]
         Utils["🛠️ canvod-utils<br/>Config & Tools"]
     end
@@ -145,7 +145,7 @@ graph LR
     
     subgraph DataIO["📥 Data I/O Layer"]
         Readers["canvod-readers<br/>━━━━━━━━<br/>• Rnxv3Obs<br/>• SignalID<br/>• DataDir"]
-        Aux["canvod-aux<br/>━━━━━━━━<br/>• SP3<br/>• CLK<br/>• Interpolator"]
+        Aux["canvod-auxiliary<br/>━━━━━━━━<br/>• SP3<br/>• CLK<br/>• Interpolator"]
     end
     
     subgraph Storage["💾 Storage Layer"]

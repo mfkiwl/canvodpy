@@ -229,7 +229,7 @@ PyPI Trust Registry:
 │ Package          │ Repository      │ Workflow             │ Env     │
 ├──────────────────┼─────────────────┼──────────────────────┼─────────┤
 │ canvod-readers   │ nfb2021/canvodpy│ publish_testpypi.yml │ testpypi│
-│ canvod-aux       │ nfb2021/canvodpy│ publish_testpypi.yml │ testpypi│
+│ canvod-auxiliary       │ nfb2021/canvodpy│ publish_testpypi.yml │ testpypi│
 │ canvod-grids     │ nfb2021/canvodpy│ publish_testpypi.yml │ testpypi│
 │ ...              │ ...             │ ...                  │ ...     │
 └──────────────────┴─────────────────┴──────────────────────┴─────────┘

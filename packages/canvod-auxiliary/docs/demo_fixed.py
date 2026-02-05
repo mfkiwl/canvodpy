@@ -40,7 +40,7 @@ def _(mo):
 
 @app.cell
 def _():
-    from canvod.aux.products import (
+    from canvod.auxiliary.products import (
         get_product_spec,
         get_products_for_agency,
         list_agencies,
@@ -417,9 +417,9 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    from canvod.aux.clock.reader import ClkFile
-    from canvod.aux.core.downloader import FtpDownloader
-    from canvod.aux.ephemeris.reader import Sp3File
+    from canvod.auxiliary.clock.reader import ClkFile
+    from canvod.auxiliary.core.downloader import FtpDownloader
+    from canvod.auxiliary.ephemeris.reader import Sp3File
 
     # State containers (always exist, even when value is None)
     sp3_state = mo.state(None)  # Holds Sp3File instance or None

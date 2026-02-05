@@ -3,7 +3,7 @@
 import numpy as np
 import xarray as xr
 
-from canvod.aux.interpolation import (
+from canvod.auxiliary.interpolation import (
     ClockConfig,
     ClockInterpolationStrategy,
     Sp3Config,
@@ -159,7 +159,7 @@ class TestClockInterpolationStrategy:
     def test_interpolate_clock_data(self, sample_clk_data):
         """Test interpolation of clock data."""
         # Preprocess first
-        from canvod.aux import preprocess_aux_for_interpolation
+        from canvod.auxiliary import preprocess_aux_for_interpolation
 
         clk_preprocessed = preprocess_aux_for_interpolation(sample_clk_data)
 
@@ -242,7 +242,7 @@ class TestInterpolationIntegration:
     def test_preprocessing_then_interpolation(self, sample_sp3_data):
         """Test complete workflow: preprocess → interpolate."""
         # Step 1: Preprocess
-        from canvod.aux import preprocess_aux_for_interpolation
+        from canvod.auxiliary import preprocess_aux_for_interpolation
 
         preprocessed = preprocess_aux_for_interpolation(sample_sp3_data)
 
@@ -260,7 +260,7 @@ class TestInterpolationIntegration:
 
     def test_both_sp3_and_clock(self, sample_sp3_data, sample_clk_data):
         """Test interpolating both SP3 and CLK data."""
-        from canvod.aux import preprocess_aux_for_interpolation
+        from canvod.auxiliary import preprocess_aux_for_interpolation
 
         # Preprocess both
         sp3_prep = preprocess_aux_for_interpolation(sample_sp3_data)

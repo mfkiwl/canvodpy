@@ -270,7 +270,7 @@ assert all(pos == positions[0] for pos in positions)  # ✅ All identical
 
 ### Comparison with gnssvodpy
 
-**canvod-aux preprocessing EXACTLY matches gnssvodpy:**
+**canvod-auxiliary preprocessing EXACTLY matches gnssvodpy:**
 
 ```python
 # gnssvodpy

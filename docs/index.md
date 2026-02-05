@@ -120,7 +120,7 @@ Understand package building and distribution:
 canvodpy/                    # Single repository
 ├── packages/
 │   ├── canvod-readers/      # Package 1
-│   ├── canvod-aux/          # Package 2
+│   ├── canvod-auxiliary/          # Package 2
 │   ├── canvod-grids/        # Package 3
 │   └── ...                  # Packages 4-6
 └── canvodpy/                # Package 7 (umbrella)
@@ -170,7 +170,7 @@ canvodpy/
 
 ```
 canvod-readers    → Read GNSS data (RINEX, etc.)
-canvod-aux        → Handle auxiliary data (meteorology, orbit)
+canvod-auxiliary        → Handle auxiliary data (meteorology, orbit)
 canvod-grids      → Spatial grids (HEALPix, hemispheric)
 canvod-vod        → Calculate vegetation optical depth
 canvod-store      → Store data (Icechunk, Zarr)

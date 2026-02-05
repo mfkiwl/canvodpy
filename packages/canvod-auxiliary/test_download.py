@@ -5,7 +5,7 @@ import datetime
 import tempfile
 from pathlib import Path
 
-from canvod.aux.ephemeris.reader import Sp3File
+from canvod.auxiliary.ephemeris.reader import Sp3File
 
 
 def main():

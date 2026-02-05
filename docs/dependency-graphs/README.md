@@ -10,9 +10,9 @@ Shows how classes and modules import each other within each package:
 
 ![canvod-readers internal dependencies](canvod-readers-internal.svg)
 
-### canvod-aux
+### canvod-auxiliary
 
-![canvod-aux internal dependencies](canvod-aux-internal.svg)
+![canvod-auxiliary internal dependencies](canvod-auxiliary-internal.svg)
 
 ### canvod-grids
 

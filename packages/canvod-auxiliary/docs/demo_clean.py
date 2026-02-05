@@ -20,10 +20,10 @@ def _():
 
     import numpy as np
 
-    from canvod.aux.clock.reader import ClkFile
-    from canvod.aux.core.downloader import FtpDownloader
-    from canvod.aux.ephemeris.reader import Sp3File
-    from canvod.aux.products import get_products_for_agency, list_agencies
+    from canvod.auxiliary.clock.reader import ClkFile
+    from canvod.auxiliary.core.downloader import FtpDownloader
+    from canvod.auxiliary.ephemeris.reader import Sp3File
+    from canvod.auxiliary.products import get_products_for_agency, list_agencies
 
     return (
         datetime,

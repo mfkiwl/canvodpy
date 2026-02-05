@@ -1,4 +1,4 @@
-# Tests for canvod-aux
+# Tests for canvod-auxiliary
 
 Comprehensive test suite for auxiliary data augmentation functionality.
 

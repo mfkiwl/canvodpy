@@ -1,4 +1,4 @@
-# canvod-aux API Reference
+# canvod-auxiliary API Reference
 
 ## Package
 

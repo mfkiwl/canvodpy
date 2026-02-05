@@ -2,7 +2,7 @@
 
 import pytest
 
-from canvod.aux.products import (
+from canvod.auxiliary.products import (
     ProductSpec,
     get_product_spec,
     list_agencies,

@@ -7,7 +7,7 @@
 ## 1. Add Dependency (30 seconds)
 
 ```bash
-cd /Users/work/Developer/GNSS/canvodpy/packages/canvod-aux
+cd /Users/work/Developer/GNSS/canvodpy/packages/canvod-auxiliary
 uv add pydantic
 ```
 

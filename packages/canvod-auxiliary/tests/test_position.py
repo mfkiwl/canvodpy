@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from canvod.aux.position import (
+from canvod.auxiliary.position import (
     ECEFPosition,
     GeodeticPosition,
     add_spherical_coords_to_dataset,

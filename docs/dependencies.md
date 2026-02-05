@@ -11,7 +11,7 @@ graph TD
     classDef balanced fill:#87CEEB,stroke:#4682B4,stroke-width:2px
     
     canvod_readers["canvod-readers<br/>GNSS data format readers"]
-    canvod_aux["canvod-aux<br/>Auxiliary data augmentation"]
+    canvod_aux["canvod-auxiliary<br/>Auxiliary data augmentation"]
     canvod_vod["canvod-vod<br/>VOD calculation"]
     canvod_viz["canvod-viz<br/>Visualization utilities"]
     canvod_utils["canvod-utils<br/>Configuration & utilities"]
@@ -44,7 +44,7 @@ graph TD
 | canvod-grids | 0 | 2 | 0.00 | 1.00 | 🟢 Stable |
 | canvod-vod | 0 | 0 | 0.00 | 1.00 | 🟢 Stable |
 | canvod-utils | 0 | 0 | 0.00 | 1.00 | 🟢 Stable |
-| canvod-aux | 1 | 0 | 1.00 | 0.83 | 🔴 Leaf |
+| canvod-auxiliary | 1 | 0 | 1.00 | 0.83 | 🔴 Leaf |
 | canvod-viz | 1 | 0 | 1.00 | 0.83 | 🔴 Leaf |
 | canvod-store | 1 | 0 | 1.00 | 0.83 | 🔴 Leaf |
 
@@ -80,7 +80,7 @@ Your architecture has:
 These packages form the **stable core** and can be used independently:
 
 1. **canvod-readers** - RINEX and data format readers
-   - Used by: canvod-aux
+   - Used by: canvod-auxiliary
    - Role: Data ingestion foundation
 
 2. **canvod-grids** - Grid operations (HEALPix, hemispheric)
@@ -99,7 +99,7 @@ These packages form the **stable core** and can be used independently:
 
 These packages **consume** foundation packages but aren't used by others:
 
-1. **canvod-aux** → canvod-readers
+1. **canvod-auxiliary** → canvod-readers
 2. **canvod-viz** → canvod-grids
 3. **canvod-store** → canvod-grids
 
@@ -121,7 +121,7 @@ packages/canvod-vod/      → github.com/you/canvod-vod
 packages/canvod-utils/    → github.com/you/canvod-utils
 
 # These need their single dependency:
-packages/canvod-aux/      → github.com/you/canvod-aux (+ canvod-readers)
+packages/canvod-auxiliary/      → github.com/you/canvod-auxiliary (+ canvod-readers)
 packages/canvod-viz/      → github.com/you/canvod-viz (+ canvod-grids)
 packages/canvod-store/    → github.com/you/canvod-store (+ canvod-grids)
 ```
@@ -133,7 +133,7 @@ Layer 0 (Foundation - 4 packages):
   canvod-readers, canvod-grids, canvod-vod, canvod-utils
 
 Layer 1 (Consumers - 3 packages):
-  canvod-aux, canvod-viz, canvod-store
+  canvod-auxiliary, canvod-viz, canvod-store
 ```
 
 Only **2 layers**! This is excellent for:
@@ -171,7 +171,7 @@ When you create the high-level API (orchestrator), it will naturally depend on m
 ```
 canvodpy (umbrella)
   ├── canvod-readers
-  ├── canvod-aux
+  ├── canvod-auxiliary
   ├── canvod-grids
   ├── canvod-vod
   ├── canvod-store

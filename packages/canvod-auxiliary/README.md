@@ -1,4 +1,4 @@
-# canvod-aux
+# canvod-auxiliary
 
 **Auxiliary data augmentation for GNSS VOD analysis**
 
@@ -6,7 +6,7 @@ Part of the [canVODpy](https://github.com/nfb2021/canvodpy) ecosystem.
 
 ## Overview
 
-`canvod-aux` provides tools for downloading, parsing, and interpolating auxiliary GNSS data files including:
+`canvod-auxiliary` provides tools for downloading, parsing, and interpolating auxiliary GNSS data files including:
 
 - **SP3 ephemerides** - Satellite orbit positions and velocities
 - **CLK corrections** - Satellite clock corrections
@@ -40,10 +40,10 @@ Part of the [canVODpy](https://github.com/nfb2021/canvodpy) ecosystem.
 
 ```bash
 # From PyPI (when published)
-pip install canvod-aux
+pip install canvod-auxiliary
 
 # Development install
-cd canvodpy/packages/canvod-aux
+cd canvodpy/packages/canvod-auxiliary
 uv pip install -e .
 ```
 
@@ -115,7 +115,7 @@ interpolated = strategy.interpolate(sp3_dataset, target_epochs)
 ## Package Structure
 
 ```
-canvod-aux/
+canvod-auxiliary/
 ├── src/canvod/aux/
 │   ├── __init__.py              # Public API
 │   ├── _internal/               # Internal utilities
@@ -141,7 +141,7 @@ canvod-aux/
 ```bash
 # Clone repository
 git clone https://github.com/nfb2021/canvodpy.git
-cd canvodpy/packages/canvod-aux
+cd canvodpy/packages/canvod-auxiliary
 
 # Install dependencies
 uv sync
@@ -221,7 +221,7 @@ Part of the canVODpy ecosystem:
 
 ## Citation
 
-If you use canvod-aux in your research, please cite:
+If you use canvod-auxiliary in your research, please cite:
 
 ```bibtex
 @software{canvodpy2025,

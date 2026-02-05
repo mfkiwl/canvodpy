@@ -25,7 +25,7 @@ We split the functionality into **seven independent packages** that work togethe
 ```
 canVODpy Monorepo
 ├── canvod-readers    → Read GNSS data formats (RINEX, etc.)
-├── canvod-aux        → Handle auxiliary data
+├── canvod-auxiliary        → Handle auxiliary data
 ├── canvod-grids      → Manage spatial grids (HEALPix)
 ├── canvod-vod        → Calculate vegetation optical depth
 ├── canvod-store      → Store data (Icechunk, Zarr)
@@ -85,7 +85,7 @@ canvodpy/                           # Repository root
 │   │   ├── Justfile               # Package commands
 │   │   └── README.md
 │   │
-│   └── canvod-aux/                 # Same structure
+│   └── canvod-auxiliary/                 # Same structure
 │       └── ...
 │
 ├── canvodpy/                       # Umbrella package
@@ -125,7 +125,7 @@ just build                          # Build only this package
 **Published independently:**
 Each package gets its own PyPI page:
 - `pypi.org/project/canvod-readers/`
-- `pypi.org/project/canvod-aux/`
+- `pypi.org/project/canvod-auxiliary/`
 - etc.
 
 ## Dependency Flow
@@ -135,7 +135,7 @@ Packages can depend on each other:
 ```
 canvod-readers (no dependencies)
     ↓
-canvod-aux (needs readers)
+canvod-auxiliary (needs readers)
     ↓
 canvod-grids (needs aux)
     ↓

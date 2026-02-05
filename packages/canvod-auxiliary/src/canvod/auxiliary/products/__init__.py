@@ -1,12 +1,12 @@
 """Product registry and specifications for IGS analysis centers."""
 
-from canvod.aux.products.models import (
+from canvod.auxiliary.products.models import (
     ClkHeader,
     FileValidationResult,
     ProductRequest,
     Sp3Header,
 )
-from canvod.aux.products.registry import (
+from canvod.auxiliary.products.registry import (
     PRODUCT_REGISTRY,
     ProductSpec,
     get_product_spec,

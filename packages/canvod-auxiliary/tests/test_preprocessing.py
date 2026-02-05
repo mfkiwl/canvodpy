@@ -3,7 +3,7 @@
 import numpy as np
 import xarray as xr
 
-from canvod.aux.preprocessing import (
+from canvod.auxiliary.preprocessing import (
     add_future_datavars,
     create_sv_to_sid_mapping,
     map_aux_sv_to_sid,

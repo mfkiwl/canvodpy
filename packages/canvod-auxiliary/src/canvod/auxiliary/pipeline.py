@@ -23,11 +23,11 @@ from canvodpy.globals import (
 )
 from canvodpy.settings import get_settings
 
-from canvod.aux._internal import get_logger
-from canvod.aux.clock import ClkFile
-from canvod.aux.core.base import AuxFile
-from canvod.aux.ephemeris import Sp3File
-from canvod.aux.preprocessing import prep_aux_ds
+from canvod.auxiliary._internal import get_logger
+from canvod.auxiliary.clock import ClkFile
+from canvod.auxiliary.core.base import AuxFile
+from canvod.auxiliary.ephemeris import Sp3File
+from canvod.auxiliary.preprocessing import prep_aux_ds
 
 
 class AuxDataPipeline:
@@ -354,8 +354,8 @@ class AuxDataPipeline:
         from canvodpy.globals import FTP_SERVER as DEFAULT_FTP_SERVER
         from canvodpy.globals import PRODUCT_TYPE as DEFAULT_PRODUCT_TYPE
 
-        from canvod.aux.clock import ClkFile
-        from canvod.aux.ephemeris import Sp3File
+        from canvod.auxiliary.clock import ClkFile
+        from canvod.auxiliary.ephemeris import Sp3File
 
         # Get settings for email configuration
         settings = get_settings()
@@ -612,8 +612,8 @@ The threading.Lock ensures safe concurrent access!
         SP3_FILE_PATH,
     )
 
-    from canvod.aux.clock import ClkFile
-    from canvod.aux.ephemeris import Sp3File
+    from canvod.auxiliary.clock import ClkFile
+    from canvod.auxiliary.ephemeris import Sp3File
 
     root = Path(os.getenv("GNSS_ROOT_DIR", Path().cwd()))
 
