@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_10a8d3a52d0145e1_reader_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-05 16:26 +0000
+            created at 2026-02-06 18:46 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -102,7 +102,7 @@
     <p class="exc show_exc"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="key">from</span> <span class="nam">canvod</span><span class="op">.</span><span class="nam">vod</span> <span class="key">import</span> <span class="nam">VODCalculator</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="key">from</span> <span class="nam">canvodpy</span><span class="op">.</span><span class="nam">globals</span> <span class="key">import</span> <span class="nam">RINEX_STORE_STRATEGY</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="key">from</span> <span class="nam">canvodpy</span><span class="op">.</span><span class="nam">logging</span><span class="op">.</span><span class="nam">context</span> <span class="key">import</span> <span class="nam">get_logger</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t"><span class="key">from</span> <span class="nam">canvodpy</span><span class="op">.</span><span class="nam">logging</span> <span class="key">import</span> <span class="nam">get_logger</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t"><span class="key">from</span> <span class="nam">canvodpy</span><span class="op">.</span><span class="nam">research_sites_config</span> <span class="key">import</span> <span class="nam">DEFAULT_RESEARCH_SITE</span><span class="op">,</span> <span class="nam">RESEARCH_SITES</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="key">from</span> <span class="nam">canvod</span><span class="op">.</span><span class="nam">store</span><span class="op">.</span><span class="nam">store</span> <span class="key">import</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -157,7 +157,7 @@
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">site_name</span> <span class="op">=</span> <span class="nam">site_name</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">site_config</span> <span class="op">=</span> <span class="nam">RESEARCH_SITES</span><span class="op">[</span><span class="nam">site_name</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_logger</span> <span class="op">=</span> <span class="nam">get_logger</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">bind</span><span class="op">(</span><span class="nam">site</span><span class="op">=</span><span class="nam">site_name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_logger</span> <span class="op">=</span> <span class="nam">get_logger</span><span class="op">(</span><span class="nam">__name__</span><span class="op">)</span><span class="op">.</span><span class="nam">bind</span><span class="op">(</span><span class="nam">site</span><span class="op">=</span><span class="nam">site_name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">        <span class="com"># Load store paths from processing config (not from research_sites_config)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">        <span class="key">from</span> <span class="nam">canvod</span><span class="op">.</span><span class="nam">utils</span><span class="op">.</span><span class="nam">config</span> <span class="key">import</span> <span class="nam">load_config</span>&nbsp;</span><span class="r"></span></p>
@@ -906,7 +906,7 @@
             <a class="nav" href="z_10a8d3a52d0145e1_reader_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-05 16:26 +0000
+            created at 2026-02-06 18:46 +0000
         </p>
     </div>
 </footer>
