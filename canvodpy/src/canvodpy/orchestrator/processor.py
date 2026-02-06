@@ -606,9 +606,12 @@ class RinexDataProcessor:
         RuntimeError
             If preprocessing fails or file doesn't exist after preprocessing
         """
+        print(f"🔍 DEBUG: _ensure_aux_data_preprocessed called for date {date_str}")
         aux_zarr_path = Path(gettempdir()) / f"aux_{date_str}.zarr"
+        print(f"🔍 DEBUG: Checking if {aux_zarr_path} exists: {aux_zarr_path.exists()}")
         
         if not aux_zarr_path.exists():
+            print(f"🔍 DEBUG: File doesn't exist, starting preprocessing...")
             self._logger.info(
                 "aux_preprocessing_required",
                 output_path=str(aux_zarr_path),
