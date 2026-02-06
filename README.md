@@ -10,7 +10,7 @@
 | canvodpy/src/canvodpy/functional.py                                          |       69 |       49 |     29% |88-98, 182-192, 243-255, 306-317, 358-373, 414-438, 498-518 |
 | canvodpy/src/canvodpy/globals.py                                             |       50 |        0 |    100% |           |
 | canvodpy/src/canvodpy/logging/\_\_init\_\_.py                                |        6 |        0 |    100% |           |
-| canvodpy/src/canvodpy/logging/logging\_config.py                             |      140 |        9 |     94% |68, 114, 125-126, 128, 151, 192, 419-420 |
+| canvodpy/src/canvodpy/logging/logging\_config.py                             |      140 |        9 |     94% |68, 114, 125-126, 128, 151, 196, 423-424 |
 | canvodpy/src/canvodpy/orchestrator/\_\_init\_\_.py                           |       14 |       10 |     29% |     34-46 |
 | canvodpy/src/canvodpy/orchestrator/interpolator.py                           |      128 |       92 |     28% |22, 75, 99-156, 166-203, 224-226, 234-303, 316-340, 348, 357-367 |
 | canvodpy/src/canvodpy/orchestrator/processor.py                              |     1014 |      950 |      6% |92-242, 256-270, 280-303, 313-320, 330-338, 354-378, 392-409, 423-441, 480-506, 517-548, 556-689, 693-704, 730-784, 818-911, 934-1192, 1216-1414, 1430-1663, 1681-1847, 1863-1878, 1910-2023, 2054-2207, 2215-2231, 2254-2354, 2357, 2386, 2389, 2405-2481, 2489-2604, 2618-2802, 2834-2941, 2945-3012 |
