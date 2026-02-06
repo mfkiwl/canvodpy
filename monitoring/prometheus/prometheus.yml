@@ -25,13 +25,14 @@ scrape_configs:
   - job_name: 'canvodpy'
     scrape_interval: 10s
     static_configs:
-      - targets: ['host.docker.internal:9464']  # For Docker Desktop
+      - targets: ['10.123.116.213:9464']  # Host machine IP
         labels:
           application: 'canvodpy'
           component: 'processing'
     
-    # If running Prometheus locally (not in Docker), use:
-    # - targets: ['localhost:9464']
+    # Note: host.docker.internal doesn't always work on macOS
+    # Using explicit IP address instead: 10.123.116.213
+    # If this changes, update with: ifconfig | grep "inet " | grep -v 127.0.0.1
 
   # Prometheus self-monitoring
   - job_name: 'prometheus'

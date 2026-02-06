@@ -47,6 +47,7 @@ from canvodpy.orchestrator.interpolator import (
     Sp3InterpolationStrategy,
 )
 from canvodpy.settings import get_settings
+from canvodpy.utils.telemetry import trace_icechunk_write
 
 dotenv.load_dotenv()
 
@@ -1309,7 +1310,13 @@ class RinexDataProcessor:
                         match (exists, RINEX_STORE_STRATEGY):
                             case (False, _) if receiver_name not in groups and idx == 0:
                                 # Initial group creation
-                                to_icechunk(ds_clean, session, group=receiver_name)
+                                size_mb = ds_clean.nbytes / (1024 * 1024)
+                                with trace_icechunk_write(
+                                    group_name=receiver_name,
+                                    dataset_size_mb=size_mb,
+                                    num_variables=len(ds_clean.data_vars),
+                                ):
+                                    to_icechunk(ds_clean, session, group=receiver_name)
                                 groups.append(receiver_name)
                                 actions["initial"] += 1
                                 file_log.debug("write_initial", path=rel_path)
@@ -1321,23 +1328,35 @@ class RinexDataProcessor:
 
                             case (True, "append"):
                                 # File exists but append anyway
-                                to_icechunk(
-                                    ds_clean,
-                                    session,
-                                    group=receiver_name,
-                                    append_dim="epoch",
-                                )
+                                size_mb = ds_clean.nbytes / (1024 * 1024)
+                                with trace_icechunk_write(
+                                    group_name=receiver_name,
+                                    dataset_size_mb=size_mb,
+                                    num_variables=len(ds_clean.data_vars),
+                                ):
+                                    to_icechunk(
+                                        ds_clean,
+                                        session,
+                                        group=receiver_name,
+                                        append_dim="epoch",
+                                    )
                                 actions["appended"] += 1
                                 file_log.debug("write_appended", path=rel_path)
 
                             case (False, _):
                                 # New file, write it
-                                to_icechunk(
-                                    ds_clean,
-                                    session,
-                                    group=receiver_name,
-                                    append_dim="epoch",
-                                )
+                                size_mb = ds_clean.nbytes / (1024 * 1024)
+                                with trace_icechunk_write(
+                                    group_name=receiver_name,
+                                    dataset_size_mb=size_mb,
+                                    num_variables=len(ds_clean.data_vars),
+                                ):
+                                    to_icechunk(
+                                        ds_clean,
+                                        session,
+                                        group=receiver_name,
+                                        append_dim="epoch",
+                                    )
                                 actions["written"] += 1
                                 file_log.debug("write_complete", path=rel_path)
 
