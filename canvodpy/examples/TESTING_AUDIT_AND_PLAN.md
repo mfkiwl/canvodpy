@@ -1,6 +1,6 @@
 # Testing Audit & Strategy Plan for canvodpy (2026)
 
-**Date:** 2026-02-03  
+**Date:** 2026-02-03
 **Purpose:** Comprehensive testing strategy for modern Python scientific package
 
 ---
@@ -16,7 +16,7 @@ canvod-auxiliary       : 12 files  ⭐ Best coverage
 canvod-grids     :  2 files  ⚠️  Needs expansion
 canvod-readers   :  5 files  ✅ Good
 canvod-store     :  1 file   🚨 Minimal
-canvod-utils     :  3 files  ✅ Good  
+canvod-utils     :  3 files  ✅ Good
 canvod-viz       :  3 files  ✅ Good (just fixed!)
 canvod-vod       :  3 files  ⚠️  Needs expansion
 canvodpy-umbrella:  3 files  ✅ Good
@@ -84,8 +84,8 @@ Scientific code needs **performance regression detection**.
 # Using pytest-benchmark
 def test_large_grid_performance(benchmark):
     """Equal-area grid with 1000 cells should create in <100ms."""
-    result = benchmark(create_hemigrid, 
-                      angular_resolution=2, 
+    result = benchmark(create_hemigrid,
+                      angular_resolution=2,
                       grid_type='equal_area')
     assert result.ncells > 900
 
@@ -108,7 +108,7 @@ def test_vod_processing_memory():
 ### 3. **Parametric/Data-Driven Tests** ⚠️ Limited
 Use **pytest.mark.parametrize** extensively.
 
-**Current:** Some use, but not systematic  
+**Current:** Some use, but not systematic
 **Need:** Comprehensive parameter sweeps
 
 ```python
@@ -192,7 +192,7 @@ Documentation examples should be tested!
 def create_hemigrid(angular_resolution: float, grid_type: str) -> GridData:
     """
     Create a hemisphere grid.
-    
+
     Examples
     --------
     >>> grid = create_hemigrid(4, 'equal_area')
@@ -210,7 +210,7 @@ def create_hemigrid(angular_resolution: float, grid_type: str) -> GridData:
 ### 8. **Contract/Type Testing** ⚠️ Basic
 Modern Python uses **mypy + pytest-mypy-plugins**.
 
-**Current:** Type hints present, but not tested  
+**Current:** Type hints present, but not tested
 **Need:** Runtime type validation + static checking
 
 ```python
@@ -352,7 +352,7 @@ dev = [
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.12.0",
-    
+
     # ADD THESE:
     "hypothesis>=6.100",           # Property-based testing
     "pytest-benchmark>=4.0",       # Performance testing

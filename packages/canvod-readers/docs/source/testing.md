@@ -65,32 +65,32 @@ import pytest
 
 class TestObservation:
     """Test Observation model."""
-    
+
     def test_valid_observation(self):
         """Test valid observation creation."""
         obs = Observation(value=45.2, lli=0, ssi=7)
-        
+
         assert obs.value == 45.2
         assert obs.lli == 0
         assert obs.ssi == 7
-    
+
     def test_missing_optional_fields(self):
         """Test observation with optional fields missing."""
         obs = Observation(value=42.8)
-        
+
         assert obs.value == 42.8
         assert obs.lli is None
         assert obs.ssi is None
-    
+
     def test_invalid_lli(self):
         """Test LLI validation."""
         with pytest.raises(ValidationError) as exc_info:
             Observation(value=45.2, lli=10)  # Invalid: must be 0-9
-        
+
         errors = exc_info.value.errors()
         assert 'lli' in str(errors[0]['loc'])
         assert 'must be 0-9' in errors[0]['msg'].lower()
-    
+
     def test_invalid_ssi(self):
         """Test SSI validation."""
         with pytest.raises(ValidationError):
@@ -107,44 +107,44 @@ from canvod.readers.gnss_specs.signals import SignalIDMapper
 
 class TestSignalIDMapper:
     """Test Signal ID mapping."""
-    
+
     def test_create_gps_signal_id(self):
         """Test GPS signal ID creation."""
         mapper = SignalIDMapper()
-        
+
         sid = mapper.create_signal_id("G01", "G01|S1C")
         assert sid == "G01|L1|C"
-        
+
         sid = mapper.create_signal_id("G01", "G01|S2W")
         assert sid == "G01|L2|W"
-    
+
     def test_create_galileo_signal_id(self):
         """Test Galileo signal ID creation."""
         mapper = SignalIDMapper()
-        
+
         sid = mapper.create_signal_id("E05", "E05|C1C")
         assert sid == "E05|E1|C"
-        
+
         sid = mapper.create_signal_id("E05", "E05|C5Q")
         assert sid == "E05|E5a|Q"
-    
+
     def test_auxiliary_observation(self):
         """Test X1 auxiliary observation."""
         mapper = SignalIDMapper()
-        
+
         sid = mapper.create_signal_id("G01", "G01|X1")
         assert sid == "G01|X1|X"
-        
+
         is_aux = mapper.is_auxiliary_observation(sid)
         assert is_aux is True
-    
+
     def test_get_band_frequency(self):
         """Test frequency retrieval."""
         mapper = SignalIDMapper()
-        
+
         freq = mapper.get_band_frequency("L1")
         assert freq == 1575.42
-        
+
         freq = mapper.get_band_frequency("E5a")
         assert freq == 1176.45
 ```
@@ -161,64 +161,64 @@ import xarray as xr
 
 class TestRINEXIntegration:
     """Integration tests for complete file processing."""
-    
+
     def test_full_file_processing(self):
         """Test processing complete RINEX file."""
         # Path to test data
         test_file = Path("tests/data/BRUX00BEL_R_20240010000_01D_30S_MO.24o")
-        
+
         # Create reader
         obs = Rnxv3Obs(fpath=test_file)
-        
+
         # Convert to Dataset
         ds = obs.to_ds(keep_rnx_data_vars=["SNR"])
-        
+
         # Validate structure
         assert isinstance(ds, xr.Dataset)
         assert "epoch" in ds.dims
         assert "sid" in ds.dims
         assert ds.sizes["epoch"] > 0
         assert ds.sizes["sid"] > 0
-        
+
         # Validate coordinates
         assert "sv" in ds.coords
         assert "system" in ds.coords
         assert "band" in ds.coords
         assert "code" in ds.coords
         assert "freq_center" in ds.coords
-        
+
         # Validate data
         assert "SNR" in ds.data_vars
         assert ds.SNR.dims == ("epoch", "sid")
-        
+
         # Check no all-NaN data
         import numpy as np
         assert not np.all(np.isnan(ds.SNR.values))
-    
+
     def test_multi_system_filtering(self):
         """Test filtering by GNSS system."""
         test_file = Path("tests/data/BRUX00BEL_R_20240010000_01D_30S_MO.24o")
         obs = Rnxv3Obs(fpath=test_file)
         ds = obs.to_ds()
-        
+
         # Filter GPS only
         gps = ds.where(ds.system == 'G', drop=True)
         assert all(gps.system.values == 'G')
-        
+
         # Filter Galileo only
         galileo = ds.where(ds.system == 'E', drop=True)
         assert all(galileo.system.values == 'E')
-    
+
     def test_band_filtering(self):
         """Test filtering by frequency band."""
         test_file = Path("tests/data/BRUX00BEL_R_20240010000_01D_30S_MO.24o")
         obs = Rnxv3Obs(fpath=test_file)
         ds = obs.to_ds()
-        
+
         # Filter L1 band
         l1 = ds.where(ds.band == 'L1', drop=True)
         assert all(l1.band.values == 'L1')
-        
+
         # Check frequencies are in L1 range
         assert all((l1.freq_center > 1550) & (l1.freq_center < 1600))
 ```
@@ -236,7 +236,7 @@ import pytest
 
 class TestDatasetValidation:
     """Test Dataset structure validation."""
-    
+
     def test_valid_dataset(self):
         """Test validation passes for valid dataset."""
         ds = xr.Dataset(
@@ -262,21 +262,21 @@ class TestDatasetValidation:
                 "RINEX File Hash": "abc123",
             }
         )
-        
+
         validator = DatasetStructureValidator(dataset=ds)
         validator.validate_all()  # Should not raise
-    
+
     def test_missing_dimension(self):
         """Test validation fails for missing dimension."""
         ds = xr.Dataset(
             data_vars={"SNR": (("time", "sid"), np.random.rand(10, 5))},
             coords={"time": range(10), "sid": range(5)}
         )
-        
+
         validator = DatasetStructureValidator(dataset=ds)
         with pytest.raises(ValueError, match="Missing required dimensions"):
             validator.validate_dimensions()
-    
+
     def test_wrong_dtype(self):
         """Test validation fails for wrong dtype."""
         ds = xr.Dataset(
@@ -286,7 +286,7 @@ class TestDatasetValidation:
                 "freq_center": ("sid", np.array([1575.42], dtype=np.float32)),  # Wrong: should be float64
             }
         )
-        
+
         validator = DatasetStructureValidator(dataset=ds)
         with pytest.raises(ValueError, match="Wrong dtype"):
             validator.validate_coordinates()
@@ -342,10 +342,10 @@ def signal_mapper():
 def test_with_fixtures(test_rinex_file, signal_mapper):
     """Test using fixtures."""
     from canvod.readers import Rnxv3Obs
-    
+
     obs = Rnxv3Obs(fpath=test_rinex_file)
     ds = obs.to_ds()
-    
+
     # Use signal_mapper fixture
     sid = signal_mapper.create_signal_id("G01", "G01|S1C")
     assert sid in ds.sid.values
@@ -403,7 +403,7 @@ def test_observation():
 # ✅ Good: Clear what's being tested
 def test_lli_must_be_between_0_and_9():
     """Test LLI validation rejects values outside 0-9."""
-    
+
 # ❌ Bad: Vague
 def test_lli():
     """Test LLI."""
@@ -452,10 +452,10 @@ from unittest.mock import patch, mock_open
 def test_file_hash_computation():
     """Test file hash computation."""
     mock_data = b"test content"
-    
+
     with patch("builtins.open", mock_open(read_data=mock_data)):
         from canvod.readers.gnss_specs.utils import rinex_file_hash
-        
+
         hash_result = rinex_file_hash(Path("fake.24o"))
         assert len(hash_result) == 16
 ```
@@ -476,22 +476,22 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install uv
         uses: astral-sh/setup-uv@v3
-      
+
       - name: Set up Python
         run: uv python install ${{ matrix.python-version }}
-      
+
       - name: Install dependencies
         run: uv sync
-      
+
       - name: Run tests
         run: uv run pytest tests/ -v --cov
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v4
 ```
@@ -510,15 +510,15 @@ Ask:
 ```python
 class TestNewFeature:
     """Test new feature."""
-    
+
     def test_success_case(self):
         """Test successful execution."""
         pass
-    
+
     def test_failure_case_1(self):
         """Test failure scenario 1."""
         pass
-    
+
     def test_edge_case(self):
         """Test edge case."""
         pass
@@ -531,10 +531,10 @@ def test_success_case(self):
     """Test successful execution."""
     # Arrange
     input_data = {...}
-    
+
     # Act
     result = function_under_test(input_data)
-    
+
     # Assert
     assert result == expected
 ```

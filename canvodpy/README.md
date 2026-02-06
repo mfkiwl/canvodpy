@@ -4,8 +4,8 @@
 
 ## What is canvodpy?
 
-`canvodpy` is the unified entry point for the canVOD ecosystem - a modern 
-Python package for analyzing GNSS signals to estimate vegetation optical 
+`canvodpy` is the unified entry point for the canVOD ecosystem - a modern
+Python package for analyzing GNSS signals to estimate vegetation optical
 depth (VOD). It provides three levels of API to match your needs:
 
 - **Level 1:** One-line convenience functions (fastest path to results)

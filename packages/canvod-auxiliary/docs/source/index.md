@@ -73,13 +73,13 @@ graph LR
     D --> E
     E --> F[canvod-vod]
     F --> G[canvod-store]
-    
+
     style D fill:#e1f5ff
 ```
 
 **canvod-auxiliary** augments RINEX data with satellite positions and clock corrections:
 
-1. **canvod-readers**: Parse RINEX → xarray.Dataset  
+1. **canvod-readers**: Parse RINEX → xarray.Dataset
 2. **canvod-auxiliary** (this package): Download/interpolate SP3/CLK → augment with (φ, θ, r)
 3. **canvod-vod**: Calculate vegetation optical depth from augmented SNR
 4. **canvod-store**: Store data in Icechunk format
@@ -238,7 +238,7 @@ graph TD
     B --> D[pydantic: validation]
     B --> E[xarray: datasets]
     B --> F[pymap3d: coordinates]
-    
+
     style B fill:#e1f5ff
 ```
 

@@ -1,14 +1,14 @@
 # py-bootstrap Template Analysis
 
-Analysis of [npikall/py-bootstrap](https://github.com/npikall/py-bootstrap) 
+Analysis of [npikall/py-bootstrap](https://github.com/npikall/py-bootstrap)
 for potential features to integrate into canvodpy monorepo.
 
 **Date:** 2026-02-04
 
 ## 📋 Template Overview
 
-Modern Python project template using Copier (not Cookiecutter), focusing on 
-2026 best practices. Key philosophy: "Python Developer Tooling Handbook" 
+Modern Python project template using Copier (not Cookiecutter), focusing on
+2026 best practices. Key philosophy: "Python Developer Tooling Handbook"
 compliant.
 
 ## ✅ Already Have (Good Match)
@@ -29,7 +29,7 @@ compliant.
 
 ### 1. **Git Changelog** (⭐ HIGH VALUE)
 
-**What:** Auto-generates CHANGELOG.md from git commits using conventional 
+**What:** Auto-generates CHANGELOG.md from git commits using conventional
 commits (Angular style).
 
 **Tool:** [git-changelog](https://pawamoy.github.io/git-changelog/)
@@ -250,7 +250,7 @@ Available recipes:
 
 ### 6. **Alternative: Prek vs Pre-commit** (⭐ LOW VALUE)
 
-**What:** [Prek](https://prek.j178.dev) - faster pre-commit alternative written 
+**What:** [Prek](https://prek.j178.dev) - faster pre-commit alternative written
 in Rust
 
 **Trade-offs:**
@@ -327,13 +327,13 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Need full history for changelog
-      
+
       - uses: astral-sh/setup-uv@v7
-      
+
       - name: Generate release notes
         run: |
           uvx git-changelog --release-notes > release-notes.md
-      
+
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

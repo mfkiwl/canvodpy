@@ -25,11 +25,11 @@ project:
   exports:
     - format: pdf
       output: canvodpy-documentation.pdf
-  
+
   toc:
     - file: README.md
       title: Overview
-    
+
     - title: Documentation
       children:
         - file: docs/index.md
@@ -46,7 +46,7 @@ project:
           title: Development Workflow
         - file: docs/build-system.md
           title: Build System
-    
+
     - title: Packages
       children:
         - file: packages/canvod-readers/README.md
@@ -63,7 +63,7 @@ project:
           title: canvod-viz
         - file: canvodpy/README.md
           title: canvodpy (umbrella)
-    
+
     - title: Development
       children:
         - file: CONTRIBUTING.md
@@ -72,7 +72,7 @@ project:
           title: Development Guide
         - file: docs/guides/ARCHITECTURE.md
           title: Architecture & Design
-    
+
     - title: Release & Publishing
       children:
         - file: VERSIONING.md
@@ -87,7 +87,7 @@ project:
           title: OIDC Authentication
         - file: docs/guides/HOW_RELEASE_WORKS.md
           title: How Releases Work
-  
+
   error_rules:
     - rule: image-downloads
       severity: ignore

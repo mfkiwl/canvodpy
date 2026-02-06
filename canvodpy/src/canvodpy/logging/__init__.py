@@ -47,4 +47,4 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     return structlog.get_logger(name)
 
 
-__all__ = ["setup_logging", "get_logger", "configure_logging"]
+__all__ = ["configure_logging", "get_logger", "setup_logging"]

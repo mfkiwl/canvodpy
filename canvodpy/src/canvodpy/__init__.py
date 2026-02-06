@@ -76,8 +76,13 @@ from canvodpy.api import (
     process_date,
 )
 
-# New workflow API
-from canvodpy.workflow import VODWorkflow
+# Factories (for community extensions)
+from canvodpy.factories import (
+    AugmentationFactory,
+    GridFactory,
+    ReaderFactory,
+    VODFactory,
+)
 
 # Functional API (Airflow-compatible)
 from canvodpy.functional import (
@@ -89,19 +94,14 @@ from canvodpy.functional import (
     read_rinex,
     read_rinex_to_file,
 )
+from canvodpy.globals import KEEP_RNX_VARS
 
 # Logging (for all users)
 from canvodpy.logging import get_logger, setup_logging
-
-# Factories (for community extensions)
-from canvodpy.factories import (
-    AugmentationFactory,
-    GridFactory,
-    ReaderFactory,
-    VODFactory,
-)
-from canvodpy.globals import KEEP_RNX_VARS
 from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
+
+# New workflow API
+from canvodpy.workflow import VODWorkflow
 
 # ============================================================================
 # Level 3 API: Re-export subpackages for advanced users

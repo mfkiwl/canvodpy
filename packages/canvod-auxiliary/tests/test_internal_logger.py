@@ -1,102 +1,74 @@
 """
 Tests for internal logger utilities.
 
-Tests logging context management and logger configuration.
+Tests structlog-based logger configuration.
 """
 
-import logging
-from pathlib import Path
-
-from canvod.auxiliary._internal import get_logger, reset_context, set_file_context
+from canvod.auxiliary._internal import get_logger
 
 
-def test_get_logger_returns_logger():
-    """Test that get_logger returns a Logger instance."""
+def test_get_logger_returns_structlog_logger():
+    """Test that get_logger returns a structlog logger instance."""
     logger = get_logger()
-    assert isinstance(logger, logging.Logger)
+    # Should be a structlog logger (BoundLoggerLazyProxy or similar)
+    assert hasattr(logger, "bind")
+    assert hasattr(logger, "info")
+    assert hasattr(logger, "debug")
 
 
 def test_get_logger_named():
     """Test that get_logger with name returns named logger."""
     logger = get_logger("test_module")
-    assert isinstance(logger, logging.Logger)
-    assert "test_module" in logger.name
+    # Should be a structlog logger with logging methods
+    assert hasattr(logger, "bind")
+    assert hasattr(logger, "info")
 
 
-def test_get_logger_default_is_cached():
-    """Test that default logger is cached."""
-    logger1 = get_logger()
-    logger2 = get_logger()
-    assert logger1 is logger2
-
-
-def test_set_file_context():
-    """Test setting file context for logging."""
-    token = set_file_context("test_file.sp3")
-
-    # Get logger should return file-specific logger
+def test_get_logger_default_name():
+    """Test that default logger works."""
     logger = get_logger()
-    assert "test_file.sp3" in logger.name
-
-    # Cleanup
-    reset_context(token)
-
-
-def test_reset_context():
-    """Test resetting logging context."""
-    # Get original logger
-    original_logger = get_logger()
-
-    # Set file context
-    token = set_file_context("test_file.sp3")
-    file_logger = get_logger()
-
-    # Verify it changed
-    assert file_logger is not original_logger
-
-    # Reset context
-    reset_context(token)
-
-    # Should return to original behavior
-    reset_logger = get_logger()
-    assert reset_logger is original_logger
+    # Should be a valid logger instance
+    assert hasattr(logger, "bind")
+    assert hasattr(logger, "info")
 
 
-def test_set_file_context_with_path():
-    """Test setting file context with Path object."""
-    path = Path("/data/test_file.sp3")
-    token = set_file_context(path)
-
-    logger = get_logger()
-    assert "test_file.sp3" in logger.name
-
-    reset_context(token)
-
-
-def test_logger_has_handlers():
-    """Test that logger has configured handlers."""
+def test_logger_binding():
+    """Test that logger can bind context."""
     logger = get_logger()
 
-    # Should have at least one handler (console)
-    assert len(logger.handlers) > 0
+    # Bind context
+    bound_logger = logger.bind(file="test_file.sp3", component="auxiliary")
+
+    # Should return a logger with bind method
+    assert hasattr(bound_logger, "bind")
+    assert hasattr(bound_logger, "info")
+    # Bound logger is a different instance
+    assert bound_logger is not logger
 
 
-def test_nested_file_contexts():
-    """Test nested file context management."""
-    # First context
-    token1 = set_file_context("file1.sp3")
-    logger1 = get_logger()
-    assert "file1.sp3" in logger1.name
+def test_logger_supports_structured_logging():
+    """Test that logger supports structured logging."""
+    logger = get_logger()
 
-    # Second context (nested)
-    token2 = set_file_context("file2.clk")
-    logger2 = get_logger()
-    assert "file2.clk" in logger2.name
+    # Should be able to log with structured data
+    # This shouldn't raise an exception
+    logger.info("test_event", key="value", count=123)
+    logger.debug("debug_event", data={"nested": "value"})
+    logger.warning("warning_event", status="failed")
 
-    # Reset second context
-    reset_context(token2)
-    logger_after_2 = get_logger()
-    assert "file1.sp3" in logger_after_2.name
 
-    # Reset first context
-    reset_context(token1)
+def test_nested_bindings():
+    """Test nested context binding."""
+    logger = get_logger()
+
+    # First binding
+    logger1 = logger.bind(file="file1.sp3")
+    assert hasattr(logger1, "bind")
+
+    # Second binding (nested)
+    logger2 = logger1.bind(operation="interpolation")
+    assert hasattr(logger2, "bind")
+
+    # Each binding creates a new instance
+    assert logger1 is not logger
+    assert logger2 is not logger1

@@ -21,7 +21,7 @@ GNSS VOD analysis requires combining two data sources with different characteris
 - Dimensions: `(epoch: 96, sv: 32)`
 
 **The Challenges:**
-- ❌ **Dimension mismatch**: sv (32) vs sid (384) 
+- ❌ **Dimension mismatch**: sv (32) vs sid (384)
 - ❌ **Temporal mismatch**: 15min vs 30s sampling
 - ❌ **Format complexity**: Multiple agencies, different file structures
 - ❌ **Coordinate systems**: ECEF → Geodetic → Spherical transformations
@@ -29,11 +29,11 @@ GNSS VOD analysis requires combining two data sources with different characteris
 
 **canvod-auxiliary solves all these:**
 
-✅ **Dimension alignment**: Converts sv → sid with proper signal replication  
-✅ **Temporal alignment**: Hermite splines (ephemeris) + piecewise linear (clock)  
-✅ **Unified interface**: 39 products from 17 agencies through single API  
-✅ **Coordinate pipeline**: ECEF → Geodetic → Spherical (r, θ, φ)  
-✅ **Validated accuracy**: Matches gnssvodpy preprocessing exactly  
+✅ **Dimension alignment**: Converts sv → sid with proper signal replication
+✅ **Temporal alignment**: Hermite splines (ephemeris) + piecewise linear (clock)
+✅ **Unified interface**: 39 products from 17 agencies through single API
+✅ **Coordinate pipeline**: ECEF → Geodetic → Spherical (r, θ, φ)
+✅ **Validated accuracy**: Matches gnssvodpy preprocessing exactly
 
 ## Design Philosophy
 
@@ -47,7 +47,7 @@ graph LR
     B -->|Preprocess| C[Preprocessed<br/>96 epochs, 384 sids]
     C -->|Interpolate| D[Interpolated<br/>2880 epochs, 384 sids]
     D -->|Match| E[RINEX Data<br/>2880 epochs, 384 sids]
-    
+
     style C fill:#fff3e0
     style D fill:#e3f2fd
 ```
@@ -109,10 +109,10 @@ Different data types require different interpolation strategies:
 graph TD
     A[InterpolationStrategy<br/>Abstract Base] --> B[Sp3InterpolationStrategy<br/>Hermite Splines]
     A --> C[ClockInterpolationStrategy<br/>Piecewise Linear]
-    
+
     B --> D[Config:<br/>use_velocities=True<br/>fallback='linear']
     C --> E[Config:<br/>window_size=9<br/>jump_threshold=1e-6]
-    
+
     style A fill:#e8f5e9
     style B fill:#e3f2fd
     style C fill:#fff3e0
@@ -234,7 +234,7 @@ target_date = date(2024, 1, 1)
 for agency in agencies:
     spec = get_product_spec(agency, "final")
     sp3 = Sp3File.from_url(target_date, agency, "final")
-    
+
     ds = sp3.to_dataset()
     accuracy = ds.X.std(dim='epoch')
     print(f"{agency}: latency={spec.latency_hours}h, σ_X={accuracy:.3f}m")
@@ -282,10 +282,10 @@ class MyConfig(InterpolatorConfig):
 
 class MyInterpolationStrategy(InterpolationStrategy):
     """Custom Savitzky-Golay filter interpolation."""
-    
+
     def __init__(self, config: MyConfig):
         super().__init__(config)
-    
+
     def interpolate(self, aux_ds, target_epochs):
         # Your implementation here
         ...
@@ -412,23 +412,23 @@ sequenceDiagram
     participant Interpolator
     participant Coordinates
     participant RINEX
-    
+
     User->>Sp3File: from_url(date, agency, product_type)
     Sp3File->>Sp3File: Download from FTP
     Sp3File->>Sp3File: Parse SP3 format
     Sp3File-->>User: to_dataset() → {'epoch', 'sv'}
-    
+
     User->>Preprocessor: preprocess_aux_for_interpolation(sp3_data)
     Preprocessor->>Preprocessor: map_aux_sv_to_sid()
     Preprocessor-->>User: {'epoch', 'sid'}
-    
+
     User->>Interpolator: interpolate(sp3_sid, target_epochs)
     Interpolator->>Interpolator: Hermite splines
     Interpolator-->>User: {'epoch', 'sid'} @ target times
-    
+
     User->>Coordinates: compute_spherical_coordinates()
     Coordinates-->>User: (r, θ, φ)
-    
+
     User->>RINEX: add_spherical_coords_to_dataset()
     RINEX-->>User: Augmented RINEX data
 ```
@@ -444,7 +444,7 @@ sequenceDiagram
 
 **Preprocessing (sv → sid)**:
 - Input: 96 epochs × 32 svs = 3,072 values
-- Output: 96 epochs × 384 sids = 36,864 values  
+- Output: 96 epochs × 384 sids = 36,864 values
 - Memory: ~40 MB (12× expansion)
 
 **Interpolation**:
@@ -487,7 +487,7 @@ Typical timings (Intel i7-1165G7 @ 2.8GHz):
 3. **Parallelize multiple dates**:
    ```python
    from concurrent.futures import ProcessPoolExecutor
-   
+
    with ProcessPoolExecutor() as executor:
        results = executor.map(process_date, dates)
    ```
@@ -496,7 +496,7 @@ Typical timings (Intel i7-1165G7 @ 2.8GHz):
    ```python
    # For interpolation only (faster)
    sp3_sid = preprocess_aux_for_interpolation(sp3_data)
-   
+
    # For Icechunk storage (slower, more thorough)
    sp3_prep = prep_aux_ds(sp3_data)
    ```

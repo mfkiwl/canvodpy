@@ -10,7 +10,7 @@ The product registry provides declarative configuration for SP3 and CLK file loc
 
 **Primary Sources:**
 - **CODE** (Center for Orbit Determination in Europe): Final, Rapid
-- **GFZ** (GeoForschungsZentrum Potsdam): Final, Rapid  
+- **GFZ** (GeoForschungsZentrum Potsdam): Final, Rapid
 - **ESA** (European Space Agency): Final, Rapid, Ultra-rapid
 - **JPL** (Jet Propulsion Laboratory): Final
 - **IGS** (International GNSS Service): Final, Rapid, Ultra-rapid
@@ -50,7 +50,7 @@ sp3 = Sp3File.from_url(date(2024, 1, 1), "CODE", "final")
 - **Accuracy:** Near-final (cm-level)
 - **Use case:** Near-real-time processing
 
-### Ultra-rapid Products  
+### Ultra-rapid Products
 - **Latency:** 3-9 hours
 - **Accuracy:** Good (few cm)
 - **Use case:** Real-time applications

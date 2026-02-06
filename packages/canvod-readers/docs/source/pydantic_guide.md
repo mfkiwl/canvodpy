@@ -13,14 +13,14 @@ Traditional RINEX parsing code is error-prone:
 def parse_header_old(lines):
     version = float(lines[0][:9])  # What if it's not a number?
     file_type = lines[0][20]        # What if line is too short?
-    
+
     # Silent failures
     if version < 3:
         print("Warning: old version")  # Just a warning?
-    
+
     # No validation
     obs_types = lines[5].split()  # What if missing?
-    
+
     return {
         'version': version,
         'type': file_type,
@@ -46,13 +46,13 @@ class Rnxv3ObsHeader(BaseModel):
     rinex_version: float
     rinex_type: str
     obs_types: dict[str, list[str]]
-    
+
     @field_validator('rinex_version')
     def check_version(cls, v):
         if not (3.0 <= v < 4.0):
             raise ValueError(f"Expected RINEX v3, got {v}")
         return v
-    
+
     @field_validator('rinex_type')
     def check_type(cls, v):
         if v != 'O':
@@ -79,7 +79,7 @@ from pydantic import BaseModel
 
 class Observation(BaseModel):
     """Type-safe observation model."""
-    
+
     value: float
     lli: int | None = None
     ssi: int | None = None
@@ -103,15 +103,15 @@ from pathlib import Path
 class Rnxv3Obs(BaseModel):
     # Required fields
     fpath: Path
-    
+
     # Optional fields with defaults
     header: Rnxv3ObsHeader | None = None
     timestamp: datetime | None = None
-    
+
     # Collections
     satellites: list[Satellite] = []
     obs_types: dict[str, list[str]] = {}
-    
+
     # Union types (Python 3.10+)
     interval: int | float = 30.0
 ```
@@ -142,22 +142,22 @@ from pydantic import field_validator, Field
 
 class Satellite(BaseModel):
     sv: str = Field(..., description="Satellite vehicle ID")
-    
+
     @field_validator('sv')
     @classmethod
     def check_sv_format(cls, v: str) -> str:
         """Validate satellite vehicle ID format."""
         if len(v) != 3:
             raise ValueError(f"SV must be 3 chars, got {len(v)}")
-        
+
         system = v[0]
         if system not in 'GRECJIS':
             raise ValueError(f"Invalid system: {system}")
-        
+
         prn = v[1:]
         if not prn.isdigit():
             raise ValueError(f"PRN must be numeric: {prn}")
-        
+
         return v
 ```
 
@@ -172,23 +172,23 @@ class Rnxv3ObsHeaderFileVars(BaseModel):
     sampling_interval: Quantity
     rnx_file_dump_interval: Quantity
     epoch_records_indeces: list[int]
-    
+
     @model_validator(mode='after')
     def check_intervals(self):
         """Validate epoch intervals consistency."""
         total_time = (
-            len(self.epoch_records_indeces) * 
+            len(self.epoch_records_indeces) *
             self.sampling_interval.m_as(ureg.seconds)
         )
         expected_time = self.rnx_file_dump_interval.m_as(ureg.seconds)
-        
+
         if total_time != expected_time:
             raise MissingEpochError(
                 f"Total sampling time ({total_time}s) != "
                 f"dump interval ({expected_time}s). "
                 f"Missing epochs detected."
             )
-        
+
         return self
 ```
 
@@ -203,14 +203,14 @@ from pydantic import ConfigDict
 
 class Rnxv3Obs(BaseModel):
     """Immutable reader with arbitrary types."""
-    
+
     model_config = ConfigDict(
         frozen=True,              # Immutable after creation
         arbitrary_types_allowed=True,  # Allow non-Pydantic types
         validate_assignment=True, # Validate on attribute assignment
         str_strip_whitespace=True,  # Strip whitespace from strings
     )
-    
+
     fpath: Path  # Path is "arbitrary type"
 ```
 
@@ -226,32 +226,32 @@ from datetime import datetime
 
 class Rnxv3ObsHeader(BaseModel):
     """RINEX v3 observation header.
-    
+
     Automatically validates all fields according to
     RINEX v3.04 specification.
     """
-    
+
     # Version and type (required)
     rinex_version: float
     rinex_type: str
     sat_system: str | None = None
-    
+
     # Program info
     pgm: str | None = None
     run_by: str | None = None
     date: str | None = None
-    
+
     # Station info
     marker_name: str | None = None
     marker_number: str | None = None
-    
+
     # Observation types (required)
     obs_types: dict[str, list[str]]
-    
+
     # Time info
     time_of_first_obs: datetime | None = None
     interval: float | None = None
-    
+
     @field_validator('rinex_version')
     @classmethod
     def check_version(cls, v: float) -> float:
@@ -262,7 +262,7 @@ class Rnxv3ObsHeader(BaseModel):
                 f"Use Rnxv2Obs for v2 or Rnxv4Obs for v4."
             )
         return v
-    
+
     @field_validator('rinex_type')
     @classmethod
     def check_type(cls, v: str) -> str:
@@ -273,19 +273,19 @@ class Rnxv3ObsHeader(BaseModel):
                 f"This reader only handles observation files."
             )
         return v
-    
+
     @field_validator('obs_types')
     @classmethod
     def check_obs_types(cls, v: dict[str, list[str]]) -> dict:
         """Validate observation type structure."""
         if not v:
             raise ValueError("No observation types defined in header")
-        
+
         valid_obs_chars = {'C', 'L', 'D', 'S'}
         for system, obs_list in v.items():
             if system not in 'GRECJIS':
                 raise ValueError(f"Invalid GNSS system: {system}")
-            
+
             for obs in obs_list:
                 if len(obs) != 3:
                     raise ValueError(
@@ -296,7 +296,7 @@ class Rnxv3ObsHeader(BaseModel):
                         f"Invalid observation type '{obs[0]}' in {obs}. "
                         f"Must be one of: {valid_obs_chars}"
                     )
-        
+
         return v
 ```
 
@@ -337,7 +337,7 @@ class Observation(BaseModel):
     value: float
     lli: int | None = None
     ssi: int | None = None
-    
+
     @field_validator('lli', 'ssi')
     @classmethod
     def check_flags(cls, v: int | None) -> int | None:
@@ -351,7 +351,7 @@ class Satellite(BaseModel):
     """Satellite with observations."""
     sv: str
     observations: dict[str, Observation] = {}
-    
+
     def add_observation(self, obs_code: str, obs: Observation) -> None:
         """Add observation with validation."""
         self.observations[obs_code] = obs
@@ -363,7 +363,7 @@ class Rnxv3ObsEpochRecord(BaseModel):
     epoch_flag: int
     num_satellites: int
     satellites: list[Satellite] = []
-    
+
     @field_validator('epoch_flag')
     @classmethod
     def check_epoch_flag(cls, v: int) -> int:
@@ -371,18 +371,18 @@ class Rnxv3ObsEpochRecord(BaseModel):
         if not (0 <= v <= 6):
             raise ValueError(f"Epoch flag must be 0-6, got {v}")
         return v
-    
+
     @model_validator(mode='after')
     def check_satellite_count(self):
         """Validate satellite count matches."""
         actual = len(self.satellites)
         expected = self.num_satellites
-        
+
         if actual != expected:
             raise ValueError(
                 f"Expected {expected} satellites, got {actual}"
             )
-        
+
         return self
 ```
 
@@ -418,14 +418,14 @@ ureg = pint.UnitRegistry()
 
 class Rnxv3Obs(BaseModel):
     """Reader with Path and pint.Quantity support."""
-    
+
     model_config = ConfigDict(
         arbitrary_types_allowed=True,  # Allow Path, pint.Quantity
     )
-    
+
     fpath: Path
     sampling_interval: pint.Quantity
-    
+
     @field_serializer('sampling_interval')
     def serialize_quantity(self, v: pint.Quantity) -> str:
         """Convert Quantity to string for serialization."""
@@ -454,7 +454,7 @@ from pydantic import computed_field
 class Rnxv3Obs(BaseModel):
     fpath: Path
     _cached_hash: str | None = None
-    
+
     @computed_field
     @property
     def file_hash(self) -> str:
@@ -475,30 +475,30 @@ class Rnxv3ObsHeader(BaseModel):
     rinex_version: float
     obs_types: dict[str, list[str]]
     # ... other fields
-    
+
     @classmethod
     def from_lines(cls, lines: list[str]) -> 'Rnxv3ObsHeader':
         """Factory method to parse from RINEX lines."""
         data = {}
-        
+
         for line in lines:
             label = line[60:80].strip()
-            
+
             if label == "RINEX VERSION / TYPE":
                 data['rinex_version'] = float(line[0:9])
                 data['rinex_type'] = line[20]
-            
+
             elif label == "SYS / # / OBS TYPES":
                 system = line[0]
                 num_obs = int(line[3:6])
                 obs_types = line[7:60].split()
-                
+
                 if 'obs_types' not in data:
                     data['obs_types'] = {}
                 data['obs_types'][system] = obs_types
-            
+
             # ... parse other fields
-        
+
         return cls(**data)  # Validates automatically
 
 
@@ -520,13 +520,13 @@ from pydantic import field_serializer, field_validator
 
 class Rnxv3ObsHeader(BaseModel):
     marker_name: str
-    
+
     @field_validator('marker_name', mode='before')
     @classmethod
     def strip_whitespace(cls, v: str) -> str:
         """Preprocessing: Clean whitespace."""
         return v.strip() if isinstance(v, str) else v
-    
+
     @field_validator('marker_name')
     @classmethod
     def validate_marker_name(cls, v: str) -> str:
@@ -579,7 +579,7 @@ from canvod.readers.gnss_specs.exceptions import CorruptedFileError
 
 class Rnxv3ObsHeader(BaseModel):
     rinex_version: float
-    
+
     @field_validator('rinex_version')
     @classmethod
     def check_version(cls, v: float) -> float:
@@ -676,7 +676,7 @@ def parse_header(lines):
 class Rnxv3Obs(BaseModel):
     fpath: Path
     header: Rnxv3ObsHeader
-    
+
     @model_validator(mode='after')
     def parse_header(self):
         """Parse and validate header immediately."""
@@ -690,7 +690,7 @@ class Rnxv3Obs:
     def __init__(self, fpath):
         self.fpath = fpath
         self._header = None  # Parsed later
-    
+
     @property
     def header(self):
         if self._header is None:

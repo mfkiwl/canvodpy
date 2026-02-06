@@ -44,19 +44,19 @@ RINEX v3.04 Observation File
 classDiagram
     GNSSDataReader <|-- Rnxv3Obs
     BaseModel <|-- Rnxv3Obs
-    
+
     Rnxv3Obs *-- Rnxv3ObsHeader
     Rnxv3Obs *-- SignalIDMapper
-    
+
     Rnxv3ObsHeader *-- Rnxv3ObsHeaderFileVars
-    
+
     class GNSSDataReader{
         <<abstract>>
         +to_ds()*
         +iter_epochs()*
         +file_hash*
     }
-    
+
     class Rnxv3Obs{
         +Path fpath
         +Rnxv3ObsHeader header
@@ -64,7 +64,7 @@ classDiagram
         +iter_epochs()
         +file_hash
     }
-    
+
     class Rnxv3ObsHeader{
         +float rinex_version
         +str rinex_type
@@ -117,7 +117,7 @@ reader = Rnxv3Obs(fpath=Path("station.24o"))
 class Rnxv3Obs(BaseModel, GNSSDataReader):
     fpath: Path
     header: Rnxv3ObsHeader | None = None
-    
+
     @model_validator(mode='after')
     def parse_header(self):
         """Parse header on initialization."""
@@ -127,7 +127,7 @@ class Rnxv3Obs(BaseModel, GNSSDataReader):
                 header_lines.append(line)
                 if "END OF HEADER" in line:
                     break
-        
+
         self.header = Rnxv3ObsHeader.from_lines(header_lines)
         return self
 ```
@@ -149,7 +149,7 @@ def iter_epochs(self) -> Generator[Rnxv3ObsEpochRecord, None, None]:
         for line in f:
             if "END OF HEADER" in line:
                 break
-        
+
         # Read data section
         current_epoch = None
         for line in f:
@@ -177,12 +177,12 @@ def to_ds(
     **kwargs
 ) -> xr.Dataset:
     """Convert RINEX to xarray.Dataset.
-    
+
     Parameters
     ----------
     keep_rnx_data_vars : list of str, optional
         Variables to include. If None, includes all.
-    
+
     Returns
     -------
     xr.Dataset
@@ -192,7 +192,7 @@ def to_ds(
     epochs_data = []
     for epoch in self.iter_epochs():
         epochs_data.append(epoch)
-    
+
     # 2. Build Signal ID index
     signal_mapper = SignalIDMapper()
     all_sids = set()
@@ -203,41 +203,41 @@ def to_ds(
                     sat.sv, f"{sat.sv}|{obs_code}"
                 )
                 all_sids.add(sid)
-    
+
     sids = sorted(all_sids)
-    
+
     # 3. Create coordinate arrays
     epochs = [e.timestamp for e in epochs_data]
-    
+
     # Extract SV, system, band, code from SIDs
     sv_arr = np.array([sid.split('|')[0] for sid in sids])
     band_arr = np.array([sid.split('|')[1] for sid in sids])
     code_arr = np.array([sid.split('|')[2] for sid in sids])
     system_arr = np.array([sid[0] for sid in sids])
-    
+
     # Get frequencies
     freq_center = np.array([
         signal_mapper.get_band_frequency(sid.split('|')[1])
         for sid in sids
     ], dtype=np.float64)
-    
+
     bandwidth = np.array([
         signal_mapper.get_band_bandwidth(sid.split('|')[1])
         for sid in sids
     ], dtype=np.float64)
-    
+
     freq_min = freq_center - (bandwidth / 2.0)
     freq_max = freq_center + (bandwidth / 2.0)
-    
+
     # 4. Build data arrays
     data_vars = {}
     if keep_rnx_data_vars is None or "SNR" in keep_rnx_data_vars:
         snr_data = np.full((len(epochs), len(sids)), np.nan, dtype=np.float32)
         # Fill with observations...
         data_vars["SNR"] = (("epoch", "sid"), snr_data)
-    
+
     # Similar for Phase, Pseudorange, Doppler...
-    
+
     # 5. Create Dataset
     ds = xr.Dataset(
         data_vars=data_vars,
@@ -259,10 +259,10 @@ def to_ds(
             # ... more attributes
         }
     )
-    
+
     # 6. Validate before returning
     self.validate_output(ds, required_vars=keep_rnx_data_vars)
-    
+
     return ds
 ```
 
@@ -287,7 +287,7 @@ Pydantic approach:
 class Rnxv3ObsHeader(BaseModel):
     rinex_version: float
     rinex_type: str
-    
+
     @field_validator('rinex_version')
     def check_version(cls, v):
         if not (3.0 <= v < 4.0):
@@ -305,46 +305,46 @@ from datetime import datetime
 
 class Rnxv3ObsHeader(BaseModel):
     """RINEX v3 header with automatic validation.
-    
+
     Parses and validates all header fields according to
     RINEX v3.04 specification.
     """
-    
+
     # Required fields
     rinex_version: float
     rinex_type: str
     sat_system: str | None = None
-    
+
     # Program information
     pgm: str | None = None
     run_by: str | None = None
     date: str | None = None
-    
+
     # Station information
     marker_name: str | None = None
     marker_number: str | None = None
     marker_type: str | None = None
     observer: str | None = None
     agency: str | None = None
-    
+
     # Receiver information
     rec_number: str | None = None
     rec_type: str | None = None
     rec_vers: str | None = None
-    
+
     # Antenna information
     ant_number: str | None = None
     ant_type: str | None = None
     approx_position_xyz: tuple[float, float, float] | None = None
     antenna_delta_hen: tuple[float, float, float] | None = None
-    
+
     # Observation information
     obs_types: dict[str, list[str]]  # system -> observation types
     signal_strength_unit: str | None = None
     interval: float | None = None
     time_of_first_obs: datetime | None = None
     time_of_last_obs: datetime | None = None
-    
+
     # Validators
     @field_validator('rinex_version')
     def check_rinex_version(cls, v):
@@ -352,55 +352,55 @@ class Rnxv3ObsHeader(BaseModel):
         if not (3.0 <= v < 4.0):
             raise ValueError(f"Expected RINEX v3, got {v}")
         return v
-    
+
     @field_validator('rinex_type')
     def check_file_type(cls, v):
         """Ensure observation file."""
         if v != 'O':
             raise ValueError(f"Expected observation file (O), got {v}")
         return v
-    
+
     @field_validator('obs_types')
     def check_obs_types(cls, v):
         """Validate observation types."""
         if not v:
             raise ValueError("No observation types defined")
-        
+
         valid_types = {'C', 'L', 'D', 'S'}
         for system, obs_list in v.items():
             for obs in obs_list:
                 if obs[0] not in valid_types:
                     raise ValueError(f"Invalid observation type: {obs}")
         return v
-    
+
     @classmethod
     def from_lines(cls, lines: list[str]) -> 'Rnxv3ObsHeader':
         """Parse header from lines."""
         data = {}
-        
+
         for line in lines:
             label = line[60:80].strip()
-            
+
             if label == "RINEX VERSION / TYPE":
                 data['rinex_version'] = float(line[0:9])
                 data['rinex_type'] = line[20]
                 data['sat_system'] = line[40] if line[40] != ' ' else None
-            
+
             elif label == "PGM / RUN BY / DATE":
                 data['pgm'] = line[0:20].strip()
                 data['run_by'] = line[20:40].strip()
                 data['date'] = line[40:60].strip()
-            
+
             elif label == "MARKER NAME":
                 data['marker_name'] = line[0:60].strip()
-            
+
             # ... parse all other fields
-            
+
             elif label == "SYS / # / OBS TYPES":
                 system = line[0]
                 num_obs = int(line[3:6])
                 obs_types = []
-                
+
                 # Parse observation types (may span multiple lines)
                 start = 7
                 for i in range(num_obs):
@@ -409,11 +409,11 @@ class Rnxv3ObsHeader(BaseModel):
                         pass
                     obs_types.append(line[start:start+3].strip())
                     start += 4
-                
+
                 if 'obs_types' not in data:
                     data['obs_types'] = {}
                 data['obs_types'][system] = obs_types
-        
+
         return cls(**data)
 ```
 
@@ -422,28 +422,28 @@ class Rnxv3ObsHeader(BaseModel):
 ```python
 class Rnxv3ObsEpochRecord(BaseModel):
     """Single epoch with observations."""
-    
+
     epoch_flag: int  # 0-6
     timestamp: datetime
     num_satellites: int
     satellites: list[Satellite] = []
-    
+
     @field_validator('epoch_flag')
     def check_epoch_flag(cls, v):
         """Validate epoch flag."""
         if not (0 <= v <= 6):
             raise ValueError(f"Invalid epoch flag: {v}")
         return v
-    
+
     @classmethod
     def from_line(cls, line: str) -> 'Rnxv3ObsEpochRecord':
         """Parse epoch line.
-        
+
         Format: > YYYY MM DD HH MM SS.SSSSSSS  F NS
         """
         if not line.startswith('>'):
             raise ValueError("Epoch line must start with '>'")
-        
+
         # Extract fields
         year = int(line[2:6])
         month = int(line[7:9])
@@ -451,15 +451,15 @@ class Rnxv3ObsEpochRecord(BaseModel):
         hour = int(line[13:15])
         minute = int(line[16:18])
         second = float(line[19:30])
-        
+
         epoch_flag = int(line[31])
         num_satellites = int(line[33:36])
-        
+
         timestamp = datetime(
             year, month, day, hour, minute,
             int(second), int((second % 1) * 1e6)
         )
-        
+
         return cls(
             epoch_flag=epoch_flag,
             timestamp=timestamp,
@@ -472,17 +472,17 @@ class Rnxv3ObsEpochRecord(BaseModel):
 ```python
 class Observation(BaseModel):
     """Single observation value."""
-    
+
     value: float
     lli: int | None = None  # Loss of lock indicator
     ssi: int | None = None  # Signal strength indicator
-    
+
     @field_validator('lli')
     def check_lli(cls, v):
         if v is not None and not (0 <= v <= 9):
             raise ValueError(f"LLI must be 0-9, got {v}")
         return v
-    
+
     @field_validator('ssi')
     def check_ssi(cls, v):
         if v is not None and not (0 <= v <= 9):
@@ -492,10 +492,10 @@ class Observation(BaseModel):
 
 class Satellite(BaseModel):
     """Satellite with observations."""
-    
+
     sv: str  # e.g., "G01", "E05"
     observations: dict[str, Observation]  # obs_code -> Observation
-    
+
     @field_validator('sv')
     def check_sv_format(cls, v):
         """Validate SV format."""
@@ -515,22 +515,22 @@ The `SignalIDMapper` converts RINEX observation codes to unique Signal IDs:
 ```python
 class SignalIDMapper:
     """Map observation codes to Signal IDs."""
-    
+
     def create_signal_id(self, sv: str, obs_code: str) -> str:
         """Create Signal ID from SV and observation code.
-        
+
         Parameters
         ----------
         sv : str
             Satellite vehicle (e.g., "G01")
         obs_code : str
             Observation code (e.g., "G01|S1C")
-        
+
         Returns
         -------
         str
             Signal ID in format "SV|BAND|CODE"
-        
+
         Examples
         --------
         >>> mapper = SignalIDMapper()
@@ -539,22 +539,22 @@ class SignalIDMapper:
         """
         sv, observation_code = obs_code.split('|')
         system = sv[0]
-        
+
         # Special case: X1 auxiliary observations
         if observation_code == 'X1':
             return f"{sv}|X1|X"
-        
+
         # Standard: TYPE + BAND + CODE
         # e.g., "S1C" -> Type=S, Band=1, Code=C
         obs_type = observation_code[0]  # S, C, L, D
         band_num = observation_code[1]  # 1, 2, 5, etc.
         code = observation_code[2]      # C, P, W, etc.
-        
+
         # Map band number to band name
         band_name = self.SYSTEM_BANDS[system].get(
             band_num, f'UnknownBand{band_num}'
         )
-        
+
         return f"{sv}|{band_name}|{code}"
 ```
 
@@ -586,7 +586,7 @@ def iter_epochs(self):
         for line in f:
             if "END OF HEADER" in line:
                 break
-        
+
         # Yield epochs as parsed
         for epoch in self._parse_data_section(f):
             yield epoch  # Memory: ~1 MB per epoch

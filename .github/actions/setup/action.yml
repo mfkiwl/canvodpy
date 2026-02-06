@@ -8,11 +8,11 @@ runs:
       with:
         version: "0.9.22"
         enable-cache: true
-    
+
     - name: Set up Python
       shell: bash
       run: uv python install
-    
+
     - name: Sync workspace
       shell: bash
       run: uv sync --locked --all-extras --dev

@@ -128,7 +128,7 @@ Ready to contribute? Here's how to set up `canvodpy` for local development.
    ```sh
    # Run tests
    just test
-   
+
    # Check code quality (lint + format + type-check)
    just check
    ```
@@ -145,9 +145,9 @@ Ready to contribute? Here's how to set up `canvodpy` for local development.
    **Commit Message Format:**
    ```
    <type>(<scope>): <subject>
-   
+
    <body>
-   
+
    <footer>
    ```
 

@@ -11,7 +11,7 @@
   --canvod-success: #28a745;        /* Green */
   --canvod-warning: #ffc107;        /* Yellow */
   --canvod-danger: #dc3545;         /* Red */
-  
+
   /* Neutral colors */
   --canvod-gray-50: #f8f9fa;
   --canvod-gray-100: #e9ecef;
@@ -19,12 +19,12 @@
   --canvod-gray-300: #ced4da;
   --canvod-gray-700: #495057;
   --canvod-gray-900: #212529;
-  
+
   /* Typography */
   --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   --font-family-heading: 'Inter', sans-serif;
-  
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -343,15 +343,15 @@ footer {
   h1 {
     font-size: 2rem;
   }
-  
+
   h2 {
     font-size: 1.5rem;
   }
-  
+
   h3 {
     font-size: 1.25rem;
   }
-  
+
   .sidebar {
     display: none;
   }
@@ -366,12 +366,12 @@ footer {
   .search-container {
     display: none;
   }
-  
+
   a {
     text-decoration: underline;
     color: #000;
   }
-  
+
   code, pre {
     border: 1px solid #ccc;
   }

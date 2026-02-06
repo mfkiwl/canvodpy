@@ -1,6 +1,6 @@
 # How the Release Infrastructure Works
 
-**Created:** 2026-02-04  
+**Created:** 2026-02-04
 **Audience:** Maintainers & Contributors
 
 ## Table of Contents
@@ -65,7 +65,7 @@ fixed bug
    [tool.commitizen]
    name = "cz_conventional_commits"
    version = "0.1.0"
-   
+
    [tool.commitizen.customize]
    scopes = [
        "readers", "aux", "grids", "vod",
@@ -288,7 +288,7 @@ on:
    ```yaml
    - run: uvx git-changelog --release-notes > release-notes.md
    ```
-   
+
    Extracts commits for THIS release only (since last tag)
 
 5. **Create GitHub release**
@@ -300,7 +300,7 @@ on:
          --draft \
          --verify-tag
    ```
-   
+
    Creates a **draft** (not published yet!)
 
 ### The Complete Flow
@@ -377,7 +377,7 @@ Developer                    GitHub Actions                 GitHub
    ```bash
    uvx twine upload --repository testpypi dist/*
    ```
-   
+
 3. Enter credentials when prompted
 4. Package name now reserved!
 
@@ -478,16 +478,16 @@ jobs:
     name: Upload to PyPI
     runs-on: ubuntu-latest
     environment: release  # MUST match PyPI config!
-    
+
     steps:
       - uses: actions/checkout@v6
-      
+
       - name: Install uv
         uses: astral-sh/setup-uv@v7
-      
+
       - name: Build package
         run: uv build
-      
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -515,20 +515,20 @@ jobs:
    ├─> just release 0.2.0
    ├─> git push --tags
    └─> GitHub Actions creates draft release
-       
+
 2. Developer publishes release on GitHub
    └─> Click "Publish Release" button
-       
+
 3. Publish workflow triggers
    ├─> GitHub generates OIDC JWT
    ├─> Workflow builds package
    └─> Sends package + JWT to PyPI
-       
+
 4. PyPI verifies and publishes
    ├─> Verifies JWT is from nfb2021/canvodpy
    ├─> Accepts upload
    └─> Package now live!
-       
+
 5. Users can install
    └─> pip install canvodpy==0.2.0
 ```
@@ -573,10 +573,10 @@ jobs:
    # Create test release
    just release 0.1.0-beta.1
    git push --tags
-   
+
    # Publish draft release
    # Workflow uploads to TestPyPI
-   
+
    # Verify
    pip install --index-url https://test.pypi.org/simple/ canvodpy
    ```

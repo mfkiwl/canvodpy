@@ -1,0 +1,39 @@
+# Prometheus configuration for canvodpy monitoring
+# This file configures Prometheus to scrape metrics from canvodpy
+
+global:
+  scrape_interval: 15s      # Scrape metrics every 15 seconds
+  evaluation_interval: 15s  # Evaluate rules every 15 seconds
+  external_labels:
+    monitor: 'canvodpy-monitor'
+    environment: 'development'
+
+# Alerting configuration (optional - requires Alertmanager)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # - 'alertmanager:9093'
+
+# Load rules from files
+rule_files:
+  - 'alert_rules.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Scrape canvodpy metrics
+  - job_name: 'canvodpy'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['host.docker.internal:9464']  # For Docker Desktop
+        labels:
+          application: 'canvodpy'
+          component: 'processing'
+    
+    # If running Prometheus locally (not in Docker), use:
+    # - targets: ['localhost:9464']
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

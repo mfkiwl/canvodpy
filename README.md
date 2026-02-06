@@ -61,10 +61,10 @@ This project requires two tools that need to be installed separately:
    ```bash
    # macOS/Linux
    curl -LsSf https://astral.sh/uv/install.sh | sh
-   
+
    # Windows
    powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-   
+
    # Or via package manager
    brew install uv  # macOS
    ```
@@ -73,7 +73,7 @@ This project requires two tools that need to be installed separately:
    ```bash
    # macOS/Linux
    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash
-   
+
    # Or via package manager
    brew install just      # macOS
    cargo install just     # Rust

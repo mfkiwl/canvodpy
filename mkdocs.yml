@@ -44,6 +44,10 @@ nav:
       - docs/namespace-packages.md
       - docs/development-workflow.md
       - docs/build-system.md
+  - Observability:
+      - docs/observability.md
+      - docs/logging.md
+      - docs/telemetry.md
   - Packages:
       - docs/packages/index.md
       - canvod-readers:

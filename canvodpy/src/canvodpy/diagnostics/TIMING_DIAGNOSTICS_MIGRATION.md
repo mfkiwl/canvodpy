@@ -1,6 +1,6 @@
 # Migration Guide: timing_diagnostics_script.py
 
-**Old Location:** `/Users/work/Developer/GNSS/gnssvodpy/src/gnssvodpy/processor/timing_diagnostics_script.py`  
+**Old Location:** `/Users/work/Developer/GNSS/gnssvodpy/src/gnssvodpy/processor/timing_diagnostics_script.py`
 **New Location:** `/Users/work/Developer/GNSS/canvodpy/canvodpy/src/canvodpy/diagnostics/timing_diagnostics.py`
 
 ---
@@ -298,6 +298,6 @@ If you find discrepancies:
 | TimingLogger | ⚠️ Removed (optional) |
 | Ready for testing | ✅ Yes |
 
-**File:** `canvodpy/src/canvodpy/diagnostics/timing_diagnostics.py`  
-**Purpose:** Verify canvodpy produces identical results to gnssvodpy  
+**File:** `canvodpy/src/canvodpy/diagnostics/timing_diagnostics.py`
+**Purpose:** Verify canvodpy produces identical results to gnssvodpy
 **Usage:** Run and compare outputs with old script

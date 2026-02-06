@@ -316,4 +316,3 @@ Learn about test coverage and quality assurance
 Link: [extending_readers](extending_readers.md)
 
 Implement support for new data formats
-

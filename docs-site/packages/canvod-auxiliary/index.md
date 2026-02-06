@@ -285,4 +285,3 @@ Learn about Hermite splines and clock strategies
 Link: [products](products.md)
 
 Explore all 39 available products
-

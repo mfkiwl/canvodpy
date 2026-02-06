@@ -27,18 +27,18 @@ from canvod.readers.base import GNSSDataReader
 
 class MyFormatReader(BaseModel, GNSSDataReader):
     """Reader for My Custom Format.
-    
+
     Implements GNSSDataReader ABC for custom GNSS data format.
     """
-    
+
     model_config = ConfigDict(
         frozen=True,  # Immutable
         arbitrary_types_allowed=True,  # Allow Path, etc.
     )
-    
+
     # Required fields
     fpath: Path
-    
+
     # Optional: Format-specific fields
     # my_custom_header: MyCustomHeader | None = None
 ```
@@ -50,11 +50,11 @@ from canvod.readers.gnss_specs.utils import rinex_file_hash
 
 class MyFormatReader(BaseModel, GNSSDataReader):
     # ... previous code ...
-    
+
     @property
     def file_hash(self) -> str:
         """Compute file hash for deduplication.
-        
+
         Returns
         -------
         str
@@ -70,31 +70,31 @@ from datetime import datetime
 
 class MyFormatReader(BaseModel, GNSSDataReader):
     # ... previous code ...
-    
+
     @property
     def start_time(self) -> datetime:
         """Return start time of observations."""
         # Parse from your format
         return self._parse_start_time()
-    
+
     @property
     def end_time(self) -> datetime:
         """Return end time of observations."""
         # Parse from your format
         return self._parse_end_time()
-    
+
     @property
     def systems(self) -> list[str]:
         """Return list of GNSS systems in file."""
         # Parse from your format
         return self._parse_systems()
-    
+
     @property
     def num_epochs(self) -> int:
         """Return number of epochs."""
         # Parse from your format
         return self._count_epochs()
-    
+
     @property
     def num_satellites(self) -> int:
         """Return number of unique satellites."""
@@ -107,10 +107,10 @@ class MyFormatReader(BaseModel, GNSSDataReader):
 ```python
 class MyFormatReader(BaseModel, GNSSDataReader):
     # ... previous code ...
-    
+
     def iter_epochs(self) -> Generator:
         """Iterate over epochs in file.
-        
+
         Yields
         ------
         EpochData
@@ -120,7 +120,7 @@ class MyFormatReader(BaseModel, GNSSDataReader):
         with open(self.fpath, 'r') as f:
             # Skip header if needed
             self._skip_header(f)
-            
+
             # Parse data section
             for line in f:
                 epoch_data = self._parse_epoch(line)
@@ -143,21 +143,21 @@ from canvod.readers.gnss_specs.metadata import (
 
 class MyFormatReader(BaseModel, GNSSDataReader):
     # ... previous code ...
-    
+
     def to_ds(
         self,
         keep_rnx_data_vars: list[str] | None = None,
         **kwargs
     ) -> xr.Dataset:
         """Convert to xarray.Dataset.
-        
+
         Parameters
         ----------
         keep_rnx_data_vars : list of str, optional
             Variables to include. If None, includes all available.
         **kwargs
             Format-specific parameters.
-        
+
         Returns
         -------
         xr.Dataset
@@ -165,51 +165,51 @@ class MyFormatReader(BaseModel, GNSSDataReader):
         """
         # 1. Collect all observations
         all_epochs = list(self.iter_epochs())
-        
+
         # 2. Build Signal ID index
         mapper = SignalIDMapper()
         all_sids = set()
-        
+
         for epoch in all_epochs:
             for obs in epoch.observations:
                 sid = mapper.create_signal_id(obs.sv, obs.code)
                 all_sids.add(sid)
-        
+
         sids = sorted(all_sids)
-        
+
         # 3. Create coordinate arrays
         epochs = [e.timestamp for e in all_epochs]
-        
+
         # Extract metadata from Signal IDs
         sv_arr = np.array([sid.split('|')[0] for sid in sids])
         band_arr = np.array([sid.split('|')[1] for sid in sids])
         code_arr = np.array([sid.split('|')[2] for sid in sids])
         system_arr = np.array([sid[0] for sid in sids])
-        
+
         # Get frequencies
         freq_center = np.array([
             mapper.get_band_frequency(sid.split('|')[1])
             for sid in sids
         ], dtype=np.float64)
-        
+
         bandwidth = np.array([
             mapper.get_band_bandwidth(sid.split('|')[1])
             for sid in sids
         ], dtype=np.float64)
-        
+
         freq_min = freq_center - (bandwidth / 2.0)
         freq_max = freq_center + (bandwidth / 2.0)
-        
+
         # 4. Build data arrays
         data_vars = {}
-        
+
         if keep_rnx_data_vars is None or "SNR" in keep_rnx_data_vars:
             snr_data = np.full(
                 (len(epochs), len(sids)),
                 np.nan,
                 dtype=np.float32
             )
-            
+
             # Fill with observations
             sid_to_idx = {sid: i for i, sid in enumerate(sids)}
             for epoch_idx, epoch in enumerate(all_epochs):
@@ -217,15 +217,15 @@ class MyFormatReader(BaseModel, GNSSDataReader):
                     sid = mapper.create_signal_id(obs.sv, obs.code)
                     sid_idx = sid_to_idx[sid]
                     snr_data[epoch_idx, sid_idx] = obs.snr
-            
+
             data_vars["SNR"] = (
                 ("epoch", "sid"),
                 snr_data,
                 SNR_METADATA
             )
-        
+
         # Similar for other variables (Phase, Pseudorange, Doppler)
-        
+
         # 5. Create Dataset
         ds = xr.Dataset(
             data_vars=data_vars,
@@ -247,10 +247,10 @@ class MyFormatReader(BaseModel, GNSSDataReader):
                 "Source Format": "My Custom Format",
             }
         )
-        
+
         # 6. CRITICAL: Validate before returning
         self.validate_output(ds, required_vars=keep_rnx_data_vars)
-        
+
         return ds
 ```
 
@@ -272,38 +272,38 @@ from canvod.readers.gnss_specs.signals import SignalIDMapper
 
 class Rnxv2ObsHeader(BaseModel):
     """RINEX v2 header parser."""
-    
+
     rinex_version: float
     rinex_type: str
     obs_types: list[str]
     interval: float | None = None
     first_obs: datetime | None = None
-    
+
     @classmethod
     def from_lines(cls, lines: list[str]) -> 'Rnxv2ObsHeader':
         """Parse header from lines."""
         data = {}
-        
+
         for line in lines:
             label = line[60:80].strip()
-            
+
             if label == "RINEX VERSION / TYPE":
                 data['rinex_version'] = float(line[0:9])
                 data['rinex_type'] = line[20]
-            
+
             elif label == "# / TYPES OF OBSERV":
                 num_obs = int(line[0:6])
                 obs_types = line[10:60].split()
                 data['obs_types'] = obs_types
-            
+
             # ... parse other fields
-        
+
         return cls(**data)
 
 
 class Rnxv2ObsEpoch:
     """RINEX v2 epoch data."""
-    
+
     def __init__(self, timestamp: datetime, satellites: list):
         self.timestamp = timestamp
         self.satellites = satellites
@@ -311,24 +311,24 @@ class Rnxv2ObsEpoch:
 
 class Rnxv2Obs(BaseModel, GNSSDataReader):
     """RINEX v2 observation file reader.
-    
+
     Implements GNSSDataReader ABC for RINEX v2.xx format.
-    
+
     Examples
     --------
     >>> reader = Rnxv2Obs(fpath=Path("station.10o"))
     >>> ds = reader.to_ds(keep_rnx_data_vars=["SNR"])
     >>> print(ds)
     """
-    
+
     model_config = ConfigDict(
         frozen=True,
         arbitrary_types_allowed=True,
     )
-    
+
     fpath: Path
     header: Rnxv2ObsHeader | None = None
-    
+
     @model_validator(mode='after')
     def parse_header(self):
         """Parse header on initialization."""
@@ -338,32 +338,32 @@ class Rnxv2Obs(BaseModel, GNSSDataReader):
                 header_lines.append(line)
                 if "END OF HEADER" in line:
                     break
-        
+
         self.header = Rnxv2ObsHeader.from_lines(header_lines)
         return self
-    
+
     @property
     def file_hash(self) -> str:
         """Compute file hash."""
         return rinex_file_hash(self.fpath)
-    
+
     @property
     def start_time(self) -> datetime:
         """Return start time."""
         return self.header.first_obs
-    
+
     @property
     def end_time(self) -> datetime:
         """Return end time."""
         # Would need to parse or compute
         raise NotImplementedError("End time parsing not yet implemented")
-    
+
     @property
     def systems(self) -> list[str]:
         """Return GNSS systems."""
         # RINEX v2 typically only has GPS
         return ['G']
-    
+
     @property
     def num_epochs(self) -> int:
         """Return number of epochs."""
@@ -371,7 +371,7 @@ class Rnxv2Obs(BaseModel, GNSSDataReader):
         for _ in self.iter_epochs():
             count += 1
         return count
-    
+
     @property
     def num_satellites(self) -> int:
         """Return number of unique satellites."""
@@ -380,7 +380,7 @@ class Rnxv2Obs(BaseModel, GNSSDataReader):
             for sat in epoch.satellites:
                 sats.add(sat.sv)
         return len(sats)
-    
+
     def iter_epochs(self) -> Generator[Rnxv2ObsEpoch, None, None]:
         """Iterate over epochs."""
         with open(self.fpath, 'r') as f:
@@ -388,7 +388,7 @@ class Rnxv2Obs(BaseModel, GNSSDataReader):
             for line in f:
                 if "END OF HEADER" in line:
                     break
-            
+
             # Parse epoch records
             current_epoch = None
             for line in f:
@@ -397,17 +397,17 @@ class Rnxv2Obs(BaseModel, GNSSDataReader):
                     # New epoch
                     if current_epoch:
                         yield current_epoch
-                    
+
                     # Parse epoch line
                     timestamp = self._parse_epoch_line(line)
                     current_epoch = Rnxv2ObsEpoch(timestamp, [])
                 else:
                     # Observation line
                     self._parse_observation_line(line, current_epoch)
-            
+
             if current_epoch:
                 yield current_epoch
-    
+
     def to_ds(
         self,
         keep_rnx_data_vars: list[str] | None = None,
@@ -416,12 +416,12 @@ class Rnxv2Obs(BaseModel, GNSSDataReader):
         """Convert to Dataset."""
         # Implementation following the pattern shown above
         # ... (similar to RINEX v3)
-        
+
         # MUST call validation
         self.validate_output(ds, required_vars=keep_rnx_data_vars)
-        
+
         return ds
-    
+
     def _parse_epoch_line(self, line: str) -> datetime:
         """Parse RINEX v2 epoch line."""
         # RINEX v2 format: YY MM DD HH MM SS.SSSSSSS
@@ -431,12 +431,12 @@ class Rnxv2Obs(BaseModel, GNSSDataReader):
         hour = int(line[10:12])
         minute = int(line[13:15])
         second = float(line[16:26])
-        
+
         return datetime(
             year, month, day, hour, minute,
             int(second), int((second % 1) * 1e6)
         )
-    
+
     def _parse_observation_line(self, line: str, epoch: Rnxv2ObsEpoch):
         """Parse observation line."""
         # RINEX v2 observation format
@@ -505,40 +505,40 @@ from my_package.readers import MyFormatReader
 
 class TestMyFormatReader:
     """Test custom format reader."""
-    
+
     def test_initialization(self):
         """Test reader initialization."""
         reader = MyFormatReader(fpath=Path("test.dat"))
         assert reader.fpath.name == "test.dat"
-    
+
     def test_file_hash(self, tmp_path):
         """Test file hash computation."""
         test_file = tmp_path / "test.dat"
         test_file.write_text("test content")
-        
+
         reader = MyFormatReader(fpath=test_file)
         hash1 = reader.file_hash
         hash2 = reader.file_hash  # Should be same
-        
+
         assert hash1 == hash2
         assert len(hash1) == 16
-    
+
     def test_to_ds_structure(self):
         """Test Dataset structure."""
         reader = MyFormatReader(fpath=Path("real_test_file.dat"))
         ds = reader.to_ds()
-        
+
         # Validate structure
         assert "epoch" in ds.dims
         assert "sid" in ds.dims
         assert "SNR" in ds.data_vars
         assert ds.SNR.dims == ("epoch", "sid")
-    
+
     def test_validation_passes(self):
         """Test validation passes for valid output."""
         reader = MyFormatReader(fpath=Path("real_test_file.dat"))
         ds = reader.to_ds()
-        
+
         # Should not raise
         from canvod.readers.base import DatasetStructureValidator
         validator = DatasetStructureValidator(dataset=ds)
@@ -551,14 +551,14 @@ class TestMyFormatReader:
 def test_full_pipeline():
     """Test complete pipeline."""
     reader = MyFormatReader(fpath=Path("real_file.dat"))
-    
+
     # Convert to Dataset
     ds = reader.to_ds(keep_rnx_data_vars=["SNR"])
-    
+
     # Filter by system
     gps = ds.where(ds.system == 'G', drop=True)
     assert len(gps.sid) > 0
-    
+
     # Compute statistics
     mean_snr = gps.SNR.mean()
     assert mean_snr > 0
@@ -589,7 +589,7 @@ def _detect_format(fpath: Path) -> str:
     """Detect file format."""
     with open(fpath, 'r') as f:
         first_line = f.readline()
-    
+
     # Check for RINEX
     if first_line[60:73].strip() == "RINEX VERSION":
         version = float(first_line[:9].strip())
@@ -597,11 +597,11 @@ def _detect_format(fpath: Path) -> str:
             return 'rinex_v3'
         elif 2.0 <= version < 3.0:
             return 'rinex_v2'
-    
+
     # Check for your format
     if first_line.startswith("MY_FORMAT"):
         return 'my_format'
-    
+
     raise ValueError(f"Unknown format: {fpath}")
 ```
 

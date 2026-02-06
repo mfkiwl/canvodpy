@@ -73,4 +73,3 @@ Auto-generated API documentation from docstrings.
 ## Metadata
 
 > See the unified API reference: [API Reference](../../docs/api/)
-

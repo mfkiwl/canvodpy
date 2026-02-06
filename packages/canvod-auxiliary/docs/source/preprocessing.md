@@ -37,7 +37,7 @@ graph LR
     B -->|preprocess_aux_for<br/>_interpolation| C[sid: 384]
     C -->|interpolate| D[target epochs]
     D -->|match| E[RINEX<br/>sid: 384]
-    
+
     style C fill:#fff3e0
 ```
 

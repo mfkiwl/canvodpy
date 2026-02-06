@@ -399,7 +399,7 @@ class IcechunkDataReader:
                 except Exception as e:
                     log.exception("file_commit_failed", error=str(e))
                     raise
-                
+
                 self._memory_cleanup()
 
             # --- 5) Yield full daily dataset (already enriched) ---
@@ -600,7 +600,7 @@ class IcechunkDataReader:
                 except Exception as e:
                     log.exception("file_commit_failed", error=str(e))
                     raise
-                
+
                 self._memory_cleanup()
 
             # --- read back final dataset ---

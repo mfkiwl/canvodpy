@@ -1,5 +1,5 @@
 # IGS Product Registry Configuration
-# 
+#
 # This file defines available GNSS data products and their FTP locations.
 # Users can extend this file to add custom products or servers.
 #

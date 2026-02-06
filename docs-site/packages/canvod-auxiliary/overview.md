@@ -543,4 +543,3 @@ Explore all 39 validated GNSS products
 Link: [position](position.md)
 
 ECEF, geodetic, and spherical transformations
-

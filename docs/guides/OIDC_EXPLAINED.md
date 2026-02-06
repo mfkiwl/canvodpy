@@ -75,8 +75,8 @@ OIDC (OpenID Connect) is an authentication protocol built on OAuth 2.0. Instead 
 
 You register a **trust relationship** on PyPI:
 
-> "I trust GitHub Actions from repository `nfb2021/canvodpy`, 
-> specifically the workflow `publish_testpypi.yml` running in 
+> "I trust GitHub Actions from repository `nfb2021/canvodpy`,
+> specifically the workflow `publish_testpypi.yml` running in
 > environment `testpypi`, to publish package `canvod-readers`"
 
 **No secrets exchanged!** This just tells PyPI what to expect.
@@ -149,7 +149,7 @@ PyPI receives the request and validates:
 ✓ Does the publisher have permission for this package?
 ```
 
-**All pass?** → Package published! 🎉  
+**All pass?** → Package published! 🎉
 **Any fail?** → `403 Forbidden` with detailed error
 
 ---
@@ -195,11 +195,11 @@ Each trust relationship is scoped to:
 
 **Example attack prevention:**
 
-❌ Can't use JWT from different repo  
-❌ Can't use JWT from different workflow  
-❌ Can't use JWT from different environment  
-❌ Can't publish to different package  
-❌ Can't replay expired JWT  
+❌ Can't use JWT from different repo
+❌ Can't use JWT from different workflow
+❌ Can't use JWT from different environment
+❌ Can't publish to different package
+❌ Can't replay expired JWT
 ❌ Can't modify JWT claims (signature breaks)
 
 ### Audit Trail
@@ -305,7 +305,7 @@ Workflow: publish_testpypi.yml  # ← Note the underscore!
 
 ### 3. Wrong Repository Owner
 
-**Your GitHub username:** `nfb2021`  
+**Your GitHub username:** `nfb2021`
 **PyPI registered with:** `NFB2021` (different case!)
 
 **Result:** JWT validation fails (case-sensitive!)

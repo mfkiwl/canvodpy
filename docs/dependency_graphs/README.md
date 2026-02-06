@@ -1,6 +1,6 @@
 # canVODpy Dependency Graphs
 
-**Generated with [pydeps](https://github.com/thebjorn/pydeps)**  
+**Generated with [pydeps](https://github.com/thebjorn/pydeps)**
 **Date:** 2026-01-25
 
 ---
@@ -118,7 +118,7 @@ canvodpy (Umbrella)
 
 canvod.aux
 ├── → canvod.readers
-├── → canvod.utils  
+├── → canvod.utils
 ├── → canvod.store (optional)
 ├── → canvodpy.settings
 └── → canvodpy.globals
@@ -300,12 +300,12 @@ pydeps canvodpy/src/canvodpy -o docs/dependency_graphs/output.svg
 ## Troubleshooting
 
 ### Empty/Small Graph Files
-**Issue:** Graph shows no or few connections  
-**Cause:** Too restrictive filtering with `--only`  
+**Issue:** Graph shows no or few connections
+**Cause:** Too restrictive filtering with `--only`
 **Solution:** Use `-x` to exclude externals instead
 
 ### Cluttered Graph
-**Issue:** Too many nodes, hard to read  
+**Issue:** Too many nodes, hard to read
 **Solutions:**
 - Increase `--max-bacon` to limit depth
 - Use `--max-module-depth` to limit module nesting
@@ -313,8 +313,8 @@ pydeps canvodpy/src/canvodpy -o docs/dependency_graphs/output.svg
 - Use `-x` to exclude more external libraries
 
 ### Circular Dependency Warnings
-**Issue:** pydeps reports circular imports  
-**Expected:** canvod.aux ↔ canvod.store (by design, using lazy imports)  
+**Issue:** pydeps reports circular imports
+**Expected:** canvod.aux ↔ canvod.store (by design, using lazy imports)
 **Action:** Document in graph README, verify lazy import pattern
 
 ---

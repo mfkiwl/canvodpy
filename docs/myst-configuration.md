@@ -65,13 +65,13 @@ site:
 site:
   # Remove or replace logo
   logo: null
-  
+
   # Site title (appears in browser tab)
   title: canVODpy Documentation
-  
+
   # Footer customization
   footer: "© 2026 Nicolas Bader. Licensed under Apache 2.0."
-  
+
   # Social links
   nav:
     - title: GitHub
@@ -125,17 +125,17 @@ site:
   # Branding
   logo: null
   logo_text: canVODpy
-  
+
   # Navigation
   nav:
     - title: Home
       url: /
     - title: GitHub
       url: https://github.com/nfb2021/canvodpy
-  
+
   # Theme
   theme: book  # Options: book, article, default
-  
+
   # Analytics (optional)
   analytics:
     google: G-XXXXXXXXXX

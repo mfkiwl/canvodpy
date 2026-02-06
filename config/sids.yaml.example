@@ -30,14 +30,14 @@ mode: all  # all, preset, custom
 #   - G01|L1|C
 #   - G02|L1|C
 #   - G03|L1|C
-#   
+#
 #   # GPS L2
 #   - G01|L2|W
 #   - G02|L2|W
 #   - G03|L2|W
-#   
+#
 #   # Galileo E1
 #   - E01|E1|C
 #   - E02|E1|C
-#   
+#
 #   # Add more SIDs as needed...

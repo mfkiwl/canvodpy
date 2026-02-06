@@ -122,7 +122,7 @@ Tests marked with `@pytest.mark.network`:
 - Contains: X, Y, Z positions + velocities
 
 **sample_clk_data**
-- Simulates raw CLK dataset  
+- Simulates raw CLK dataset
 - Dimensions: `(epoch: 288, sv: 4)`
 - Contains: clock_bias
 
@@ -170,15 +170,15 @@ uv run pytest --cov=canvod.aux --cov-report=term-missing
 ```python
 class TestFeature:
     """Test feature description."""
-    
+
     def test_expected_behavior(self, fixture):
         """Test description in imperative mood."""
         # Arrange
         input_data = prepare_input()
-        
+
         # Act
         result = function_under_test(input_data)
-        
+
         # Assert
         assert result == expected
 ```
@@ -207,12 +207,12 @@ from canvod.aux import new_feature
 
 class TestNewFeature:
     """Test new_feature function."""
-    
+
     def test_basic_functionality(self):
         """Test basic usage works."""
         result = new_feature(input_data)
         assert result is not None
-    
+
     def test_edge_case(self):
         """Test edge case is handled."""
         result = new_feature(edge_case_input)

@@ -1,7 +1,7 @@
 # API Redesign Guide
 
-**Version:** 0.2.0 (in development)  
-**Status:** Complete core implementation  
+**Version:** 0.2.0 (in development)
+**Status:** Complete core implementation
 **Date:** 2026-02-04
 
 ---
@@ -11,7 +11,7 @@
 The canvodpy API has been redesigned for **extensibility**, **Airflow compatibility**, and **modern Python best practices**. The new architecture provides three layers:
 
 1. **Factories** - Component registration with ABC enforcement
-2. **Workflow** - High-level orchestration with structured logging  
+2. **Workflow** - High-level orchestration with structured logging
 3. **Functional** - Pure functions for notebooks and Airflow
 
 ### Key Benefits
@@ -82,7 +82,7 @@ import xarray as xr
 # Define custom calculator (must inherit ABC)
 class MLVODCalculator(VODCalculator):
     model_path: str  # Pydantic validated
-    
+
     def calculate_vod(self) -> xr.Dataset:
         # Your ML model inference
         pass
@@ -175,10 +175,10 @@ All operations include context-bound logging:
 workflow = VODWorkflow(site="Rosalia")
 
 # Example log output:
-# 2026-02-04T16:00:00 [info] workflow_initialized 
+# 2026-02-04T16:00:00 [info] workflow_initialized
 #   site=Rosalia grid=equal_area ncells=6448
 # 2026-02-04T16:00:01 [info] process_date_started date=2025001
-# 2026-02-04T16:00:02 [info] processing_receiver 
+# 2026-02-04T16:00:02 [info] processing_receiver
 #   site=Rosalia date=2025001 receiver=canopy_01
 ```
 
@@ -313,12 +313,12 @@ from pathlib import Path
 
 class CustomReader(GNSSDataReader):
     """Custom RINEX reader."""
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    
+
     path: Path
     custom_param: str = "default"
-    
+
     def read(self) -> xr.Dataset:
         """Read and return Dataset."""
         # Your custom reading logic
@@ -341,12 +341,12 @@ from canvod.grids.core import GridData
 
 class CustomGridBuilder(BaseGridBuilder):
     """Custom grid builder."""
-    
+
     def _build_grid(self) -> GridData:
         """Build grid structure."""
         # Your custom grid logic
         return GridData(...)
-    
+
     def get_grid_type(self) -> str:
         return "custom"
 
@@ -366,17 +366,17 @@ import xarray as xr
 
 class MLCalculator(VODCalculator):
     """ML-based VOD calculator."""
-    
+
     model_path: str  # Pydantic validated
-    
+
     def calculate_vod(self) -> xr.Dataset:
         """Calculate VOD using ML model."""
         # Load model
         model = load_model(self.model_path)
-        
+
         # Calculate VOD
         vod = model.predict(self.canopy_ds, self.sky_ds)
-        
+
         return xr.Dataset({"VOD": vod, ...})
 
 # Register
@@ -426,13 +426,13 @@ class VODWorkflow:
         keep_vars: list[str] | None = None,
         log_level: str = "INFO",
     ) -> None: ...
-    
+
     def process_date(
         self,
         date: str,
         receivers: list[str] | None = None,
     ) -> dict[str, xr.Dataset]: ...
-    
+
     def calculate_vod(
         self,
         canopy_receiver: str,
@@ -492,10 +492,10 @@ def calculate_vod_to_file(
 class ComponentFactory[T]:
     @classmethod
     def register(cls, name: str, component_class: type[T]) -> None: ...
-    
+
     @classmethod
     def create(cls, name: str, **kwargs: Any) -> T: ...
-    
+
     @classmethod
     def list_available(cls) -> list[str]: ...
 

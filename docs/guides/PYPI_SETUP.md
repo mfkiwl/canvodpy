@@ -145,7 +145,7 @@ Uploading canvodpy-0.1.0-py3-none-any.whl
 6. **You should see:**
    ```
    ✓ Trusted publisher added
-   
+
    Publisher:
    - Repository: nfb2021/canvodpy
    - Workflow: publish_testpypi.yml
@@ -179,7 +179,7 @@ name: Publish to TestPyPI
 on:
   release:
     types: [published]
-  
+
   # Manual trigger for testing
   workflow_dispatch:
 
@@ -192,25 +192,25 @@ jobs:
     name: Upload to TestPyPI
     runs-on: ubuntu-latest
     environment: test-release
-    
+
     # Only run if tag contains 'beta' or 'alpha' (for testing)
     if: contains(github.ref, 'beta') || contains(github.ref, 'alpha')
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      
+
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           version: "0.9.27"
-      
+
       - name: Set up Python
         run: uv python install 3.13
-      
+
       - name: Build package
         run: uv build
-      
+
       - name: Publish to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -343,30 +343,30 @@ jobs:
     name: Upload to PyPI
     runs-on: ubuntu-latest
     environment: release
-    
+
     # Skip beta/alpha releases for production PyPI
     if: "!contains(github.ref, 'beta') && !contains(github.ref, 'alpha')"
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      
+
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           version: "0.9.27"
-      
+
       - name: Set up Python
         run: uv python install 3.13
-      
+
       - name: Build package
         run: uv build
-      
+
       - name: Check package
         run: |
           uvx twine check dist/*
           ls -lh dist/
-      
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:

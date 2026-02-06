@@ -69,12 +69,12 @@ class IcechunkStoreViewer:
         return """
         <style>
         /* Icechunk Store Viewer - Dark mode optimized, minimal design */
-        
+
         .icechunk-store-wrap {
             display: block;
             min-width: 300px;
             max-width: 900px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
                          Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             font-size: 13px;
             line-height: 1.5;
@@ -85,7 +85,7 @@ class IcechunkStoreViewer:
             overflow: hidden;
             margin: 12px 0;
         }
-        
+
         /* Header - clean, no gradients */
         .icechunk-header {
             background: #222;
@@ -93,20 +93,20 @@ class IcechunkStoreViewer:
             padding: 14px 18px;
             border-bottom: 1px solid #333;
         }
-        
+
         .icechunk-title {
             font-size: 15px;
             font-weight: 600;
             margin-bottom: 8px;
         }
-        
+
         .icechunk-path {
             font-size: 11px;
             opacity: 0.7;
             font-family: 'SF Mono', Consolas, monospace;
             word-break: break-all;
         }
-        
+
         .icechunk-stats {
             display: flex;
             gap: 12px;
@@ -114,34 +114,34 @@ class IcechunkStoreViewer:
             font-size: 11px;
             opacity: 0.8;
         }
-        
+
         .stat-badge {
             padding: 2px 8px;
             border-radius: 3px;
             background: #2a2a2a;
         }
-        
+
         /* Content area */
         .icechunk-content {
             max-height: 600px;
             overflow-y: auto;
         }
-        
+
         /* Branch section - Level 1 hierarchy */
         .branch-section {
             position: relative;
             border-bottom: 1px solid #282828;
         }
-        
+
         .branch-section:last-child {
             border-bottom: none;
         }
-        
+
         /* Collapsible mechanism (pure CSS) */
         .icechunk-store-wrap input[type="checkbox"] {
             display: none;
         }
-        
+
         /* Branch toggle - Level 1 (main branches) */
         .branch-toggle {
             display: block;
@@ -155,12 +155,12 @@ class IcechunkStoreViewer:
             border-left: 3px solid #4a9a4a;
             position: relative;
         }
-        
+
         .branch-toggle:hover {
             background: linear-gradient(90deg, #2f5a2f 0%, #252525 40px);
             border-left-color: #5fb05f;
         }
-        
+
         /* Branch icon with tree connector */
         .branch-toggle::before {
             content: '▶';
@@ -172,18 +172,18 @@ class IcechunkStoreViewer:
             opacity: 0.7;
             color: #4a9a4a;
         }
-        
+
         input:checked + .branch-toggle::before {
             transform: rotate(90deg);
         }
-        
+
         /* Group section - Level 2 hierarchy */
         .group-section {
             position: relative;
             margin-left: 24px;
             border-left: 1px solid #3a3a3a;
         }
-        
+
         /* Group toggle - Level 2 (nested groups) */
         .group-toggle {
             display: block;
@@ -196,11 +196,11 @@ class IcechunkStoreViewer:
             background: #1a1a1a;
             position: relative;
         }
-        
+
         .group-toggle:hover {
             background: #222;
         }
-        
+
         /* Tree connector line for groups */
         .group-toggle::after {
             content: '';
@@ -211,7 +211,7 @@ class IcechunkStoreViewer:
             height: 1px;
             background: #3a3a3a;
         }
-        
+
         /* Group expand/collapse indicator */
         .group-toggle::before {
             content: '▶';
@@ -223,22 +223,22 @@ class IcechunkStoreViewer:
             opacity: 0.5;
             color: #888;
         }
-        
+
         input:checked + .group-toggle::before {
             transform: rotate(90deg);
         }
-        
+
         /* Content visibility */
         .branch-content,
         .group-content {
             display: none;
         }
-        
+
         input:checked ~ .branch-content,
         input:checked ~ .group-content {
             display: block;
         }
-        
+
         /* Group content styling */
         .group-content {
             padding: 12px 18px 12px 42px;
@@ -246,15 +246,15 @@ class IcechunkStoreViewer:
             border-left: 1px solid #2a2a2a;
             margin-left: 12px;
         }
-        
+
         .content-section {
             margin-bottom: 12px;
         }
-        
+
         .content-section:last-child {
             margin-bottom: 0;
         }
-        
+
         .content-section-title {
             font-size: 12px;
             font-weight: 600;
@@ -263,11 +263,11 @@ class IcechunkStoreViewer:
             padding-bottom: 4px;
             border-bottom: 1px solid #2a2a2a;
         }
-        
+
         /* ==========================================
            Embedded xarray - Dark mode (MINIMAL)
            ========================================== */
-        
+
         /* Set xarray CSS variables only - let xarray handle everything else */
         .icechunk-store-wrap .group-content .xr-wrap {
             --xr-font-color0: rgba(255, 255, 255, 0.9);
@@ -279,38 +279,38 @@ class IcechunkStoreViewer:
             --xr-background-color-row-even: rgba(255, 255, 255, 0.03);
             --xr-background-color-row-odd: rgba(255, 255, 255, 0.06);
         }
-        
+
         /* Force correct button positioning for embedded xarray */
         .icechunk-store-wrap .group-content .xr-var-attrs-in + label {
             grid-column: 6 !important;
         }
-        
+
         .icechunk-store-wrap .group-content .xr-var-data-in + label {
             grid-column: 8 !important;
         }
-        
+
         /* ==========================================
            Polars table dark mode
            ========================================== */
-        
+
         .icechunk-store-wrap .group-content table {
             background: #1a1a1a;
             color: #e5e5e5;
             border-color: #2a2a2a;
         }
-        
+
         .icechunk-store-wrap .group-content thead {
             background: #222;
         }
-        
+
         .icechunk-store-wrap .group-content tbody tr:nth-child(even) {
             background: #1f1f1f;
         }
-        
+
         .icechunk-store-wrap .group-content tbody tr:hover {
             background: #252525;
         }
-        
+
         /* Count badges */
         .count-badge {
             font-size: 10px;
@@ -318,7 +318,7 @@ class IcechunkStoreViewer:
             opacity: 0.6;
             margin-left: 6px;
         }
-        
+
         /* Dims display */
         .dims-info {
             font-size: 10px;
@@ -326,7 +326,7 @@ class IcechunkStoreViewer:
             opacity: 0.6;
             margin-left: 10px;
         }
-        
+
         /* Error messages */
         .icechunk-error {
             color: #ff6b6b;
@@ -337,7 +337,7 @@ class IcechunkStoreViewer:
             border-radius: 3px;
             font-size: 12px;
         }
-        
+
         /* Empty state */
         .icechunk-empty {
             padding: 20px;
@@ -345,7 +345,7 @@ class IcechunkStoreViewer:
             opacity: 0.5;
             font-size: 12px;
         }
-        
+
         /* Summary footer */
         .icechunk-summary {
             background: #1f1f1f;
@@ -354,12 +354,12 @@ class IcechunkStoreViewer:
             font-size: 11px;
             opacity: 0.8;
         }
-        
+
         .summary-grid {
             display: flex;
             gap: 16px;
         }
-        
+
         .summary-item {
             flex: 1;
         }
@@ -459,7 +459,7 @@ class IcechunkStoreViewer:
                 content_parts.append(f"""
                 <div class="content-section">
                     <div class="content-section-title">
-                        📋 Metadata Table 
+                        📋 Metadata Table
                         <span class="count-badge">
                             ({len(metadata_df)} rows)
                         </span>

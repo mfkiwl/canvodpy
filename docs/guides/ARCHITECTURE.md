@@ -38,7 +38,7 @@ canvodpy uses the German engineering concept of *Sollbruchstellen* (predetermine
 ```
 Foundation Packages (0 dependencies):
   canvod-readers    → RINEX data readers
-  canvod-grids      → Grid implementations  
+  canvod-grids      → Grid implementations
   canvod-vod        → VOD algorithms
   canvod-utils      → Shared utilities
 
@@ -90,12 +90,12 @@ import xarray as xr
 
 class GNSSDataReader(ABC):
     """Abstract base class for RINEX readers."""
-    
+
     @abstractmethod
     def to_ds(self, keep_rnx_data_vars=None) -> xr.Dataset:
         """Convert RINEX data to xarray Dataset."""
         pass
-    
+
     @property
     @abstractmethod
     def metadata(self) -> dict:
@@ -108,11 +108,11 @@ class GNSSDataReader(ABC):
 ```python
 class Rnxv3Obs(GNSSDataReader):
     """RINEX 3.04 observation file reader."""
-    
+
     def to_ds(self, keep_rnx_data_vars=None) -> xr.Dataset:
         # Actual implementation
         return xr.Dataset(...)
-    
+
     @property
     def metadata(self) -> dict:
         return {"version": "3.04", ...}
@@ -127,21 +127,21 @@ T = TypeVar('T')
 
 class ComponentFactory(Generic[T]):
     """Type-safe factory for creating components."""
-    
+
     _registry: dict[str, type[T]] = {}
-    
+
     @classmethod
     def register(cls, name: str, component_class: type[T]) -> None:
         """Register a component implementation."""
         cls._registry[name] = component_class
-    
+
     @classmethod
     def create(cls, name: str, **kwargs) -> T:
         """Create a component by name."""
         if name not in cls._registry:
             raise ValueError(f"Unknown component: {name}")
         return cls._registry[name](**kwargs)
-    
+
     @classmethod
     def list_available(cls) -> list[str]:
         """List all registered components."""
@@ -173,11 +173,11 @@ def _register_builtins():
     # Readers
     from canvod.readers import Rnxv3Obs
     ReaderFactory.register("rinex_v3", Rnxv3Obs)
-    
+
     # Grids
     from canvod.grids import EqualAreaGridBuilder
     GridFactory.register("equal_area", EqualAreaGridBuilder)
-    
+
     # VOD methods
     from canvod.vod import TauOmegaZerothOrder
     VODFactory.register("tau_omega", TauOmegaZerothOrder)
@@ -196,7 +196,7 @@ def read_rinex(
 ) -> xr.Dataset:
     """
     Read RINEX file using specified reader.
-    
+
     Parameters
     ----------
     file_path : str
@@ -205,7 +205,7 @@ def read_rinex(
         Date in YYYYMMDD format
     reader_type : str
         Reader type (default: "rinex_v3")
-        
+
     Returns
     -------
     xr.Dataset
@@ -220,14 +220,14 @@ def create_grid(
 ) -> GridData:
     """
     Create hemisphere grid.
-    
+
     Parameters
     ----------
     resolution : float
         Angular resolution in degrees
     grid_type : str
         Grid type (default: "equal_area")
-        
+
     Returns
     -------
     GridData
@@ -249,11 +249,11 @@ import xarray as xr
 # Define custom reader
 class MyLabReader(GNSSDataReader):
     """Custom reader for our lab's format."""
-    
+
     def to_ds(self, keep_rnx_data_vars=None) -> xr.Dataset:
         # Custom parsing logic
         return xr.Dataset(...)
-    
+
     @property
     def metadata(self) -> dict:
         return {"format": "mylab_v1", ...}
@@ -272,7 +272,7 @@ data = read_rinex("data.obs", "20260101", reader_type="mylab_v1")
 # Type checker knows this returns GNSSDataReader
 reader = ReaderFactory.create("rinex_v3")
 
-# Type checker knows this returns BaseGridBuilder  
+# Type checker knows this returns BaseGridBuilder
 builder = GridFactory.create("equal_area")
 
 # Type checker can validate function signatures
@@ -361,7 +361,7 @@ __all__ = [
     "create_grid",
     "assign_to_grid",
     "calculate_vod",
-    
+
     # Advanced API
     "ReaderFactory",
     "GridFactory",
@@ -406,13 +406,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """Application settings (from .env)."""
-    
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )
-    
+
     cddis_mail: str | None = None
     gnss_root_dir: str
 
@@ -441,10 +441,10 @@ from airflow.decorators import task
 def process_rinex_task(file_path: str, date: str) -> str:
     """Process RINEX → save → return path."""
     from canvodpy import read_rinex
-    
+
     # Creates fresh objects each call (no state)
     obs = read_rinex(file_path, date)
-    
+
     output = f"/data/obs_{date}.zarr"
     obs.to_zarr(output)
     return output  # Return path, not large Dataset
@@ -454,9 +454,9 @@ def create_grid_task(resolution: float) -> str:
     """Create grid → pickle → return path."""
     from canvodpy import create_grid
     import pickle
-    
+
     grid = create_grid(resolution)
-    
+
     output = f"/data/grid_{resolution}.pkl"
     with open(output, "wb") as f:
         pickle.dump(grid, f)
@@ -467,12 +467,12 @@ def calculate_vod_task(canopy_path: str, ref_path: str) -> str:
     """Load data → calculate VOD → save."""
     from canvodpy import calculate_vod
     import xarray as xr
-    
+
     canopy = xr.open_zarr(canopy_path)
     reference = xr.open_zarr(ref_path)
-    
+
     vod = calculate_vod(canopy, reference)
-    
+
     output = f"/data/vod.zarr"
     vod.to_zarr(output)
     return output
@@ -514,14 +514,14 @@ from canvodpy import read_rinex, create_grid, calculate_vod
 )
 def vod_processing_pipeline():
     """VOD calculation pipeline."""
-    
+
     @task
     def process_rinex_task(file_path: str, date: str) -> str:
         obs = read_rinex(file_path, date)
         output = f"/data/obs_{date}.zarr"
         obs.to_zarr(output)
         return output
-    
+
     @task
     def create_grid_task(resolution: float) -> str:
         import pickle
@@ -530,7 +530,7 @@ def vod_processing_pipeline():
         with open(output, "wb") as f:
             pickle.dump(grid, f)
         return output
-    
+
     @task
     def calculate_vod_task(canopy_path: str, ref_path: str) -> str:
         import xarray as xr
@@ -540,14 +540,14 @@ def vod_processing_pipeline():
         output = "/data/vod.zarr"
         vod.to_zarr(output)
         return output
-    
+
     # Build DAG
     date = "{{ ds_nodash }}"
-    
+
     canopy = process_rinex_task(f"/data/rinex/canopy_{date}.rnx", date)
     reference = process_rinex_task(f"/data/rinex/ref_{date}.rnx", date)
     grid = create_grid_task(5.0)
-    
+
     vod_result = calculate_vod_task(canopy, reference)
 
 dag = vod_processing_pipeline()
@@ -562,7 +562,7 @@ dag = vod_processing_pipeline()
 - **Namespace packages** for clean distribution
 - **Foundation packages** (0 deps) can be used standalone
 
-### 2. Extensibility  
+### 2. Extensibility
 - **ABC + Factory pattern** for user implementations
 - **Type-safe** with Generic[T]
 - **Simple registration** API

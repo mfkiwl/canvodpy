@@ -68,7 +68,7 @@ from canvod.aux import add_spherical_coords_to_dataset
 
 # Augment RINEX dataset with spherical coordinates
 augmented_ds = add_spherical_coords_to_dataset(
-    rinex_ds, 
+    rinex_ds,
     r, theta, phi
 )
 

@@ -51,7 +51,7 @@ Benefits:
 
 Store structure:
   store/
-    ├── reference_01_canopy_01/  # VOD data with cell_id_* 
+    ├── reference_01_canopy_01/  # VOD data with cell_id_*
     ├── grids/
     │   ├── equal_area_2deg/     # Grid definitions
     │   └── htm_4deg/

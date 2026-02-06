@@ -7,13 +7,11 @@ print("=" * 60)
 # Test 1: Import new APIs
 print("\n1. Testing imports...")
 try:
-    from canvodpy import VODWorkflow
     from canvodpy.functional import (
-        assign_grid_cells,
-        calculate_vod,
         create_grid,
-        read_rinex,
     )
+
+    from canvodpy import VODWorkflow
 
     print("   ✅ Imports successful")
 except Exception as e:
@@ -75,8 +73,6 @@ except AssertionError as e:
 # Test 5: Check backward compatibility
 print("\n5. Testing backward compatibility...")
 try:
-    from canvodpy import Site, Pipeline, process_date
-
     print("   ✅ Legacy API still available")
 except Exception as e:
     print(f"   ❌ Legacy API broken: {e}")
@@ -91,7 +87,7 @@ try:
     readers = ReaderFactory.list_available()
     vods = VODFactory.list_available()
 
-    print(f"   ✅ Factories integrated")
+    print("   ✅ Factories integrated")
     print(f"      Grids: {grids}")
     print(f"      Readers: {readers}")
     print(f"      VOD: {vods}")

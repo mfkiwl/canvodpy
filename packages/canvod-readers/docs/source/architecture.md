@@ -25,22 +25,22 @@ import xarray as xr
 
 class GNSSDataReader(ABC):
     """Abstract base for all GNSS data format readers.
-    
+
     All readers must:
     1. Inherit from this class
     2. Implement all abstract methods
     3. Return xarray.Dataset that passes DatasetStructureValidator
     4. Provide file hash for deduplication
     """
-    
+
     fpath: Path  # Provided by Pydantic BaseModel in concrete classes
-    
+
     @property
     @abstractmethod
     def file_hash(self) -> str:
         """SHA256 hash of file for deduplication."""
         pass
-    
+
     @abstractmethod
     def to_ds(
         self,
@@ -49,42 +49,42 @@ class GNSSDataReader(ABC):
     ) -> xr.Dataset:
         """Convert data to xarray.Dataset."""
         pass
-    
+
     @abstractmethod
     def iter_epochs(self):
         """Iterate over epochs in file."""
         pass
-    
+
     @property
     @abstractmethod
     def start_time(self) -> datetime:
         """Start time of observations."""
         pass
-    
+
     @property
     @abstractmethod
     def end_time(self) -> datetime:
         """End time of observations."""
         pass
-    
+
     @property
     @abstractmethod
     def systems(self) -> list[str]:
         """GNSS systems in file."""
         pass
-    
+
     @property
     @abstractmethod
     def num_epochs(self) -> int:
         """Number of epochs."""
         pass
-    
+
     @property
     @abstractmethod
     def num_satellites(self) -> int:
         """Number of unique satellites."""
         pass
-    
+
     def validate_output(
         self,
         dataset: xr.Dataset,
@@ -113,39 +113,39 @@ graph TB
     subgraph "User Layer"
         A[User Code]
     end
-    
+
     subgraph "Interface Layer"
         B[GNSSDataReader ABC]
         C[DatasetStructureValidator]
     end
-    
+
     subgraph "Implementation Layer"
         D[Rnxv3Obs]
         E[Future: Rnxv2Obs]
         F[Future: Rnxv4Obs]
     end
-    
+
     subgraph "Support Layer"
         G[gnss_specs<br/>Constellation definitions]
         H[SignalIDMapper]
         I[Metadata]
     end
-    
+
     subgraph "Model Layer"
         J[Pydantic Models<br/>Type-safe parsing]
     end
-    
+
     A --> B
     D -.implements.-> B
     E -.implements.-> B
     F -.implements.-> B
-    
+
     D --> J
     D --> G
     D --> H
     D --> I
     D --> C
-    
+
     style B fill:#ffebee
     style D fill:#e3f2fd
     style J fill:#f3e5f5
@@ -191,30 +191,30 @@ sequenceDiagram
     participant Mapper as SignalIDMapper
     participant Dataset as xr.Dataset
     participant Validator
-    
+
     User->>Reader: Rnxv3Obs(fpath=path)
     activate Reader
     Reader->>Header: Parse header section
     Header-->>Reader: Validated header data
     deactivate Reader
-    
+
     User->>Reader: to_ds()
     activate Reader
-    
+
     loop For each epoch
         Reader->>Epoch: Parse epoch line
         Epoch-->>Reader: Validated epoch data
-        
+
         loop For each observation
             Reader->>Mapper: create_signal_id()
             Mapper-->>Reader: Signal ID
         end
     end
-    
+
     Reader->>Dataset: Build xr.Dataset
     Reader->>Validator: validate_output()
     Validator-->>Reader: ✓ Passes validation
-    
+
     Reader-->>User: xr.Dataset
     deactivate Reader
 ```
@@ -239,16 +239,16 @@ from pydantic import BaseModel, field_validator
 
 class Rnxv3ObsHeader(BaseModel):
     """RINEX v3 header with automatic validation."""
-    
+
     rinex_version: float
     rinex_type: str
-    
+
     @field_validator('rinex_version')
     def check_version(cls, v):
         if not (3.0 <= v < 4.0):
             raise ValueError(f"Expected RINEX v3, got {v}")
         return v
-    
+
     @field_validator('rinex_type')
     def check_type(cls, v):
         if v != 'O':
@@ -268,10 +268,10 @@ Once created, readers and their outputs are immutable:
 ```python
 class Rnxv3Obs(BaseModel):
     """Immutable after initialization."""
-    
+
     model_config = ConfigDict(frozen=True)
     fpath: Path
-    
+
     # Attempting to modify raises error
     # reader.fpath = new_path  # ❌ FrozenInstanceError
 ```
@@ -319,10 +319,10 @@ Every Dataset **must** be validated:
 def to_ds(self, **kwargs) -> xr.Dataset:
     """Convert to Dataset."""
     ds = self._build_dataset(**kwargs)
-    
+
     # Validation is mandatory, not optional
     self.validate_output(ds)
-    
+
     return ds
 ```
 
@@ -333,16 +333,16 @@ The validator ensures all readers produce compatible output:
 ```python
 class DatasetStructureValidator(BaseModel):
     """Validates xarray.Dataset structure."""
-    
+
     dataset: xr.Dataset
-    
+
     def validate_dimensions(self) -> None:
         """Check (epoch, sid) dimensions exist."""
         required = {"epoch", "sid"}
         missing = required - set(self.dataset.dims)
         if missing:
             raise ValueError(f"Missing dimensions: {missing}")
-    
+
     def validate_coordinates(self) -> None:
         """Check all required coordinates with correct dtypes."""
         required_coords = {
@@ -356,29 +356,29 @@ class DatasetStructureValidator(BaseModel):
             "freq_min": "float64",
             "freq_max": "float64",
         }
-        
+
         for coord, expected_dtype in required_coords.items():
             if coord not in self.dataset.coords:
                 raise ValueError(f"Missing coordinate: {coord}")
-            
+
             actual_dtype = str(self.dataset[coord].dtype)
             if expected_dtype not in actual_dtype:
                 raise ValueError(
                     f"Wrong dtype for {coord}: "
                     f"expected {expected_dtype}, got {actual_dtype}"
                 )
-    
+
     def validate_data_variables(
         self, required_vars: list[str] | None = None
     ) -> None:
         """Check required data variables exist with correct structure."""
         if required_vars is None:
             required_vars = ["SNR", "Phase"]
-        
+
         missing = set(required_vars) - set(self.dataset.data_vars)
         if missing:
             raise ValueError(f"Missing variables: {missing}")
-        
+
         # All variables must be (epoch, sid)
         for var in self.dataset.data_vars:
             if self.dataset[var].dims != ("epoch", "sid"):
@@ -386,7 +386,7 @@ class DatasetStructureValidator(BaseModel):
                     f"{var} has wrong dimensions: "
                     f"expected (epoch, sid), got {self.dataset[var].dims}"
                 )
-    
+
     def validate_attributes(self) -> None:
         """Check required global attributes for storage."""
         required = {
@@ -395,7 +395,7 @@ class DatasetStructureValidator(BaseModel):
             "Institution",
             "RINEX File Hash",  # For MyIcechunkStore deduplication
         }
-        
+
         missing = required - set(self.dataset.attrs.keys())
         if missing:
             raise ValueError(f"Missing attributes: {missing}")
@@ -424,37 +424,37 @@ For automatic format detection:
 ```python
 class ReaderFactory:
     """Factory for creating appropriate reader."""
-    
+
     _readers: dict[str, type] = {}
-    
+
     @classmethod
     def register(cls, format_name: str, reader_class: type) -> None:
         """Register a reader for a format."""
         if not issubclass(reader_class, GNSSDataReader):
             raise TypeError(f"{reader_class} must inherit GNSSDataReader")
         cls._readers[format_name] = reader_class
-    
+
     @classmethod
     def create(cls, fpath: Path, **kwargs) -> GNSSDataReader:
         """Create appropriate reader for file."""
         format_name = cls._detect_format(fpath)
-        
+
         if format_name not in cls._readers:
             raise ValueError(f"No reader for format: {format_name}")
-        
+
         reader_class = cls._readers[format_name]
         return reader_class(fpath=fpath, **kwargs)
-    
+
     @staticmethod
     def _detect_format(fpath: Path) -> str:
         """Detect format from file content."""
         with open(fpath, 'r') as f:
             first_line = f.readline()
-        
+
         # RINEX version in columns 1-9
         version_str = first_line[:9].strip()
         version = float(version_str)
-        
+
         if 3.0 <= version < 4.0:
             return 'rinex_v3'
         elif 2.0 <= version < 3.0:

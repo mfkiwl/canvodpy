@@ -41,7 +41,7 @@ All dependencies from `pyproject.toml`:
 tests/
 ├── conftest.py                      # Pytest configuration & fixtures
 ├── test_meta.py                     # Package structure tests (8 tests)
-├── test_gnss_core.py               # Core modules tests (28 tests)  
+├── test_gnss_core.py               # Core modules tests (28 tests)
 ├── test_signal_mapping.py          # Signal mapping tests (NEW - 60+ tests)
 ├── test_rinex_v3.py                # RINEX v3 tests (23 tests)
 ├── test_rinex_integration.py       # Integration tests (NEW - 25+ tests)
@@ -274,25 +274,25 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.13'
-    
+
     - name: Install dependencies
       run: |
         cd packages/canvod-readers
         pip install -e ".[dev]"
-    
+
     - name: Run tests
       run: |
         cd packages/canvod-readers
         pytest -v -m "not slow" --cov=canvod.readers --cov-report=xml
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -405,7 +405,7 @@ tests/test_rinex_integration.py::TestSignalMappingEdgeCases::... PASSED
 
 ### Coverage Target
 
-**Minimum**: 85%  
+**Minimum**: 85%
 **Target**: 90%+
 
 ```
@@ -439,6 +439,6 @@ TOTAL                                     1090     102    91%
 
 ---
 
-**Last Updated**: January 9, 2026  
-**Test Suite Version**: Complete with signal mapping  
+**Last Updated**: January 9, 2026
+**Test Suite Version**: Complete with signal mapping
 **Status**: ✅ Ready for testing

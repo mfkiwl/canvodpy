@@ -42,32 +42,32 @@ jobs:
         run: |
           rm -rf dist/
           mkdir -p dist/
-          
+
           # Build each package
           echo "Building canvod-readers..."
           cd packages/canvod-readers && uv build && cd ../..
-          
+
           echo "Building canvod-auxiliary..."
           cd packages/canvod-auxiliary && uv build && cd ../..
-          
+
           echo "Building canvod-grids..."
           cd packages/canvod-grids && uv build && cd ../..
-          
+
           echo "Building canvod-store..."
           cd packages/canvod-store && uv build && cd ../..
-          
+
           echo "Building canvod-utils..."
           cd packages/canvod-utils && uv build && cd ../..
-          
+
           echo "Building canvod-viz..."
           cd packages/canvod-viz && uv build && cd ../..
-          
+
           echo "Building canvod-vod..."
           cd packages/canvod-vod && uv build && cd ../..
-          
+
           echo "Building canvodpy..."
           cd canvodpy && uv build && cd ..
-          
+
           echo "Built packages:"
           ls -lh dist/*.whl
 

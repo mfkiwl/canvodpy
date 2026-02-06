@@ -15,12 +15,12 @@ description: Make canvodpy citable with DOI for FAIR science
 
 [Zenodo](https://zenodo.org) is a research data repository operated by CERN:
 
-✅ **Free for open source**  
-✅ **Automatic DOI** for each GitHub release  
-✅ **Permanent archival** (CERN guarantees 20+ years)  
-✅ **FAIR compliant** (Findable, Accessible, Interoperable, Reusable)  
-✅ **Integrates with GitHub** (fully automated)  
-✅ **Searchable** by researchers worldwide  
+✅ **Free for open source**
+✅ **Automatic DOI** for each GitHub release
+✅ **Permanent archival** (CERN guarantees 20+ years)
+✅ **FAIR compliant** (Findable, Accessible, Interoperable, Reusable)
+✅ **Integrates with GitHub** (fully automated)
+✅ **Searchable** by researchers worldwide
 ✅ **Version-specific DOIs** (each release gets unique DOI)
 
 ---
@@ -51,7 +51,7 @@ git push && git push --tags
 
 Researchers can cite:
 ```
-Bader, N. F. (2026). canvodpy: GNSS Vegetation Optical Depth Analysis (v0.1.0). 
+Bader, N. F. (2026). canvodpy: GNSS Vegetation Optical Depth Analysis (v0.1.0).
 Zenodo. https://doi.org/10.5281/zenodo.XXXXX
 ```
 
@@ -163,7 +163,7 @@ Add citation section to `README.md`:
 
 If you use canvodpy in your research, please cite:
 
-Bader, N. F. (2026). canvodpy: GNSS Vegetation Optical Depth Analysis (v0.1.0). 
+Bader, N. F. (2026). canvodpy: GNSS Vegetation Optical Depth Analysis (v0.1.0).
 Zenodo. https://doi.org/10.5281/zenodo.XXXXX
 
 BibTeX:
@@ -227,23 +227,23 @@ Researchers cite specific versions:
 
 ### Academic Recognition
 
-✅ **Citable software** = recognized academic output  
-✅ **DOI** = trackable impact (who cites your work)  
-✅ **ORCID integration** = links to your researcher profile  
+✅ **Citable software** = recognized academic output
+✅ **DOI** = trackable impact (who cites your work)
+✅ **ORCID integration** = links to your researcher profile
 ✅ **Searchable** = increases discoverability
 
 ### FAIR Compliance
 
-✅ **Findable:** DOI, Zenodo indexing, GitHub  
-✅ **Accessible:** Open access, permanent archival  
-✅ **Interoperable:** Standard metadata formats  
+✅ **Findable:** DOI, Zenodo indexing, GitHub
+✅ **Accessible:** Open access, permanent archival
+✅ **Interoperable:** Standard metadata formats
 ✅ **Reusable:** Clear license, version tracking
 
 ### Professional Standards
 
-✅ **Permanent archival** (CERN guarantees preservation)  
-✅ **Version tracking** (every release archived)  
-✅ **Metadata standards** (Dublin Core, DataCite)  
+✅ **Permanent archival** (CERN guarantees preservation)
+✅ **Version tracking** (every release archived)
+✅ **Metadata standards** (Dublin Core, DataCite)
 ✅ **Trusted repository** (used by CERN, NASA, ESA)
 
 ---
@@ -290,7 +290,7 @@ Researchers cite specific versions:
 ```
 [Cite this repository ▼]
 ├── APA
-├── BibTeX  
+├── BibTeX
 └── More formats...
 ```
 
@@ -312,11 +312,11 @@ License: Apache-2.0
 ### In Papers
 
 **Methods section:**
-> "VOD was calculated using canvodpy v0.1.0 (Bader, 2026), 
+> "VOD was calculated using canvodpy v0.1.0 (Bader, 2026),
 > an open-source Python package for GNSS-based vegetation analysis."
 
 **References:**
-> Bader, N. F. (2026). canvodpy: GNSS Vegetation Optical Depth Analysis (v0.1.0). 
+> Bader, N. F. (2026). canvodpy: GNSS Vegetation Optical Depth Analysis (v0.1.0).
 > Zenodo. https://doi.org/10.5281/zenodo.12345
 
 ---

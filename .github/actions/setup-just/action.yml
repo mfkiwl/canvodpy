@@ -9,22 +9,22 @@ runs:
         # Determine platform
         OS=$(uname -s | tr '[:upper:]' '[:lower:]')
         ARCH=$(uname -m)
-        
+
         # Detect Windows (Git Bash reports mingw64_nt-*)
         case "$OS" in
           mingw*|msys*|cygwin*) OS="windows" ;;
         esac
-        
+
         # Map architecture names
         case "$ARCH" in
           x86_64) ARCH="x86_64" ;;
           aarch64|arm64) ARCH="aarch64" ;;
           *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
         esac
-        
+
         # Set version
         VERSION="1.38.0"
-        
+
         # Download from GitHub releases
         if [ "$OS" = "darwin" ]; then
           TARGET="just-$VERSION-$ARCH-apple-darwin"
@@ -39,10 +39,10 @@ runs:
           echo "Unsupported OS: $OS"
           exit 1
         fi
-        
+
         echo "Downloading just $VERSION for $OS ($ARCH)..."
         curl -fsSL "https://github.com/casey/just/releases/download/$VERSION/$TARGET.$EXT" -o "just.$EXT"
-        
+
         # Extract and install
         if [ "$EXT" = "zip" ]; then
           unzip -o -q "just.$EXT"
@@ -60,5 +60,5 @@ runs:
           # Verify
           just --version
         fi
-        
+
         echo "✅ just $VERSION installed successfully"

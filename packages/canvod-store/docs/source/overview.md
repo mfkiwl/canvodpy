@@ -17,7 +17,7 @@ graph LR
     B --> C[IceChunk Store]
     C --> D[Query Interface]
     D --> E[VOD Analysis]
-    
+
     style A fill:#e1f5ff
     style C fill:#ffe1e1
     style E fill:#e1ffe1

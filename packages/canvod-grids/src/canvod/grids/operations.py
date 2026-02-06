@@ -22,9 +22,8 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import xarray as xr
-from scipy.spatial import cKDTree
-
 from canvod.grids._internal import get_logger
+from scipy.spatial import cKDTree
 
 if TYPE_CHECKING:
     from canvod.grids.core import GridData

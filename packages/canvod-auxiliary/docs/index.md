@@ -12,7 +12,7 @@ Welcome to the complete documentation for **canvod-auxiliary**, the auxiliary da
 `canvod-auxiliary` is a **Python package** for handling auxiliary GNSS data files including:
 
 - **SP3 Ephemerides** - Satellite orbit positions and velocities
-- **CLK Corrections** - Satellite clock corrections  
+- **CLK Corrections** - Satellite clock corrections
 - **Interpolation** - Temporal alignment with RINEX observations
 - **Augmentation** - Enrich RINEX datasets with computed values
 

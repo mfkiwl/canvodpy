@@ -311,11 +311,11 @@ For Sphinx help:
 
 ## Summary
 
-✅ Complete MyST documentation with Sphinx  
-✅ 8 comprehensive guides  
-✅ 15+ Mermaid diagrams  
-✅ 80+ code examples  
-✅ Modern Furo theme  
-✅ Ready for deployment  
+✅ Complete MyST documentation with Sphinx
+✅ 8 comprehensive guides
+✅ 15+ Mermaid diagrams
+✅ 80+ code examples
+✅ Modern Furo theme
+✅ Ready for deployment
 
 Built documentation is in `build/index.html`

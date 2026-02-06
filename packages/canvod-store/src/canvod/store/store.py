@@ -635,8 +635,23 @@ class MyIcechunkStore:
         # Normalize encodings
         dataset = self._normalize_encodings(dataset)
 
-        # Write to Icechunk
-        to_icechunk(dataset, session, group=group_name, mode=mode)
+        # Calculate dataset metrics for tracing
+        dataset_size_mb = dataset.nbytes / 1024 / 1024
+        num_variables = len(dataset.data_vars)
+
+        # Write to Icechunk with OpenTelemetry tracing
+        try:
+            from canvodpy.utils.telemetry import trace_icechunk_write
+
+            with trace_icechunk_write(
+                group_name=group_name,
+                dataset_size_mb=dataset_size_mb,
+                num_variables=num_variables,
+            ):
+                to_icechunk(dataset, session, group=group_name, mode=mode)
+        except ImportError:
+            # Fallback if telemetry not available
+            to_icechunk(dataset, session, group=group_name, mode=mode)
 
         self._logger.info(f"Wrote dataset to group '{group_name}' (mode={mode})")
 

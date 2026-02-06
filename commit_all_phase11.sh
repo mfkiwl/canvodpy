@@ -19,7 +19,7 @@ Phase 11 complete:
 Changes:
 - canvodpy/tests/test_workflow_integration.py: Fix exception types
 - canvodpy/src/canvodpy/factories.py: ClassVar annotations
-- packages/canvod-grids/src/canvod/grids/core/grid_builder.py: 
+- packages/canvod-grids/src/canvod/grids/core/grid_builder.py:
   * Replace loguru with structlog
   * Structured logging (event names + kwargs)
   * Lazy import to avoid circular deps

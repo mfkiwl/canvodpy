@@ -32,7 +32,7 @@ jobs:
         defaults:
             run:
                 shell: bash
-        
+
         steps:
             - uses: actions/checkout@v4
             - name: Install uv and set the python version

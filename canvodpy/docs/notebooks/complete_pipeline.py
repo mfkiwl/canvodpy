@@ -15,17 +15,17 @@ def _():
 def _(mo):
     mo.md(r"""
     # GNSS VOD Analysis - Complete Pipeline
-    
+
     This notebook demonstrates the complete pipeline for GNSS Vegetation Optical Depth (VOD) analysis:
-    
+
     1. **Setup** - Configure data directories and paths
     2. **Read RINEX** - Load observation data
     3. **Download Auxiliary Data** - Get ephemeris (SP3) and clock (CLK) files
     4. **Augment Data** - Compute satellite positions and clock corrections
     5. **Complete Workflow** - End-to-end processing
-    
+
     ## Prerequisites
-    
+
     - RINEX observation files in a test directory
     - Internet connection for downloading auxiliary data
     - Configured receiver position
@@ -37,7 +37,7 @@ def _(mo):
     mo.md(r"""
     ---
     ## 1. Setup - Data Directories
-    
+
     Configure paths to your RINEX data and output directories.
     """)
 
@@ -102,7 +102,7 @@ def _(Path, aux_dir_input, mo, output_dir_input, rinex_dir_input):
     if _rinex_dir:
         mo.md(f"""
         ✅ **Directories Configured**
-        
+
         - RINEX: `{_rinex_dir}`
         - Auxiliary: `{_aux_dir}`
         - Output: `{_output_dir}`
@@ -115,7 +115,7 @@ def _(mo):
     mo.md(r"""
     ---
     ## 2. Read RINEX Files
-    
+
     Scan for RINEX files in the configured directory and read observation data.
     """)
 
@@ -194,13 +194,13 @@ def _(Path, mo, read_rinex_button, rinex_file_selector):
         if _error:
             _read_output = mo.md(f"""
             ❌ **Error reading RINEX file**
-            
+
             {_error}
             """)
         elif _rinex_ds:
             _read_output = mo.md(f"""
             ✅ **RINEX file loaded successfully**
-            
+
             - File: `{_fpath.name}`
             - Dimensions: {dict(_rinex_ds.dims)}
             - Variables: {list(_rinex_ds.data_vars)[:10]}...
@@ -218,7 +218,7 @@ def _(mo):
     mo.md(r"""
     ---
     ## 3. Download Auxiliary Data
-    
+
     Download ephemeris (SP3) and clock (CLK) files for the observation date.
     """)
 
@@ -354,7 +354,7 @@ def _(mo):
     mo.md(r"""
     ---
     ## 4. Augment RINEX Data
-    
+
     Augment RINEX observations with satellite positions and clock corrections.
     """)
 
@@ -364,7 +364,7 @@ def _(mo):
     # Receiver position inputs
     mo.md("""
     ### Receiver Position (ECEF)
-    
+
     Enter approximate receiver position in ECEF coordinates (meters):
     """)
 
@@ -446,10 +446,10 @@ def _(_aux_files, _rinex_ds, augment_button, mo, receiver_x, receiver_y, receive
 
                 _augment_output = mo.md(f"""
                 ✅ **Data Augmented Successfully**
-                
+
                 **New Variables Added:**
                 {chr(10).join(f"- `{var}`" for var in sorted(new_vars))}
-                
+
                 **Dataset Info:**
                 - Dimensions: {dict(_augmented_ds.dims)}
                 - Total Variables: {len(_augmented_ds.data_vars)}
@@ -457,7 +457,7 @@ def _(_aux_files, _rinex_ds, augment_button, mo, receiver_x, receiver_y, receive
             except Exception as e:
                 _augment_output = mo.md(f"""
                 ❌ **Augmentation Error**
-                
+
                 {str(e)[:500]}
                 """)
         else:
@@ -474,7 +474,7 @@ def _(mo):
     mo.md(r"""
     ---
     ## 5. Visualize Results
-    
+
     Explore the augmented dataset.
     """)
 
@@ -537,7 +537,7 @@ def _(mo):
     mo.md(r"""
     ---
     ## 6. Save Results
-    
+
     Save the augmented dataset to NetCDF format.
     """)
 
@@ -558,7 +558,7 @@ def _(_augmented_ds, _output_dir, mo, save_button):
 
         mo.md(f"""
         ✅ **Dataset Saved**
-        
+
         File: `{output_file}`
         Size: {output_file.stat().st_size / 1024 / 1024:.2f} MB
         """)
@@ -572,25 +572,25 @@ def _(mo):
     mo.md(r"""
     ---
     ## Summary
-    
+
     This notebook demonstrated the complete GNSS VOD analysis pipeline:
-    
-    ✅ **Setup** - Configured data directories  
-    ✅ **Read RINEX** - Loaded observation data  
-    ✅ **Download Auxiliary** - Retrieved SP3 and CLK files  
-    ✅ **Augment Data** - Computed satellite positions and corrections  
-    ✅ **Visualize** - Explored augmented variables  
+
+    ✅ **Setup** - Configured data directories
+    ✅ **Read RINEX** - Loaded observation data
+    ✅ **Download Auxiliary** - Retrieved SP3 and CLK files
+    ✅ **Augment Data** - Computed satellite positions and corrections
+    ✅ **Visualize** - Explored augmented variables
     ✅ **Save** - Exported results to NetCDF
-    
+
     ### Next Steps
-    
+
     - **VOD Calculation**: Use canvod-vod package to compute vegetation optical depth
     - **Grid Analysis**: Apply canvod-grids for spatial aggregation
     - **Visualization**: Create maps and time series with canvod-viz
     - **Storage**: Store results in Icechunk format for efficient access
-    
+
     ### Package Documentation
-    
+
     - [canvod-readers](https://canvodpy.readthedocs.io/canvod-readers) - RINEX parsing
     - [canvod-aux](https://canvodpy.readthedocs.io/canvod-aux) - Auxiliary data
     - [canvod-vod](https://canvodpy.readthedocs.io/canvod-vod) - VOD calculations

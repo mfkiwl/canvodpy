@@ -105,10 +105,10 @@ store = IcechunkStore.open_or_create(
 with store.transaction() as txn:
     # Prepare dataset
     ds = preprocess_dataset(raw_data)
-    
+
     # Write to store
     ds.to_zarr(store, mode="a")
-    
+
     # Commit transaction
     txn.commit(message="Added 2024-01-15 data")
 ```

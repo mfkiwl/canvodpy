@@ -22,11 +22,11 @@ project:
   github: https://github.com/nfb2021/canvodpy
   open_access: true
   license: Apache-2.0
-  
+
   toc:
     - file: README.md
       title: Package Overview
-    
+
     - title: Documentation
       children:
         - file: docs/source/index.md
@@ -39,7 +39,7 @@ project:
           title: IceChunk Integration
         - file: docs/source/api_reference.md
           title: API Reference
-  
+
   error_rules:
     - rule: image-downloads
       severity: ignore

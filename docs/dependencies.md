@@ -9,7 +9,7 @@ graph TD
     classDef stable fill:#90EE90,stroke:#2E8B57,stroke-width:2px
     classDef unstable fill:#FFB6C1,stroke:#DC143C,stroke-width:2px
     classDef balanced fill:#87CEEB,stroke:#4682B4,stroke-width:2px
-    
+
     canvod_readers["canvod-readers<br/>GNSS data format readers"]
     canvod_aux["canvod-auxiliary<br/>Auxiliary data augmentation"]
     canvod_vod["canvod-vod<br/>VOD calculation"]
@@ -17,11 +17,11 @@ graph TD
     canvod_utils["canvod-utils<br/>Configuration & utilities"]
     canvod_grids["canvod-grids<br/>Grid operations"]
     canvod_store["canvod-store<br/>Storage management"]
-    
+
     canvod_aux --> canvod_readers
     canvod_viz --> canvod_grids
     canvod_store --> canvod_grids
-    
+
     class canvod_readers stable
     class canvod_aux unstable
     class canvod_vod stable
@@ -53,7 +53,7 @@ graph TD
 **Efferent Coupling (Ce):** Number of packages this package depends on
 - Lower is better for independence
 
-**Afferent Coupling (Ca):** Number of packages that depend on this package  
+**Afferent Coupling (Ca):** Number of packages that depend on this package
 - Higher means more reusable
 
 **Instability (I):** `Ce / (Ce + Ca)`

@@ -16,10 +16,10 @@ GNSS data comes in various formats (RINEX v2, v3, v4, proprietary formats) with 
 
 **canvod-readers** handles all these complexities, providing:
 
-✅ **Standardized output format** (xarray.Dataset)  
-✅ **Automatic validation** (completeness checks, dtype verification)  
-✅ **Memory efficiency** (lazy loading, iterators)  
-✅ **Signal disambiguation** (unique Signal IDs)  
+✅ **Standardized output format** (xarray.Dataset)
+✅ **Automatic validation** (completeness checks, dtype verification)
+✅ **Memory efficiency** (lazy loading, iterators)
+✅ **Signal disambiguation** (unique Signal IDs)
 ✅ **Extensibility** (ABC pattern for new formats)
 
 ## Design Philosophy
@@ -32,7 +32,7 @@ graph TD
     B --> C[Validation: DatasetStructureValidator]
     C --> D[Standardized xarray.Dataset]
     D --> E[Downstream Analysis]
-    
+
     style B fill:#e3f2fd
     style C fill:#fff3e0
     style D fill:#e8f5e9
@@ -53,15 +53,15 @@ from abc import ABC, abstractmethod
 
 class GNSSDataReader(ABC):
     """Every reader must implement these methods."""
-    
+
     @abstractmethod
     def to_ds(self, **kwargs) -> xr.Dataset:
         """Convert to xarray.Dataset."""
-        
+
     @abstractmethod
     def iter_epochs(self):
         """Iterate through epochs."""
-        
+
     @property
     @abstractmethod
     def file_hash(self) -> str:
@@ -219,11 +219,11 @@ sequenceDiagram
     participant Mapper as SignalIDMapper
     participant Validator as Validator
     participant Dataset as xr.Dataset
-    
+
     User->>Reader: Rnxv3Obs(fpath)
     Reader->>Parser: Parse header
     Parser-->>Reader: Header info
-    
+
     User->>Reader: to_ds()
     Reader->>Parser: iter_epochs()
     loop Each epoch
@@ -231,7 +231,7 @@ sequenceDiagram
         Reader->>Mapper: create_signal_id()
         Mapper-->>Reader: Signal IDs
     end
-    
+
     Reader->>Dataset: Build xr.Dataset
     Reader->>Validator: validate_output()
     Validator-->>Reader: ✓ Valid

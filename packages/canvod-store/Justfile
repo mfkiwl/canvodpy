@@ -17,7 +17,7 @@ fix:
     uv run ruff check --fix .
     uv run ruff format .
 
-# Type check this package  
+# Type check this package
 typecheck:
     uv run ty check src/
 

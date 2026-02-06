@@ -5,7 +5,7 @@ Exported architecture diagrams in PNG and SVG formats.
 ## 📊 Available Diagrams
 
 ### 1. Package Structure Overview
-**Files:** `01-package-structure.png` / `01-package-structure.svg`  
+**Files:** `01-package-structure.png` / `01-package-structure.svg`
 High-level view of all canvodpy packages and their relationships.
 
 ![Package Structure](01-package-structure.png)
@@ -13,7 +13,7 @@ High-level view of all canvodpy packages and their relationships.
 ---
 
 ### 2. Data Processing Pipeline
-**Files:** `02-processing-pipeline.png` / `02-processing-pipeline.svg`  
+**Files:** `02-processing-pipeline.png` / `02-processing-pipeline.svg`
 Complete data flow from RINEX ingestion to visualization output.
 
 ![Processing Pipeline](02-processing-pipeline.png)
@@ -21,7 +21,7 @@ Complete data flow from RINEX ingestion to visualization output.
 ---
 
 ### 3. Package Dependencies (Detailed)
-**Files:** `03-dependencies.png` / `03-dependencies.svg`  
+**Files:** `03-dependencies.png` / `03-dependencies.svg`
 Layered architecture showing dependencies between packages.
 
 ![Dependencies](03-dependencies.png)
@@ -29,7 +29,7 @@ Layered architecture showing dependencies between packages.
 ---
 
 ### 4. VOD Calculation Workflow
-**Files:** `04-vod-workflow.png` / `04-vod-workflow.svg`  
+**Files:** `04-vod-workflow.png` / `04-vod-workflow.svg`
 Sequence diagram of VOD calculation from raw data to visualization.
 
 ![VOD Workflow](04-vod-workflow.png)

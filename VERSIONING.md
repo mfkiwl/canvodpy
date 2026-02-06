@@ -1,6 +1,6 @@
 # Versioning Strategy for canvodpy
 
-**Last Updated:** 2026-02-04  
+**Last Updated:** 2026-02-04
 **Status:** Active
 
 ## Overview
@@ -231,16 +231,16 @@ Example timeline:
 
 ## Questions & Answers
 
-**Q: Why not independent versioning per package?**  
+**Q: Why not independent versioning per package?**
 A: Scientific reproducibility requires a single version number. "I used canvodpy 0.2.0" is clearer than tracking 7 different package versions.
 
-**Q: Can I install just one package?**  
+**Q: Can I install just one package?**
 A: Yes! `pip install canvod-readers==0.2.0` works, but the version matches the full release.
 
-**Q: What if only one package changes?**  
+**Q: What if only one package changes?**
 A: The entire monorepo gets a version bump (usually PATCH). This is intentional for consistency.
 
-**Q: When do we bump to 1.0.0?**  
+**Q: When do we bump to 1.0.0?**
 A: When the API is stable, well-tested, and we're ready to commit to backward compatibility.
 
 ## See Also

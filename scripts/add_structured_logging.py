@@ -130,7 +130,7 @@ def main():
         elif result["status"] == "skip":
             print(f"  ⊘ Skipped: {result['reason']}")
         else:
-            print(f"  - No changes needed")
+            print("  - No changes needed")
         print()
 
     print("=" * 70)
