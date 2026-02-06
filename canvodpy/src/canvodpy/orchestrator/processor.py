@@ -610,8 +610,22 @@ class RinexDataProcessor:
         aux_zarr_path = Path(gettempdir()) / f"aux_{date_str}.zarr"
         print(f"🔍 DEBUG: Checking if {aux_zarr_path} exists: {aux_zarr_path.exists()}")
         
-        if not aux_zarr_path.exists():
-            print(f"🔍 DEBUG: File doesn't exist, starting preprocessing...")
+        # Check if file exists AND is valid
+        is_valid = False
+        if aux_zarr_path.exists():
+            # Verify the zarr file has required metadata
+            zgroup_v2 = aux_zarr_path / ".zgroup"
+            zarr_json_v3 = aux_zarr_path / "zarr.json"
+            is_valid = zgroup_v2.exists() or zarr_json_v3.exists()
+            print(f"🔍 DEBUG: Zarr file valid: {is_valid} (has_v2={zgroup_v2.exists()}, has_v3={zarr_json_v3.exists()})")
+            
+            if not is_valid:
+                print(f"⚠️  Removing corrupted zarr file: {aux_zarr_path}")
+                import shutil
+                shutil.rmtree(aux_zarr_path)
+        
+        if not is_valid:
+            print(f"🔍 DEBUG: File doesn't exist or is invalid, starting preprocessing...")
             self._logger.info(
                 "aux_preprocessing_required",
                 output_path=str(aux_zarr_path),
