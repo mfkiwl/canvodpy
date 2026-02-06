@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from canvod.vod import VODCalculator
 
 from canvodpy.globals import RINEX_STORE_STRATEGY
-from canvodpy.logging.context import get_logger
+from canvodpy.logging import get_logger
 from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
 
 from canvod.store.store import (
@@ -75,7 +75,7 @@ class GnssResearchSite:
 
         self.site_name = site_name
         self.site_config = RESEARCH_SITES[site_name]
-        self._logger = get_logger().bind(site=site_name)
+        self._logger = get_logger(__name__).bind(site=site_name)
 
         # Load store paths from processing config (not from research_sites_config)
         from canvod.utils.config import load_config

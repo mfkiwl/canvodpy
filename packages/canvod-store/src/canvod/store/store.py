@@ -28,7 +28,7 @@ from canvodpy.globals import (
     RINEX_STORE_STRATEGY,
     VOD_STORE_STRATEGY,
 )
-from canvodpy.logging.context import get_logger
+from canvodpy.logging import get_logger
 from icechunk.xarray import to_icechunk
 from zarr.dtype import VariableLengthUTF8
 
@@ -136,7 +136,7 @@ class MyIcechunkStore:
             )
 
         self._repo = None
-        self._logger = get_logger()
+        self._logger = get_logger(__name__)
         self._ensure_store_exists()
 
     def _normalize_encodings(self, ds: xr.Dataset) -> xr.Dataset:

@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from canvodpy.logging.context import get_logger
+from canvodpy.logging import get_logger
 
 
 class MetadataManager:
@@ -22,6 +22,6 @@ class MetadataManager:
         logger : Any | None, optional
             Logger-like object to use.
         """
-        self._logger = logger or get_logger()
+        self._logger = logger or get_logger(__name__)
 
     # TODO: Future refactor of MyIcechunkStore.

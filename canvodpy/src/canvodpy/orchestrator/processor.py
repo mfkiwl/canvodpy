@@ -39,7 +39,7 @@ from canvodpy.globals import (
     PRODUCT_TYPE,
     RINEX_STORE_STRATEGY,
 )
-from canvodpy.logging.context import get_logger, reset_context, set_file_context
+from canvodpy.logging import get_logger
 from canvodpy.orchestrator.interpolator import (
     ClockConfig,
     ClockInterpolationStrategy,
@@ -90,15 +90,11 @@ def preprocess_with_hermite_aux(
 
     """
     _ = receiver_type
-    token = set_file_context(rnx_file)
+    log = get_logger(__name__).bind(file=str(rnx_file.name), receiver_type=receiver_type)
+    
     try:
         start_time = time.time()
-        log = get_logger()
-        log.info(
-            "rinex_preprocessing_started",
-            file=str(rnx_file.name),
-            receiver_type=receiver_type,
-        )
+        log.info("rinex_preprocessing_started")
 
         # 1. Read RINEX file
         rnx = Rnxv3Obs(fpath=rnx_file, include_auxiliary=False)
@@ -133,7 +129,6 @@ def preprocess_with_hermite_aux(
                 "sid_intersection_empty",
                 rinex_sids=len(rinex_sids),
                 aux_sids=len(aux_sids),
-                file=str(rnx_file.name),
             )
             raise ValueError(
                 f"No common SIDs found between RINEX ({len(rinex_sids)} sids) "
@@ -161,24 +156,19 @@ def preprocess_with_hermite_aux(
         duration = time.time() - start_time
         log.info(
             "rinex_preprocessing_complete",
-            file=str(rnx_file.name),
             duration_seconds=round(duration, 2),
             dataset_size=dict(ds_augmented.sizes),
         )
     except (OSError, RuntimeError, ValueError, ValidationError) as e:
-        log = get_logger()
         log.error(
             "rinex_preprocessing_failed",
-            file=str(rnx_file.name),
             error=str(e),
             exception=type(e).__name__,
             exc_info=True,
         )
         raise
-    else:
-        return rnx_file, ds_augmented
-    finally:
-        reset_context(token)
+    
+    return rnx_file, ds_augmented
 
 
 def _compute_spherical_coords_fast(
@@ -421,7 +411,7 @@ class RinexDataProcessor:
         self.aux_file_path = aux_file_path
         self.n_max_workers = min(n_max_workers, os.cpu_count() or 12)
         self._logger = get_logger(__name__).bind(
-            site=site.site_id,
+            site=site.site_name,
             workers=self.n_max_workers,
         )
 

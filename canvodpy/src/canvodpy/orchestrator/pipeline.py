@@ -9,7 +9,7 @@ from canvod.readers import MatchedDirs, PairDataDirMatcher
 from canvod.store import GnssResearchSite
 from canvod.utils.tools import YYYYDOY
 
-from canvodpy.logging.context import get_logger
+from canvodpy.logging import get_logger
 from canvodpy.orchestrator.processor import RinexDataProcessor
 
 
@@ -42,7 +42,7 @@ class PipelineOrchestrator:
         self.site = site
         self.n_max_workers = n_max_workers
         self.dry_run = dry_run
-        self._logger = get_logger().bind(site=site.site_name)
+        self._logger = get_logger(__name__).bind(site=site.site_name)
 
         self.pair_matcher = PairDataDirMatcher(
             base_dir=site.site_config["base_dir"],

@@ -13,7 +13,7 @@ from canvod.auxiliary.preprocessing import prep_aux_ds
 from canvod.readers import MatchedDirs, Rnxv3Obs
 from canvod.utils.tools import get_version_from_pyproject
 from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY
-from canvodpy.logging.context import get_logger, reset_context, set_file_context
+from canvodpy.logging import get_logger
 from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE
 from natsort import natsorted
 from tqdm import tqdm
@@ -42,11 +42,10 @@ def _process_single_rinex(
         The input file path and the processed dataset.
     """
 
-    token = set_file_context(rnx_file)
-    try:
-        log = get_logger()
-        log.info("Starting RINEX file processing")
+    log = get_logger(__name__).bind(file=str(rnx_file))
+    log.info("rinex_processing_started")
 
+    try:
         rnx = Rnxv3Obs(fpath=rnx_file, include_auxiliary=False)
         ds = rnx.to_ds(write_global_attrs=True)
 
@@ -56,15 +55,12 @@ def _process_single_rinex(
             if available_vars:
                 ds = ds[available_vars]
 
-        log.info("RINEX file processing completed")
+        log.info("rinex_processing_complete")
         return rnx_file, ds
 
     except Exception as e:
-        log = get_logger()
-        log.exception("RINEX file processing failed", error=str(e))
+        log.exception("rinex_processing_failed", error=str(e))
         raise
-    finally:
-        reset_context(token)
 
 
 # Module-level function for ProcessPoolExecutor (must be pickleable).
@@ -87,11 +83,10 @@ def preprocess_rnx(
     tuple[Path, xr.Dataset]
         The input file path and the processed dataset.
     """
-    token = set_file_context(rnx_file)
-    try:
-        log = get_logger()
-        log.info("Starting preprocessing")
+    log = get_logger(__name__).bind(file=str(rnx_file))
+    log.info("preprocessing_started")
 
+    try:
         rnx = Rnxv3Obs(fpath=rnx_file, include_auxiliary=False)
         ds = rnx.to_ds(write_global_attrs=True)
 
@@ -104,13 +99,11 @@ def preprocess_rnx(
             if available_vars:
                 ds = ds[available_vars]
 
-        log.info("Finished preprocessing")
+        log.info("preprocessing_complete")
         return rnx_file, ds
     except Exception as e:
-        log.exception("Preprocessing failed", error=str(e))
+        log.exception("preprocessing_failed", error=str(e))
         raise
-    finally:
-        reset_context(token)
 
 
 class IcechunkDataReader:
@@ -163,7 +156,7 @@ class IcechunkDataReader:
         self.enable_gc = enable_gc
         self.gc_delay = gc_delay
 
-        self._logger = get_logger().bind(
+        self._logger = get_logger(__name__).bind(
             site=site_name,
             date=matched_dirs.yyyydoy.to_str(),
         )
@@ -311,9 +304,8 @@ class IcechunkDataReader:
 
             # --- per-file commit ---
             for idx, (fname, ds) in enumerate(results):
-                token = set_file_context(fname)
+                log = self._logger.bind(file=str(fname))
                 try:
-                    log = get_logger()
                     rel_path = self._site.rinex_store.rel_path_for_commit(fname)
                     version = get_version_from_pyproject()
 
@@ -404,8 +396,10 @@ class IcechunkDataReader:
                                 action="write",
                                 commit_message=msg,
                             )
-                finally:
-                    reset_context(token)
+                except Exception as e:
+                    log.exception("file_commit_failed", error=str(e))
+                    raise
+                
                 self._memory_cleanup()
 
             # --- 5) Yield full daily dataset (already enriched) ---
@@ -499,9 +493,8 @@ class IcechunkDataReader:
 
             # --- sequential append to Icechunk ---
             for idx, (fname, ds) in enumerate(results):
-                token = set_file_context(fname)
+                log = self._logger.bind(file=str(fname))
                 try:
-                    log = get_logger()
                     rel_path = self._site.rinex_store.rel_path_for_commit(fname)
                     version = get_version_from_pyproject()
 
@@ -604,8 +597,10 @@ class IcechunkDataReader:
                             )
                             log.info(msg)
 
-                finally:
-                    reset_context(token)
+                except Exception as e:
+                    log.exception("file_commit_failed", error=str(e))
+                    raise
+                
                 self._memory_cleanup()
 
             # --- read back final dataset ---
