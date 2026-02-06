@@ -191,7 +191,6 @@ class AuxDataPipeline:
                     error=str(e),
                     exception=type(e).__name__,
                     required=required,
-                    exc_info=True,
                 )
                 failed_count += 1
 
