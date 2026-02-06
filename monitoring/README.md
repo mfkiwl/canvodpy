@@ -5,19 +5,41 @@ This directory contains the complete monitoring setup for canvodpy using Prometh
 ## 🚀 Quick Start
 
 ```bash
-# 1. Start monitoring stack
+# 1. Set Grafana admin password (IMPORTANT!)
+export GRAFANA_ADMIN_PASSWORD="your-secure-password-here"
+
+# 2. Start monitoring stack
 docker-compose up -d
 
-# 2. Run canvodpy with Prometheus exporter
+# 3. Run canvodpy with Prometheus exporter
 opentelemetry-instrument \
     --metrics_exporter prometheus \
     --service_name canvodpy \
     uv run python your_script.py
 
 # 3. Access dashboards
-# - Grafana: http://localhost:3000 (admin/canvodpy)
+# - Grafana: http://localhost:3000 (admin/<your-password>)
 # - Prometheus: http://localhost:9090
 ```
+
+## 🔒 Security Setup
+
+**IMPORTANT**: Set a secure Grafana admin password before starting:
+
+```bash
+# Option 1: Export environment variable (recommended)
+export GRAFANA_ADMIN_PASSWORD="your-secure-password"
+docker-compose up -d
+
+# Option 2: Use .env file
+echo "GRAFANA_ADMIN_PASSWORD=your-secure-password" > .env
+docker-compose up -d
+
+# Option 3: Inline (less secure, for testing only)
+GRAFANA_ADMIN_PASSWORD="test123" docker-compose up -d
+```
+
+**Default**: If not set, defaults to `admin` (change immediately after first login!)
 
 ## 📁 Directory Structure
 
@@ -87,7 +109,8 @@ docker-compose down -v
 ## 🎯 URLs
 
 - **Grafana Dashboard**: http://localhost:3000
-  - Login: admin / canvodpy
+  - Login: `admin` / `<your-password>` (set via `GRAFANA_ADMIN_PASSWORD`)
+  - Default password: `admin` (if env var not set - **change immediately!**)
 - **Prometheus UI**: http://localhost:9090
 - **Prometheus Targets**: http://localhost:9090/targets
 - **Prometheus Alerts**: http://localhost:9090/alerts

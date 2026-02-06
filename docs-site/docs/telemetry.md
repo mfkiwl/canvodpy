@@ -353,6 +353,27 @@ rate(canvodpy_icechunk_write_duration_seconds_sum[5m])
 
 ## Grafana Dashboard
 
+### Security Setup
+
+**⚠️ IMPORTANT**: Set a secure admin password before starting Grafana!
+
+```bash
+# Set password via environment variable
+export GRAFANA_ADMIN_PASSWORD="your-secure-password"
+docker-compose -f monitoring/docker-compose.yml up -d
+
+# Or use .env file
+cd monitoring
+echo "GRAFANA_ADMIN_PASSWORD=your-secure-password" > .env
+docker-compose up -d
+```
+
+**Default**: If `GRAFANA_ADMIN_PASSWORD` is not set, defaults to `admin` (change immediately after first login!)
+
+**Login**: http://localhost:3000
+- Username: `admin`
+- Password: `<your-password>` (set via env var) or `admin` (default)
+
 ### Pre-built Dashboard
 
 **Location:** `monitoring/grafana/dashboards/canvodpy-performance.json`
