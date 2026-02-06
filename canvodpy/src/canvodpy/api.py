@@ -387,7 +387,6 @@ class Pipeline:
                 "vod_calculation_failed",
                 error=str(e),
                 exception=type(e).__name__,
-                exc_info=True,
             )
             raise
 

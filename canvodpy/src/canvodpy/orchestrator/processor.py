@@ -164,7 +164,6 @@ def preprocess_with_hermite_aux(
             "rinex_preprocessing_failed",
             error=str(e),
             exception=type(e).__name__,
-            exc_info=True,
         )
         raise
     
@@ -657,7 +656,6 @@ class RinexDataProcessor:
                         file=failed_file,
                         error=str(e),
                         exception=type(e).__name__,
-                        exc_info=True,
                     )
 
         # Sort chronologically by filename
@@ -717,9 +715,8 @@ class RinexDataProcessor:
         for idx, (fname, ds) in enumerate(
             tqdm(augmented_datasets, desc=f"Appending {receiver_name}")
         ):
-            token = set_file_context(fname)
+            log = self._logger.bind(file=fname.name)
             try:
-                log = get_logger()
                 rel_path = self.site.rinex_store.rel_path_for_commit(fname)
 
                 # Get file metadata
@@ -800,16 +797,11 @@ class RinexDataProcessor:
                         write_count += 1
 
             except (OSError, RuntimeError, ValueError) as e:
-                log = get_logger()
                 log.error(
                     "icechunk_write_failed",
-                    file=fname.name,
                     error=str(e),
                     exception=type(e).__name__,
-                    exc_info=True,
                 )
-            finally:
-                reset_context(token)
 
         duration = time.time() - start_time
         self._logger.info(
@@ -894,13 +886,13 @@ class RinexDataProcessor:
                             rate,
                         )
 
-                    token = set_file_context(fname)
+                    file_log = log.bind(file=fname.name)
                     try:
                         rel_path = self.site.rinex_store.rel_path_for_commit(fname)
                         rinex_hash = file_hash_map[fname]
 
                         if not rinex_hash:
-                            log.debug("No hash for %s, skipping", fname)
+                            file_log.debug("no_hash_skipping")
                             continue
 
                         # Get time range for metadata
@@ -935,12 +927,12 @@ class RinexDataProcessor:
                                 to_icechunk(ds_clean, session, group=receiver_name)
                                 groups.append(receiver_name)
                                 actions["initial"] += 1
-                                log.debug("Initial: %s", rel_path)
+                                file_log.debug("write_initial", path=rel_path)
 
                             case (True, "skip"):
                                 # File exists, skip writing data
                                 actions["skipped"] += 1
-                                log.debug("Skipped: %s", rel_path)
+                                file_log.debug("write_skipped", path=rel_path)
 
                             case (True, "append"):
                                 # File exists but append anyway
@@ -951,7 +943,7 @@ class RinexDataProcessor:
                                     append_dim="epoch",
                                 )
                                 actions["appended"] += 1
-                                log.debug("Appended: %s", rel_path)
+                                file_log.debug("write_appended", path=rel_path)
 
                             case (False, _):
                                 # New file, write it
@@ -962,12 +954,10 @@ class RinexDataProcessor:
                                     append_dim="epoch",
                                 )
                                 actions["written"] += 1
-                                log.debug("Wrote: %s", rel_path)
+                                file_log.debug("write_complete", path=rel_path)
 
                     except (OSError, RuntimeError, ValueError):
-                        log.exception("Failed to process %s", fname.name)
-                    finally:
-                        reset_context(token)
+                        file_log.exception("Failed to process file")
 
                 t6 = time.time()
                 log.info("Dataset processing complete in %.2fs", t6 - t5)
@@ -1110,7 +1100,7 @@ class RinexDataProcessor:
                         rate,
                     )
 
-                token = set_file_context(fname)
+                file_log = log.bind(file=fname.name)
                 try:
                     rel_path = self.site.rinex_store.rel_path_for_commit(fname)
                     rinex_hash = file_hash_map[fname]
@@ -1182,8 +1172,6 @@ class RinexDataProcessor:
 
                 except (OSError, RuntimeError, ValueError):
                     log.exception("Failed to process %s", fname.name)
-                finally:
-                    reset_context(token)
 
             t6 = time.time()
             log.info("Dataset processing complete in %.2fs", t6 - t5)
@@ -2273,7 +2261,7 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
                         rate,
                     )
 
-                token = set_file_context(fname)
+                file_log = log.bind(file=fname.name)
                 try:
                     rel_path = self.site.rinex_store.rel_path_for_commit(fname)
                     rinex_hash = file_hash_map[fname]
@@ -2345,8 +2333,6 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
 
                 except (OSError, RuntimeError, ValueError):
                     log.exception("Failed to process %s", fname.name)
-                finally:
-                    reset_context(token)
 
             t6 = time.time()
             log.info("Dataset processing complete in %.2fs", t6 - t5)

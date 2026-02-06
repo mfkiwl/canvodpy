@@ -29,7 +29,6 @@ def configure_logging(logfile: Path = LOG_FILE) -> structlog.BoundLogger:
         timestamper,
         structlog.processors.add_log_level,
         structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
     ]
 

@@ -262,7 +262,6 @@ class PipelineOrchestrator:
                     date=date_key,
                     error=str(e),
                     exception=type(e).__name__,
-                    exc_info=True,
                 )
                 continue
 
