@@ -135,7 +135,12 @@ def trace_operation(
             for key, value in attributes.items():
                 # Convert to string if necessary for OTel compatibility
                 if value is not None:
-                    span.set_attribute(str(key), str(value) if not isinstance(value, (int, float, bool)) else value)
+                    span.set_attribute(
+                        str(key),
+                        str(value)
+                        if not isinstance(value, (int, float, bool))
+                        else value,
+                    )
 
         start = time.perf_counter()
 

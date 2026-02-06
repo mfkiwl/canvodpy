@@ -188,7 +188,11 @@ class ComponentFilter(logging.Filter):
             return True
 
         # Check if log message dict has component field
-        if hasattr(record, "msg") and isinstance(record.msg, dict) and record.msg.get("component") == self.component_name:
+        if (
+            hasattr(record, "msg")
+            and isinstance(record.msg, dict)
+            and record.msg.get("component") == self.component_name
+        ):
             return True
 
         # Check if record has component attribute (set by ProcessorFormatter)
