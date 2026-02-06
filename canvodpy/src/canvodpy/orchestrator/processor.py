@@ -582,6 +582,68 @@ class RinexDataProcessor:
 
         return natsorted(rinex_files)
 
+    def _ensure_aux_data_preprocessed(
+        self,
+        canopy_files: list[Path],
+        date_str: str,
+    ) -> Path:
+        """Ensure auxiliary data is preprocessed and available.
+        
+        Parameters
+        ----------
+        canopy_files : list[Path]
+            Canopy RINEX files for sampling detection
+        date_str : str
+            Date string (e.g., '2025213')
+            
+        Returns
+        -------
+        Path
+            Path to the preprocessed aux zarr file
+            
+        Raises
+        ------
+        RuntimeError
+            If preprocessing fails or file doesn't exist after preprocessing
+        """
+        aux_zarr_path = Path(gettempdir()) / f"aux_{date_str}.zarr"
+        
+        if not aux_zarr_path.exists():
+            self._logger.info(
+                "aux_preprocessing_required",
+                output_path=str(aux_zarr_path),
+                interpolation="hermite_cubic",
+            )
+            try:
+                self._preprocess_aux_data_with_hermite(canopy_files, aux_zarr_path)
+                
+                # Verify the file was created
+                if not aux_zarr_path.exists():
+                    raise RuntimeError(
+                        f"Aux preprocessing completed but file not found: {aux_zarr_path}"
+                    )
+                
+                self._logger.info(
+                    "aux_preprocessing_verified",
+                    file_exists=True,
+                    path=str(aux_zarr_path),
+                )
+            except Exception as e:
+                self._logger.error(
+                    "aux_preprocessing_failed",
+                    error=str(e),
+                    exception=type(e).__name__,
+                    path=str(aux_zarr_path),
+                )
+                raise
+        else:
+            self._logger.info(
+                "aux_preprocessing_cached",
+                path=str(aux_zarr_path),
+            )
+        
+        return aux_zarr_path
+
     def _parallel_process_with_processpool(
         self,
         rinex_files: list[Path],
@@ -1661,19 +1723,8 @@ class RinexDataProcessor:
             )
             raise ValueError(msg)
 
-        aux_zarr_path = Path(gettempdir()) / (
-            f"aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr"
-        )
-
-        if not aux_zarr_path.exists():
-            _sampling_interval = self._preprocess_aux_data_with_hermite(
-                first_files, aux_zarr_path
-            )
-        else:
-            self._logger.info(
-                "aux_cache_hit",
-                aux_zarr_path=str(aux_zarr_path),
-            )
+        date_str = self.matched_data_dirs.yyyydoy.to_str()
+        aux_zarr_path = self._ensure_aux_data_preprocessed(first_files, date_str)
 
         # ====================================================================
         # STEP 2: Process each receiver independently
