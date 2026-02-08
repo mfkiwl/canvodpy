@@ -1,25 +1,50 @@
-# canvod-auxiliary API Reference
+# canvod.auxiliary API Reference
+
+SP3 ephemeris and CLK clock correction processing, interpolation, coordinate
+transformations, and the GNSS product registry.
 
 ## Package
 
-::: canvod.aux
+::: canvod.auxiliary
+    options:
+      members:
+        - Sp3File
+        - ClkFile
+        - AuxFile
+        - Interpolator
+        - InterpolatorConfig
+        - DatasetMatcher
+        - ECEFPosition
+        - GeodeticPosition
 
 ## Preprocessing
 
-::: canvod.aux.preprocessing
+::: canvod.auxiliary.preprocessing
 
 ## Interpolation
 
-::: canvod.aux.interpolation
+::: canvod.auxiliary.interpolation
 
-## Ephemeris
+## Ephemeris (SP3)
 
-::: canvod.aux.ephemeris
+::: canvod.auxiliary.ephemeris
 
-## Clock
+## Clock (CLK)
 
-::: canvod.aux.clock
+::: canvod.auxiliary.clock
 
-## Products
+## Position and Coordinates
 
-::: canvod.aux.products
+::: canvod.auxiliary.position
+
+## Product Registry
+
+::: canvod.auxiliary.products
+    options:
+      members:
+        - PRODUCT_REGISTRY
+        - ProductSpec
+        - get_product_spec
+        - list_available_products
+        - list_agencies
+        - get_products_for_agency

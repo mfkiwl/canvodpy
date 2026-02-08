@@ -1,202 +1,109 @@
 ---
-title: Architecture Overview
-description: Understanding the canVODpy monorepo structure and design decisions
+title: Monorepo Structure
+description: Architecture of the canVODpy monorepo and its package organization
 ---
 
-# Architecture Overview
+# Monorepo Structure
 
-## What is canVODpy?
+## Overview
 
-canVODpy is a **monorepo** containing multiple Python packages for GNSS (Global Navigation Satellite System) vegetation optical depth (VOD) analysis. Instead of having seven separate repositories, we keep all related packages in one place while maintaining their independence.
+canVODpy is organized as a monorepo containing eight Python packages for GNSS vegetation optical depth analysis. All packages reside in a single repository while maintaining technical independence: each can be developed, tested, and published separately.
 
-## The Problem We're Solving
-
-Previously, the GNSS VOD analysis code existed as a single large package (`gnssvodpy`). This created several problems:
-
-1. **Tight coupling**: All features were interdependent
-2. **Large dependencies**: Installing one feature meant installing all dependencies
-3. **Difficult testing**: Hard to test components in isolation
-4. **Unclear boundaries**: Code organization was unclear
-
-## Our Solution: Modular Monorepo
-
-We split the functionality into **seven independent packages** that work together:
+## Package Organization
 
 ```
 canVODpy Monorepo
-├── canvod-readers    → Read GNSS data formats (RINEX, etc.)
-├── canvod-auxiliary        → Handle auxiliary data
-├── canvod-grids      → Manage spatial grids (HEALPix)
-├── canvod-vod        → Calculate vegetation optical depth
-├── canvod-store      → Store data (Icechunk, Zarr)
-├── canvod-viz        → Visualize results
-└── canvodpy          → Umbrella package (imports everything)
+  canvod-readers    RINEX v3.04 observation file readers
+  canvod-auxiliary   SP3 ephemeris and CLK clock correction processing
+  canvod-grids      Hemispheric grid implementations
+  canvod-vod        VOD estimation algorithms
+  canvod-store      Icechunk/Zarr storage backends
+  canvod-viz        Visualization utilities
+  canvod-utils      Configuration and CLI tools
+  canvodpy          Umbrella package (re-exports all subpackages)
 ```
 
-## Key Architectural Decisions
+## Key Design Decisions
 
-### 1. Namespace Packages
+### Namespace Packages
 
-Instead of seven separate top-level packages, we use **namespace packages** so all packages share the `canvod.*` namespace:
+All packages share the `canvod.*` namespace, providing a unified import API:
 
 ```python
-# All packages share the "canvod" namespace
 from canvod.readers import Rnxv3Obs
-from canvod.grids import HemiGrid
-from canvod.vod import calculate_vod
+from canvod.grids import EqualAreaBuilder
+from canvod.vod import VODCalculator
 ```
 
-**Why?** This creates a unified, professional API while keeping packages technically independent.
+Each import originates from a different installable package, but the shared namespace presents a coherent interface. See [Namespace Packages](namespace-packages.md) for implementation details.
 
-### 2. Monorepo Structure
+### Workspace Architecture
 
-All packages live in one repository but can be:
-- Developed independently
-- Tested in isolation
-- Published separately to PyPI
-- Versioned individually (if needed)
+All packages share a single virtual environment and lockfile:
 
-**Why?** Easier to coordinate changes across packages while maintaining modularity.
+- One `uv sync` installs all packages in editable mode
+- Dependencies are resolved together, preventing version conflicts
+- Each package maintains its own `pyproject.toml` for independent publishing
 
-### 3. Workspace Architecture
+### Package Independence
 
-We use a **workspace** structure where:
-- All packages share one virtual environment (`.venv`)
-- All packages share one lockfile (`uv.lock`)
-- Dependencies are resolved together
-- But each package maintains its own `pyproject.toml`
+Each package can be installed independently:
 
-**Why?** Ensures all packages work together with compatible versions.
-
-## Directory Structure Explained
-
-```
-canvodpy/                           # Repository root
-│
-├── packages/                       # Independent packages
-│   ├── canvod-readers/
-│   │   ├── src/
-│   │   │   └── canvod/            # Namespace (NO __init__.py)
-│   │   │       └── readers/       # Actual package
-│   │   │           └── __init__.py
-│   │   ├── tests/
-│   │   ├── docs/
-│   │   ├── pyproject.toml         # Package config
-│   │   ├── Justfile               # Package commands
-│   │   └── README.md
-│   │
-│   └── canvod-auxiliary/                 # Same structure
-│       └── ...
-│
-├── canvodpy/                       # Umbrella package
-│   └── src/
-│       └── canvodpy/               # Regular package
-│           └── __init__.py         # Re-exports all subpackages
-│
-├── .github/                        # CI/CD
-│   ├── actions/setup/              # Reusable setup action
-│   └── workflows/                  # CI workflows
-│
-├── docs/                           # Documentation (you are here!)
-├── pyproject.toml                  # Workspace configuration
-├── uv.lock                         # Shared lockfile
-├── Justfile                        # Root commands
-└── README.md                       # Project overview
-```
-
-## Package Independence
-
-Each package can be:
-
-**Installed independently:**
 ```bash
 pip install canvod-readers          # Just the readers
-pip install canvod-grids canvod-vod # Just grids + VOD
+pip install canvod-grids canvod-vod # Grids and VOD only
 pip install canvodpy                # Everything
 ```
 
-**Developed independently:**
-```bash
-cd packages/canvod-readers
-just test                           # Test only this package
-just build                          # Build only this package
-```
+## Directory Structure
 
-**Published independently:**
-Each package gets its own PyPI page:
-- `pypi.org/project/canvod-readers/`
-- `pypi.org/project/canvod-auxiliary/`
-- etc.
+```
+canvodpy/                           # Repository root
+  packages/                         # Independent packages
+    canvod-readers/
+      src/
+        canvod/                     # Namespace (no __init__.py)
+          readers/                  # Package code
+            __init__.py
+      tests/
+      pyproject.toml
+      README.md
+    canvod-auxiliary/                # Same structure
+      ...
+  canvodpy/                         # Umbrella package
+    src/
+      canvodpy/
+        __init__.py                 # Re-exports all subpackages
+  docs/                             # Centralized documentation
+  pyproject.toml                    # Workspace configuration
+  uv.lock                          # Shared lockfile
+  Justfile                          # Task runner commands
+```
 
 ## Dependency Flow
 
-Packages can depend on each other:
-
 ```
-canvod-readers (no dependencies)
-    ↓
-canvod-auxiliary (needs readers)
-    ↓
-canvod-grids (needs aux)
-    ↓
-canvod-vod (needs grids)
-    ↓
-canvod-store (needs vod)
-    ↓
-canvod-viz (needs store)
-    ↓
-canvodpy (imports all)
+canvod-readers    (no inter-package dependencies)
+canvod-grids      (no inter-package dependencies)
+canvod-vod        (no inter-package dependencies)
+canvod-utils      (no inter-package dependencies)
+canvod-auxiliary   depends on canvod-readers
+canvod-store      depends on canvod-grids
+canvod-viz        depends on canvod-grids
+canvodpy          depends on all packages
 ```
 
-**During development:** All packages are installed in "editable mode" so changes to one package immediately affect packages that depend on it.
+The dependency graph is intentionally flat: four foundation packages have zero inter-package dependencies, and three consumer packages each depend on exactly one foundation package. Maximum dependency depth is 1.
 
-**After publishing:** Users can install only what they need.
+## Trade-offs
 
-## Why This Architecture?
+**Advantages:**
+- Clear separation of concerns between packages
+- Users install only the components they need
+- Independent testing and development per package
+- Smaller dependency trees for individual packages
 
-### Advantages
-
-1. **Modularity**: Clear separation of concerns
-2. **Flexibility**: Use only what you need
-3. **Maintainability**: Easier to understand and modify
-4. **Testing**: Test components in isolation
-5. **Collaboration**: Different people can own different packages
-6. **Dependency management**: Smaller dependency trees per package
-
-### Trade-offs
-
-1. **Complexity**: More configuration files to manage
-2. **Build time**: Need to build multiple packages
-3. **Learning curve**: Developers need to understand the structure
-
-We believe the advantages far outweigh the trade-offs for a project of this size and complexity.
-
-## Real-World Example
-
-**Before (monolith):**
-```python
-# Everything in one package
-import gnssvodpy
-
-# Unclear what's what
-reader = gnssvodpy.Rnxv3Obs()
-grid = gnssvodpy.HemiGrid()
-```
-
-**After (modular):**
-```python
-# Clear, explicit imports
-from canvod.readers import Rnxv3Obs
-from canvod.grids import HemiGrid
-
-# Or use the umbrella
-import canvodpy
-reader = canvodpy.readers.Rnxv3Obs()
-```
-
-## Next Steps
-
-- [Understanding the Tooling](tooling.md) - Learn about uv, ruff, ty, etc.
-- [Namespace Packages Deep Dive](namespace-packages.md) - How the `canvod.*` namespace works
-- [Development Workflow](development-workflow.md) - How to work in this monorepo
-- [Build System](build-system.md) - How packages are built and published
+**Costs:**
+- Additional configuration files per package
+- Developers must understand the namespace package mechanism
+- Coordinated releases required for version consistency
