@@ -24,7 +24,7 @@
 | canvodpy/tests/test\_factory\_validation.py                                  |       77 |        3 |     96% |88, 91, 142 |
 | canvodpy/tests/test\_fluent\_workflow.py                                     |      128 |        0 |    100% |           |
 | canvodpy/tests/test\_integration\_aux\_sid\_filtering.py                     |       45 |       43 |      4% |     13-93 |
-| canvodpy/tests/test\_integration\_sid\_filtering.py                          |       47 |       37 |     21% |27-62, 67-79 |
+| canvodpy/tests/test\_integration\_sid\_filtering.py                          |       48 |       37 |     23% |28-63, 68-80 |
 | canvodpy/tests/test\_umbrella\_meta.py                                       |        4 |        0 |    100% |           |
 | canvodpy/tests/test\_workflow\_integration.py                                |       80 |        0 |    100% |           |
 | conftest.py                                                                  |      109 |       65 |     40% |25-30, 36, 42, 48, 54-65, 71-82, 88, 94, 100, 106-112, 118-124, 146-150, 156, 162, 168, 174-185, 191-202, 208-211, 217-220 |
@@ -156,7 +156,7 @@
 | packages/canvod-vod/tests/test\_vod\_calculator.py                           |      113 |        1 |     99% |       359 |
 | packages/canvod-vod/tests/test\_vod\_meta.py                                 |        3 |        0 |    100% |           |
 | packages/canvod-vod/tests/test\_vod\_properties.py                           |      138 |        9 |     93% |27, 36, 45, 183, 235, 299, 466, 469, 481 |
-| **TOTAL**                                                                    | **13552** | **6400** | **53%** |           |
+| **TOTAL**                                                                    | **13553** | **6400** | **53%** |           |
 
 
 ## Setup coverage badge
