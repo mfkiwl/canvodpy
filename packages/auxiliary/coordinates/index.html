@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="zensical-0.0.20">
+      <meta name="generator" content="zensical-0.0.23">
     
     
       
@@ -36,7 +36,7 @@
       
         
       
-      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.d4922b3c.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.1e989742.min.css">
       
         
           
@@ -990,7 +990,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="././" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1764,7 +1764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/development/" class="md-nav__link">
+      <a href="../../../guides/development.md" class="md-nav__link">
         
   
   
@@ -2617,11 +2617,11 @@
 <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">to_ecef</span><span class="p">()</span>
 </code></pre></div>
 <h2 id="spherical-coordinates">Spherical Coordinates<a class="headerlink" href="#spherical-coordinates" title="Permanent link">&para;</a></h2>
-<p>Spherical coordinates relative to the receiver position, following the physics convention:</p>
+<p>Spherical coordinates relative to the receiver position, following the navigation convention:</p>
 <ul>
 <li><strong>r</strong>: Slant range from receiver to satellite (meters)</li>
 <li><strong>theta</strong>: Polar angle from zenith [0, pi] radians (0 = zenith, pi/2 = horizon)</li>
-<li><strong>phi</strong>: Azimuthal angle from East [0, 2*pi) radians</li>
+<li><strong>phi</strong>: Azimuthal angle from North, clockwise [0, 2*pi) radians (0 = North, pi/2 = East)</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_spherical_coordinates</span>
 
@@ -2768,7 +2768,7 @@
       <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["content.code.copy","content.code.annotate","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight"],"search":"../../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.8ffeb9c9.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.5fcf0de6.min.js"></script>
       
         <script src="https://unpkg.com/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js"></script>
       

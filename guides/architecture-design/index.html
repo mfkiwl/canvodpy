@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://nfb2021.github.io/canvodpy/guides/architecture-design/">
       
       
-        <link rel="prev" href="../development/">
+        <link rel="prev" href="../development.md">
       
       
         <link rel="next" href="../../build-system/">
@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="zensical-0.0.20">
+      <meta name="generator" content="zensical-0.0.23">
     
     
       
@@ -36,7 +36,7 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.d4922b3c.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.1e989742.min.css">
       
         
           
@@ -1636,7 +1636,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/" class="md-nav__link">
+      <a href="../development.md" class="md-nav__link">
         
   
   
@@ -1691,7 +1691,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="././" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1854,6 +1854,67 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Unified API Surface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-1-convenience-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 1 — Convenience Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-2-fluent-workflow-deferred-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 2 — Fluent Workflow (Deferred Execution)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-3-vodworkflow-eager-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 3 — VODWorkflow (Eager Execution)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-4-functional-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 4 — Functional API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#direct-package-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct Package Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2651,6 +2712,67 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Unified API Surface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-1-convenience-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 1 — Convenience Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-2-fluent-workflow-deferred-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 2 — Fluent Workflow (Deferred Execution)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-3-vodworkflow-eager-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 3 — VODWorkflow (Eager Execution)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-4-functional-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 4 — Functional API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#direct-package-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct Package Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2846,13 +2968,49 @@ Orchestration:
 <span class="n">ReaderFactory</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;mylab_v1&quot;</span><span class="p">,</span> <span class="n">MyLabReader</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="unified-api-surface">Unified API Surface<a class="headerlink" href="#unified-api-surface" title="Permanent link">&para;</a></h2>
-<p>The umbrella package provides simplified top-level functions:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Direct package access</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">canvod.readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rnxv3Obs</span>
+<p>canvodpy provides four API levels, all accessing the same underlying packages:</p>
+<h3 id="level-1-convenience-functions">Level 1 — Convenience Functions<a class="headerlink" href="#level-1-convenience-functions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvodpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_date</span><span class="p">,</span> <span class="n">calculate_vod</span>
 
-<span class="c1"># Or simplified API</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">canvodpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_rinex</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">read_rinex</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">process_date</span><span class="p">(</span><span class="s2">&quot;Rosalia&quot;</span><span class="p">,</span> <span class="s2">&quot;2025001&quot;</span><span class="p">)</span>
+<span class="n">vod</span>  <span class="o">=</span> <span class="n">calculate_vod</span><span class="p">(</span><span class="s2">&quot;Rosalia&quot;</span><span class="p">,</span> <span class="s2">&quot;canopy_01&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_01&quot;</span><span class="p">,</span> <span class="s2">&quot;2025001&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="level-2-fluent-workflow-deferred-execution">Level 2 — Fluent Workflow (Deferred Execution)<a class="headerlink" href="#level-2-fluent-workflow-deferred-execution" title="Permanent link">&para;</a></h3>
+<p>Steps are recorded but not executed until a terminal method is called.
+Powered by <code>@step</code> and <code>@terminal</code> decorators.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">canvodpy</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">canvodpy</span><span class="o">.</span><span class="n">workflow</span><span class="p">(</span><span class="s2">&quot;Rosalia&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;2025001&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="s2">&quot;equal_area&quot;</span><span class="p">,</span> <span class="n">angular_resolution</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">vod</span><span class="p">(</span><span class="s2">&quot;canopy_01&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_01&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">result</span><span class="p">())</span>
+
+<span class="c1"># Preview without executing:</span>
+<span class="n">plan</span> <span class="o">=</span> <span class="n">canvodpy</span><span class="o">.</span><span class="n">workflow</span><span class="p">(</span><span class="s2">&quot;Rosalia&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;2025001&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+</code></pre></div>
+<p>The <code>@step</code> decorator appends <code>(method, args, kwargs)</code> to an internal plan
+list and returns <code>self</code> for chaining. The <code>@terminal</code> decorator replays all
+recorded steps, clears the plan, then runs the terminal method.</p>
+<h3 id="level-3-vodworkflow-eager-execution">Level 3 — VODWorkflow (Eager Execution)<a class="headerlink" href="#level-3-vodworkflow-eager-execution" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvodpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VODWorkflow</span>
+
+<span class="n">wf</span> <span class="o">=</span> <span class="n">VODWorkflow</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="s2">&quot;Rosalia&quot;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="s2">&quot;equal_area&quot;</span><span class="p">)</span>
+<span class="n">datasets</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">process_date</span><span class="p">(</span><span class="s2">&quot;2025001&quot;</span><span class="p">)</span>
+<span class="n">vod</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">calculate_vod</span><span class="p">(</span><span class="s2">&quot;canopy_01&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_01&quot;</span><span class="p">,</span> <span class="s2">&quot;2025001&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="level-4-functional-api">Level 4 — Functional API<a class="headerlink" href="#level-4-functional-api" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvodpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_rinex</span><span class="p">,</span> <span class="n">create_grid</span><span class="p">,</span> <span class="n">assign_grid_cells</span>
+
+<span class="n">ds</span>   <span class="o">=</span> <span class="n">read_rinex</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">reader</span><span class="o">=</span><span class="s2">&quot;rinex3&quot;</span><span class="p">)</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">create_grid</span><span class="p">(</span><span class="n">grid_type</span><span class="o">=</span><span class="s2">&quot;equal_area&quot;</span><span class="p">,</span> <span class="n">angular_resolution</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+<span class="n">ds</span>   <span class="o">=</span> <span class="n">assign_grid_cells</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="direct-package-access">Direct Package Access<a class="headerlink" href="#direct-package-access" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rnxv3Obs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">canvod.grids</span><span class="w"> </span><span class="kn">import</span> <span class="n">EqualAreaBuilder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">canvod.vod</span><span class="w"> </span><span class="kn">import</span> <span class="n">VODCalculator</span>
 </code></pre></div>
 <h2 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">&para;</a></h2>
 <p>Credentials and configuration are separated:</p>
@@ -2917,7 +3075,7 @@ Orchestration:
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../development/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Development Guide">
+          <a href="../development.md" class="md-footer__link md-footer__link--prev" aria-label="Previous: Development Guide">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -3012,7 +3170,7 @@ Orchestration:
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.code.copy","content.code.annotate","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8ffeb9c9.min.js"></script>
+      <script src="../../assets/javascripts/bundle.5fcf0de6.min.js"></script>
       
         <script src="https://unpkg.com/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js"></script>
       

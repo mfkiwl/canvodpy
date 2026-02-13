@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="zensical-0.0.20">
+      <meta name="generator" content="zensical-0.0.23">
     
     
       
@@ -36,7 +36,7 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.d4922b3c.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.1e989742.min.css">
       
         
           
@@ -310,7 +310,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="././" class="md-tabs__link">
           
   
   API Reference
@@ -1631,7 +1631,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/development/" class="md-nav__link">
+      <a href="../../guides/development.md" class="md-nav__link">
         
   
   
@@ -2093,7 +2093,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="././" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2299,10 +2299,455 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#level-2-object-oriented-api" class="md-nav__link">
+  <a href="#level-2-fluent-workflow-deferred-execution" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Level 2 — Object-Oriented API
+        Level 2 — Fluent Workflow (Deferred Execution)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VODWorkflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VODWorkflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow--attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attributes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow--notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        process_date
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="process_date">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date--notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        calculate_vod
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="calculate_vod">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod--notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.__repr__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __repr__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FluentWorkflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FluentWorkflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="read">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.read--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.preprocess" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        preprocess
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="preprocess">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.preprocess--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.grid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        grid
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="grid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.grid--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.vod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vod
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="vod">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.vod--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.to_store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_store
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.plot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.explain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        explain
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="explain">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.explain--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#level-3-vodworkflow-eager-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 3 — VODWorkflow (Eager Execution)
       
     </span>
   </a>
@@ -2975,10 +3420,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#level-3-functional-api" class="md-nav__link">
+  <a href="#level-4-functional-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Level 3 — Functional API
+        Level 4 — Functional API
       
     </span>
   </a>
@@ -3747,10 +4192,455 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#level-2-object-oriented-api" class="md-nav__link">
+  <a href="#level-2-fluent-workflow-deferred-execution" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Level 2 — Object-Oriented API
+        Level 2 — Fluent Workflow (Deferred Execution)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VODWorkflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VODWorkflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow--attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attributes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow--notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        process_date
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="process_date">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.process_date--notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        calculate_vod
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="calculate_vod">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod--examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.calculate_vod--notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.workflow.VODWorkflow.__repr__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __repr__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FluentWorkflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FluentWorkflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="read">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.read--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.preprocess" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        preprocess
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="preprocess">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.preprocess--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.grid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        grid
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="grid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.grid--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.vod" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vod
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="vod">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.vod--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.to_store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_store
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.plot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.explain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        explain
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="explain">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canvodpy.FluentWorkflow.explain--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#level-3-vodworkflow-eager-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 3 — VODWorkflow (Eager Execution)
       
     </span>
   </a>
@@ -4423,10 +5313,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#level-3-functional-api" class="md-nav__link">
+  <a href="#level-4-functional-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Level 3 — Functional API
+        Level 4 — Functional API
       
     </span>
   </a>
@@ -4826,7 +5716,7 @@
     
     
       <li class="md-path__item">
-        <a href="./" class="md-path__link">
+        <a href="././" class="md-path__link">
           
   <span class="md-ellipsis">
     API Reference
@@ -4850,8 +5740,9 @@
 
 
 <h1 id="canvodpy-api-reference">canvodpy API Reference<a class="headerlink" href="#canvodpy-api-reference" title="Permanent link">&para;</a></h1>
-<p>Umbrella package providing a unified, multi-level API for the canVODpy framework.</p>
+<p>Umbrella package providing a unified, four-level API for the canVODpy framework.</p>
 <h2 id="level-1-convenience-functions">Level 1 — Convenience Functions<a class="headerlink" href="#level-1-convenience-functions" title="Permanent link">&para;</a></h2>
+<p>One-liner functions for quick exploration.</p>
 
 
 <div class="doc doc-object doc-function">
@@ -5244,7 +6135,2532 @@ Total files: 8640</p>
             </details>
     </div>
 
-</div><h2 id="level-2-object-oriented-api">Level 2 — Object-Oriented API<a class="headerlink" href="#level-2-object-oriented-api" title="Permanent link">&para;</a></h2>
+</div><h2 id="level-2-fluent-workflow-deferred-execution">Level 2 — Fluent Workflow (Deferred Execution)<a class="headerlink" href="#level-2-fluent-workflow-deferred-execution" title="Permanent link">&para;</a></h2>
+<p>Chainable pipeline where steps are recorded and executed only when a
+terminal method (<code>.result()</code>, <code>.to_store()</code>, <code>.plot()</code>) is called.</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="canvodpy.workflow"></a>
+    <div class="doc doc-contents first">
+
+        <p>VOD workflow orchestration using component factories.</p>
+<p>Provides high-level workflow coordination with structured logging and
+extensibility through factory pattern.</p>
+<h3 id="canvodpy.workflow--examples">Examples<a class="headerlink" href="#canvodpy.workflow--examples" title="Permanent link">&para;</a></h3>
+<p>Basic workflow:</p>
+<div class="highlight"><pre><span></span><code>&gt;&gt;&gt; from canvodpy import VODWorkflow
+&gt;&gt;&gt; workflow = VODWorkflow(site=&quot;Rosalia&quot;)
+&gt;&gt;&gt; result = workflow.process_date(&quot;2025001&quot;)
+</code></pre></div>
+<p>With custom components:</p>
+<div class="highlight"><pre><span></span><code>&gt;&gt;&gt; workflow = VODWorkflow(
+...     site=&quot;Rosalia&quot;,
+...     grid=&quot;equal_area&quot;,
+...     grid_params={&quot;angular_resolution&quot;: 5.0},
+... )
+&gt;&gt;&gt; vod = workflow.calculate_vod(&quot;canopy_01&quot;, &quot;reference_01&quot;, &quot;2025001&quot;)
+</code></pre></div>
+<p>Debug logging:</p>
+<div class="highlight"><pre><span></span><code>&gt;&gt;&gt; workflow = VODWorkflow(site=&quot;Rosalia&quot;, log_level=&quot;DEBUG&quot;)
+&gt;&gt;&gt; # All logs include site=&quot;Rosalia&quot; context
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="canvodpy.workflow.VODWorkflow" class="doc doc-heading">
+            <code>VODWorkflow</code>
+
+
+<a href="#canvodpy.workflow.VODWorkflow" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Orchestrate complete VOD analysis workflow.</p>
+<p>Uses component factories for extensibility and structured logging
+for LLM-assisted debugging. Replaces legacy Site + Pipeline pattern.</p>
+<h4 id="canvodpy.workflow.VODWorkflow--parameters">Parameters<a class="headerlink" href="#canvodpy.workflow.VODWorkflow--parameters" title="Permanent link">&para;</a></h4>
+<p>site : str or Site
+    Site name or Site object
+reader : str, default="rinex3"
+    Registered reader name
+grid : str, default="equal_area"
+    Registered grid name
+vod_calculator : str, default="tau_omega"
+    Registered VOD calculator name
+grid_params : dict, optional
+    Parameters for grid creation (angular_resolution, cutoff_theta)
+keep_vars : list[str], optional
+    RINEX variables to keep. Defaults to KEEP_RNX_VARS.
+log_level : str, default="INFO"
+    Logging level (DEBUG, INFO, WARNING, ERROR)</p>
+<h4 id="canvodpy.workflow.VODWorkflow--attributes">Attributes<a class="headerlink" href="#canvodpy.workflow.VODWorkflow--attributes" title="Permanent link">&para;</a></h4>
+<p>site : Site
+    Site configuration
+grid : GridData
+    Hemisphere grid structure
+log : BoundLogger
+    Structured logger with site context</p>
+<h4 id="canvodpy.workflow.VODWorkflow--examples">Examples<a class="headerlink" href="#canvodpy.workflow.VODWorkflow--examples" title="Permanent link">&para;</a></h4>
+<p>Process one date:</p>
+<div class="highlight"><pre><span></span><code>&gt;&gt;&gt; workflow = VODWorkflow(site=&quot;Rosalia&quot;)
+&gt;&gt;&gt; data = workflow.process_date(&quot;2025001&quot;)
+&gt;&gt;&gt; print(data.keys())
+dict_keys([&#39;canopy_01&#39;, &#39;reference_01&#39;])
+</code></pre></div>
+<p>Calculate VOD:</p>
+<div class="highlight"><pre><span></span><code>&gt;&gt;&gt; vod = workflow.calculate_vod(
+...     &quot;canopy_01&quot;, &quot;reference_01&quot;, &quot;2025001&quot;
+... )
+&gt;&gt;&gt; print(vod.VOD.mean().item())
+0.42
+</code></pre></div>
+<p>Custom grid:</p>
+<div class="highlight"><pre><span></span><code>&gt;&gt;&gt; workflow = VODWorkflow(
+...     site=&quot;Rosalia&quot;,
+...     grid=&quot;equal_area&quot;,
+...     grid_params={&quot;angular_resolution&quot;: 5.0},
+... )
+</code></pre></div>
+<h4 id="canvodpy.workflow.VODWorkflow--notes">Notes<a class="headerlink" href="#canvodpy.workflow.VODWorkflow--notes" title="Permanent link">&para;</a></h4>
+<p>Preserves logical flow from legacy API:
+Site → Pipeline → process_date → load → augment → grid → calculate</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VODWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Orchestrate complete VOD analysis workflow.</span>
+
+<span class="sd">    Uses component factories for extensibility and structured logging</span>
+<span class="sd">    for LLM-assisted debugging. Replaces legacy Site + Pipeline pattern.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    site : str or Site</span>
+<span class="sd">        Site name or Site object</span>
+<span class="sd">    reader : str, default=&quot;rinex3&quot;</span>
+<span class="sd">        Registered reader name</span>
+<span class="sd">    grid : str, default=&quot;equal_area&quot;</span>
+<span class="sd">        Registered grid name</span>
+<span class="sd">    vod_calculator : str, default=&quot;tau_omega&quot;</span>
+<span class="sd">        Registered VOD calculator name</span>
+<span class="sd">    grid_params : dict, optional</span>
+<span class="sd">        Parameters for grid creation (angular_resolution, cutoff_theta)</span>
+<span class="sd">    keep_vars : list[str], optional</span>
+<span class="sd">        RINEX variables to keep. Defaults to KEEP_RNX_VARS.</span>
+<span class="sd">    log_level : str, default=&quot;INFO&quot;</span>
+<span class="sd">        Logging level (DEBUG, INFO, WARNING, ERROR)</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    site : Site</span>
+<span class="sd">        Site configuration</span>
+<span class="sd">    grid : GridData</span>
+<span class="sd">        Hemisphere grid structure</span>
+<span class="sd">    log : BoundLogger</span>
+<span class="sd">        Structured logger with site context</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Process one date:</span>
+
+<span class="sd">        &gt;&gt;&gt; workflow = VODWorkflow(site=&quot;Rosalia&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; data = workflow.process_date(&quot;2025001&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; print(data.keys())</span>
+<span class="sd">        dict_keys([&#39;canopy_01&#39;, &#39;reference_01&#39;])</span>
+
+<span class="sd">    Calculate VOD:</span>
+
+<span class="sd">        &gt;&gt;&gt; vod = workflow.calculate_vod(</span>
+<span class="sd">        ...     &quot;canopy_01&quot;, &quot;reference_01&quot;, &quot;2025001&quot;</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; print(vod.VOD.mean().item())</span>
+<span class="sd">        0.42</span>
+
+<span class="sd">    Custom grid:</span>
+
+<span class="sd">        &gt;&gt;&gt; workflow = VODWorkflow(</span>
+<span class="sd">        ...     site=&quot;Rosalia&quot;,</span>
+<span class="sd">        ...     grid=&quot;equal_area&quot;,</span>
+<span class="sd">        ...     grid_params={&quot;angular_resolution&quot;: 5.0},</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Preserves logical flow from legacy API:</span>
+<span class="sd">    Site → Pipeline → process_date → load → augment → grid → calculate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Site</span><span class="p">,</span>
+        <span class="n">reader</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rinex3&quot;</span><span class="p">,</span>
+        <span class="n">grid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;equal_area&quot;</span><span class="p">,</span>
+        <span class="n">vod_calculator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tau_omega&quot;</span><span class="p">,</span>
+        <span class="n">grid_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">keep_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize workflow with component factories.&quot;&quot;&quot;</span>
+        <span class="c1"># Handle site input</span>
+        <span class="n">site_name</span> <span class="o">=</span> <span class="n">site</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">site</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">site</span>
+
+        <span class="c1"># Setup logging with site context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">:</span> <span class="n">BoundLogger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="n">site_name</span><span class="p">)</span>
+
+        <span class="c1"># Store configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span> <span class="o">=</span> <span class="n">reader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vod_calculator_name</span> <span class="o">=</span> <span class="n">vod_calculator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+
+        <span class="c1"># Create grid using factory (cached for workflow)</span>
+        <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_params</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">builder</span> <span class="o">=</span> <span class="n">GridFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;workflow_initialized&quot;</span><span class="p">,</span>
+            <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">reader</span><span class="o">=</span><span class="n">reader</span><span class="p">,</span>
+            <span class="n">calculator</span><span class="o">=</span><span class="n">vod_calculator</span><span class="p">,</span>
+            <span class="n">ncells</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">ncells</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">receivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process RINEX data for one date.</span>
+
+<span class="sd">        Workflow: load_rinex → augment → assign_grid → store</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        date : str</span>
+<span class="sd">            Date in YYYYDOY format (e.g., &quot;2025001&quot; = Jan 1, 2025)</span>
+<span class="sd">        receivers : list[str], optional</span>
+<span class="sd">            Receiver names to process. If None, use all active receivers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, xr.Dataset]</span>
+<span class="sd">            Processed datasets keyed by receiver name. Each dataset has</span>
+<span class="sd">            cell assignments and filtered data.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; workflow = VODWorkflow(&quot;Rosalia&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; data = workflow.process_date(&quot;2025001&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; canopy = data[&quot;canopy_01&quot;]</span>
+<span class="sd">        &gt;&gt;&gt; print(canopy.sizes)</span>
+<span class="sd">        {&#39;epoch&#39;: 2880, &#39;sv&#39;: 32, &#39;cell&#39;: 324}</span>
+
+<span class="sd">        Process specific receivers:</span>
+
+<span class="sd">        &gt;&gt;&gt; data = workflow.process_date(</span>
+<span class="sd">        ...     &quot;2025001&quot;,</span>
+<span class="sd">        ...     receivers=[&quot;canopy_01&quot;]</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is the main entry point for data processing. Orchestrates</span>
+<span class="sd">        the full pipeline from raw RINEX to grid-assigned observations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;process_date_started&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get receivers to process</span>
+        <span class="n">receiver_list</span> <span class="o">=</span> <span class="n">receivers</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">active_receivers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">recv_name</span> <span class="ow">in</span> <span class="n">receiver_list</span><span class="p">:</span>
+            <span class="n">recv_log</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">receiver</span><span class="o">=</span><span class="n">recv_name</span><span class="p">)</span>
+            <span class="n">recv_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;processing_receiver&quot;</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Step 1: Load RINEX</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_rinex</span><span class="p">(</span><span class="n">recv_name</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">recv_log</span><span class="p">)</span>
+
+                <span class="c1"># Step 2: Augment (preprocessing)</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_augment_data</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">recv_log</span><span class="p">)</span>
+
+                <span class="c1"># Step 3: Assign grid cells</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assign_grid_cells</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">recv_log</span><span class="p">)</span>
+
+                <span class="n">results</span><span class="p">[</span><span class="n">recv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span>
+                <span class="n">recv_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;processing_complete&quot;</span><span class="p">,</span>
+                    <span class="n">variables</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">),</span>
+                    <span class="n">cells</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cell&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">recv_log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;processing_failed&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">raise</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;process_date_complete&quot;</span><span class="p">,</span> <span class="n">receivers</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">canopy_receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">sky_receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">use_cached</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate VOD from canopy and sky receivers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        canopy_receiver : str</span>
+<span class="sd">            Receiver under canopy (e.g., &quot;canopy_01&quot;)</span>
+<span class="sd">        sky_receiver : str</span>
+<span class="sd">            Sky reference receiver (e.g., &quot;reference_01&quot;)</span>
+<span class="sd">        date : str</span>
+<span class="sd">            Date in YYYYDOY format</span>
+<span class="sd">        use_cached : bool, default=True</span>
+<span class="sd">            If True, reuse datasets from process_date cache</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.Dataset</span>
+<span class="sd">            VOD dataset with variables:</span>
+<span class="sd">            - VOD : Vegetation Optical Depth</span>
+<span class="sd">            - phi : Azimuth angles</span>
+<span class="sd">            - theta : Elevation angles</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; workflow = VODWorkflow(&quot;Rosalia&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; vod = workflow.calculate_vod(</span>
+<span class="sd">        ...     &quot;canopy_01&quot;, &quot;reference_01&quot;, &quot;2025001&quot;</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; print(vod.VOD.mean().item())</span>
+<span class="sd">        0.42</span>
+
+<span class="sd">        Without caching:</span>
+
+<span class="sd">        &gt;&gt;&gt; vod = workflow.calculate_vod(</span>
+<span class="sd">        ...     &quot;canopy_01&quot;,</span>
+<span class="sd">        ...     &quot;reference_01&quot;,</span>
+<span class="sd">        ...     &quot;2025001&quot;,</span>
+<span class="sd">        ...     use_cached=False,</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Uses VODFactory to create calculator. Supports community</span>
+<span class="sd">        extensions via factory registration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">,</span> <span class="n">canopy</span><span class="o">=</span><span class="n">canopy_receiver</span><span class="p">,</span> <span class="n">sky</span><span class="o">=</span><span class="n">sky_receiver</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate_vod_started&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Load or retrieve datasets</span>
+        <span class="k">if</span> <span class="n">use_cached</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_dataset_cache&quot;</span><span class="p">):</span>
+            <span class="n">canopy_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">canopy_receiver</span><span class="p">)</span>
+            <span class="n">sky_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sky_receiver</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">canopy_ds</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">sky_ds</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Process if not cached</span>
+        <span class="k">if</span> <span class="n">canopy_ds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading_canopy&quot;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_date</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">receivers</span><span class="o">=</span><span class="p">[</span><span class="n">canopy_receiver</span><span class="p">])</span>
+            <span class="n">canopy_ds</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">canopy_receiver</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">sky_ds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading_sky&quot;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_date</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">receivers</span><span class="o">=</span><span class="p">[</span><span class="n">sky_receiver</span><span class="p">])</span>
+            <span class="n">sky_ds</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">sky_receiver</span><span class="p">]</span>
+
+        <span class="c1"># Use factory to create calculator</span>
+        <span class="n">calculator</span> <span class="o">=</span> <span class="n">VODFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vod_calculator_name</span><span class="p">,</span>
+            <span class="n">canopy_ds</span><span class="o">=</span><span class="n">canopy_ds</span><span class="p">,</span>
+            <span class="n">sky_ds</span><span class="o">=</span><span class="n">sky_ds</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Calculate VOD</span>
+        <span class="n">vod_ds</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">calculate_vod</span><span class="p">()</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;calculate_vod_complete&quot;</span><span class="p">,</span>
+            <span class="n">cells</span><span class="o">=</span><span class="n">vod_ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cell&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;cell&quot;</span> <span class="ow">in</span> <span class="n">vod_ds</span><span class="o">.</span><span class="n">sizes</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">vod_mean</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">vod_ds</span><span class="o">.</span><span class="n">VOD</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="k">if</span> <span class="s2">&quot;VOD&quot;</span> <span class="ow">in</span> <span class="n">vod_ds</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">vod_ds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_rinex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="n">BoundLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load RINEX using factory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        receiver : str</span>
+<span class="sd">            Receiver name</span>
+<span class="sd">        date : str</span>
+<span class="sd">            Date in YYYYDOY format</span>
+<span class="sd">        log : BoundLogger</span>
+<span class="sd">            Logger with receiver context</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.Dataset</span>
+<span class="sd">            RINEX data</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Uses ReaderFactory to create reader instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;load_rinex_started&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get file path from site config</span>
+        <span class="n">rinex_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rinex_path</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+
+        <span class="c1"># Create reader using factory</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">ReaderFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">rinex_path</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Read data</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="c1"># Filter variables</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span><span class="p">:</span>
+            <span class="n">keep_vars_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span><span class="p">)</span>
+            <span class="n">drop_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keep_vars_set</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">drop_vars</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">drop_vars</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;load_rinex_complete&quot;</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_augment_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="n">BoundLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply augmentation steps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : xr.Dataset</span>
+<span class="sd">            Input dataset</span>
+<span class="sd">        log : BoundLogger</span>
+<span class="sd">            Logger with context</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.Dataset</span>
+<span class="sd">            Augmented dataset</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Currently passes through. Will use AugmentationFactory</span>
+<span class="sd">        for preprocessing steps (filtering, interpolation, etc.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;augment_data_started&quot;</span><span class="p">)</span>
+
+        <span class="c1"># TODO: Use AugmentationFactory for preprocessing</span>
+        <span class="c1"># For now, pass through</span>
+        <span class="c1"># augmentations = [</span>
+        <span class="c1">#     AugmentationFactory.create(&quot;hampel&quot;, window=5),</span>
+        <span class="c1">#     AugmentationFactory.create(&quot;interpolate&quot;, method=&quot;linear&quot;),</span>
+        <span class="c1"># ]</span>
+        <span class="c1"># for aug in augmentations:</span>
+        <span class="c1">#     ds = aug.apply(ds)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;augment_data_complete&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assign_grid_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="n">BoundLogger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign grid cells to observations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : xr.Dataset</span>
+<span class="sd">            Dataset with phi, theta coordinates</span>
+<span class="sd">        log : BoundLogger</span>
+<span class="sd">            Logger with context</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.Dataset</span>
+<span class="sd">            Dataset with added &#39;cell&#39; coordinate</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Uses grid operations from canvod.grids package.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;assign_grid_cells_started&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Use grid operations</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.grids</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cell_ids_to_ds_fast</span>
+
+        <span class="n">ds_with_cells</span> <span class="o">=</span> <span class="n">add_cell_ids_to_ds_fast</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;assign_grid_cells_complete&quot;</span><span class="p">,</span>
+            <span class="n">cells</span><span class="o">=</span><span class="n">ds_with_cells</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cell&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds_with_cells</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_rinex_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get RINEX file path from site configuration.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        receiver : str</span>
+<span class="sd">            Receiver name</span>
+<span class="sd">        date : str</span>
+<span class="sd">            Date in YYYYDOY format</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            Path to RINEX file</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If receiver not found in site configuration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">receiver</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">receivers</span><span class="p">:</span>
+            <span class="n">available</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">receivers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Receiver &#39;</span><span class="si">{</span><span class="n">receiver</span><span class="si">}</span><span class="s2">&#39; not in site. Available: </span><span class="si">{</span><span class="n">available</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Use internal site object to get path</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">get_rinex_path</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;VODWorkflow(site=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;grid=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span><span class="si">}</span><span class="s2">&#39;, reader=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="canvodpy.workflow.VODWorkflow.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">reader</span><span class="o">=</span><span class="s1">&#39;rinex3&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="s1">&#39;equal_area&#39;</span><span class="p">,</span> <span class="n">vod_calculator</span><span class="o">=</span><span class="s1">&#39;tau_omega&#39;</span><span class="p">,</span> <span class="n">grid_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span></code>
+
+<a href="#canvodpy.workflow.VODWorkflow.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialize workflow with component factories.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Site</span><span class="p">,</span>
+    <span class="n">reader</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rinex3&quot;</span><span class="p">,</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;equal_area&quot;</span><span class="p">,</span>
+    <span class="n">vod_calculator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tau_omega&quot;</span><span class="p">,</span>
+    <span class="n">grid_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">keep_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize workflow with component factories.&quot;&quot;&quot;</span>
+    <span class="c1"># Handle site input</span>
+    <span class="n">site_name</span> <span class="o">=</span> <span class="n">site</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">site</span><span class="o">.</span><span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">site</span>
+
+    <span class="c1"># Setup logging with site context</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">:</span> <span class="n">BoundLogger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="n">site_name</span><span class="p">)</span>
+
+    <span class="c1"># Store configuration</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span> <span class="o">=</span> <span class="n">reader</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">vod_calculator_name</span> <span class="o">=</span> <span class="n">vod_calculator</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+
+    <span class="c1"># Create grid using factory (cached for workflow)</span>
+    <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_params</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">GridFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_params</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;workflow_initialized&quot;</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span>
+        <span class="n">reader</span><span class="o">=</span><span class="n">reader</span><span class="p">,</span>
+        <span class="n">calculator</span><span class="o">=</span><span class="n">vod_calculator</span><span class="p">,</span>
+        <span class="n">ncells</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">ncells</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="canvodpy.workflow.VODWorkflow.process_date" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">process_date</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">receivers</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#canvodpy.workflow.VODWorkflow.process_date" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Process RINEX data for one date.</p>
+<p>Workflow: load_rinex → augment → assign_grid → store</p>
+<h5 id="canvodpy.workflow.VODWorkflow.process_date--parameters">Parameters<a class="headerlink" href="#canvodpy.workflow.VODWorkflow.process_date--parameters" title="Permanent link">&para;</a></h5>
+<p>date : str
+    Date in YYYYDOY format (e.g., "2025001" = Jan 1, 2025)
+receivers : list[str], optional
+    Receiver names to process. If None, use all active receivers.</p>
+<h5 id="canvodpy.workflow.VODWorkflow.process_date--returns">Returns<a class="headerlink" href="#canvodpy.workflow.VODWorkflow.process_date--returns" title="Permanent link">&para;</a></h5>
+<p>dict[str, xr.Dataset]
+    Processed datasets keyed by receiver name. Each dataset has
+    cell assignments and filtered data.</p>
+<h5 id="canvodpy.workflow.VODWorkflow.process_date--examples">Examples<a class="headerlink" href="#canvodpy.workflow.VODWorkflow.process_date--examples" title="Permanent link">&para;</a></h5>
+<blockquote>
+<blockquote>
+<blockquote>
+<p 2880_="2880," 324="324" 32_="32," _cell_:="'cell':" _epoch_:="'epoch':" _sv_:="'sv':">workflow = VODWorkflow("Rosalia")
+data = workflow.process_date("2025001")
+canopy = data["canopy_01"]
+print(canopy.sizes)</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>Process specific receivers:</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>data = workflow.process_date(
+...     "2025001",
+...     receivers=["canopy_01"]
+... )</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<h5 id="canvodpy.workflow.VODWorkflow.process_date--notes">Notes<a class="headerlink" href="#canvodpy.workflow.VODWorkflow.process_date--notes" title="Permanent link">&para;</a></h5>
+<p>This is the main entry point for data processing. Orchestrates
+the full pipeline from raw RINEX to grid-assigned observations.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">receivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process RINEX data for one date.</span>
+
+<span class="sd">    Workflow: load_rinex → augment → assign_grid → store</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    date : str</span>
+<span class="sd">        Date in YYYYDOY format (e.g., &quot;2025001&quot; = Jan 1, 2025)</span>
+<span class="sd">    receivers : list[str], optional</span>
+<span class="sd">        Receiver names to process. If None, use all active receivers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, xr.Dataset]</span>
+<span class="sd">        Processed datasets keyed by receiver name. Each dataset has</span>
+<span class="sd">        cell assignments and filtered data.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; workflow = VODWorkflow(&quot;Rosalia&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; data = workflow.process_date(&quot;2025001&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; canopy = data[&quot;canopy_01&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; print(canopy.sizes)</span>
+<span class="sd">    {&#39;epoch&#39;: 2880, &#39;sv&#39;: 32, &#39;cell&#39;: 324}</span>
+
+<span class="sd">    Process specific receivers:</span>
+
+<span class="sd">    &gt;&gt;&gt; data = workflow.process_date(</span>
+<span class="sd">    ...     &quot;2025001&quot;,</span>
+<span class="sd">    ...     receivers=[&quot;canopy_01&quot;]</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is the main entry point for data processing. Orchestrates</span>
+<span class="sd">    the full pipeline from raw RINEX to grid-assigned observations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;process_date_started&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Get receivers to process</span>
+    <span class="n">receiver_list</span> <span class="o">=</span> <span class="n">receivers</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">active_receivers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">recv_name</span> <span class="ow">in</span> <span class="n">receiver_list</span><span class="p">:</span>
+        <span class="n">recv_log</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">receiver</span><span class="o">=</span><span class="n">recv_name</span><span class="p">)</span>
+        <span class="n">recv_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;processing_receiver&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Step 1: Load RINEX</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_rinex</span><span class="p">(</span><span class="n">recv_name</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">recv_log</span><span class="p">)</span>
+
+            <span class="c1"># Step 2: Augment (preprocessing)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_augment_data</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">recv_log</span><span class="p">)</span>
+
+            <span class="c1"># Step 3: Assign grid cells</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assign_grid_cells</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">recv_log</span><span class="p">)</span>
+
+            <span class="n">results</span><span class="p">[</span><span class="n">recv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span>
+            <span class="n">recv_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;processing_complete&quot;</span><span class="p">,</span>
+                <span class="n">variables</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">),</span>
+                <span class="n">cells</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cell&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">recv_log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;processing_failed&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;process_date_complete&quot;</span><span class="p">,</span> <span class="n">receivers</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="canvodpy.workflow.VODWorkflow.calculate_vod" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">calculate_vod</span><span class="p">(</span><span class="n">canopy_receiver</span><span class="p">,</span> <span class="n">sky_receiver</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">use_cached</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+<a href="#canvodpy.workflow.VODWorkflow.calculate_vod" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Calculate VOD from canopy and sky receivers.</p>
+<h5 id="canvodpy.workflow.VODWorkflow.calculate_vod--parameters">Parameters<a class="headerlink" href="#canvodpy.workflow.VODWorkflow.calculate_vod--parameters" title="Permanent link">&para;</a></h5>
+<p>canopy_receiver : str
+    Receiver under canopy (e.g., "canopy_01")
+sky_receiver : str
+    Sky reference receiver (e.g., "reference_01")
+date : str
+    Date in YYYYDOY format
+use_cached : bool, default=True
+    If True, reuse datasets from process_date cache</p>
+<h5 id="canvodpy.workflow.VODWorkflow.calculate_vod--returns">Returns<a class="headerlink" href="#canvodpy.workflow.VODWorkflow.calculate_vod--returns" title="Permanent link">&para;</a></h5>
+<p>xr.Dataset
+    VOD dataset with variables:
+    - VOD : Vegetation Optical Depth
+    - phi : Azimuth angles
+    - theta : Elevation angles</p>
+<h5 id="canvodpy.workflow.VODWorkflow.calculate_vod--examples">Examples<a class="headerlink" href="#canvodpy.workflow.VODWorkflow.calculate_vod--examples" title="Permanent link">&para;</a></h5>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>workflow = VODWorkflow("Rosalia")
+vod = workflow.calculate_vod(
+...     "canopy_01", "reference_01", "2025001"
+... )
+print(vod.VOD.mean().item())
+0.42</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>Without caching:</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>vod = workflow.calculate_vod(
+...     "canopy_01",
+...     "reference_01",
+...     "2025001",
+...     use_cached=False,
+... )</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<h5 id="canvodpy.workflow.VODWorkflow.calculate_vod--notes">Notes<a class="headerlink" href="#canvodpy.workflow.VODWorkflow.calculate_vod--notes" title="Permanent link">&para;</a></h5>
+<p>Uses VODFactory to create calculator. Supports community
+extensions via factory registration.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">canopy_receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">sky_receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">use_cached</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate VOD from canopy and sky receivers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    canopy_receiver : str</span>
+<span class="sd">        Receiver under canopy (e.g., &quot;canopy_01&quot;)</span>
+<span class="sd">    sky_receiver : str</span>
+<span class="sd">        Sky reference receiver (e.g., &quot;reference_01&quot;)</span>
+<span class="sd">    date : str</span>
+<span class="sd">        Date in YYYYDOY format</span>
+<span class="sd">    use_cached : bool, default=True</span>
+<span class="sd">        If True, reuse datasets from process_date cache</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        VOD dataset with variables:</span>
+<span class="sd">        - VOD : Vegetation Optical Depth</span>
+<span class="sd">        - phi : Azimuth angles</span>
+<span class="sd">        - theta : Elevation angles</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; workflow = VODWorkflow(&quot;Rosalia&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; vod = workflow.calculate_vod(</span>
+<span class="sd">    ...     &quot;canopy_01&quot;, &quot;reference_01&quot;, &quot;2025001&quot;</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; print(vod.VOD.mean().item())</span>
+<span class="sd">    0.42</span>
+
+<span class="sd">    Without caching:</span>
+
+<span class="sd">    &gt;&gt;&gt; vod = workflow.calculate_vod(</span>
+<span class="sd">    ...     &quot;canopy_01&quot;,</span>
+<span class="sd">    ...     &quot;reference_01&quot;,</span>
+<span class="sd">    ...     &quot;2025001&quot;,</span>
+<span class="sd">    ...     use_cached=False,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Uses VODFactory to create calculator. Supports community</span>
+<span class="sd">    extensions via factory registration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">,</span> <span class="n">canopy</span><span class="o">=</span><span class="n">canopy_receiver</span><span class="p">,</span> <span class="n">sky</span><span class="o">=</span><span class="n">sky_receiver</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate_vod_started&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Load or retrieve datasets</span>
+    <span class="k">if</span> <span class="n">use_cached</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_dataset_cache&quot;</span><span class="p">):</span>
+        <span class="n">canopy_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">canopy_receiver</span><span class="p">)</span>
+        <span class="n">sky_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sky_receiver</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">canopy_ds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">sky_ds</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Process if not cached</span>
+    <span class="k">if</span> <span class="n">canopy_ds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading_canopy&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_date</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">receivers</span><span class="o">=</span><span class="p">[</span><span class="n">canopy_receiver</span><span class="p">])</span>
+        <span class="n">canopy_ds</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">canopy_receiver</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">sky_ds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading_sky&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_date</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">receivers</span><span class="o">=</span><span class="p">[</span><span class="n">sky_receiver</span><span class="p">])</span>
+        <span class="n">sky_ds</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">sky_receiver</span><span class="p">]</span>
+
+    <span class="c1"># Use factory to create calculator</span>
+    <span class="n">calculator</span> <span class="o">=</span> <span class="n">VODFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vod_calculator_name</span><span class="p">,</span>
+        <span class="n">canopy_ds</span><span class="o">=</span><span class="n">canopy_ds</span><span class="p">,</span>
+        <span class="n">sky_ds</span><span class="o">=</span><span class="n">sky_ds</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Calculate VOD</span>
+    <span class="n">vod_ds</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">calculate_vod</span><span class="p">()</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;calculate_vod_complete&quot;</span><span class="p">,</span>
+        <span class="n">cells</span><span class="o">=</span><span class="n">vod_ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cell&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;cell&quot;</span> <span class="ow">in</span> <span class="n">vod_ds</span><span class="o">.</span><span class="n">sizes</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">vod_mean</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">vod_ds</span><span class="o">.</span><span class="n">VOD</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">())</span> <span class="k">if</span> <span class="s2">&quot;VOD&quot;</span> <span class="ow">in</span> <span class="n">vod_ds</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">vod_ds</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="canvodpy.workflow.VODWorkflow.__repr__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__repr__</span><span class="p">()</span></code>
+
+<a href="#canvodpy.workflow.VODWorkflow.__repr__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>String representation.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;VODWorkflow(site=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;grid=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span><span class="si">}</span><span class="s2">&#39;, reader=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="canvodpy.FluentWorkflow"></a>
+    <div class="doc doc-contents first">
+
+
+
+        <p>Chainable, deferred-execution workflow for VOD analysis.</p>
+<h3 id="canvodpy.FluentWorkflow--parameters">Parameters<a class="headerlink" href="#canvodpy.FluentWorkflow--parameters" title="Permanent link">&para;</a></h3>
+<p>site : str or Site
+    Site name or :class:<code>~canvodpy.api.Site</code> object.
+reader : str
+    Registered reader name (default <code>"rinex3"</code>).
+grid_type : str
+    Registered grid type (default <code>"equal_area"</code>).
+vod_calculator : str
+    Registered VOD calculator (default <code>"tau_omega"</code>).
+keep_vars : list[str], optional
+    RINEX variables to retain.  Defaults to :data:<code>KEEP_RNX_VARS</code>.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FluentWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chainable, deferred-execution workflow for VOD analysis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    site : str or Site</span>
+<span class="sd">        Site name or :class:`~canvodpy.api.Site` object.</span>
+<span class="sd">    reader : str</span>
+<span class="sd">        Registered reader name (default ``&quot;rinex3&quot;``).</span>
+<span class="sd">    grid_type : str</span>
+<span class="sd">        Registered grid type (default ``&quot;equal_area&quot;``).</span>
+<span class="sd">    vod_calculator : str</span>
+<span class="sd">        Registered VOD calculator (default ``&quot;tau_omega&quot;``).</span>
+<span class="sd">    keep_vars : list[str], optional</span>
+<span class="sd">        RINEX variables to retain.  Defaults to :data:`KEEP_RNX_VARS`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Site</span><span class="p">,</span>
+        <span class="n">reader</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rinex3&quot;</span><span class="p">,</span>
+        <span class="n">grid_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;equal_area&quot;</span><span class="p">,</span>
+        <span class="n">vod_calculator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tau_omega&quot;</span><span class="p">,</span>
+        <span class="n">keep_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plan</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># State populated by steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_site</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">site</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reader_name</span> <span class="o">=</span> <span class="n">reader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_type</span> <span class="o">=</span> <span class="n">grid_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vod_calculator_name</span> <span class="o">=</span> <span class="n">vod_calculator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Steps (deferred)</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="nd">@step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">receivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load RINEX observations for *date*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        date : str</span>
+<span class="sd">            Date in ``YYYYDOY`` format (e.g. ``&quot;2025001&quot;``).</span>
+<span class="sd">        receivers : list[str], optional</span>
+<span class="sd">            Receiver names to load.  If ``None``, all active receivers</span>
+<span class="sd">            for the site are loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">receiver_list</span> <span class="o">=</span> <span class="n">receivers</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">active_receivers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">receiver_list</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">get_rinex_path</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+            <span class="n">reader_obj</span> <span class="o">=</span> <span class="n">ReaderFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">reader_obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+            <span class="c1"># Filter variables</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keep_vars</span><span class="p">:</span>
+                <span class="n">drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_keep_vars</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="n">drop</span><span class="p">:</span>
+                    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">drop</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;read_complete&quot;</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>  <span class="c1"># never reached (decorator returns self), but aids type checkers</span>
+
+    <span class="nd">@step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agency</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;COD&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply auxiliary preprocessing to loaded datasets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        agency : str</span>
+<span class="sd">            Analysis centre for auxiliary products (default ``&quot;COD&quot;``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">agency</span><span class="o">=</span><span class="n">agency</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_aux_for_interpolation</span>
+
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">preprocess_aux_for_interpolation</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;preprocess_complete&quot;</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;canvod.auxiliary not available, skipping preprocessing&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a hemisphere grid and assign cell IDs to all datasets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kind : str, optional</span>
+<span class="sd">            Grid type override.  Defaults to the value set at init.</span>
+<span class="sd">        **params</span>
+<span class="sd">            Passed to :meth:`GridFactory.create` (e.g.</span>
+<span class="sd">            ``angular_resolution=5.0``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.grids</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cell_ids_to_ds_fast</span>
+
+        <span class="n">grid_type</span> <span class="o">=</span> <span class="n">kind</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_type</span>
+        <span class="n">builder</span> <span class="o">=</span> <span class="n">GridFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">grid_type</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">add_cell_ids_to_ds_fast</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;grid_complete&quot;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid_type</span><span class="p">,</span> <span class="n">ncells</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">ncells</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canopy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute vegetation optical depth for a receiver pair.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        canopy : str</span>
+<span class="sd">            Canopy receiver name (e.g. ``&quot;canopy_01&quot;``).</span>
+<span class="sd">        reference : str</span>
+<span class="sd">            Sky/reference receiver name (e.g. ``&quot;reference_01&quot;``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">canopy_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">canopy</span><span class="p">]</span>
+        <span class="n">ref_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">reference</span><span class="p">]</span>
+
+        <span class="n">calculator</span> <span class="o">=</span> <span class="n">VODFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vod_calculator_name</span><span class="p">,</span>
+            <span class="n">canopy_ds</span><span class="o">=</span><span class="n">canopy_ds</span><span class="p">,</span>
+            <span class="n">sky_ds</span><span class="o">=</span><span class="n">ref_ds</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">calculate_vod</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;vod_complete&quot;</span><span class="p">,</span> <span class="n">canopy</span><span class="o">=</span><span class="n">canopy</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="n">reference</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Terminals (trigger execution)</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="nd">@terminal</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the plan and return the final data.</span>
+
+<span class="sd">        Returns the VOD dataset if a ``.vod()`` step was included,</span>
+<span class="sd">        otherwise returns the dict of per-receiver datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">)</span>
+
+    <span class="nd">@terminal</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the plan and write results to Icechunk storage.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Store VOD result — requires a store name convention</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;to_store_vod&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">vod_store</span><span class="o">.</span><span class="n">write_group</span><span class="p">(</span><span class="s2">&quot;vod_result&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;to_store_dataset&quot;</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">rinex_store</span><span class="o">.</span><span class="n">write_group</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@terminal</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the plan and visualise the result.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">HemisphereVisualizer</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span>
+        <span class="n">viz</span> <span class="o">=</span> <span class="n">HemisphereVisualizer</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_2d</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Plan inspection (does NOT execute)</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a description of the recorded plan without executing it.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            One entry per step with keys ``&quot;step&quot;``, ``&quot;args&quot;``, and</span>
+<span class="sd">            ``&quot;kwargs&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plan</span>
+        <span class="p">]</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Dunder</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_plan</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FluentWorkflow(site=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">, pending_steps=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">)&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="canvodpy.FluentWorkflow.read" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">read</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">receivers</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#canvodpy.FluentWorkflow.read" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load RINEX observations for <em>date</em>.</p>
+<h4 id="canvodpy.FluentWorkflow.read--parameters">Parameters<a class="headerlink" href="#canvodpy.FluentWorkflow.read--parameters" title="Permanent link">&para;</a></h4>
+<p>date : str
+    Date in <code>YYYYDOY</code> format (e.g. <code>"2025001"</code>).
+receivers : list[str], optional
+    Receiver names to load.  If <code>None</code>, all active receivers
+    for the site are loaded.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">receivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load RINEX observations for *date*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    date : str</span>
+<span class="sd">        Date in ``YYYYDOY`` format (e.g. ``&quot;2025001&quot;``).</span>
+<span class="sd">    receivers : list[str], optional</span>
+<span class="sd">        Receiver names to load.  If ``None``, all active receivers</span>
+<span class="sd">        for the site are loaded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">receiver_list</span> <span class="o">=</span> <span class="n">receivers</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">active_receivers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">receiver_list</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">get_rinex_path</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+        <span class="n">reader_obj</span> <span class="o">=</span> <span class="n">ReaderFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">reader_obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="c1"># Filter variables</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keep_vars</span><span class="p">:</span>
+            <span class="n">drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_keep_vars</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">drop</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">drop</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;read_complete&quot;</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">self</span>  <span class="c1"># never reached (decorator returns self), but aids type checkers</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="canvodpy.FluentWorkflow.preprocess" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">preprocess</span><span class="p">(</span><span class="n">agency</span><span class="o">=</span><span class="s1">&#39;COD&#39;</span><span class="p">)</span></code>
+
+<a href="#canvodpy.FluentWorkflow.preprocess" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Apply auxiliary preprocessing to loaded datasets.</p>
+<h4 id="canvodpy.FluentWorkflow.preprocess--parameters">Parameters<a class="headerlink" href="#canvodpy.FluentWorkflow.preprocess--parameters" title="Permanent link">&para;</a></h4>
+<p>agency : str
+    Analysis centre for auxiliary products (default <code>"COD"</code>).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agency</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;COD&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply auxiliary preprocessing to loaded datasets.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    agency : str</span>
+<span class="sd">        Analysis centre for auxiliary products (default ``&quot;COD&quot;``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">agency</span><span class="o">=</span><span class="n">agency</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_aux_for_interpolation</span>
+
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">preprocess_aux_for_interpolation</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;preprocess_complete&quot;</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;canvod.auxiliary not available, skipping preprocessing&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="canvodpy.FluentWorkflow.grid" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">grid</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+<a href="#canvodpy.FluentWorkflow.grid" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a hemisphere grid and assign cell IDs to all datasets.</p>
+<h4 id="canvodpy.FluentWorkflow.grid--parameters">Parameters<a class="headerlink" href="#canvodpy.FluentWorkflow.grid--parameters" title="Permanent link">&para;</a></h4>
+<p>kind : str, optional
+    Grid type override.  Defaults to the value set at init.
+**params
+    Passed to :meth:<code>GridFactory.create</code> (e.g.
+    <code>angular_resolution=5.0</code>).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a hemisphere grid and assign cell IDs to all datasets.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kind : str, optional</span>
+<span class="sd">        Grid type override.  Defaults to the value set at init.</span>
+<span class="sd">    **params</span>
+<span class="sd">        Passed to :meth:`GridFactory.create` (e.g.</span>
+<span class="sd">        ``angular_resolution=5.0``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.grids</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_cell_ids_to_ds_fast</span>
+
+    <span class="n">grid_type</span> <span class="o">=</span> <span class="n">kind</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_type</span>
+    <span class="n">builder</span> <span class="o">=</span> <span class="n">GridFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">grid_type</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">add_cell_ids_to_ds_fast</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;grid_complete&quot;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid_type</span><span class="p">,</span> <span class="n">ncells</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">ncells</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="canvodpy.FluentWorkflow.vod" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">vod</span><span class="p">(</span><span class="n">canopy</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span></code>
+
+<a href="#canvodpy.FluentWorkflow.vod" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute vegetation optical depth for a receiver pair.</p>
+<h4 id="canvodpy.FluentWorkflow.vod--parameters">Parameters<a class="headerlink" href="#canvodpy.FluentWorkflow.vod--parameters" title="Permanent link">&para;</a></h4>
+<p>canopy : str
+    Canopy receiver name (e.g. <code>"canopy_01"</code>).
+reference : str
+    Sky/reference receiver name (e.g. <code>"reference_01"</code>).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">vod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canopy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute vegetation optical depth for a receiver pair.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    canopy : str</span>
+<span class="sd">        Canopy receiver name (e.g. ``&quot;canopy_01&quot;``).</span>
+<span class="sd">    reference : str</span>
+<span class="sd">        Sky/reference receiver name (e.g. ``&quot;reference_01&quot;``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">canopy_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">canopy</span><span class="p">]</span>
+    <span class="n">ref_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">[</span><span class="n">reference</span><span class="p">]</span>
+
+    <span class="n">calculator</span> <span class="o">=</span> <span class="n">VODFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vod_calculator_name</span><span class="p">,</span>
+        <span class="n">canopy_ds</span><span class="o">=</span><span class="n">canopy_ds</span><span class="p">,</span>
+        <span class="n">sky_ds</span><span class="o">=</span><span class="n">ref_ds</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">calculate_vod</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;vod_complete&quot;</span><span class="p">,</span> <span class="n">canopy</span><span class="o">=</span><span class="n">canopy</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="n">reference</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="canvodpy.FluentWorkflow.result" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">result</span><span class="p">()</span></code>
+
+<a href="#canvodpy.FluentWorkflow.result" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Execute the plan and return the final data.</p>
+<p>Returns the VOD dataset if a <code>.vod()</code> step was included,
+otherwise returns the dict of per-receiver datasets.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute the plan and return the final data.</span>
+
+<span class="sd">    Returns the VOD dataset if a ``.vod()`` step was included,</span>
+<span class="sd">    otherwise returns the dict of per-receiver datasets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="canvodpy.FluentWorkflow.to_store" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">to_store</span><span class="p">()</span></code>
+
+<a href="#canvodpy.FluentWorkflow.to_store" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Execute the plan and write results to Icechunk storage.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute the plan and write results to Icechunk storage.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Store VOD result — requires a store name convention</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;to_store_vod&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">vod_store</span><span class="o">.</span><span class="n">write_group</span><span class="p">(</span><span class="s2">&quot;vod_result&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;to_store_dataset&quot;</span><span class="p">,</span> <span class="n">receiver</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">rinex_store</span><span class="o">.</span><span class="n">write_group</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="canvodpy.FluentWorkflow.plot" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">plot</span><span class="p">()</span></code>
+
+<a href="#canvodpy.FluentWorkflow.plot" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Execute the plan and visualise the result.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute the plan and visualise the result.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">HemisphereVisualizer</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datasets</span>
+    <span class="n">viz</span> <span class="o">=</span> <span class="n">HemisphereVisualizer</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_2d</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="canvodpy.FluentWorkflow.explain" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">explain</span><span class="p">()</span></code>
+
+<a href="#canvodpy.FluentWorkflow.explain" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a description of the recorded plan without executing it.</p>
+<h4 id="canvodpy.FluentWorkflow.explain--returns">Returns<a class="headerlink" href="#canvodpy.FluentWorkflow.explain--returns" title="Permanent link">&para;</a></h4>
+<p>list[dict]
+    One entry per step with keys <code>"step"</code>, <code>"args"</code>, and
+    <code>"kwargs"</code>.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a description of the recorded plan without executing it.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[dict]</span>
+<span class="sd">        One entry per step with keys ``&quot;step&quot;``, ``&quot;args&quot;``, and</span>
+<span class="sd">        ``&quot;kwargs&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plan</span>
+    <span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="level-3-vodworkflow-eager-execution">Level 3 — VODWorkflow (Eager Execution)<a class="headerlink" href="#level-3-vodworkflow-eager-execution" title="Permanent link">&para;</a></h2>
+<p>Stateful orchestrator with factory integration and structured logging.</p>
 
 
 <div class="doc doc-object doc-class">
@@ -8356,7 +11772,8 @@ extensions via factory registration.</p>
 
     </div>
 
-</div><h2 id="level-3-functional-api">Level 3 — Functional API<a class="headerlink" href="#level-3-functional-api" title="Permanent link">&para;</a></h2>
+</div><h2 id="level-4-functional-api">Level 4 — Functional API<a class="headerlink" href="#level-4-functional-api" title="Permanent link">&para;</a></h2>
+<p>Pure, stateless functions for composable pipelines and Airflow DAGs.</p>
 
 
 <div class="doc doc-object doc-function">
@@ -9321,7 +12738,7 @@ log.info("event_name", key="value", count=42)</p>
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.code.copy","content.code.annotate","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight"],"search":"../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.8ffeb9c9.min.js"></script>
+      <script src="../../assets/javascripts/bundle.5fcf0de6.min.js"></script>
       
         <script src="https://unpkg.com/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js"></script>
       

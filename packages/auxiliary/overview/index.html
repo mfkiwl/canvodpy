@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../assets/logo.svg">
-      <meta name="generator" content="zensical-0.0.20">
+      <meta name="generator" content="zensical-0.0.23">
     
     
       
@@ -36,7 +36,7 @@
       
         
       
-      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.d4922b3c.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.1e989742.min.css">
       
         
           
@@ -906,7 +906,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="./" class="md-nav__link md-nav__link--active">
+      <a href="././" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1842,7 +1842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/development/" class="md-nav__link">
+      <a href="../../../guides/development.md" class="md-nav__link">
         
   
   
@@ -2725,7 +2725,7 @@
     
     
       <li class="md-path__item">
-        <a href="./" class="md-path__link">
+        <a href="././" class="md-path__link">
           
   <span class="md-ellipsis">
     canvod-auxiliary
@@ -2773,9 +2773,7 @@
     B --&gt;|Preprocess| C[Preprocessed&lt;br/&gt;96 epochs, 384 sids]
     C --&gt;|Interpolate| D[Interpolated&lt;br/&gt;2880 epochs, 384 sids]
     D --&gt;|Match| E[RINEX Data&lt;br/&gt;2880 epochs, 384 sids]
-
-    style C fill:#fff3e0
-    style D fill:#e3f2fd</code></pre>
+</code></pre>
 <div class="highlight"><pre><span></span><code><span class="c1"># Correct ordering: preprocess then interpolate</span>
 <span class="n">sp3_data</span> <span class="o">=</span> <span class="n">sp3_file</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>  <span class="c1"># {&#39;epoch&#39;: 96, &#39;sv&#39;: 32}</span>
 <span class="n">sp3_sid</span> <span class="o">=</span> <span class="n">preprocess_aux_for_interpolation</span><span class="p">(</span><span class="n">sp3_data</span><span class="p">)</span>  <span class="c1"># {&#39;epoch&#39;: 96, &#39;sid&#39;: 384}</span>
@@ -2789,10 +2787,7 @@
 
     B --&gt; D[Config:&lt;br/&gt;use_velocities=True&lt;br/&gt;fallback='linear']
     C --&gt; E[Config:&lt;br/&gt;window_size=9&lt;br/&gt;jump_threshold=1e-6]
-
-    style A fill:#e8f5e9
-    style B fill:#e3f2fd
-    style C fill:#fff3e0</code></pre>
+</code></pre>
 <p><strong>Ephemerides (SP3):</strong> Hermite cubic splines exploit the smooth orbital motion and available velocity data to achieve sub-millimeter accuracy with C1 continuity.</p>
 <p><strong>Clock corrections (CLK):</strong> Piecewise linear interpolation accommodates discontinuities from satellite maneuvers and clock uploads, where no derivative information is available.</p>
 <h2 id="key-components">Key Components<a class="headerlink" href="#key-components" title="Permanent link">&para;</a></h2>
@@ -2999,7 +2994,7 @@
       <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["content.code.copy","content.code.annotate","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.sections","navigation.tabs","navigation.top","navigation.tracking","search.highlight"],"search":"../../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.8ffeb9c9.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.5fcf0de6.min.js"></script>
       
         <script src="https://unpkg.com/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js"></script>
       
