@@ -13,7 +13,13 @@ CONFIG_DIR = Path.cwd() / "config"
 HAS_CONFIG = (CONFIG_DIR / "sites.yaml").exists()
 
 # Reference store inside the test-data submodule
-_TEST_DATA = Path(__file__).resolve().parents[2] / "packages" / "canvod-readers" / "tests" / "test_data"
+_TEST_DATA = (
+    Path(__file__).resolve().parents[2]
+    / "packages"
+    / "canvod-readers"
+    / "tests"
+    / "test_data"
+)
 _STORE_ROOT = _TEST_DATA / "valid" / "stores" / "rosalia_rinex"
 HAS_STORE = _STORE_ROOT.exists()
 
