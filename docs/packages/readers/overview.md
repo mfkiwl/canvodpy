@@ -33,9 +33,6 @@ graph TD
     C --> D[Standardized xarray.Dataset]
     D --> E[Downstream Analysis]
 
-    style B fill:#e3f2fd
-    style C fill:#fff3e0
-    style D fill:#e8f5e9
 ```
 
 Each component has a single responsibility:

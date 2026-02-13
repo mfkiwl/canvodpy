@@ -136,9 +136,6 @@ graph TB
     D --> I
     D --> C
 
-    style B fill:#ffebee
-    style D fill:#e3f2fd
-    style J fill:#f3e5f5
 ```
 
 ### Layer Responsibilities

@@ -6,9 +6,6 @@ Inter-package dependency relationships and independence metrics for the canVODpy
 
 ```mermaid
 graph TD
-    classDef stable fill:#90EE90,stroke:#2E8B57,stroke-width:2px
-    classDef unstable fill:#FFB6C1,stroke:#DC143C,stroke-width:2px
-
     canvod_readers["canvod-readers<br/>GNSS data format readers"]
     canvod_aux["canvod-auxiliary<br/>Auxiliary data augmentation"]
     canvod_vod["canvod-vod<br/>VOD calculation"]
@@ -20,14 +17,6 @@ graph TD
     canvod_aux --> canvod_readers
     canvod_viz --> canvod_grids
     canvod_store --> canvod_grids
-
-    class canvod_readers stable
-    class canvod_aux unstable
-    class canvod_vod stable
-    class canvod_viz unstable
-    class canvod_utils stable
-    class canvod_grids stable
-    class canvod_store unstable
 ```
 
 **Legend:**

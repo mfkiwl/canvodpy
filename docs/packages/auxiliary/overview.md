@@ -35,8 +35,6 @@ graph LR
     C -->|Interpolate| D[Interpolated<br/>2880 epochs, 384 sids]
     D -->|Match| E[RINEX Data<br/>2880 epochs, 384 sids]
 
-    style C fill:#fff3e0
-    style D fill:#e3f2fd
 ```
 
 ```python
@@ -58,9 +56,6 @@ graph TD
     B --> D[Config:<br/>use_velocities=True<br/>fallback='linear']
     C --> E[Config:<br/>window_size=9<br/>jump_threshold=1e-6]
 
-    style A fill:#e8f5e9
-    style B fill:#e3f2fd
-    style C fill:#fff3e0
 ```
 
 **Ephemerides (SP3):** Hermite cubic splines exploit the smooth orbital motion and available velocity data to achieve sub-millimeter accuracy with C1 continuity.
