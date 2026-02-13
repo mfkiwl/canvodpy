@@ -29,10 +29,11 @@ data into vegetation optical depth (VOD) estimates.
 graph LR
     A[RINEX Files] --> B[canvod-readers]
     B --> C[canvod-auxiliary]
-    C --> D[canvod-grids]
-    D --> E[canvod-vod]
-    E --> F[canvod-store]
-    E --> G[canvod-viz]
+    C --> D1[canvod-store]
+    D1 --> E[canvod-vod]
+    E --> D2[canvod-store]
+    D2 --> F[canvod-grids]
+    F --> G[canvod-viz]
 ```
 
 ## Packages
