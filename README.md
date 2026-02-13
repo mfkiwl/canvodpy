@@ -24,7 +24,7 @@
 | canvodpy/tests/test\_factory\_validation.py                                  |       77 |        3 |     96% |88, 91, 142 |
 | canvodpy/tests/test\_fluent\_workflow.py                                     |      128 |        0 |    100% |           |
 | canvodpy/tests/test\_integration\_aux\_sid\_filtering.py                     |       45 |       43 |      4% |     13-93 |
-| canvodpy/tests/test\_integration\_sid\_filtering.py                          |       48 |       37 |     23% |28-63, 68-80 |
+| canvodpy/tests/test\_integration\_sid\_filtering.py                          |       48 |       37 |     23% |34-69, 74-86 |
 | canvodpy/tests/test\_umbrella\_meta.py                                       |        4 |        0 |    100% |           |
 | canvodpy/tests/test\_workflow\_integration.py                                |       80 |        0 |    100% |           |
 | conftest.py                                                                  |      109 |       65 |     40% |25-30, 36, 42, 48, 54-65, 71-82, 88, 94, 100, 106-112, 118-124, 146-150, 156, 162, 168, 174-185, 191-202, 208-211, 217-220 |
