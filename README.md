@@ -23,33 +23,39 @@
 [![CLIMERS @ TU Wien](https://img.shields.io/badge/CLIMERS-TU_Wien-006699)](https://www.tuwien.at/en/mg/geo/climers)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-canVODpy aims to become the central ecosystem to process, obtain and analyze GNSS Transmissometry (GNSS-T) derived canopy VOD, implemented in python.
+An open Python ecosystem for GNSS-Transmissometry (GNSS-T) canopy VOD retrievals. canVODpy aims to become the central community-driven software suite for deriving and analyzing Vegetation Optical Depth from GNSS signal-to-noise ratio observations.
+
+> [!CAUTION]
+> **Confidential — Pre-release Software.**
+> This software is shared under restricted access. Distribution, redistribution, or publication of this code or any derived results is **not permitted** without explicit written authorization from the author (Nicolas F. Bader, nicolas.bader@tuwien.ac.at). Access is granted solely to individuals authorized by the author.
 
 > [!IMPORTANT]
-> This project uses `uv` for package management and `Just` for task automation.
+> This project is in **beta**. Install from [TestPyPI](https://test.pypi.org/project/canvodpy/) for now.
+> Development requires `uv` and `just`:
 > - Install `uv`: [uv documentation](https://docs.astral.sh/uv/getting-started/installation/)
-> - Install `Just`: [Just documentation](https://github.com/casey/just)
+> - Install `just`: [just documentation](https://github.com/casey/just)
 
 ## Overview
 
-canVODpy is a modular ecosystem for GNSS Transmissometry, organized as a monorepo with independent packages:
+canVODpy is organized as a monorepo with independent, composable packages:
 
 - **canvod-readers** - RINEX and GNSS data format readers
-- **canvod-auxiliary** - Auxiliary data handling
-- **canvod-grids** - HEALPix and hemispheric grid operations
-- **canvod-vod** - Vegetation Optical Depth calculations
-- **canvod-store** - Icechunk and Zarr storage backends
-- **canvod-viz** - Visualization and plotting utilities
-- **canvodpy** - Umbrella package providing unified access
+- **canvod-auxiliary** - Auxiliary data handling (orbits, meteorology)
+- **canvod-grids** - Hemispheric grid operations (equal-area, HEALPix)
+- **canvod-vod** - Vegetation Optical Depth calculation algorithms
+- **canvod-store** - Versioned storage via Icechunk
+- **canvod-viz** - Hemispheric and time-series visualization
+- **canvod-utils** - Shared utilities
+- **canvodpy** - Umbrella package with pipeline orchestrator
 
 ## Installation
 
 ```bash
-# Install from PyPI (when published)
-uv pip install canvodpy
+# Install from TestPyPI (beta)
+uv pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ canvodpy
 
 # Or install specific components
-uv pip install canvod-readers canvod-grids
+uv pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ canvod-readers canvod-grids
 ```
 
 ## Development Setup
@@ -148,8 +154,9 @@ canvodpy/                    # Monorepo root
 │   ├── canvod-grids/
 │   ├── canvod-vod/
 │   ├── canvod-store/
-│   └── canvod-viz/
-├── canvodpy/               # Umbrella package
+│   ├── canvod-viz/
+│   └── canvod-utils/
+├── canvodpy/               # Umbrella package + orchestrator
 ├── .github/                # CI/CD workflows
 ├── docs/                   # Documentation
 └── pyproject.toml          # Workspace configuration
