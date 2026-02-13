@@ -12,7 +12,7 @@ description: GNSS Transmissometry analysis framework for Python
 A modular ecosystem of eight packages for processing GNSS signal-to-noise ratio
 data into vegetation optical depth (VOD) estimates.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18636749.svg)](https://doi.org/10.5281/zenodo.18636749)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18636775.svg)](https://doi.org/10.5281/zenodo.18636775)
 [![PyPI](https://img.shields.io/pypi/v/canvodpy)](https://pypi.org/project/canvodpy/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -108,7 +108,7 @@ ds   = assign_grid_cells(ds, grid)
 ## Publications
 
 Bader, N. F. (2026). *canVODpy: GNSS Transmissometry Analysis* (v0.2.0-beta.1).
-Zenodo. [https://doi.org/10.5281/zenodo.18636749](https://doi.org/10.5281/zenodo.18636749)
+Zenodo. [https://doi.org/10.5281/zenodo.18636775](https://doi.org/10.5281/zenodo.18636775)
 
 ## Affiliation
 

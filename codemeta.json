@@ -16,7 +16,7 @@
   "codeRepository": "https://github.com/nfb2021/canvodpy",
   "datePublished": "2026-02-05",
   "description": "canvodpy is a Python package for calculating Vegetation Optical Depth (VOD) from GNSS (Global Navigation Satellite System) signal-to-noise ratio (SNR) data. It provides tools for GNSS data reading, auxiliary data handling, grid operations, storage, visualization, and VOD calculation algorithms.\n",
-  "identifier": "https://doi.org/10.5281/zenodo.18636749",
+  "identifier": "https://doi.org/10.5281/zenodo.18636775",
   "keywords": [
     "GNSS",
     "GPS",
