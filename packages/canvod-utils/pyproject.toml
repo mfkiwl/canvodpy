@@ -3,9 +3,9 @@ name = "canvod-utils"
 version = "0.1.0"
 description = "Utility functions and configuration management for canvodpy"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 authors = [
-    {name = "Nico Bader", email = "nicolas.bader@tuwien.ac.at"}
+    {name = "Nicolas François Bader", email = "nicolas.bader@geo.tuwien.ac.at"}
 ]
 license = {text = "MIT"}
 
@@ -38,7 +38,7 @@ packages = ["src/canvod"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "PT"]

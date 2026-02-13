@@ -79,7 +79,7 @@ The authoritative standard is **FAIR4RS Principles v1.0** (RDA, 2022; [doi:10.10
 
 | Gap | FAIR principle | Action |
 |-----|---------------|--------|
-| `codemeta.json` | F2, F4 | Generate via [codemeta.github.io/codemeta-generator](https://codemeta.github.io/codemeta-generator/) |
+| ~~`codemeta.json`~~ | ~~F2, F4~~ | Done — `codemeta.json` exists at repo root |
 | Software Heritage archival | F1, A2 | Submit via [archive.softwareheritage.org/save](https://archive.softwareheritage.org/save/) to get a SWHID |
 | PyPI publication | F4 | Publish so `pip install canvodpy` works |
 | `howfairis` badge | All | Run `howfairis` on the repo, add badge to README |

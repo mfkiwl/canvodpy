@@ -127,8 +127,8 @@ Common commands:
 ## Documentation
 
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
-- **[VERSIONING.md](VERSIONING.md)** - Versioning strategy
-- **[RELEASING.md](RELEASING.md)** - Release process
+- **[docs/VERSIONING.md](docs/VERSIONING.md)** - Versioning strategy
+- **[docs/RELEASING.md](docs/RELEASING.md)** - Release process
 - **[docs/guides/HOW_RELEASE_WORKS.md](docs/guides/HOW_RELEASE_WORKS.md)** - Release system internals
 - **[docs/guides/PYPI_SETUP.md](docs/guides/PYPI_SETUP.md)** - PyPI publishing setup
 
@@ -137,8 +137,8 @@ Common commands:
 ```python
 # Import from namespace packages
 from canvod.readers import Rnxv3Obs
-from canvod.grids import HemiGrid
-from canvod.vod import calculate_vod
+from canvod.grids import create_hemigrid
+from canvod.vod import VODCalculator
 
 # Or use umbrella package
 import canvodpy
