@@ -3,7 +3,8 @@
 # ============================================================================
 
 # Use Git Bash on Windows (installed with Git for Windows)
-set windows-shell := ["bash", "-c"]
+# Full path avoids resolving to WSL's bash on GitHub Actions runners
+set windows-shell := ["C:/Program Files/Git/bin/bash.exe", "-c"]
 
 # ANSI color codes
 GREEN := '\033[0;32m'

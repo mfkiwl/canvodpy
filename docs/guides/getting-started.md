@@ -471,7 +471,7 @@ Push to your team branch or feature branch (see [Working in teams](#10-working-i
     ```
 
 **Windows: `just` says "could not find the shell"**
-:   The Justfile uses Git Bash as the shell on Windows. Make sure Git for Windows is installed (see [step 3](#3-install-git)) and that `bash` is on your PATH. Verify by running `bash --version` in PowerShell. If it's not found, add `C:\Program Files\Git\bin` to your system PATH environment variable, then restart your terminal.
+:   The Justfile expects Git Bash at `C:\Program Files\Git\bin\bash.exe` (the default Git for Windows location). Make sure Git for Windows is installed (see [step 3](#3-install-git)) with the default install path. If you installed Git elsewhere, update the `windows-shell` path in the Justfile.
 
 **Windows: uv install fails with "execution of scripts is disabled"**
 :   PowerShell's default execution policy blocks scripts. Use the bypass flag:
