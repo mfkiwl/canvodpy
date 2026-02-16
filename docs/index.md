@@ -16,7 +16,7 @@ analyzing canopy Vegetation Optical Depth (VOD) from GNSS signal-to-noise ratio 
 [![PyPI](https://img.shields.io/pypi/v/canvodpy)](https://pypi.org/project/canvodpy/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[Get started](architecture.md){ .md-button .md-button--primary }
+[Get started](guides/getting-started.md){ .md-button .md-button--primary }
 [View on GitHub](https://github.com/nfb2021/canvodpy){ .md-button }
 
 </div>
