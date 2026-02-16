@@ -331,3 +331,4 @@ packages/*/config/
 
 # Session documentation archive
 .archive/
+.processing/

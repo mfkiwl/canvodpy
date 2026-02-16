@@ -470,8 +470,21 @@ Push to your team branch or feature branch (see [Working in teams](#10-working-i
     git pull --rebase origin my-feature
     ```
 
-**Windows: `just` says "could not find the shell"**
-:   The Justfile expects Git Bash at `C:\Program Files\Git\bin\bash.exe` (the default Git for Windows location). Make sure Git for Windows is installed (see [step 3](#3-install-git)) with the default install path. If you installed Git elsewhere, update the `windows-shell` path in the Justfile.
+**Windows: `just` says "could not find the shell" or "system cannot find the path"**
+:   The Justfile expects Git Bash at `C:\Program Files\Git\bin\bash.exe` (the default Git for Windows location). If Git is installed elsewhere, find its location by running in PowerShell:
+
+    ```powershell
+    where.exe bash
+    ```
+
+    Then update the path in the first lines of the Justfile:
+
+    ```
+    set windows-shell := ["C:/YOUR/ACTUAL/PATH/TO/bash.exe", "-c"]
+    ```
+
+    !!! warning
+        Do **not** commit this change — it's specific to your machine. The default path works for most installations and for CI.
 
 **Windows: uv install fails with "execution of scripts is disabled"**
 :   PowerShell's default execution policy blocks scripts. Use the bypass flag:
