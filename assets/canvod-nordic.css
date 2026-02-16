@@ -124,6 +124,64 @@ main{
   position: sticky !important;
   top: 0 !important;
   z-index: 4 !important;
+  background: var(--g4) !important;
+  color: var(--g1) !important;
+}
+
+/* Header text and icons inherit light color */
+.md-header__title,
+.md-header__topic,
+.md-header *{
+  color: var(--g1) !important;
+}
+
+/* Search bar in header */
+.md-search__input{
+  background: color-mix(in srgb, var(--g5) 50%, transparent) !important;
+  color: var(--g1) !important;
+  border: 1px solid color-mix(in srgb, var(--g3) 50%, transparent) !important;
+  border-radius: 6px;
+}
+.md-search__input::placeholder{
+  color: var(--g3) !important;
+}
+.md-search__input:focus{
+  background: var(--g5) !important;
+  border-color: var(--g3) !important;
+}
+
+/* Navigation tabs bar */
+.md-tabs{
+  background: var(--g4) !important;
+}
+.md-tabs__link{
+  color: var(--g2) !important;
+}
+.md-tabs__link--active,
+.md-tabs__link:hover{
+  color: var(--g1) !important;
+}
+
+/* Footer */
+.md-footer{
+  background: var(--g4) !important;
+  color: var(--g1) !important;
+}
+.md-footer,
+.md-footer *,
+.md-footer__link,
+.md-footer__title,
+.md-footer-meta,
+.md-footer-meta *,
+.md-copyright,
+.md-copyright *,
+.md-social,
+.md-social *{
+  color: var(--g1) !important;
+}
+.md-footer a:hover,
+.md-footer-meta a:hover{
+  color: var(--g2) !important;
 }
 
 /* UI chrome: nav, header, sidebar, footer */
@@ -182,9 +240,13 @@ small, figcaption,
 .md-typeset .md-caption,
 .md-typeset .admonition-title,
 .md-nav__title,
-.md-source__facts,
-.md-footer__direction{
+.md-source__facts{
   color: var(--muted) !important;
+}
+/* Footer direction labels need light color against dark footer bg */
+.md-footer .md-footer__direction{
+  color: var(--g1) !important;
+  opacity: 0.7;
 }
 
 /* =========================================================
@@ -272,6 +334,15 @@ nav a:hover{
   color: var(--text) !important;
   background: color-mix(in srgb, var(--surface) 40%, transparent) !important;
   border-left: 2px solid var(--link) !important;
+}
+
+/* TOC sidebar ("On this page") */
+.md-sidebar,
+.md-sidebar--secondary,
+.md-sidebar--secondary .md-sidebar__inner,
+.md-nav--secondary,
+.md-nav__title{
+  background: transparent !important;
 }
 
 /* Remove focus/hover blue outlines that MkDocs Material adds via box-shadow */
@@ -474,12 +545,14 @@ hr{ border-color: color-mix(in srgb, var(--border) 70%, transparent) !important;
 
 /* Tables */
 table, .md-typeset table{
+  background: transparent !important;
   border-color: var(--border) !important;
 }
 .md-typeset table:not([class]) th{
   background: color-mix(in srgb, var(--surface) 55%, transparent) !important;
 }
 .md-typeset table:not([class]) td{
+  background: transparent !important;
   border-top-color: color-mix(in srgb, var(--border) 70%, transparent) !important;
 }
 
@@ -579,15 +652,27 @@ body{
   transition: all 0.15s ease;
 }
 
-.hero .md-button--primary{
+.hero .md-button.md-button--primary,
+.hero .md-button.md-button--primary:visited,
+.md-typeset .hero .md-button.md-button--primary{
   background: var(--link);
   color: var(--bg) !important;
+  text-decoration: none !important;
+}
+
+.hero .md-button.md-button--primary:hover,
+.md-typeset .hero .md-button.md-button--primary:hover{
+  background: var(--link-hover);
+  border-color: var(--link-hover);
+  color: var(--bg) !important;
+  text-decoration: none !important;
 }
 
 .hero .md-button:hover{
   background: var(--link-hover);
   border-color: var(--link-hover);
   color: var(--bg) !important;
+  text-decoration: none !important;
 }
 
 /* Badges row */
