@@ -84,6 +84,16 @@ docstring-code-line-length = "dynamic"
 # ============================================================================
 
 [tool.pytest.ini_options]
+testpaths = [
+    "canvodpy/tests",
+    "packages/canvod-auxiliary/tests",
+    "packages/canvod-grids/tests",
+    "packages/canvod-readers/tests",
+    "packages/canvod-store/tests",
+    "packages/canvod-utils/tests",
+    "packages/canvod-viz/tests",
+    "packages/canvod-vod/tests",
+]
 addopts = "--cov --cov-report term-missing -rsx --verbose --color=yes"
 markers = [
     "integration: marks tests as integration tests (may require config files or external resources)",
