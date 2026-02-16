@@ -57,8 +57,6 @@
 | packages/canvod-auxiliary/src/canvod/auxiliary/products/\_\_init\_\_.py      |        3 |        0 |    100% |           |
 | packages/canvod-auxiliary/src/canvod/auxiliary/products/models.py            |      103 |       44 |     57% |52-54, 60-63, 108-110, 116-119, 167-176, 192-206, 223-224, 228, 232-247 |
 | packages/canvod-auxiliary/src/canvod/auxiliary/products/registry.py          |       27 |       10 |     63% |314-315, 324-334 |
-| packages/canvod-auxiliary/test\_download.py                                  |       24 |       18 |     25% | 12-41, 45 |
-| packages/canvod-auxiliary/test\_mwe.py                                       |       65 |       58 |     11% |13-116, 120 |
 | packages/canvod-auxiliary/tests/conftest.py                                  |       62 |        1 |     98% |        24 |
 | packages/canvod-auxiliary/tests/test\_aux\_meta.py                           |       59 |        4 |     93% |18-19, 28-29 |
 | packages/canvod-auxiliary/tests/test\_container.py                           |       61 |        0 |    100% |           |
@@ -156,7 +154,7 @@
 | packages/canvod-vod/tests/test\_vod\_calculator.py                           |      113 |        1 |     99% |       359 |
 | packages/canvod-vod/tests/test\_vod\_meta.py                                 |        3 |        0 |    100% |           |
 | packages/canvod-vod/tests/test\_vod\_properties.py                           |      138 |        9 |     93% |27, 36, 45, 183, 235, 299, 466, 469, 481 |
-| **TOTAL**                                                                    | **13553** | **6400** | **53%** |           |
+| **TOTAL**                                                                    | **13464** | **6324** | **53%** |           |
 
 
 ## Setup coverage badge
