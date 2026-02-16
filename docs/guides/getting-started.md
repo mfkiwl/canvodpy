@@ -471,7 +471,7 @@ Push to your team branch or feature branch (see [Working in teams](#10-working-i
     ```
 
 **Windows: `just` says "could not find the shell"**
-:   This happens when running `just` from PowerShell. The Justfile already configures PowerShell as the Windows shell, but you need `just` version 1.13 or newer. Check with `just --version` and update if needed. Alternatively, run `just` commands from **Git Bash** instead of PowerShell.
+:   The Justfile uses Git Bash as the shell on Windows. Make sure Git for Windows is installed (see [step 3](#3-install-git)) and that `bash` is on your PATH. Verify by running `bash --version` in PowerShell. If it's not found, add `C:\Program Files\Git\bin` to your system PATH environment variable, then restart your terminal.
 
 **Windows: uv install fails with "execution of scripts is disabled"**
 :   PowerShell's default execution policy blocks scripts. Use the bypass flag:
