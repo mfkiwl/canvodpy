@@ -10,19 +10,34 @@ GitHub is a website that hosts code and lets teams collaborate on software proje
 
 ---
 
-## 2. Install Git
+## 2. Install Homebrew (macOS only)
+
+Homebrew is the standard package manager for macOS — it lets you install developer tools with a single command. Open **Terminal** (press ++cmd+space++, type "Terminal", press ++enter++) and run:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Follow the on-screen instructions. When it finishes, it will tell you to run two commands to add Homebrew to your PATH — **copy and run them**. Then verify:
+
+```bash
+brew --version
+```
+
+!!! note
+    If you already have Homebrew installed, run `brew update` to make sure it's current.
+
+---
+
+## 3. Install Git
 
 Git is the version-control system that tracks changes in the codebase. Install it for your operating system:
 
 === "macOS"
 
-    Open **Terminal** and run:
-
     ```bash
-    xcode-select --install
+    brew install git
     ```
-
-    A dialog will appear — click **Install** and wait for it to finish.
 
 === "Linux (Debian/Ubuntu)"
 
@@ -51,7 +66,7 @@ You should see something like `git version 2.x.x`.
 
 ---
 
-## 3. Set up an SSH key for GitHub
+## 4. Set up an SSH key for GitHub
 
 SSH keys let you securely connect to GitHub without typing your password every time.
 
@@ -134,7 +149,7 @@ You should see: `Hi <username>! You've successfully authenticated...`
 
 ---
 
-## 4. Configure your Git identity
+## 5. Configure your Git identity
 
 Tell Git who you are (this information appears in your commits):
 
@@ -147,7 +162,7 @@ Use the same email you registered on GitHub.
 
 ---
 
-## 5. Install development tools
+## 6. Install development tools
 
 canVODpy uses two command-line tools to manage the project:
 
@@ -156,27 +171,27 @@ canVODpy uses two command-line tools to manage the project:
 
 ### Install uv
 
-=== "macOS / Linux"
-
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
-
-=== "macOS (Homebrew)"
+=== "macOS"
 
     ```bash
     brew install uv
     ```
 
+=== "Linux"
+
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+
 === "Windows"
 
     ```powershell
-    powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
     ```
 
 ### Install just
 
-=== "macOS (Homebrew)"
+=== "macOS"
 
     ```bash
     brew install just
@@ -221,7 +236,7 @@ just --version
 
 ---
 
-## 6. Fork and clone the repository
+## 7. Fork and clone the repository
 
 A **fork** is your own copy of the project on GitHub. You make changes in your fork and then propose them back to the original project via a "pull request."
 
@@ -258,7 +273,7 @@ You should see `origin` (your fork) and `upstream` (the original).
 
 ---
 
-## 7. Set up the development environment
+## 8. Set up the development environment
 
 From inside the `canvodpy` directory, run:
 
@@ -275,7 +290,7 @@ just hooks
 
 ---
 
-## 8. Verify everything works
+## 9. Verify everything works
 
 Run the test suite:
 
@@ -293,7 +308,7 @@ If both commands complete without errors, your environment is ready.
 
 ---
 
-## 9. Working in teams
+## 10. Working in teams
 
 During a hackathon or collaborative sprint, each team works on its own topic (often aligned with a package like `canvod-grids` or `canvod-readers`). A shared **develop branch** (e.g. `develop/hackathon2026`) acts as the integration point — no one commits to it directly. Instead, each team gets its own **team branch**.
 
@@ -384,7 +399,7 @@ When your team's feature is ready, open **one pull request** from `team-grids` i
 
 ---
 
-## 10. Your first contribution
+## 11. Your first contribution
 
 ### Make your changes
 
@@ -408,7 +423,7 @@ Commit messages follow the [Conventional Commits](https://www.conventionalcommit
 
 ### Push
 
-Push to your team branch or feature branch (see [Working in teams](#9-working-in-teams) above).
+Push to your team branch or feature branch (see [Working in teams](#10-working-in-teams) above).
 
 ### Open a pull request
 
@@ -419,7 +434,7 @@ Push to your team branch or feature branch (see [Working in teams](#9-working-in
 
 ---
 
-## 11. Common commands cheat sheet
+## 12. Common commands cheat sheet
 
 | Command                | What it does                                      |
 | ---------------------- | ------------------------------------------------- |
@@ -434,13 +449,13 @@ Push to your team branch or feature branch (see [Working in teams](#9-working-in
 
 ---
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 **"command not found" for uv, just, or git**
 :   The tool is not installed or not on your `PATH`. Re-run the installation step and, if needed, open a new terminal window so your shell picks up the updated `PATH`.
 
 **"Permission denied (publickey)" when pushing or cloning**
-:   Your SSH key is not set up correctly. Go back to [step 3](#3-set-up-an-ssh-key-for-github) and make sure the key is added to both the SSH agent and your GitHub account.
+:   Your SSH key is not set up correctly. Go back to [step 4](#4-set-up-an-ssh-key-for-github) and make sure the key is added to both the SSH agent and your GitHub account.
 
 **`uv sync` fails with a Python version error**
 :   canVODpy requires Python 3.13 or 3.14. Install a supported version with `uv python install 3.13` and try again.
@@ -453,6 +468,16 @@ Push to your team branch or feature branch (see [Working in teams](#9-working-in
 
     ```bash
     git pull --rebase origin my-feature
+    ```
+
+**Windows: `just` says "could not find the shell"**
+:   This happens when running `just` from PowerShell. The Justfile already configures PowerShell as the Windows shell, but you need `just` version 1.13 or newer. Check with `just --version` and update if needed. Alternatively, run `just` commands from **Git Bash** instead of PowerShell.
+
+**Windows: uv install fails with "execution of scripts is disabled"**
+:   PowerShell's default execution policy blocks scripts. Use the bypass flag:
+
+    ```powershell
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
     ```
 
 **Windows: line ending warnings (`LF will be replaced by CRLF`)**
