@@ -55,13 +55,13 @@ check: check-lint check-format check-types
 # Testing (All Packages)
 # ============================================================================
 
-# run tests with coverage for all packages
+# run tests for all packages
 test:
-    uv run pytest tests/
+    uv run pytest canvodpy/tests/ packages/*/tests/
 
 # run tests for all supported Python versions
 testall:
-    uv run --python=3.13 pytest
+    uv run --python=3.13 pytest canvodpy/tests/ packages/*/tests/
 
 # run tests per package to avoid namespace collisions (for CI)
 test-all-packages:
@@ -76,7 +76,7 @@ test-all-packages:
 
 # run tests with coverage report
 test-coverage:
-    uv run pytest --verbose --color=yes \
+    uv run pytest canvodpy/tests/ packages/*/tests/ --verbose --color=yes \
       --cov=canvodpy \
       --cov=canvod \
       --cov-report=term-missing
@@ -86,7 +86,7 @@ ci PYTHON="3.13":
     uv run --python={{ PYTHON }} ruff format .
     uv run --python={{ PYTHON }} ruff check . --fix
     uv run --python={{ PYTHON }} ty check .
-    uv run --python={{ PYTHON }} pytest tests/
+    uv run --python={{ PYTHON }} pytest canvodpy/tests/ packages/*/tests/
 
 # ============================================================================
 # Utilities

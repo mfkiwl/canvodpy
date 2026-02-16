@@ -182,17 +182,29 @@ canVODpy uses two command-line tools to manage the project:
     brew install just
     ```
 
-=== "macOS / Linux"
+=== "Linux (any distro)"
+
+    This works on all Linux distributions (Ubuntu, Mint, Fedora, etc.):
 
     ```bash
-    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin
     ```
 
-=== "Linux (Ubuntu 23.04+)"
+    Make sure `~/.local/bin` is on your PATH. Add this to your `~/.bashrc` or `~/.zshrc` if needed:
+
+    ```bash
+    export PATH="$HOME/.local/bin:$PATH"
+    ```
+
+=== "Linux (Ubuntu 23.04+ / Debian 13+)"
 
     ```bash
     sudo apt install just
     ```
+
+    !!! warning
+        This does **not** work on Linux Mint or older Ubuntu versions.
+        Use the "Linux (any distro)" tab instead.
 
 === "Windows"
 
