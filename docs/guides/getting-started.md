@@ -186,7 +186,7 @@ canVODpy uses two command-line tools to manage the project:
 === "Windows"
 
     ```powershell
-    powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
     ```
 
 ### Install just
@@ -468,6 +468,16 @@ Push to your team branch or feature branch (see [Working in teams](#10-working-i
 
     ```bash
     git pull --rebase origin my-feature
+    ```
+
+**Windows: `just` says "could not find the shell"**
+:   This happens when running `just` from PowerShell. The Justfile already configures PowerShell as the Windows shell, but you need `just` version 1.13 or newer. Check with `just --version` and update if needed. Alternatively, run `just` commands from **Git Bash** instead of PowerShell.
+
+**Windows: uv install fails with "execution of scripts is disabled"**
+:   PowerShell's default execution policy blocks scripts. Use the bypass flag:
+
+    ```powershell
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
     ```
 
 **Windows: line ending warnings (`LF will be replaced by CRLF`)**

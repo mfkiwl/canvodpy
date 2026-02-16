@@ -2,6 +2,9 @@
 # canVODpy Monorepo - Root Justfile
 # ============================================================================
 
+# Use PowerShell on Windows (just defaults to sh which doesn't exist there)
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+
 # ANSI color codes
 GREEN := '\033[0;32m'
 BOLD := '\033[1m'
