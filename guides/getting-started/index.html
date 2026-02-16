@@ -3587,8 +3587,19 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>pull<span class="w"> </span>--rebase<span class="w"> </span>origin<span class="w"> </span>my-feature
 </code></pre></div>
 </dd>
-<dt><strong>Windows: <code>just</code> says "could not find the shell"</strong></dt>
-<dd>This happens when running <code>just</code> from PowerShell. The Justfile already configures PowerShell as the Windows shell, but you need <code>just</code> version 1.13 or newer. Check with <code>just --version</code> and update if needed. Alternatively, run <code>just</code> commands from <strong>Git Bash</strong> instead of PowerShell.</dd>
+<dt><strong>Windows: <code>just</code> says "could not find the shell" or "system cannot find the path"</strong></dt>
+<dd>
+<p>The Justfile expects Git Bash at <code>C:\Program Files\Git\bin\bash.exe</code> (the default Git for Windows location). If Git is installed elsewhere, find its location by running in PowerShell:</p>
+<div class="highlight"><pre><span></span><code><span class="n">where</span><span class="p">.</span><span class="n">exe</span> <span class="n">bash</span>
+</code></pre></div>
+<p>Then update the path in the first lines of the Justfile:</p>
+<div class="highlight"><pre><span></span><code>set windows-shell := [&quot;C:/YOUR/ACTUAL/PATH/TO/bash.exe&quot;, &quot;-c&quot;]
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do <strong>not</strong> commit this change — it's specific to your machine. The default path works for most installations and for CI.</p>
+</div>
+</dd>
 <dt><strong>Windows: uv install fails with "execution of scripts is disabled"</strong></dt>
 <dd>
 <p>PowerShell's default execution policy blocks scripts. Use the bypass flag:</p>
