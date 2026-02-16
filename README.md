@@ -35,6 +35,8 @@ An open Python ecosystem for GNSS-Transmissometry (GNSS-T) canopy VOD retrievals
 > - Install `uv`: [uv documentation](https://docs.astral.sh/uv/getting-started/installation/)
 > - Install `just`: [just documentation](https://github.com/casey/just)
 
+> New to Git, GitHub, or Python tooling? See the [Getting Started Guide](docs/guides/getting-started.md) for a complete walkthrough.
+
 ## Overview
 
 canVODpy is organized as a monorepo with independent, composable packages:

@@ -1,0 +1,451 @@
+# Getting Started
+
+This guide walks you through everything you need — from creating a GitHub account to running your first test — so you can start contributing to canVODpy even if you have never used Git, GitHub, or Python tooling before.
+
+---
+
+## 1. Create a GitHub account
+
+GitHub is a website that hosts code and lets teams collaborate on software projects. If you don't already have an account, sign up at [github.com/signup](https://github.com/signup).
+
+---
+
+## 2. Install Git
+
+Git is the version-control system that tracks changes in the codebase. Install it for your operating system:
+
+=== "macOS"
+
+    Open **Terminal** and run:
+
+    ```bash
+    xcode-select --install
+    ```
+
+    A dialog will appear — click **Install** and wait for it to finish.
+
+=== "Linux (Debian/Ubuntu)"
+
+    ```bash
+    sudo apt update && sudo apt install git
+    ```
+
+=== "Linux (Fedora)"
+
+    ```bash
+    sudo dnf install git
+    ```
+
+=== "Windows"
+
+    Download and run the installer from [git-scm.com](https://git-scm.com/download/win).
+    Accept the default options during installation. Afterwards, open **Git Bash** (installed with Git) to run the commands in this guide.
+
+Verify the installation:
+
+```bash
+git --version
+```
+
+You should see something like `git version 2.x.x`.
+
+---
+
+## 3. Set up an SSH key for GitHub
+
+SSH keys let you securely connect to GitHub without typing your password every time.
+
+### Generate a key
+
+=== "macOS / Linux"
+
+    ```bash
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+    ```
+
+    Press ++enter++ three times to accept the defaults (default file location, no passphrase).
+
+=== "Windows (Git Bash)"
+
+    ```bash
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+    ```
+
+    Press ++enter++ three times to accept the defaults.
+
+### Add the key to the SSH agent
+
+=== "macOS"
+
+    ```bash
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/id_ed25519
+    ```
+
+=== "Linux"
+
+    ```bash
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/id_ed25519
+    ```
+
+=== "Windows (Git Bash)"
+
+    ```bash
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/id_ed25519
+    ```
+
+### Copy the public key
+
+=== "macOS"
+
+    ```bash
+    pbcopy < ~/.ssh/id_ed25519.pub
+    ```
+
+=== "Linux"
+
+    ```bash
+    cat ~/.ssh/id_ed25519.pub
+    ```
+
+    Select and copy the output.
+
+=== "Windows (Git Bash)"
+
+    ```bash
+    clip < ~/.ssh/id_ed25519.pub
+    ```
+
+### Add the key to GitHub
+
+1. Go to [github.com/settings/keys](https://github.com/settings/keys).
+2. Click **New SSH key**.
+3. Give it a title (e.g. "My Laptop"), paste the key, and click **Add SSH key**.
+
+### Test the connection
+
+```bash
+ssh -T git@github.com
+```
+
+You should see: `Hi <username>! You've successfully authenticated...`
+
+---
+
+## 4. Configure your Git identity
+
+Tell Git who you are (this information appears in your commits):
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your_email@example.com"
+```
+
+Use the same email you registered on GitHub.
+
+---
+
+## 5. Install development tools
+
+canVODpy uses two command-line tools to manage the project:
+
+- **uv** — a fast Python package manager that handles dependencies and virtual environments.
+- **just** — a command runner (like a simplified Makefile) that provides shortcuts for common tasks.
+
+### Install uv
+
+=== "macOS / Linux"
+
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+
+=== "macOS (Homebrew)"
+
+    ```bash
+    brew install uv
+    ```
+
+=== "Windows"
+
+    ```powershell
+    powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+    ```
+
+### Install just
+
+=== "macOS (Homebrew)"
+
+    ```bash
+    brew install just
+    ```
+
+=== "macOS / Linux"
+
+    ```bash
+    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+    ```
+
+=== "Linux (Ubuntu 23.04+)"
+
+    ```bash
+    sudo apt install just
+    ```
+
+=== "Windows"
+
+    ```powershell
+    winget install Casey.Just
+    ```
+
+### Verify both tools
+
+```bash
+uv --version
+just --version
+```
+
+---
+
+## 6. Fork and clone the repository
+
+A **fork** is your own copy of the project on GitHub. You make changes in your fork and then propose them back to the original project via a "pull request."
+
+### Fork on GitHub
+
+1. Go to [github.com/nfb2021/canvodpy](https://github.com/nfb2021/canvodpy).
+2. Click the **Fork** button in the top-right corner.
+3. GitHub will create a copy at `github.com/YOUR_USERNAME/canvodpy`.
+
+### Clone your fork
+
+```bash
+git clone git@github.com:YOUR_USERNAME/canvodpy.git
+cd canvodpy
+```
+
+Replace `YOUR_USERNAME` with your actual GitHub username.
+
+### Add the upstream remote
+
+This lets you pull in updates from the original repository later:
+
+```bash
+git remote add upstream git@github.com:nfb2021/canvodpy.git
+```
+
+Verify your remotes:
+
+```bash
+git remote -v
+```
+
+You should see `origin` (your fork) and `upstream` (the original).
+
+---
+
+## 7. Set up the development environment
+
+From inside the `canvodpy` directory, run:
+
+```bash
+# Verify required tools are available
+just check-dev-tools
+
+# Install all Python dependencies into a virtual environment
+uv sync
+
+# Install pre-commit hooks (automatic code checks before each commit)
+just hooks
+```
+
+---
+
+## 8. Verify everything works
+
+Run the test suite:
+
+```bash
+just test
+```
+
+Run code-quality checks (linting, formatting, type checking):
+
+```bash
+just check
+```
+
+If both commands complete without errors, your environment is ready.
+
+---
+
+## 9. Working in teams
+
+During a hackathon or collaborative sprint, each team works on its own topic (often aligned with a package like `canvod-grids` or `canvod-readers`). A shared **develop branch** (e.g. `develop/hackathon2026`) acts as the integration point — no one commits to it directly. Instead, each team gets its own **team branch**.
+
+### Branch structure
+
+```
+main
+└── develop/hackathon2026              ← integration branch (shared by all teams)
+    ├── team-grids/                    ← Team A
+    │   ├── (direct commits)           ← Workflow A
+    │   └── team-grids/add-healpix     ← Workflow B feature branches
+    ├── team-readers/                  ← Team B
+    └── team-vod/                      ← Team C
+```
+
+### Set up the team branch
+
+The **team lead** creates the branch once:
+
+```bash
+git checkout develop/hackathon2026
+git checkout -b team-grids
+git push -u origin team-grids
+```
+
+**All other team members** fetch and switch to it:
+
+```bash
+git fetch origin
+git checkout team-grids
+```
+
+From here, choose the workflow that fits your team:
+
+=== "Workflow A: Push to the team branch directly"
+
+    Best for small teams (2–3 people) or when members work on separate files.
+
+    Everyone commits and pushes to the team branch:
+
+    ```bash
+    # Make your changes, then:
+    git add <files you changed>
+    git commit -m "feat(grids): add new grid type"
+    git push origin team-grids
+    ```
+
+    If someone else pushed before you, pull first:
+
+    ```bash
+    git pull --rebase origin team-grids
+    git push origin team-grids
+    ```
+
+=== "Workflow B: Individual feature branches with PRs"
+
+    Best for larger teams or when you want lightweight review within the team.
+
+    Create a feature branch off the team branch:
+
+    ```bash
+    git checkout team-grids
+    git checkout -b team-grids/add-healpix
+    ```
+
+    Work, commit, and push your feature branch:
+
+    ```bash
+    git add <files you changed>
+    git commit -m "feat(grids): add HEALPix support"
+    git push -u origin team-grids/add-healpix
+    ```
+
+    Then open a pull request on GitHub targeting `team-grids`.
+
+    To stay up to date with teammates' merged work:
+
+    ```bash
+    git checkout team-grids
+    git pull origin team-grids
+    git checkout team-grids/add-healpix
+    git rebase team-grids
+    ```
+
+### Merge the team's work into the develop branch
+
+When your team's feature is ready, open **one pull request** from `team-grids` into `develop/hackathon2026` on GitHub. This is where the maintainer reviews the team's combined work.
+
+---
+
+## 10. Your first contribution
+
+### Make your changes
+
+Edit files with your favorite text editor or IDE.
+
+### Run quality checks
+
+```bash
+just test
+just check
+```
+
+### Stage and commit
+
+```bash
+git add <files you changed>
+git commit -m "feat(grids): add new grid type"
+```
+
+Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/) format: `type(scope): description`. Common types: `feat`, `fix`, `docs`, `test`, `refactor`.
+
+### Push
+
+Push to your team branch or feature branch (see [Working in teams](#9-working-in-teams) above).
+
+### Open a pull request
+
+1. Go to your fork on GitHub — you'll see a banner suggesting to open a pull request.
+2. Click **Compare & pull request**.
+3. Set the **base** branch to your team branch (or the develop branch, depending on your workflow).
+4. Add a title and description, then click **Create pull request**.
+
+---
+
+## 11. Common commands cheat sheet
+
+| Command                | What it does                                      |
+| ---------------------- | ------------------------------------------------- |
+| `just test`            | Run all tests                                     |
+| `just check`           | Lint, format, and type-check all code             |
+| `just hooks`           | Install pre-commit hooks                          |
+| `just check-dev-tools` | Verify uv, just, and python3 are installed        |
+| `just docs`            | Preview documentation locally                     |
+| `just test-coverage`   | Run tests with coverage report                    |
+| `just clean`           | Remove build artifacts and caches                 |
+| `uv sync`              | Install/update Python dependencies                |
+
+---
+
+## 12. Troubleshooting
+
+**"command not found" for uv, just, or git**
+:   The tool is not installed or not on your `PATH`. Re-run the installation step and, if needed, open a new terminal window so your shell picks up the updated `PATH`.
+
+**"Permission denied (publickey)" when pushing or cloning**
+:   Your SSH key is not set up correctly. Go back to [step 3](#3-set-up-an-ssh-key-for-github) and make sure the key is added to both the SSH agent and your GitHub account.
+
+**`uv sync` fails with a Python version error**
+:   canVODpy requires Python 3.13 or 3.14. Install a supported version with `uv python install 3.13` and try again.
+
+**Pre-commit hook fails on commit**
+:   Run `just check` — it will auto-fix most linting and formatting issues. Stage the fixed files and commit again.
+
+**"push rejected" or "failed to push"**
+:   Your branch is behind the remote. Pull the latest changes first:
+
+    ```bash
+    git pull --rebase origin my-feature
+    ```
+
+**Windows: line ending warnings (`LF will be replaced by CRLF`)**
+:   Configure Git to keep Unix-style line endings:
+
+    ```bash
+    git config --global core.autocrlf input
+    ```
