@@ -4,7 +4,7 @@ set -euo pipefail
 
 errors=0
 
-for cmd in uv just python3; do
+for cmd in uv just; do
     if command -v "$cmd" &>/dev/null; then
         version=$("$cmd" --version 2>&1 | head -1)
         printf "  ✓ %-10s %s\n" "$cmd" "$version"
