@@ -38,8 +38,8 @@ canvodpy config edit sids
 ```
 
 Or edit files directly:
-- Set `gnss_root_dir` in `config/processing.yaml`
-- Set `cddis_mail` (optional) for NASA CDDIS access
+- Set `nasa_earthdata_acc_mail` (optional) in `config/processing.yaml` for NASA CDDIS access
+- Set `gnss_site_data_root` per site in `config/sites.yaml`
 - Define your research sites in `config/sites.yaml`
 
 ### 3. Validate Configuration
@@ -57,12 +57,11 @@ from canvod.utils.config import load_config
 config = load_config()
 
 # Access values
-print(config.gnss_root_dir)
-print(config.cddis_mail)
+print(config.nasa_earthdata_acc_mail)
 print(config.processing.aux_data.agency)
 
-# FTP server selection (auto-detect based on cddis_mail)
-servers = config.processing.aux_data.get_ftp_servers(config.cddis_mail)
+# FTP server selection (auto-detect based on nasa_earthdata_acc_mail)
+servers = config.processing.aux_data.get_ftp_servers(config.nasa_earthdata_acc_mail)
 for server_url, auth_email in servers:
     print(f"Server: {server_url}, Auth: {auth_email}")
 ```
@@ -73,8 +72,7 @@ for server_url, auth_email in servers:
 
 ```yaml
 credentials:
-  cddis_mail: your.email@example.com  # Optional
-  gnss_root_dir: /path/to/gnss/data
+  nasa_earthdata_acc_mail: your.email@example.com  # Optional
 
 aux_data:
   agency: COD
@@ -92,7 +90,7 @@ processing:
 ```yaml
 sites:
   rosalia:
-    base_dir: /path/to/rosalia
+    gnss_site_data_root: /path/to/rosalia
     receivers:
       reference_01:
         type: reference
@@ -135,8 +133,8 @@ canvodpy config edit sids
 
 ## FTP Server Selection
 
-- **If `cddis_mail` is set**: NASA CDDIS (primary) → ESA (fallback)
-- **If `cddis_mail` is null**: ESA only (no authentication)
+- **If `nasa_earthdata_acc_mail` is set**: NASA CDDIS (primary) → ESA (fallback)
+- **If `nasa_earthdata_acc_mail` is null**: ESA only (no authentication)
 - ESA server is always available as fallback
 
 ## Configuration Priority

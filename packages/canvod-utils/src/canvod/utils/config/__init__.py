@@ -11,7 +11,7 @@ Examples
 --------
 >>> from canvod.utils.config import load_config
 >>> config = load_config()
->>> print(config.gnss_root_dir)
+>>> print(config.nasa_earthdata_acc_mail)
 >>> print(config.processing.aux_data.agency)
 """
 

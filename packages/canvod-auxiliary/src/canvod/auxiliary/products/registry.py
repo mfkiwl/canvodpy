@@ -61,7 +61,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=168,  # ~7 days
         description="CODE final multi-GNSS orbits and clocks",
     ),
@@ -73,7 +73,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=17,  # ~17 hours
         description="CODE rapid multi-GNSS orbits and clocks",
     ),
@@ -92,7 +92,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=336,  # ~14 days
         description="GFZ final multi-GNSS orbits and clocks",
     ),
@@ -104,7 +104,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=17,  # ~17 hours
         description="GFZ rapid multi-GNSS orbits and clocks",
     ),
@@ -119,7 +119,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=168,  # ~7 days
         description="ESA final multi-GNSS orbits and clocks",
     ),
@@ -131,7 +131,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=17,  # ~17 hours
         description="ESA rapid multi-GNSS orbits and clocks",
     ),
@@ -146,7 +146,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=240,  # ~10 days
         description="JPL final multi-GNSS orbits and clocks",
     ),
@@ -158,7 +158,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="15M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=24,  # ~24 hours
         description="JPL rapid multi-GNSS orbits and clocks",
     ),
@@ -173,7 +173,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=336,  # ~14 days
         description="IGS combined final multi-GNSS orbits and clocks",
     ),
@@ -185,7 +185,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=17,  # ~17 hours
         description="IGS combined rapid multi-GNSS orbits and clocks",
     ),
@@ -200,7 +200,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=168,  # ~7 days
         description="WHU final multi-GNSS orbits and clocks",
     ),
@@ -215,7 +215,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=192,  # ~8 days
         description="CNES/GRG final multi-GNSS orbits and clocks",
     ),
@@ -230,7 +230,7 @@ PRODUCT_REGISTRY: dict[tuple[str, str], ProductSpec] = {
         sampling_rate="05M",
         duration="01D",
         available_formats=["SP3", "CLK"],
-        ftp_path_pattern="/gnss/products/{gps_week}/{file}",
+        ftp_path_pattern="/products/{gps_week}/{file}",
         latency_hours=168,  # ~7 days
         description="SHA final multi-GNSS orbits and clocks",
     ),

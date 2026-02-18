@@ -45,7 +45,7 @@ class PipelineOrchestrator:
         self._logger = get_logger(__name__).bind(site=site.site_name)
 
         self.pair_matcher = PairDataDirMatcher(
-            base_dir=site.site_config["base_dir"],
+            base_dir=site.site_config["gnss_site_data_root"],
             receivers=site.receivers,
             analysis_pairs=site.vod_analyses,
             receiver_subpath_template=receiver_subpath_template,

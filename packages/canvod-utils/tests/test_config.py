@@ -32,24 +32,28 @@ try:
         CredentialsConfig,
     )
 
-    # Create test config
+    # Create test config with defaults
+    creds = CredentialsConfig()
+    assert creds.nasa_earthdata_acc_mail is None
+    print("✓ Created CredentialsConfig with defaults (no email)")
+
+    # Create test config with email
     creds = CredentialsConfig(
-        cddis_mail="test@example.com",
-        gnss_root_dir=Path.cwd(),
+        nasa_earthdata_acc_mail="test@example.com",
     )
-    print(f"✓ Created CredentialsConfig: {creds.cddis_mail}")
+    print(f"✓ Created CredentialsConfig: {creds.nasa_earthdata_acc_mail}")
 
     aux_data = AuxDataConfig(agency="COD", product_type="final")
     print(f"✓ Created AuxDataConfig: {aux_data.agency}")
 
     # Test FTP server selection
-    servers = aux_data.get_ftp_servers(creds.cddis_mail)
-    print(f"✓ FTP servers (with CDDIS): {len(servers)} servers")
+    servers = aux_data.get_ftp_servers(creds.nasa_earthdata_acc_mail)
+    print(f"✓ FTP servers (with email): {len(servers)} servers")
     for server, auth in servers:
         print(f"    - {server} (auth: {auth is not None})")
 
     servers_no_cddis = aux_data.get_ftp_servers(None)
-    print(f"✓ FTP servers (without CDDIS): {len(servers_no_cddis)} servers")
+    print(f"✓ FTP servers (without email): {len(servers_no_cddis)} servers")
 
 except Exception as e:
     print(f"✗ Model test failed: {e}")

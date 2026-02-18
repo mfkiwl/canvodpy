@@ -17,19 +17,15 @@ metadata:
   website: https://your-institution.edu  # Optional
 
 # =============================================================================
-# Credentials & Paths - CONFIGURED IN .env FILE
+# Credentials
 # =============================================================================
-# Credentials (CDDIS_MAIL, GNSS_ROOT_DIR) are configured in .env file
-# NOT in this YAML file!
-#
-# Create a .env file in the project root:
-#   cp .env.example .env
-#
-# Then edit .env with your actual values:
-#   CDDIS_MAIL=your.email@example.com      # Optional (enables NASA CDDIS)
-#   GNSS_ROOT_DIR=/path/to/your/gnss/data  # Required
-#
-# See .env.example for detailed documentation
+
+credentials:
+  # NASA Earthdata email for CDDIS FTP authentication (optional)
+  # Register at: https://urs.earthdata.nasa.gov/users/new
+  # If set: NASA CDDIS primary, ESA fallback
+  # If not set: ESA only (no auth required)
+  nasa_earthdata_acc_mail: null
 
 # =============================================================================
 # Auxiliary Data
@@ -39,12 +35,12 @@ aux_data:
   agency: COD              # Analysis center: COD, GFZ, IGS, ESA, etc.
   product_type: final      # final, rapid, ultra-rapid
 
-  # FTP server selection (configured via .env file):
-  # - If CDDIS_MAIL set in .env: NASA primary, ESA fallback
-  # - If CDDIS_MAIL not set: ESA only (no auth required)
+  # FTP server selection:
+  # - If nasa_earthdata_acc_mail is set: NASA primary, ESA fallback
+  # - If nasa_earthdata_acc_mail is null: ESA only (no auth required)
   #
   # ESA server: ftp://gssc.esa.int/gnss (no auth, always available)
-  # NASA server: ftp://gdc.cddis.eosdis.nasa.gov (requires CDDIS_MAIL in .env)
+  # NASA server: ftp://gdc.cddis.eosdis.nasa.gov (requires Earthdata account)
 
 # =============================================================================
 # Processing Parameters

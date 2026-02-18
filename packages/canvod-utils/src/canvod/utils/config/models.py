@@ -62,51 +62,17 @@ class MetadataConfig(BaseModel):
 
 
 class CredentialsConfig(BaseModel):
-    """Credentials and paths.
+    """Credentials for external data services.
 
     Notes
     -----
     This is a Pydantic model for configuration validation.
     """
 
-    cddis_mail: EmailStr | None = Field(
+    nasa_earthdata_acc_mail: EmailStr | None = Field(
         None,
-        description="NASA CDDIS email for authentication (optional)",
+        description="NASA Earthdata email for CDDIS authentication (optional)",
     )
-    gnss_root_dir: Path = Field(
-        ...,
-        description="Root directory for all GNSS data",
-    )
-
-    @field_validator("gnss_root_dir")
-    @classmethod
-    def validate_root_dir_exists(cls, v: Path) -> Path:
-        """Validate the GNSS root directory.
-
-        Parameters
-        ----------
-        v : Path
-            GNSS root directory path.
-
-        Returns
-        -------
-        Path
-            Validated path.
-        """
-        # Only validate if it looks like a real path (not a placeholder).
-        path_str = str(v)
-        if path_str.startswith("/path/"):
-            # This is a placeholder path from defaults - skip validation.
-            return v
-
-        # For real paths, check it exists.
-        if not v.exists():
-            msg = (
-                f"GNSS root directory does not exist: {v}. "
-                "Please create it or update the path."
-            )
-            raise ValueError(msg)
-        return v
 
 
 class AuxDataConfig(BaseModel):
@@ -319,18 +285,12 @@ class StorageConfig(BaseModel):
 
 
 class ProcessingConfig(BaseModel):
-    """Complete processing configuration.
-
-    Notes
-    -----
-    Credentials (CDDIS_MAIL, GNSS_ROOT_DIR) are configured via the .env file,
-    not in processing.yaml. The credentials field is optional and deprecated.
-    """
+    """Complete processing configuration."""
 
     metadata: MetadataConfig
-    credentials: CredentialsConfig | None = Field(
-        None,
-        description="[DEPRECATED] Use .env file for credentials instead",
+    credentials: CredentialsConfig = Field(
+        default_factory=CredentialsConfig,
+        description="Credentials for external data services",
     )
     aux_data: AuxDataConfig = Field(default_factory=AuxDataConfig)
     processing: ProcessingParams = Field(default_factory=ProcessingParams)
@@ -369,7 +329,7 @@ class VodAnalysisConfig(BaseModel):
 class SiteConfig(BaseModel):
     """Research site configuration."""
 
-    base_dir: str = Field(..., description="Base directory for site data")
+    gnss_site_data_root: str = Field(..., description="Root directory for site GNSS data")
     receivers: dict[str, ReceiverConfig] = Field(..., description="Site receivers")
     vod_analyses: dict[str, VodAnalysisConfig] | None = Field(
         None,
@@ -377,14 +337,14 @@ class SiteConfig(BaseModel):
     )
 
     def get_base_path(self) -> Path:
-        """Get base_dir as a Path.
+        """Get gnss_site_data_root as a Path.
 
         Returns
         -------
         Path
-            Base directory as a Path object.
+            Site data root directory as a Path object.
         """
-        return Path(self.base_dir)
+        return Path(self.gnss_site_data_root)
 
 
 class SitesConfig(BaseModel):
@@ -513,23 +473,12 @@ class CanvodConfig(BaseModel):
     model_config = {"extra": "forbid"}  # Catch typos in config files!
 
     @property
-    def gnss_root_dir(self) -> Path:
-        """Return the configured GNSS root directory.
-
-        Returns
-        -------
-        Path
-            GNSS root directory path.
-        """
-        return self.processing.credentials.gnss_root_dir
-
-    @property
-    def cddis_mail(self) -> str | None:
-        """Return the configured CDDIS email.
+    def nasa_earthdata_acc_mail(self) -> str | None:
+        """Return the configured NASA Earthdata email for CDDIS authentication.
 
         Returns
         -------
         str | None
-            CDDIS email address.
+            NASA Earthdata email address.
         """
-        return self.processing.credentials.cddis_mail
+        return self.processing.credentials.nasa_earthdata_acc_mail

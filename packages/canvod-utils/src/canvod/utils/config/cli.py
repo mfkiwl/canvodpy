@@ -175,9 +175,9 @@ def init(
     # Next steps
     console.print("\n[bold]Next steps:[/bold]")
     console.print("  1. Edit config/processing.yaml:")
-    console.print("     - Set gnss_root_dir to your data directory")
-    console.print("     - Set cddis_mail (optional, for NASA CDDIS)")
+    console.print("     - Set nasa_earthdata_acc_mail (optional, for NASA CDDIS)")
     console.print("  2. Edit config/sites.yaml with your research sites")
+    console.print("     - Set gnss_site_data_root for each site")
     console.print("  3. Run: canvodpy config validate\n")
 
 
@@ -212,22 +212,17 @@ def validate(
         console.print(f"\n  SID mode: {config.sids.mode}")
         console.print(f"  Agency: {config.processing.aux_data.agency}")
 
-        # Get credentials from settings (not from config YAML)
-        try:
-            from canvodpy.settings import get_settings
+        # Show site data roots
+        for name, site in config.sites.sites.items():
+            console.print(f"  {name} data root: {site.gnss_site_data_root}")
 
-            settings = get_settings()
-            console.print(f"  GNSS root: {settings.gnss_root_path}")
-
-            if settings.has_cddis_credentials:
-                console.print(f"  CDDIS mail: {settings.cddis_mail}")
-                console.print("  [green]✓ NASA CDDIS enabled[/green]")
-            else:
-                console.print("  [yellow]⊘ NASA CDDIS disabled (ESA only)[/yellow]")
-        except ImportError:
-            console.print(
-                "  [yellow]⊘ Settings not available (install canvodpy package)[/yellow]"
-            )
+        # Show credentials from config
+        email = config.processing.credentials.nasa_earthdata_acc_mail
+        if email:
+            console.print(f"  NASA Earthdata email: {email}")
+            console.print("  [green]✓ NASA CDDIS enabled[/green]")
+        else:
+            console.print("  [yellow]⊘ NASA CDDIS disabled (ESA only)[/yellow]")
 
         console.print()
 
@@ -344,24 +339,10 @@ def _show_processing(config: ProcessingConfig) -> None:
     console.print("[bold]Processing Configuration:[/bold]")
     table = Table(show_header=False)
 
-    # Credentials are now in .env file
-    if config.credentials:
-        # Legacy support if credentials still in processing.yaml
-        table.add_row("GNSS Root", str(config.credentials.gnss_root_dir))
-        table.add_row(
-            "CDDIS Mail",
-            config.credentials.cddis_mail or "[yellow]Not set[/yellow]",
-        )
-    else:
-        # New approach: credentials in .env
-        table.add_row(
-            "Credentials",
-            "[blue]Configured via .env file[/blue]",
-        )
-        table.add_row(
-            "",
-            "[dim](CDDIS_MAIL, GNSS_ROOT_DIR)[/dim]",
-        )
+    table.add_row(
+        "NASA Earthdata Email",
+        config.credentials.nasa_earthdata_acc_mail or "[yellow]Not set[/yellow]",
+    )
 
     table.add_row("Agency", config.aux_data.agency)
     table.add_row("Product Type", config.aux_data.product_type)
@@ -393,7 +374,7 @@ def _show_sites(config: SitesConfig) -> None:
     console.print("[bold]Research Sites:[/bold]")
     for name, site in config.sites.items():
         console.print(f"\n  [cyan]{name}[/cyan]:")
-        console.print(f"    Base: {site.base_dir}")
+        console.print(f"    Data root: {site.gnss_site_data_root}")
         console.print(f"    Receivers: {len(site.receivers)}")
         for recv_name, recv in site.receivers.items():
             console.print(f"      - {recv_name} ({recv.type})")

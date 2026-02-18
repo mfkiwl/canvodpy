@@ -10,7 +10,6 @@ from datetime import time as dt_time
 from pathlib import Path
 from tempfile import gettempdir
 
-import dotenv
 import numpy as np
 import polars as pl
 import pydantic_core
@@ -46,10 +45,7 @@ from canvodpy.orchestrator.interpolator import (
     Sp3Config,
     Sp3InterpolationStrategy,
 )
-from canvodpy.settings import get_settings
 from canvodpy.utils.telemetry import trace_icechunk_write
-
-dotenv.load_dotenv()
 
 # ============================================================================
 # MODULE-LEVEL FUNCTIONS (Required for ProcessPoolExecutor)
@@ -522,16 +518,22 @@ class RinexDataProcessor:
             product_type=PRODUCT_TYPE,
         )
 
-        # Get settings for email configuration
-        settings = get_settings()
+        # Get credentials from YAML config
+        config = load_config()
+        user_email = config.nasa_earthdata_acc_mail
+
+        # Determine aux_file_path from site config if not explicitly provided
+        aux_file_path = self.aux_file_path
+        if aux_file_path is None:
+            aux_file_path = Path(self.site.site_config["gnss_site_data_root"])
 
         pipeline = AuxDataPipeline.create_standard(
             matched_dirs=self.matched_data_dirs,
-            aux_file_path=self.aux_file_path,
+            aux_file_path=aux_file_path,
             agency=AGENCY,
             product_type=PRODUCT_TYPE,
             ftp_server=FTP_SERVER,
-            user_email=settings.get_user_email(),
+            user_email=user_email,
             keep_sids=self.keep_sids,
         )
 

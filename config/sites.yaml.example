@@ -8,7 +8,7 @@ sites:
   # Example site configuration
   rosalia:
     # Absolute path to site data directory
-    base_dir: /path/to/your/gnss/data/01_Rosalia
+    gnss_site_data_root: /path/to/your/gnss/data/01_Rosalia
 
     # Receiver definitions
     receivers:
@@ -41,7 +41,7 @@ sites:
 
   # Add more sites as needed
   # tuw:
-  #   base_dir: /path/to/your/gnss/data/02_TUW
+  #   gnss_site_data_root: /path/to/your/gnss/data/02_TUW
   #   receivers:
   #     reference_01:
   #       type: reference

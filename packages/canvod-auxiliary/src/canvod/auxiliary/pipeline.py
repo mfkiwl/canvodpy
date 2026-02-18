@@ -5,7 +5,6 @@ Manages downloading, reading, preprocessing, and caching of auxiliary files
 (ephemerides, clock, atmospheric corrections, etc.) for RINEX processing.
 """
 
-import os
 import threading
 from pathlib import Path
 
@@ -21,7 +20,6 @@ from canvodpy.globals import (
     PRODUCT_TYPE,
     SP3_FILE_PATH,
 )
-from canvodpy.settings import get_settings
 
 from canvod.auxiliary._internal import get_logger
 from canvod.auxiliary.clock import ClkFile
@@ -361,7 +359,7 @@ class AuxDataPipeline:
     def create_standard(
         cls,
         matched_dirs: MatchedDirs,
-        aux_file_path: Path | None = None,
+        aux_file_path: Path,
         agency: str = None,
         product_type: str = None,
         ftp_server: str = None,
@@ -379,8 +377,8 @@ class AuxDataPipeline:
         ----------
         matched_dirs : MatchedDirs
             Matched directories containing date information.
-        aux_file_path : Path, optional
-            Root path for auxiliary files. If None, uses GNSS_ROOT_DIR env var.
+        aux_file_path : Path
+            Root path for auxiliary files (site's gnss_site_data_root).
         agency : str, optional
             Analysis center code (e.g., "COD"). If None, uses AGENCY from globals.
         product_type : str, optional
@@ -388,7 +386,7 @@ class AuxDataPipeline:
         ftp_server : str, optional
             FTP server URL. If None, uses FTP_SERVER from globals.
         user_email : str, optional
-            Email for authenticated FTP. If None, uses CDDIS_MAIL env var.
+            Email for authenticated FTP (nasa_earthdata_acc_mail from config).
         keep_sids : list[str] | None, optional
             List of specific SIDs to keep. If None, keeps all possible SIDs.
 
@@ -399,12 +397,10 @@ class AuxDataPipeline:
 
         Examples
         --------
-        >>> pipeline = AuxDataPipeline.create_standard(matched_dirs)
+        >>> pipeline = AuxDataPipeline.create_standard(matched_dirs, site_root)
         >>> pipeline.load_all()
         >>> ephem_ds = pipeline.get_ephemerides()
         """
-        import os
-
         from canvodpy.globals import AGENCY as DEFAULT_AGENCY
         from canvodpy.globals import CLK_FILE_PATH, SP3_FILE_PATH
         from canvodpy.globals import FTP_SERVER as DEFAULT_FTP_SERVER
@@ -413,24 +409,14 @@ class AuxDataPipeline:
         from canvod.auxiliary.clock import ClkFile
         from canvod.auxiliary.ephemeris import Sp3File
 
-        # Get settings for email configuration
-        settings = get_settings()
-
         # Use defaults from globals if not provided
         agency = agency or DEFAULT_AGENCY
         product_type = product_type or DEFAULT_PRODUCT_TYPE
         ftp_server = ftp_server or DEFAULT_FTP_SERVER
-        # Use user_email from settings if not explicitly provided
-        user_email = user_email if user_email is not None else settings.get_user_email()
 
         # Determine aux file paths
-        if aux_file_path is None:
-            root = Path(os.getenv("GNSS_ROOT_DIR", Path().cwd()))
-            sp3_dir = root / SP3_FILE_PATH
-            clk_dir = root / CLK_FILE_PATH
-        else:
-            sp3_dir = aux_file_path / SP3_FILE_PATH
-            clk_dir = aux_file_path / CLK_FILE_PATH
+        sp3_dir = aux_file_path / SP3_FILE_PATH
+        clk_dir = aux_file_path / CLK_FILE_PATH
 
         # Initialize pipeline
         pipeline = cls(matched_dirs=matched_dirs, keep_sids=keep_sids)
@@ -485,7 +471,7 @@ if __name__ == "__main__":
     """
 
     def create_aux_pipeline(
-        matched_dirs: MatchedDirs, aux_file_path: Path = None
+        matched_dirs: MatchedDirs, aux_file_path: Path, user_email: str | None = None
     ) -> AuxDataPipeline:
         """Factory function to create a standard AuxDataPipeline with
         ephemerides and clock.
@@ -494,8 +480,10 @@ if __name__ == "__main__":
         ----------
         matched_dirs : MatchedDirs
             Matched directories containing date information.
-        aux_file_path : Path, optional
-            Root path for auxiliary files. If None, uses GNSS_ROOT_DIR env var.
+        aux_file_path : Path
+            Root path for auxiliary files (site's gnss_site_data_root).
+        user_email : str | None
+            NASA Earthdata email for CDDIS authentication.
 
         Returns
         -------
@@ -506,13 +494,8 @@ if __name__ == "__main__":
         pipeline = AuxDataPipeline(matched_dirs=matched_dirs)
 
         # Determine aux file paths
-        if aux_file_path is None:
-            root = Path(os.getenv("GNSS_ROOT_DIR", Path().cwd()))
-            sp3_dir = root / SP3_FILE_PATH
-            clk_dir = root / CLK_FILE_PATH
-        else:
-            sp3_dir = aux_file_path / SP3_FILE_PATH
-            clk_dir = aux_file_path / CLK_FILE_PATH
+        sp3_dir = aux_file_path / SP3_FILE_PATH
+        clk_dir = aux_file_path / CLK_FILE_PATH
 
         # Register ephemerides (REQUIRED)
         sp3_file = Sp3File.from_datetime_date(
@@ -521,7 +504,7 @@ if __name__ == "__main__":
             product_type=PRODUCT_TYPE,
             ftp_server=FTP_SERVER,
             local_dir=sp3_dir,
-            user_email=os.getenv("CDDIS_MAIL"),
+            user_email=user_email,
         )
         pipeline.register("ephemerides", sp3_file, required=True)
 
@@ -532,13 +515,9 @@ if __name__ == "__main__":
             product_type=PRODUCT_TYPE,
             ftp_server=FTP_SERVER,
             local_dir=clk_dir,
-            user_email=os.getenv("CDDIS_MAIL"),
+            user_email=user_email,
         )
         pipeline.register("clock", clk_file, required=True)
-
-        # Future: Register optional atmospheric corrections
-        # ionex_file = IonexFile.from_datetime_date(...)
-        # pipeline.register('ionosphere', ionex_file, required=False)
 
         return pipeline
 
@@ -671,7 +650,12 @@ The threading.Lock ensures safe concurrent access!
     from canvod.auxiliary.clock import ClkFile
     from canvod.auxiliary.ephemeris import Sp3File
 
-    root = Path(os.getenv("GNSS_ROOT_DIR", Path().cwd()))
+    from canvod.utils.config import load_config
+
+    config = load_config()
+    site_config = list(config.sites.sites.values())[0]
+    root = Path(site_config.gnss_site_data_root)
+    user_email = config.nasa_earthdata_acc_mail
 
     sp3_file = Sp3File.from_datetime_date(
         date=md.yyyydoy.date,
@@ -679,7 +663,7 @@ The threading.Lock ensures safe concurrent access!
         product_type=PRODUCT_TYPE,
         ftp_server=FTP_SERVER,
         local_dir=root / SP3_FILE_PATH,
-        user_email=os.getenv("CDDIS_MAIL"),
+        user_email=user_email,
         add_velocities=True,  # Custom option!
     )
     pipeline2.register("ephemerides", sp3_file, required=True)
@@ -690,7 +674,7 @@ The threading.Lock ensures safe concurrent access!
         product_type=PRODUCT_TYPE,
         ftp_server=FTP_SERVER,
         local_dir=root / CLK_FILE_PATH,
-        user_email=os.getenv("CDDIS_MAIL"),
+        user_email=user_email,
     )
     pipeline2.register("clock", clk_file, required=True)
 
