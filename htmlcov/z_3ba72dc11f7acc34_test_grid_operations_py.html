@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_3ba72dc11f7acc34_test_grid_properties_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-18 22:11 +0000
+            created at 2026-02-18 22:59 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -201,13 +201,13 @@
     <p class="run"><span class="n"><a id="t119" href="#t119">119</a></span><span class="t">        <span class="key">assert</span> <span class="nam">ds</span><span class="op">.</span><span class="nam">attrs</span><span class="op">[</span><span class="str">"grid_type"</span><span class="op">]</span> <span class="op">==</span> <span class="str">"equal_area"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t120" href="#t120">120</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t121" href="#t121">121</a></span><span class="t">    <span class="key">def</span> <span class="nam">test_dataset_has_resolution</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">equal_area_grid</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t">        <span class="str">"""Verify angular_resolution stored in attributes."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t">        <span class="str">"""Verify angular_resolution_deg stored in attributes."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t">        <span class="nam">ds</span> <span class="op">=</span> <span class="nam">grid_to_dataset</span><span class="op">(</span><span class="nam">equal_area_grid</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t">        <span class="com"># Should have angular_resolution</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">        <span class="key">assert</span> <span class="str">"angular_resolution"</span> <span class="key">in</span> <span class="nam">ds</span><span class="op">.</span><span class="nam">attrs</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t">        <span class="com"># Should have angular_resolution_deg</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">        <span class="key">assert</span> <span class="str">"angular_resolution_deg"</span> <span class="key">in</span> <span class="nam">ds</span><span class="op">.</span><span class="nam">attrs</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t">        <span class="com"># Should be numeric</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t">        <span class="key">assert</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">ds</span><span class="op">.</span><span class="nam">attrs</span><span class="op">[</span><span class="str">"angular_resolution"</span><span class="op">]</span><span class="op">,</span> <span class="op">(</span><span class="nam">int</span><span class="op">,</span> <span class="nam">float</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t">        <span class="key">assert</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">ds</span><span class="op">.</span><span class="nam">attrs</span><span class="op">[</span><span class="str">"angular_resolution_deg"</span><span class="op">]</span><span class="op">,</span> <span class="op">(</span><span class="nam">int</span><span class="op">,</span> <span class="nam">float</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t">    <span class="key">def</span> <span class="nam">test_dataset_preserves_ncells</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">equal_area_grid</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t">        <span class="str">"""Verify cell count preserved in conversion."""</span>&nbsp;</span><span class="r"></span></p>
@@ -319,7 +319,7 @@
             <a class="nav" href="z_3ba72dc11f7acc34_test_grid_properties_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-18 22:11 +0000
+            created at 2026-02-18 22:59 +0000
         </p>
     </div>
 </footer>
