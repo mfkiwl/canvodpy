@@ -589,8 +589,8 @@ class GnssResearchSite:
                 "vod_groups": vod_groups,
             },
             "stores": {
-                "rinex_store_path": str(self.site_config["rinex_store_path"]),
-                "vod_store_path": str(self.site_config["vod_store_path"]),
+                "rinex_store_path": str(self.rinex_store.store_path),
+                "vod_store_path": str(self.vod_store.store_path),
             },
         }
 
