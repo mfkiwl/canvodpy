@@ -329,7 +329,9 @@ class VodAnalysisConfig(BaseModel):
 class SiteConfig(BaseModel):
     """Research site configuration."""
 
-    gnss_site_data_root: str = Field(..., description="Root directory for site GNSS data")
+    gnss_site_data_root: str = Field(
+        ..., description="Root directory for site GNSS data"
+    )
     receivers: dict[str, ReceiverConfig] = Field(..., description="Site receivers")
     vod_analyses: dict[str, VodAnalysisConfig] | None = Field(
         None,

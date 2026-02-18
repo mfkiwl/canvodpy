@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Integration test to verify SID filtering works.
 
-This test is skipped in CI environments where config files are not available.
+Uses self-contained test data and receiver config so the test is independent
+of the user's local ``config/sites.yaml``.
 """
 
 from pathlib import Path
@@ -25,6 +26,27 @@ _STORE_ROOT = _TEST_DATA / "valid" / "stores" / "rosalia_rinex"
 HAS_TEST_DATA = _ROSALIA_DATA.exists()
 HAS_STORE = _STORE_ROOT.exists()
 
+# Receiver layout matching the test data directory structure
+_TEST_RECEIVERS = {
+    "reference_01": {
+        "type": "reference",
+        "directory": "01_reference/01_GNSS/01_raw",
+        "description": "Test reference receiver",
+    },
+    "canopy_01": {
+        "type": "canopy",
+        "directory": "02_canopy/01_GNSS/01_raw",
+        "description": "Test canopy receiver",
+    },
+}
+
+_TEST_VOD_ANALYSES = {
+    "canopy_01_vs_reference_01": {
+        "canopy_receiver": "canopy_01",
+        "reference_receiver": "reference_01",
+    },
+}
+
 
 @pytest.mark.integration
 @pytest.mark.skipif(
@@ -33,50 +55,36 @@ HAS_STORE = _STORE_ROOT.exists()
 )
 def test_sid_filtering_integration():
     """Test SID filtering with full orchestrator."""
-    print("=" * 80, flush=True)
-    print("SID FILTERING TEST", flush=True)
-    print("=" * 80, flush=True)
-
-    print("\n1. Importing modules...", flush=True)
     from canvod.store import GnssResearchSite
+    from canvod.utils.config.models import ReceiverConfig, VodAnalysisConfig
     from canvodpy.globals import KEEP_RNX_VARS
     from canvodpy.orchestrator.pipeline import PipelineOrchestrator
 
-    print(f"   KEEP_RNX_VARS = {KEEP_RNX_VARS}", flush=True)
-
-    print("\n2. Initializing site...", flush=True)
     site = GnssResearchSite(site_name="Rosalia")
 
-    # Point site to local test data instead of external drive
+    # Override site config to use self-contained test data
     site._site_config.gnss_site_data_root = str(_ROSALIA_DATA)
-    print(f"   Site: {site.site_name}", flush=True)
-    print(f"   Data root: {site._site_config.gnss_site_data_root}", flush=True)
+    site._site_config.receivers = {
+        name: ReceiverConfig(**cfg) for name, cfg in _TEST_RECEIVERS.items()
+    }
+    site._site_config.vod_analyses = {
+        name: VodAnalysisConfig(**cfg) for name, cfg in _TEST_VOD_ANALYSES.items()
+    }
 
-    print("\n3. Creating orchestrator...", flush=True)
     orchestrator = PipelineOrchestrator(site=site, dry_run=False)
-    print("   Orchestrator created", flush=True)
 
-    print("\n4. Starting processing loop (processing first date only)...", flush=True)
     counter = 0
     for date_key, _datasets, _receiver_times in orchestrator.process_by_date(
         keep_vars=KEEP_RNX_VARS, start_from=None, end_at=None
     ):
-        print(f"\n   Processed date: {date_key}", flush=True)
         counter += 1
-        if counter >= 1:  # Only process first date
-            print("   Stopping after first date for testing", flush=True)
+        if counter >= 1:
             break
 
-    print("\n" + "=" * 80, flush=True)
-    print("TEST COMPLETE - NO ERRORS!", flush=True)
-    print("=" * 80, flush=True)
-
-    # Test assertions
     assert counter == 1, "Should have processed exactly one date"
 
 
 if __name__ == "__main__":
-    # Allow running as script for local testing
     import sys
 
     try:

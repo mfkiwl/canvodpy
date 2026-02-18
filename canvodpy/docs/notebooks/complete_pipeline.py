@@ -283,6 +283,7 @@ def _(_aux_dir, _obs_date, agency_selector, download_aux_button, mo, product_sel
 
         # Setup downloader
         from canvod.utils.config import load_config
+
         user_email = load_config().nasa_earthdata_acc_mail
         downloader = FtpDownloader(user_email=user_email)
         ftp_server = "ftp://ftp.aiub.unibe.ch"  # ESA server

@@ -29,8 +29,8 @@ if "dBHz" not in UREG:
 # Glob patterns for discovering RINEX observation files on disk
 RINEX_OBS_GLOB_PATTERNS: tuple[str, ...] = (
     "*.[0-9][0-9]o",  # RINEX v2/v3 short-name: .24o, .25o, etc.
-    "*.O",             # Uppercase generic RINEX obs suffix
-    "*.rnx",           # RINEX v3 long-name format
+    "*.O",  # Uppercase generic RINEX obs suffix
+    "*.rnx",  # RINEX v3 long-name format
 )
 
 # Regex pattern for validating a single RINEX observation file suffix

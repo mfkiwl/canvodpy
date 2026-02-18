@@ -81,9 +81,7 @@ def test_imports():
     assert creds.nasa_earthdata_acc_mail is None
 
     # CredentialsConfig should accept an email
-    creds_with_mail = CredentialsConfig(
-        nasa_earthdata_acc_mail="test@example.com"
-    )
+    creds_with_mail = CredentialsConfig(nasa_earthdata_acc_mail="test@example.com")
     assert creds_with_mail.nasa_earthdata_acc_mail == "test@example.com"
 
 

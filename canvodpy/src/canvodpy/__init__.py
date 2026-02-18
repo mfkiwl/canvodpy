@@ -98,6 +98,7 @@ from canvodpy.globals import KEEP_RNX_VARS
 
 # Logging (for all users)
 from canvodpy.logging import get_logger, setup_logging
+
 # New workflow API
 from canvodpy.workflow import VODWorkflow
 

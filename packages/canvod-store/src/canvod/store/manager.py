@@ -103,8 +103,7 @@ class GnssResearchSite:
     def receivers(self) -> dict[str, dict[str, Any]]:
         """Get all configured receivers for this site."""
         return {
-            name: cfg.model_dump()
-            for name, cfg in self._site_config.receivers.items()
+            name: cfg.model_dump() for name, cfg in self._site_config.receivers.items()
         }
 
     @property

@@ -194,6 +194,7 @@ class TestConfigurationCompatibility:
         assert KEEP_RNX_VARS is not None
         assert isinstance(KEEP_RNX_VARS, list)
 
+
 class TestSubpackageCompatibility:
     """Test subpackage imports still work."""
 
