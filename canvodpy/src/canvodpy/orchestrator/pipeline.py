@@ -23,8 +23,6 @@ class PipelineOrchestrator:
     ----------
     site : GnssResearchSite
         Research site configuration
-    receiver_subpath_template : str
-        Template for receiver subdirectory structure
     n_max_workers : int
         Maximum parallel workers per day
     dry_run : bool
@@ -35,7 +33,6 @@ class PipelineOrchestrator:
     def __init__(
         self,
         site: GnssResearchSite,
-        receiver_subpath_template: str = "{receiver_dir}/01_GNSS/01_raw",
         n_max_workers: int = 12,
         dry_run: bool = False,
     ) -> None:
@@ -48,7 +45,6 @@ class PipelineOrchestrator:
             base_dir=site.site_config["gnss_site_data_root"],
             receivers=site.receivers,
             analysis_pairs=site.vod_analyses,
-            receiver_subpath_template=receiver_subpath_template,
         )
 
         self._logger.info(

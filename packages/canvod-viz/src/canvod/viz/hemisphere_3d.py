@@ -200,8 +200,8 @@ class HemisphereVisualizer3D:
                 patch_x, patch_y, patch_z = [], [], []
                 for phi, theta in zip(phi_corners, theta_corners):
                     # Convert to 3D Cartesian
-                    x = np.sin(theta) * np.cos(phi)
-                    y = np.sin(theta) * np.sin(phi)
+                    x = np.sin(theta) * np.sin(phi)
+                    y = np.sin(theta) * np.cos(phi)
                     z = np.cos(theta)
                     patch_x.append(x)
                     patch_y.append(y)
@@ -267,8 +267,8 @@ class HemisphereVisualizer3D:
                 if np.all([v[2] < 0 for v in [v0, v1, v2]]):
                     continue
 
-                all_x.extend([v0[0], v1[0], v2[0]])
-                all_y.extend([v0[1], v1[1], v2[1]])
+                all_x.extend([v0[1], v1[1], v2[1]])
+                all_y.extend([v0[0], v1[0], v2[0]])
                 all_z.extend([v0[2], v1[2], v2[2]])
 
                 color_val = data[i] if data is not None else 0.5
@@ -336,8 +336,8 @@ class HemisphereVisualizer3D:
                 if np.all(verts[:, 2] < 0):
                     continue
 
-                all_x.extend(verts[:, 0].tolist())
-                all_y.extend(verts[:, 1].tolist())
+                all_x.extend(verts[:, 1].tolist())
+                all_y.extend(verts[:, 0].tolist())
                 all_z.extend(verts[:, 2].tolist())
 
                 color_val = data[i] if data is not None else 0.5
@@ -404,7 +404,7 @@ class HemisphereVisualizer3D:
             try:
                 ipix = int(row["healpix_ipix"])
                 boundary = hp.boundaries(nside, ipix, step=step)
-                x, y, z = boundary[0], boundary[1], boundary[2]
+                x, y, z = boundary[1], boundary[0], boundary[2]
 
                 if np.all(z < -0.01):
                     continue
@@ -488,8 +488,8 @@ class HemisphereVisualizer3D:
                 # sort_vertices_of_regions() — use directly.
                 n_verts = len(verts)
 
-                all_x.extend(verts[:, 0].tolist())
-                all_y.extend(verts[:, 1].tolist())
+                all_x.extend(verts[:, 1].tolist())
+                all_y.extend(verts[:, 0].tolist())
                 all_z.extend(verts[:, 2].tolist())
 
                 color_val = data[i] if data is not None else 0.5
@@ -535,8 +535,8 @@ class HemisphereVisualizer3D:
         phi = grid_df["phi"].to_numpy()
 
         # Convert to 3D Cartesian coordinates
-        x = np.sin(theta) * np.cos(phi)
-        y = np.sin(theta) * np.sin(phi)
+        x = np.sin(theta) * np.sin(phi)
+        y = np.sin(theta) * np.cos(phi)
         z = np.cos(theta)
 
         # Prepare data values
@@ -790,8 +790,8 @@ class HemisphereVisualizer3D:
         for theta_deg in elevation_rings:
             theta = np.radians(theta_deg)
             phi = np.linspace(0, 2 * np.pi, 200)
-            x = np.sin(theta) * np.cos(phi)
-            y = np.sin(theta) * np.sin(phi)
+            x = np.sin(theta) * np.sin(phi)
+            y = np.sin(theta) * np.cos(phi)
             z = np.full_like(phi, np.cos(theta))
             fig.add_trace(
                 go.Scatter3d(
@@ -809,8 +809,8 @@ class HemisphereVisualizer3D:
         for phi_deg in meridians_deg:
             phi = np.radians(phi_deg)
             theta = np.linspace(0, np.pi / 2, 100)
-            x = np.sin(theta) * np.cos(phi)
-            y = np.sin(theta) * np.sin(phi)
+            x = np.sin(theta) * np.sin(phi)
+            y = np.sin(theta) * np.cos(phi)
             z = np.cos(theta)
             fig.add_trace(
                 go.Scatter3d(

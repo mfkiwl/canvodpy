@@ -71,10 +71,10 @@ sites:
     receivers:
       reference_01:
         type: reference
-        directory: 01_reference
+        directory: 01_reference/01_GNSS/01_raw
       canopy_01:
         type: canopy
-        directory: 02_canopy
+        directory: 02_canopy/01_GNSS/01_raw
     vod_analyses:
       canopy_01_vs_reference_01:
         canopy_receiver: canopy_01

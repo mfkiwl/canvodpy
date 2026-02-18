@@ -166,14 +166,14 @@ def add_spherical_coords_to_dataset(
                 coords=[ds["epoch"], ds["sid"]],
                 dims=["epoch", "sid"],
                 attrs={
-                    "long_name": "Azimuthal angle (physics convention)",
+                    "long_name": "Azimuthal angle (navigation convention)",
                     "short_name": "φ",
                     "units": "rad",
                     "description": (
-                        "Azimuthal angle from East (+x) in ENU frame, counter-clockwise"
+                        "Azimuthal angle from North in ENU frame, clockwise"
                     ),
                     "valid_range": [0.0, 2 * np.pi],
-                    "convention": "physics (0=East, π/2=North, π=West, 3π/2=South)",
+                    "convention": "navigation (0=North, π/2=East, π=South, 3π/2=West)",
                 },
             ),
             "theta": xr.DataArray(

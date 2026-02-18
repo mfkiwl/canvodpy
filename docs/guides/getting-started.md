@@ -273,7 +273,24 @@ You should see `origin` (your fork) and `upstream` (the original).
 
 ---
 
-## 8. Set up the development environment
+## 8. Initialize submodules
+
+The repository uses two Git submodules that contain test data and demo data. Initialize them after cloning:
+
+```bash
+git submodule update --init --recursive
+```
+
+This pulls:
+
+- **`packages/canvod-readers/tests/test_data`** — validation test data (falsified/corrupted RINEX files for testing)
+- **`demo`** — clean real-world data for demos and documentation
+
+If you skip this step, tests that require these datasets will be automatically skipped.
+
+---
+
+## 9. Set up the development environment
 
 From inside the `canvodpy` directory, run:
 
@@ -290,7 +307,37 @@ just hooks
 
 ---
 
-## 9. Verify everything works
+## 10. Configure the project
+
+canVODpy uses three YAML configuration files in the `config/` directory:
+
+| File | Purpose |
+|------|---------|
+| `sites.yaml` | Defines research sites: data root paths, receiver definitions (name, type, directory), and VOD analysis pairs. Each receiver's `directory` is the full relative path from the site data root to the raw RINEX date folders (e.g. `01_reference/01_GNSS/01_raw`). |
+| `processing.yaml` | Processing parameters: metadata, credentials (NASA Earthdata), auxiliary data settings (agency, product type), time aggregation, compression, Icechunk storage, and store strategies. |
+| `sids.yaml` | Signal ID (SID) filtering: choose `all`, a named `preset` (e.g. `gps_galileo`), or list `custom` SIDs to keep. |
+
+Each file has a corresponding `.example` template. To initialize them:
+
+```bash
+just config-init
+```
+
+After editing, validate your configuration:
+
+```bash
+just config-validate
+```
+
+To view the resolved configuration:
+
+```bash
+just config-show
+```
+
+---
+
+## 11. Verify everything works
 
 Run the test suite:
 
@@ -308,7 +355,7 @@ If both commands complete without errors, your environment is ready.
 
 ---
 
-## 10. Working in teams
+## 12. Working in teams
 
 During a hackathon or collaborative sprint, each team works on its own topic (often aligned with a package like `canvod-grids` or `canvod-readers`). A shared **develop branch** (e.g. `develop/hackathon2026`) acts as the integration point — no one commits to it directly. Instead, each team gets its own **team branch**.
 
@@ -399,7 +446,7 @@ When your team's feature is ready, open **one pull request** from `team-grids` i
 
 ---
 
-## 11. Your first contribution
+## 13. Your first contribution
 
 ### Make your changes
 
@@ -434,7 +481,7 @@ Push to your team branch or feature branch (see [Working in teams](#10-working-i
 
 ---
 
-## 12. Common commands cheat sheet
+## 14. Common commands cheat sheet
 
 | Command                | What it does                                      |
 | ---------------------- | ------------------------------------------------- |
@@ -442,6 +489,9 @@ Push to your team branch or feature branch (see [Working in teams](#10-working-i
 | `just check`           | Lint, format, and type-check all code             |
 | `just hooks`           | Install pre-commit hooks                          |
 | `just check-dev-tools` | Verify uv, just, and python3 are installed        |
+| `just config-init`     | Initialize configuration files from templates     |
+| `just config-validate` | Validate the current configuration                |
+| `just config-show`     | Show the resolved configuration                   |
 | `just docs`            | Preview documentation locally                     |
 | `just test-coverage`   | Run tests with coverage report                    |
 | `just clean`           | Remove build artifacts and caches                 |
@@ -449,7 +499,7 @@ Push to your team branch or feature branch (see [Working in teams](#10-working-i
 
 ---
 
-## 13. Troubleshooting
+## 15. Troubleshooting
 
 **"command not found" for uv, just, or git**
 :   The tool is not installed or not on your `PATH`. Re-run the installation step and, if needed, open a new terminal window so your shell picks up the updated `PATH`.

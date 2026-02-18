@@ -5,9 +5,17 @@
 ```bash
 git clone https://github.com/nfb2021/canvodpy.git
 cd canvodpy
+git submodule update --init --recursive
 uv sync
 just test
 ```
+
+The submodule step pulls two external data repositories:
+
+- **`packages/canvod-readers/tests/test_data`** — validation test data (falsified/corrupted RINEX files)
+- **`demo`** — clean real-world data for demos and documentation
+
+Tests that depend on these datasets are automatically skipped if the submodules are not initialized.
 
 ## Prerequisites
 
@@ -24,26 +32,39 @@ just check-dev-tools
 
 ## Configuration Management
 
+canVODpy uses three YAML files in the `config/` directory:
+
+| File | Purpose |
+|------|---------|
+| `sites.yaml` | Research sites: data root paths, receiver definitions (name, type, directory), and VOD analysis pairs. Each receiver's `directory` is the full relative path from the site data root to the raw RINEX date folders (e.g. `01_reference/01_GNSS/01_raw`). |
+| `processing.yaml` | Processing parameters: metadata, credentials (NASA Earthdata), auxiliary data settings, time aggregation, compression, Icechunk storage, and store strategies. |
+| `sids.yaml` | Signal ID filtering: choose `all`, a named `preset` (e.g. `gps_galileo`), or list `custom` SIDs to keep. |
+
+Each file has a `.example` template in the same directory.
+
+### Just Commands
+
+```bash
+just config-init             # Initialize config files from templates
+just config-show             # View resolved settings
+just config-validate         # Validate configuration
+```
+
 ### CLI Configuration Tool
 
 ```bash
-canvodpy config init         # Initialize configuration files
-canvodpy config show         # View current settings
-canvodpy config validate     # Validate configuration
-canvodpy config edit processing  # Edit processing config
+uv run canvodpy config init         # Initialize configuration files
+uv run canvodpy config show         # View current settings
+uv run canvodpy config validate     # Validate configuration
+uv run canvodpy config edit processing  # Edit processing config
 ```
 
 ### First-Time Setup
 
-1. Initialize config files: `uv run canvodpy config init`
-2. Create `.env` with credentials (never commit):
-   ```bash
-   CDDIS_MAIL=your.email@example.com
-   GNSS_ROOT_DIR=/path/to/gnss/data
-   ```
+1. Initialize config files: `just config-init`
+2. Edit research sites: `uv run canvodpy config edit sites`
 3. Edit processing configuration: `uv run canvodpy config edit processing`
-4. Define research sites: `uv run canvodpy config edit sites`
-5. Validate: `uv run canvodpy config validate`
+4. Validate: `just config-validate`
 
 ## Testing
 
@@ -117,6 +138,9 @@ just test                    # Run all tests
 just sync                    # Install/update dependencies
 just clean                   # Remove build artifacts
 just hooks                   # Install pre-commit hooks
+just config-init             # Initialize config files from templates
+just config-validate         # Validate configuration
+just config-show             # View resolved configuration
 just docs                    # Preview documentation
 just build-all               # Build all packages
 just release <VERSION>       # Full release workflow

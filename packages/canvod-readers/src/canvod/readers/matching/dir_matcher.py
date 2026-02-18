@@ -213,22 +213,21 @@ class PairDataDirMatcher:
     base_dir : Path
         Root directory containing all receiver data
     receivers : dict
-        Receiver configuration mapping receiver names to their directory paths
-        Example: {"canopy_01": {"directory": "02_canopy_01"},
-                  "reference_01": {"directory": "01_reference_01"}}
+        Receiver configuration mapping receiver names to their directory paths.
+        The ``directory`` value is the full relative path from ``base_dir`` to the
+        raw RINEX data directory (before the ``{YYDOY}`` date folders).
+        Example: {"canopy_01": {"directory": "02_canopy_01/01_GNSS/01_raw"},
+                  "reference_01": {"directory": "01_reference_01/01_GNSS/01_raw"}}
     analysis_pairs : dict
         Analysis pair configuration specifying which receivers to match
         Example: {"pair_01": {"canopy_receiver": "canopy_01",
                                "reference_receiver": "reference_01"}}
-    receiver_subpath_template : str, optional
-        Template for receiver subdirectory structure
-        (default: "{receiver_dir}/01_GNSS/01_raw")
 
     Examples
     --------
     >>> receivers = {
-    ...     "canopy_01": {"directory": "02_canopy"},
-    ...     "reference_01": {"directory": "01_reference"}
+    ...     "canopy_01": {"directory": "02_canopy/01_GNSS/01_raw"},
+    ...     "reference_01": {"directory": "01_reference/01_GNSS/01_raw"}
     ... }
     >>> pairs = {
     ...     "main_pair": {
@@ -255,13 +254,11 @@ class PairDataDirMatcher:
         base_dir: Path,
         receivers: dict[str, dict[str, str]],
         analysis_pairs: dict[str, dict[str, str]],
-        receiver_subpath_template: str = "{receiver_dir}/01_GNSS/01_raw",
     ) -> None:
         """Initialize pair matcher with receiver configuration."""
         self.base_dir = Path(base_dir)
         self.receivers = receivers
         self.analysis_pairs = analysis_pairs
-        self.subpath_template = receiver_subpath_template
 
         # Validate receivers have directory config
         self.receiver_dirs = self._build_receiver_dir_mapping()
@@ -305,12 +302,11 @@ class PairDataDirMatcher:
 
         """
         receiver_dir = self.receiver_dirs[receiver_name]
-        subpath = self.subpath_template.format(receiver_dir=receiver_dir)
 
         # Convert YYYYDDD to YYDDD format for directory name
         yyddd_str = yyyydoy.yydoy
 
-        return self.base_dir / subpath / yyddd_str
+        return self.base_dir / receiver_dir / yyddd_str
 
     def _get_all_dates(self) -> set[YYYYDOY]:
         """Find all dates that have data in any receiver directory.
@@ -325,8 +321,7 @@ class PairDataDirMatcher:
 
         for receiver_name in self.receivers:
             receiver_dir = self.receiver_dirs[receiver_name]
-            subpath = self.subpath_template.format(receiver_dir=receiver_dir)
-            receiver_base = self.base_dir / subpath
+            receiver_base = self.base_dir / receiver_dir
 
             if not receiver_base.exists():
                 continue

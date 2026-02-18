@@ -90,6 +90,22 @@ ci PYTHON="3.13":
     uv run --python={{ PYTHON }} pytest
 
 # ============================================================================
+# Configuration
+# ============================================================================
+
+# validate the sites.yaml configuration
+config-validate:
+    uv run canvodpy config validate
+
+# show the current configuration
+config-show:
+    uv run canvodpy config show
+
+# initialize configuration from template
+config-init:
+    uv run canvodpy config init
+
+# ============================================================================
 # Utilities
 # ============================================================================
 
@@ -280,6 +296,10 @@ docs:
 # build the documentation
 docs-build:
     uv run zensical build
+
+# deploy the documentation via GitHub Actions
+docs-deploy:
+    gh workflow run "Deploy Docs"
 
 # ============================================================================
 # Dependency Analysis
