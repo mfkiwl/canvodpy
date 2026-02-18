@@ -8,12 +8,32 @@ from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+from canvod.readers.gnss_specs.constants import RINEX_OBS_GLOB_PATTERNS
 from canvod.utils.tools import YYYYDOY
 from natsort import natsorted
 
 from .models import MatchedDirs, PairMatchedDirs
 
 DATE_DIR_LEN = 5
+
+
+def _has_rinex_files(directory: Path) -> bool:
+    """Check if directory exists and contains RINEX observation files.
+
+    Parameters
+    ----------
+    directory : Path
+        Directory to check.
+
+    Returns
+    -------
+    bool
+        True if directory exists and contains RINEX files.
+
+    """
+    return directory.exists() and any(
+        f for pattern in RINEX_OBS_GLOB_PATTERNS for f in directory.glob(pattern)
+    )
 
 
 class DataDirMatcher:
@@ -143,10 +163,9 @@ class DataDirMatcher:
 
         return dates_with_rinex
 
-    def _has_rinex_files(self, directory: Path) -> bool:
-        """Check if directory contains RINEX files.
-
-        Looks for files matching pattern *.??o (e.g., *.24o, *.25o)
+    @staticmethod
+    def _has_rinex_files(directory: Path) -> bool:
+        """Check if directory contains RINEX observation files.
 
         Parameters
         ----------
@@ -159,7 +178,7 @@ class DataDirMatcher:
             True if RINEX files found.
 
         """
-        return any(directory.glob("*.[0-9][0-9]o"))
+        return _has_rinex_files(directory)
 
     def _validate_directory(self, path: Path, name: str) -> None:
         """Validate directory exists.
@@ -355,12 +374,8 @@ class PairDataDirMatcher:
                 reference_path = self._get_receiver_path(reference_rx, yyyydoy)
 
                 # Check for RINEX files
-                canopy_has_files = canopy_path.exists() and any(
-                    canopy_path.glob("*.2*o")
-                )
-                reference_has_files = reference_path.exists() and any(
-                    reference_path.glob("*.2*o")
-                )
+                canopy_has_files = _has_rinex_files(canopy_path)
+                reference_has_files = _has_rinex_files(reference_path)
 
                 # Only yield if both directories exist and have data
                 if canopy_has_files and reference_has_files:

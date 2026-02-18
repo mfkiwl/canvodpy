@@ -36,7 +36,7 @@ _GNSS_ROOT_DIR = Path(os.getenv("GNSS_ROOT_DIR", _ENV_DIR / "data"))
 
 RESEARCH_SITES: dict[str, dict[str, Any]] = {
     "Rosalia": {
-        "base_dir": _GNSS_ROOT_DIR / "01_Rosalia",
+        "base_dir": _GNSS_ROOT_DIR / "02_Fontainebleau",
         # Store paths now come from processing.yaml (storage.stores_root_dir)
         # They are: {stores_root_dir}/{site_name}/rinex/
         #           {stores_root_dir}/{site_name}/vod/
@@ -61,12 +61,14 @@ RESEARCH_SITES: dict[str, dict[str, Any]] = {
             "canopy_01_vs_reference_01": {
                 "canopy_receiver": "canopy_01",
                 "reference_receiver": "reference_01",
-                "description": "VOD analysis: canopy_01 compared to reference_01",
+                "description":
+                "VOD analysis: canopy_01 compared to reference_01",
             },
             "canopy_02_vs_reference_01": {
                 "canopy_receiver": "canopy_02",
                 "reference_receiver": "reference_01",
-                "description": "VOD analysis: canopy_02 compared to reference_01",
+                "description":
+                "VOD analysis: canopy_02 compared to reference_01",
             },
         },
     }

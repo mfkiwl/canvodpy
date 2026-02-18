@@ -15,6 +15,7 @@ import xarray as xr
 from canvod.readers.gnss_specs.constants import (
     EPOCH_RECORD_INDICATOR,
     IGS_RNX_DUMP_INTERVALS,
+    RINEX_OBS_SUFFIX_RE,
     SEPTENTRIO_SAMPLING_INTERVALS,
     UREG,
 )
@@ -433,13 +434,10 @@ class RnxObsFileModel(BaseModel):
             If suffix doesn't match RINEX observation pattern.
 
         """
-        rinex_suffix_pattern = re.compile(r"\.2\d[o]$")  # Ensures the format ".2Xo"
-
-        if not (rinex_suffix_pattern.fullmatch(v.suffix) or v.suffix == ".o"):
+        if not RINEX_OBS_SUFFIX_RE.search(v.name):
             msg = (
-                f"File {v} does not appear to be of Rinex observation file "
-                "format. Rinex observation files should have suffix '.2?o' or "
-                "'.o', where '?' is a digit."
+                f"File {v} does not appear to be a RINEX observation file. "
+                f"Expected suffix matching one of: .YYo, .O, .rnx"
             )
             _raise_value_error(msg)
         return v
