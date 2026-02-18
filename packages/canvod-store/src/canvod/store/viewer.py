@@ -384,6 +384,10 @@ class IcechunkStoreViewer:
 
     def _build_group_section(self, branch: str, group_name: str) -> str:
         """Build HTML for a single group (collapsed by default)."""
+        # Delegate grids to specialized renderer
+        if group_name == "grids":
+            return self._build_grids_section(branch)
+
         group_id = f"group-{uuid.uuid4()}"
 
         # Get dimensions info
@@ -417,6 +421,238 @@ class IcechunkStoreViewer:
         </div>
         """
 
+    def _build_grids_section(self, branch: str) -> str:
+        """Build HTML for the grids group, enumerating each grid subgroup."""
+        grids_id = f"group-{uuid.uuid4()}"
+
+        # Enumerate grid subgroups
+        grid_names: list[str] = []
+        try:
+            with self.store.readonly_session(branch) as session:
+                import zarr
+
+                root = zarr.open(session.store, mode="r")
+                if "grids" in root:
+                    grids_group = root["grids"]
+                    grid_names = list(grids_group.group_keys())
+        except Exception:
+            pass
+
+        if not grid_names:
+            return f"""
+            <div class="group-section">
+                <input id="{grids_id}" type="checkbox" />
+                <label for="{grids_id}" class="group-toggle">
+                    🌐 <strong>grids</strong>
+                    <span class="count-badge">(empty)</span>
+                </label>
+                <div class="group-content">
+                    <div class="icechunk-empty">No grids stored</div>
+                </div>
+            </div>
+            """
+
+        grid_label = "grid" if len(grid_names) == 1 else "grids"
+
+        # Build nested sections for each grid
+        grid_sections = []
+        for name in sorted(grid_names):
+            grid_sections.append(self._build_single_grid_section(branch, name))
+
+        return f"""
+        <div class="group-section">
+            <input id="{grids_id}" type="checkbox" />
+            <label for="{grids_id}" class="group-toggle">
+                🌐 <strong>grids</strong>
+                <span class="count-badge">({len(grid_names)} {grid_label})</span>
+            </label>
+            <div class="group-content">
+                {"".join(grid_sections)}
+            </div>
+        </div>
+        """
+
+    def _load_grid_dataset(
+        self, branch: str, name: str,
+    ) -> Any:
+        """Load the grid xarray Dataset from the store.
+
+        Handles both storage layouts:
+        - xarray-native: flat dataset at ``grids/{name}/``
+        - polars-based: subgroups ``cells/``, ``metadata/``, etc.
+        """
+        import xarray as xr
+
+        group_path = f"grids/{name}"
+        with self.store.readonly_session(branch) as session:
+            # Try flat xarray-native layout first (store_grid path)
+            try:
+                ds = xr.open_zarr(
+                    session.store, group=group_path,
+                    consolidated=False,
+                )
+                if len(ds.data_vars) > 0:
+                    return ds
+            except Exception:
+                pass
+
+            # Fall back to polars-based layout (cells subgroup)
+            ds = xr.open_zarr(
+                session.store, group=f"{group_path}/cells",
+                consolidated=False,
+            )
+            return ds
+
+    def _load_grid_metadata(
+        self, branch: str, name: str,
+    ) -> dict[str, Any]:
+        """Load grid metadata dict.
+
+        Handles both storage layouts:
+        - xarray-native: attrs on the dataset at ``grids/{name}/``
+        - polars-based: JSON in ``grids/{name}/metadata`` subgroup
+        """
+        import json
+        import math
+
+        ds = self._load_grid_dataset(branch, name)
+        attrs = dict(ds.attrs)
+
+        # xarray-native path: attrs are directly on the dataset
+        if "grid_type" in attrs and "grid_metadata" not in attrs:
+            result = dict(attrs)
+            # Normalise attr names: new format uses _deg suffix (already
+            # in degrees); old format uses bare names (also in degrees
+            # for the xarray-native path).
+            if "angular_resolution_deg" not in result:
+                result["angular_resolution_deg"] = result.get(
+                    "angular_resolution", 0.0,
+                )
+            if "cutoff_theta_deg" not in result:
+                result["cutoff_theta_deg"] = result.get(
+                    "cutoff_theta", 0.0,
+                )
+            return result
+
+        # polars-based path: JSON-serialized in metadata subgroup
+        if "grid_metadata" in attrs:
+            raw = json.loads(attrs["grid_metadata"])
+            # cutoff_theta is in radians in the polars path
+            if "cutoff_theta" in raw and "cutoff_theta_deg" not in raw:
+                raw["cutoff_theta_deg"] = round(
+                    math.degrees(raw["cutoff_theta"]), 2,
+                )
+            if "angular_resolution" in raw:
+                raw.setdefault(
+                    "angular_resolution_deg", raw["angular_resolution"],
+                )
+            return raw
+
+        return attrs
+
+    def _build_single_grid_section(self, branch: str, name: str) -> str:
+        """Build a collapsible section for a single grid subgroup."""
+        grid_id = f"grid-{uuid.uuid4()}"
+
+        # Read grid metadata for summary badge
+        summary = ""
+        try:
+            meta = self._load_grid_metadata(branch, name)
+            grid_type = meta.get("grid_type", "")
+            # xarray-native uses "n_cells", polars-based uses "ncells"
+            ncells = meta.get("n_cells", meta.get("ncells", ""))
+            parts = []
+            if grid_type:
+                parts.append(str(grid_type))
+            if ncells:
+                parts.append(f"{ncells} cells")
+            if parts:
+                summary = " · ".join(parts)
+        except Exception:
+            pass
+
+        badge = (
+            f'<span class="dims-info">{escape(summary)}</span>'
+            if summary else ""
+        )
+
+        return f"""
+        <div class="group-section">
+            <input id="{grid_id}" type="checkbox" />
+            <label for="{grid_id}" class="group-toggle">
+                🌐 <strong>{escape(name)}</strong>
+                {badge}
+            </label>
+            <div class="group-content">
+                {self._render_grid_content(branch, name)}
+            </div>
+        </div>
+        """
+
+    def _render_grid_content(self, branch: str, name: str) -> str:
+        """Render a single grid's content: properties table + xarray repr."""
+        content_parts: list[str] = []
+
+        # 1. Properties table from metadata
+        try:
+            meta = self._load_grid_metadata(branch, name)
+
+            display_items = [
+                ("grid_type", "Grid type"),
+                ("n_cells", "Cells"),
+                ("ncells", "Cells"),
+                ("angular_resolution_deg", "Angular resolution (deg)"),
+                ("cutoff_theta_deg", "Cutoff theta (deg)"),
+                ("angular_resolution_description", "Resolution meaning"),
+            ]
+            rows = []
+            seen_labels: set[str] = set()
+            for key, label in display_items:
+                if key in meta and label not in seen_labels:
+                    val = meta[key]
+                    if val in (0, 0.0, ""):
+                        continue
+                    seen_labels.add(label)
+                    rows.append(
+                        f"<tr><td><strong>{escape(label)}</strong></td>"
+                        f"<td>{escape(str(val))}</td></tr>",
+                    )
+            if rows:
+                content_parts.append(f"""
+                <div class="content-section">
+                    <div class="content-section-title">
+                        Grid Properties
+                    </div>
+                    <table style="width:auto; border-collapse:collapse;">
+                        <tbody>{"".join(rows)}</tbody>
+                    </table>
+                </div>
+                """)
+        except Exception as e:
+            content_parts.append(f"""
+            <div class="icechunk-error">
+                Failed to load grid metadata: {escape(str(e))}
+            </div>
+            """)
+
+        # 2. xarray Dataset repr
+        try:
+            ds = self._load_grid_dataset(branch, name)
+            content_parts.append(f"""
+            <div class="content-section">
+                <div class="content-section-title">Dataset</div>
+                {ds._repr_html_()}
+            </div>
+            """)
+        except Exception as e:
+            content_parts.append(f"""
+            <div class="icechunk-error">
+                Failed to load grid dataset: {escape(str(e))}
+            </div>
+            """)
+
+        return "".join(content_parts)
+
     def _render_group_content(self, branch: str, group_name: str) -> str:
         """
         Render group content: xarray Dataset + metadata table.
@@ -444,13 +680,15 @@ class IcechunkStoreViewer:
         # 2. Load and display metadata table
         try:
             with self.store.readonly_session(branch) as session:
-                metadata_df = self.store.load_metadata(session.store, group_name)
+                metadata_df = self.store.load_metadata(session.store,
+                                                       group_name)
 
                 # Try to use marimo interactive table if available
                 try:
                     import marimo as mo
 
-                    table_widget = mo.ui.table(data=metadata_df, pagination=True)
+                    table_widget = mo.ui.table(data=metadata_df,
+                                               pagination=True)
                     table_html = table_widget._repr_html_()
                 except (ImportError, AttributeError):
                     # Fallback to Polars HTML for Jupyter
@@ -485,8 +723,7 @@ class IcechunkStoreViewer:
             group_dict = self.store.get_group_names()
             groups = group_dict.get(branch, [])
             groups_html = "".join(
-                self._build_group_section(branch, group) for group in groups
-            )
+                self._build_group_section(branch, group) for group in groups)
 
             if not groups:
                 groups_html = (
@@ -496,8 +733,30 @@ class IcechunkStoreViewer:
             # Default to checked for "main" branch
             checked = " checked" if branch == "main" else ""
 
-            receiver_label = "receiver" if len(groups) == 1 else "receivers"
-            receiver_count = len(groups)
+            # Separate receivers from grids for the count badge
+            has_grids = "grids" in groups
+            receiver_count = len(groups) - (1 if has_grids else 0)
+            receiver_label = "receiver" if receiver_count == 1 else "receivers"
+
+            badge_parts = []
+            if receiver_count > 0:
+                badge_parts.append(f"{receiver_count} {receiver_label}")
+            if has_grids:
+                # Count actual grid subgroups
+                n_grids = 0
+                try:
+                    with self.store.readonly_session(branch) as session:
+                        import zarr
+
+                        root = zarr.open(session.store, mode="r")
+                        if "grids" in root:
+                            n_grids = len(list(root["grids"].group_keys()))
+                except Exception:
+                    pass
+                grid_label = "grid" if n_grids == 1 else "grids"
+                badge_parts.append(f"{n_grids} {grid_label}")
+
+            badge_text = " · ".join(badge_parts) if badge_parts else "empty"
 
             return f"""
             <div class="branch-section">
@@ -505,7 +764,7 @@ class IcechunkStoreViewer:
                 <label for="{branch_id}" class="branch-toggle">
                     🌿 <strong>{escape(branch)}</strong>
                     <span class="count-badge">
-                        ({receiver_count} {receiver_label})
+                        ({badge_text})
                     </span>
                 </label>
                 <div class="branch-content">
@@ -549,7 +808,8 @@ class IcechunkStoreViewer:
             site_name = self.store.site_name
 
             branch_label = "branch" if summary["branches"] == 1 else "branches"
-            receiver_label = "receiver" if summary["groups"] == 1 else "receivers"
+            receiver_label = "receiver" if summary[
+                "groups"] == 1 else "receivers"
 
             header = f"""
             <div class="icechunk-header">
@@ -576,8 +836,8 @@ class IcechunkStoreViewer:
                 branches = self.store.get_branch_names()
                 if branches:
                     branches_html = "".join(
-                        self._build_branch_section(branch) for branch in branches
-                    )
+                        self._build_branch_section(branch)
+                        for branch in branches)
                 else:
                     branches_html = (
                         '<div class="icechunk-empty">📭 No branches in store</div>'

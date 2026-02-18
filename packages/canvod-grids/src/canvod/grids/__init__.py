@@ -33,6 +33,7 @@ from canvod.grids.operations import (
     extract_grid_vertices,
     grid_to_dataset,
     load_grid,
+    store_dataset_with_cell_ids,
     store_grid,
 )
 from canvod.grids.workflows import (
@@ -64,6 +65,7 @@ __all__ = [
     "extract_grid_vertices",
     "grid_to_dataset",
     "load_grid",
+    "store_dataset_with_cell_ids",
     "store_grid",
     # Aggregation
     "CellAggregator",

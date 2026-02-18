@@ -119,13 +119,13 @@ class TestDatasetMetadata:
         assert ds.attrs["grid_type"] == "equal_area"
 
     def test_dataset_has_resolution(self, equal_area_grid) -> None:
-        """Verify angular_resolution stored in attributes."""
+        """Verify angular_resolution_deg stored in attributes."""
         ds = grid_to_dataset(equal_area_grid)
 
-        # Should have angular_resolution
-        assert "angular_resolution" in ds.attrs
+        # Should have angular_resolution_deg
+        assert "angular_resolution_deg" in ds.attrs
         # Should be numeric
-        assert isinstance(ds.attrs["angular_resolution"], (int, float))
+        assert isinstance(ds.attrs["angular_resolution_deg"], (int, float))
 
     def test_dataset_preserves_ncells(self, equal_area_grid) -> None:
         """Verify cell count preserved in conversion."""

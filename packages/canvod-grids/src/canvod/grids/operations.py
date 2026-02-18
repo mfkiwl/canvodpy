@@ -30,6 +30,34 @@ if TYPE_CHECKING:
 
 log = get_logger(__name__)
 
+# Per-grid-type description of what ``angular_resolution`` controls.
+_RESOLUTION_DESCRIPTIONS: dict[str, str] = {
+    "equal_area": (
+        "Theta-band width in degrees; phi divisions adjusted so each cell "
+        "subtends approximately the same solid angle."
+    ),
+    "equal_angle": (
+        "Uniform spacing in both theta and phi in degrees "
+        "(rectangular cells in angle space, unequal solid angles)."
+    ),
+    "htm": (
+        "Approximate edge length of triangular HTM cells in degrees; "
+        "mapped to an HTM subdivision level."
+    ),
+    "geodesic": (
+        "Approximate edge length of geodesic triangular cells in degrees; "
+        "mapped to an icosahedron subdivision level."
+    ),
+    "healpix": (
+        "Approximate pixel diameter in degrees; "
+        "mapped to a HEALPix nside parameter (power of 2)."
+    ),
+    "fibonacci": (
+        "Approximate cell diameter in degrees; "
+        "mapped to number of Fibonacci-sphere sample points."
+    ),
+}
+
 
 # ==============================================================================
 # Internal: KDTree builder
@@ -601,11 +629,18 @@ def grid_to_dataset(grid: GridData) -> xr.Dataset:
         },
         attrs={
             "grid_type": grid.grid_type,
-            "angular_resolution": (
-                grid.metadata.get("angular_resolution", 0.0) if grid.metadata else 0.0
+            "angular_resolution_deg": float(
+                grid.metadata.get("angular_resolution", 0.0)
+                if grid.metadata
+                else 0.0
             ),
-            "cutoff_theta": (
-                grid.metadata.get("cutoff_theta", 0.0) if grid.metadata else 0.0
+            "angular_resolution_description": _RESOLUTION_DESCRIPTIONS.get(
+                grid.grid_type, "Angular resolution in degrees"
+            ),
+            "cutoff_theta_deg": float(
+                grid.metadata.get("cutoff_theta", 0.0)
+                if grid.metadata
+                else 0.0
             ),
             "n_cells": n_cells,
         },
@@ -671,6 +706,62 @@ def store_grid(
     return snapshot_id
 
 
+def store_dataset_with_cell_ids(
+    ds: xr.Dataset,
+    store: Any,
+    group_name: str,
+) -> str:
+    """Write a dataset (with cell-ID LUT columns) back to the store.
+
+    After calling :func:`add_cell_ids_to_vod_fast` or
+    :func:`add_cell_ids_to_ds_fast`, the dataset carries
+    ``cell_id_<grid_name>`` variables and a ``grid_references`` attr.
+    This function persists those additions to the Icechunk store.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset with cell-ID variables already added.
+    store
+        Icechunk store instance (e.g., MyIcechunkStore).
+    group_name : str
+        Zarr group path, e.g. ``'reference_01_canopy_01'``.
+
+    Returns
+    -------
+    str
+        Snapshot ID from the commit.
+
+    Examples
+    --------
+    >>> from canvod.grids import (
+    ...     add_cell_ids_to_ds_fast, store_dataset_with_cell_ids,
+    ... )
+    >>> ds = add_cell_ids_to_ds_fast(vod_ds, grid, "equal_area_2deg")
+    >>> snapshot_id = store_dataset_with_cell_ids(ds, store, "receiver_01")
+
+    """
+    cell_id_vars = [v for v in ds.data_vars if str(v).startswith("cell_id_")]
+    grid_refs = ds.attrs.get("grid_references", [])
+
+    print(f"\nStoring dataset to '{group_name}'...")
+    print(f"  Cell-ID variables: {cell_id_vars}")
+    print(f"  Grid references: {grid_refs}")
+
+    with store.writable_session() as session:
+        from icechunk.xarray import to_icechunk
+
+        to_icechunk(ds, session, group=group_name, mode="w")
+        snapshot_id = session.commit(
+            f"Stored {group_name} with cell-ID mappings "
+            f"({', '.join(cell_id_vars)})"
+        )
+
+    print(f"  ✓ Snapshot: {snapshot_id[:8]}...")
+
+    return snapshot_id
+
+
 def load_grid(
     store: Any,
     grid_name: str,
@@ -709,10 +800,16 @@ def load_grid(
     with store.readonly_session() as session:
         ds_grid = xr.open_zarr(session.store, group=group_path, consolidated=False)
 
-    # Extract metadata
+    # Extract metadata (support both old and new attr names)
     grid_type = ds_grid.attrs.get("grid_type")
-    angular_resolution = ds_grid.attrs.get("angular_resolution", 0.0)
-    cutoff_theta = ds_grid.attrs.get("cutoff_theta", np.pi / 2)
+    angular_resolution = ds_grid.attrs.get(
+        "angular_resolution_deg",
+        ds_grid.attrs.get("angular_resolution", 0.0),
+    )
+    cutoff_theta = ds_grid.attrs.get(
+        "cutoff_theta_deg",
+        ds_grid.attrs.get("cutoff_theta", 0.0),
+    )
 
     if not grid_type:
         raise ValueError(f"Grid '{grid_name}' missing grid_type attribute")

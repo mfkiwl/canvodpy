@@ -130,6 +130,16 @@ class BaseGridBuilder(ABC):
 
         self._logger.info("grid_build_complete", ncells=len(grid))
 
+        # Merge builder metadata into any extra_kwargs metadata
+        builder_meta = {
+            "angular_resolution": self.angular_resolution,
+            "cutoff_theta": self.cutoff_theta,
+        }
+        if "metadata" in extra_kwargs and extra_kwargs["metadata"]:
+            extra_kwargs["metadata"] = {**builder_meta, **extra_kwargs["metadata"]}
+        else:
+            extra_kwargs["metadata"] = builder_meta
+
         return GridData(
             grid=grid,
             theta_lims=theta_lims,
