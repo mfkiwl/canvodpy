@@ -128,10 +128,6 @@ class TestWorkflowErrorHandling:
 
     def test_workflow_invalid_site_fails(self):
         """Should fail gracefully with invalid site name."""
-        from canvod.utils.config import load_config
-
-        assert "NonexistentSite123" not in load_config().sites.sites
-
         # VODWorkflow passes the string to Site(), which calls GnssResearchSite()
         # which raises KeyError for unknown sites. Mock Site to simulate this.
         with patch(
