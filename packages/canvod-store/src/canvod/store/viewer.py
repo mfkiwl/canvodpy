@@ -473,7 +473,9 @@ class IcechunkStoreViewer:
         """
 
     def _load_grid_dataset(
-        self, branch: str, name: str,
+        self,
+        branch: str,
+        name: str,
     ) -> Any:
         """Load the grid xarray Dataset from the store.
 
@@ -488,7 +490,8 @@ class IcechunkStoreViewer:
             # Try flat xarray-native layout first (store_grid path)
             try:
                 ds = xr.open_zarr(
-                    session.store, group=group_path,
+                    session.store,
+                    group=group_path,
                     consolidated=False,
                 )
                 if len(ds.data_vars) > 0:
@@ -498,13 +501,16 @@ class IcechunkStoreViewer:
 
             # Fall back to polars-based layout (cells subgroup)
             ds = xr.open_zarr(
-                session.store, group=f"{group_path}/cells",
+                session.store,
+                group=f"{group_path}/cells",
                 consolidated=False,
             )
             return ds
 
     def _load_grid_metadata(
-        self, branch: str, name: str,
+        self,
+        branch: str,
+        name: str,
     ) -> dict[str, Any]:
         """Load grid metadata dict.
 
@@ -526,11 +532,13 @@ class IcechunkStoreViewer:
             # for the xarray-native path).
             if "angular_resolution_deg" not in result:
                 result["angular_resolution_deg"] = result.get(
-                    "angular_resolution", 0.0,
+                    "angular_resolution",
+                    0.0,
                 )
             if "cutoff_theta_deg" not in result:
                 result["cutoff_theta_deg"] = result.get(
-                    "cutoff_theta", 0.0,
+                    "cutoff_theta",
+                    0.0,
                 )
             return result
 
@@ -540,11 +548,13 @@ class IcechunkStoreViewer:
             # cutoff_theta is in radians in the polars path
             if "cutoff_theta" in raw and "cutoff_theta_deg" not in raw:
                 raw["cutoff_theta_deg"] = round(
-                    math.degrees(raw["cutoff_theta"]), 2,
+                    math.degrees(raw["cutoff_theta"]),
+                    2,
                 )
             if "angular_resolution" in raw:
                 raw.setdefault(
-                    "angular_resolution_deg", raw["angular_resolution"],
+                    "angular_resolution_deg",
+                    raw["angular_resolution"],
                 )
             return raw
 
@@ -571,10 +581,7 @@ class IcechunkStoreViewer:
         except Exception:
             pass
 
-        badge = (
-            f'<span class="dims-info">{escape(summary)}</span>'
-            if summary else ""
-        )
+        badge = f'<span class="dims-info">{escape(summary)}</span>' if summary else ""
 
         return f"""
         <div class="group-section">
@@ -680,15 +687,13 @@ class IcechunkStoreViewer:
         # 2. Load and display metadata table
         try:
             with self.store.readonly_session(branch) as session:
-                metadata_df = self.store.load_metadata(session.store,
-                                                       group_name)
+                metadata_df = self.store.load_metadata(session.store, group_name)
 
                 # Try to use marimo interactive table if available
                 try:
                     import marimo as mo
 
-                    table_widget = mo.ui.table(data=metadata_df,
-                                               pagination=True)
+                    table_widget = mo.ui.table(data=metadata_df, pagination=True)
                     table_html = table_widget._repr_html_()
                 except (ImportError, AttributeError):
                     # Fallback to Polars HTML for Jupyter
@@ -723,7 +728,8 @@ class IcechunkStoreViewer:
             group_dict = self.store.get_group_names()
             groups = group_dict.get(branch, [])
             groups_html = "".join(
-                self._build_group_section(branch, group) for group in groups)
+                self._build_group_section(branch, group) for group in groups
+            )
 
             if not groups:
                 groups_html = (
@@ -808,8 +814,7 @@ class IcechunkStoreViewer:
             site_name = self.store.site_name
 
             branch_label = "branch" if summary["branches"] == 1 else "branches"
-            receiver_label = "receiver" if summary[
-                "groups"] == 1 else "receivers"
+            receiver_label = "receiver" if summary["groups"] == 1 else "receivers"
 
             header = f"""
             <div class="icechunk-header">
@@ -836,8 +841,8 @@ class IcechunkStoreViewer:
                 branches = self.store.get_branch_names()
                 if branches:
                     branches_html = "".join(
-                        self._build_branch_section(branch)
-                        for branch in branches)
+                        self._build_branch_section(branch) for branch in branches
+                    )
                 else:
                     branches_html = (
                         '<div class="icechunk-empty">📭 No branches in store</div>'
