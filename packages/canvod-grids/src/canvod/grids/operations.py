@@ -630,17 +630,13 @@ def grid_to_dataset(grid: GridData) -> xr.Dataset:
         attrs={
             "grid_type": grid.grid_type,
             "angular_resolution_deg": float(
-                grid.metadata.get("angular_resolution", 0.0)
-                if grid.metadata
-                else 0.0
+                grid.metadata.get("angular_resolution", 0.0) if grid.metadata else 0.0
             ),
             "angular_resolution_description": _RESOLUTION_DESCRIPTIONS.get(
                 grid.grid_type, "Angular resolution in degrees"
             ),
             "cutoff_theta_deg": float(
-                grid.metadata.get("cutoff_theta", 0.0)
-                if grid.metadata
-                else 0.0
+                grid.metadata.get("cutoff_theta", 0.0) if grid.metadata else 0.0
             ),
             "n_cells": n_cells,
         },
@@ -753,8 +749,7 @@ def store_dataset_with_cell_ids(
 
         to_icechunk(ds, session, group=group_name, mode="w")
         snapshot_id = session.commit(
-            f"Stored {group_name} with cell-ID mappings "
-            f"({', '.join(cell_id_vars)})"
+            f"Stored {group_name} with cell-ID mappings ({', '.join(cell_id_vars)})"
         )
 
     print(f"  ✓ Snapshot: {snapshot_id[:8]}...")
