@@ -78,7 +78,7 @@
 | packages/canvod-grids/src/canvod/grids/grids\_impl/geodesic\_grid.py         |      100 |        2 |     98% |  142, 226 |
 | packages/canvod-grids/src/canvod/grids/grids\_impl/healpix\_grid.py          |       46 |       37 |     20% |117-141, 156, 181-233, 246 |
 | packages/canvod-grids/src/canvod/grids/grids\_impl/htm\_grid.py              |       74 |        0 |    100% |           |
-| packages/canvod-grids/src/canvod/grids/operations.py                         |      327 |      142 |     57% |208-238, 266-319, 355, 418-437, 444-464, 476-497, 560, 565-610, 744-762, 815 |
+| packages/canvod-grids/src/canvod/grids/operations.py                         |      327 |      142 |     57% |208-238, 266-319, 355, 418-437, 444-464, 476-497, 560, 565-610, 740-757, 810 |
 | packages/canvod-grids/src/canvod/grids/workflows/\_\_init\_\_.py             |        2 |        0 |    100% |           |
 | packages/canvod-grids/src/canvod/grids/workflows/adapted\_workflow.py        |      187 |      163 |     13% |45-52, 71-73, 105-106, 132-136, 173-227, 277, 334-390, 426-489, 497-508, 517-529, 544-564, 617-695, 716, 735-763 |
 | packages/canvod-grids/tests/test\_cell\_assignment.py                        |       86 |        8 |     91% |   123-145 |
