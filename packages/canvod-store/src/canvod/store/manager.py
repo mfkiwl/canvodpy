@@ -21,7 +21,6 @@ if TYPE_CHECKING:
 
 from canvodpy.globals import RINEX_STORE_STRATEGY
 from canvodpy.logging import get_logger
-from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
 
 from canvod.store.store import (
     create_rinex_store,
@@ -66,21 +65,21 @@ class GnssResearchSite:
         site_name : str
             Name of the research site.
         """
-        if site_name not in RESEARCH_SITES:
-            available_sites = list(RESEARCH_SITES.keys())
+        from canvod.utils.config import load_config
+
+        config = load_config()
+        sites = config.sites.sites
+
+        if site_name not in sites:
+            available_sites = list(sites.keys())
             raise KeyError(
                 f"Site '{site_name}' not found in config. "
                 f"Available sites: {available_sites}"
             )
 
         self.site_name = site_name
-        self.site_config = RESEARCH_SITES[site_name]
+        self._site_config = sites[site_name]
         self._logger = get_logger(__name__).bind(site=site_name)
-
-        # Load store paths from processing config (not from research_sites_config)
-        from canvod.utils.config import load_config
-
-        config = load_config()
 
         rinex_store_path = config.processing.storage.get_rinex_store_path(site_name)
         vod_store_path = config.processing.storage.get_vod_store_path(site_name)
@@ -96,9 +95,17 @@ class GnssResearchSite:
         )
 
     @property
+    def site_config(self) -> dict[str, Any]:
+        """Get the site configuration as a dictionary."""
+        return self._site_config.model_dump()
+
+    @property
     def receivers(self) -> dict[str, dict[str, Any]]:
         """Get all configured receivers for this site."""
-        return self.site_config["receivers"]
+        return {
+            name: cfg.model_dump()
+            for name, cfg in self._site_config.receivers.items()
+        }
 
     @property
     def active_receivers(self) -> dict[str, dict[str, Any]]:
@@ -112,7 +119,12 @@ class GnssResearchSite:
     @property
     def vod_analyses(self) -> dict[str, dict[str, Any]]:
         """Get all configured VOD analyses for this site."""
-        return self.site_config["vod_analyses"]
+        if self._site_config.vod_analyses is None:
+            return {}
+        return {
+            name: cfg.model_dump()
+            for name, cfg in self._site_config.vod_analyses.items()
+        }
 
     @property
     def active_vod_analyses(self) -> dict[str, dict[str, Any]]:
@@ -152,7 +164,7 @@ class GnssResearchSite:
         config = load_config()
 
         # Try to match against each site's expected rinex store path
-        for site_name in RESEARCH_SITES.keys():
+        for site_name in config.sites.sites.keys():
             expected_path = config.processing.storage.get_rinex_store_path(site_name)
             if expected_path == rinex_store_path:
                 return cls(site_name)
@@ -759,59 +771,6 @@ def create_default_site() -> GnssResearchSite:
     GnssResearchSite
         Instance for the ``DEFAULT_RESEARCH_SITE``.
     """
-    return GnssResearchSite(DEFAULT_RESEARCH_SITE)
+    from canvod.utils.config import load_config
 
-
-# Example usage and testing
-if __name__ == "__main__":
-    from gnssvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
-
-    print(RESEARCH_SITES["Rosalia"]["rinex_store_path"])
-
-    # # Create site manager
-    # try:
-    #     site = GnssResearchSite("Rosalia")
-    #     print(f"Created site manager: {site}")
-    #     print()
-
-    #     # Validate configuration
-    #     print("Validating site configuration...")
-    #     site.validate_site_config()
-    #     print("✓ Configuration is valid")
-    #     print()
-
-    #     # Get site summary
-    #     summary = site.get_site_summary()
-    #     print("Site Summary:")
-    #     print(f"  Site: {summary['site_name']}")
-    #     print(
-    #         f"  Active receivers: {summary['site_config']['active_receivers']}"
-    #     )
-    #     print(
-    #         f"  Active VOD analyses: {summary['site_config']['active_vod_analyses']}"
-    #     )
-    #     print(
-    #         "  RINEX groups with data: "
-    #         f"{summary['data_status']['rinex_groups_exist']}"
-    #     )
-    #     print(
-    #         f"  VOD groups with results: {summary['data_status']['vod_groups_exist']}"
-    #     )
-    #     print()
-
-    #     # Show configured receivers
-    #     print("Configured Receivers:")
-    #     for name, config in site.active_receivers.items():
-    #         print(f"  {name}: {config['type']} - {config['description']}")
-    #     print()
-
-    #     # Show configured analyses
-    #     print("Configured VOD Analyses:")
-    #     for name, config in site.active_vod_analyses.items():
-    #         print(
-    #             f"  {name}: {config['canopy_receiver']} vs "
-    #             f"{config['reference_receiver']}"
-    #         )
-
-    # except Exception as e:
-    #     print(f"Error: {e}")
+    return GnssResearchSite(next(iter(load_config().sites.sites)))

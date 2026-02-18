@@ -194,19 +194,6 @@ class TestConfigurationCompatibility:
         assert KEEP_RNX_VARS is not None
         assert isinstance(KEEP_RNX_VARS, list)
 
-    def test_research_sites_still_exported(self):
-        """RESEARCH_SITES should still be available."""
-        from canvodpy import RESEARCH_SITES
-
-        assert RESEARCH_SITES is not None
-
-    def test_default_research_site_still_exported(self):
-        """DEFAULT_RESEARCH_SITE should still be available."""
-        from canvodpy import DEFAULT_RESEARCH_SITE
-
-        assert DEFAULT_RESEARCH_SITE is not None
-
-
 class TestSubpackageCompatibility:
     """Test subpackage imports still work."""
 

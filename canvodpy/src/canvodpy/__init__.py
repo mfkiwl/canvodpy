@@ -44,7 +44,7 @@ Package Structure
 
 Configuration
 -------------
-Site configurations are stored in `research_sites_config.py`.
+Site configurations are stored in ``config/sites.yaml``.
 Default variables and settings are in `globals.py`.
 
 Examples
@@ -98,8 +98,6 @@ from canvodpy.globals import KEEP_RNX_VARS
 
 # Logging (for all users)
 from canvodpy.logging import get_logger, setup_logging
-from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE, RESEARCH_SITES
-
 # New workflow API
 from canvodpy.workflow import VODWorkflow
 
@@ -205,8 +203,6 @@ __all__ = [  # noqa: RUF022
     "AugmentationFactory",
     # Configuration (useful for all users)
     "KEEP_RNX_VARS",
-    "RESEARCH_SITES",
-    "DEFAULT_RESEARCH_SITE",
     # Subpackages (advanced users)
     "readers",
     "aux",

@@ -14,7 +14,6 @@ from canvod.readers import MatchedDirs, Rnxv3Obs
 from canvod.utils.tools import get_version_from_pyproject
 from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY
 from canvodpy.logging import get_logger
-from canvodpy.research_sites_config import DEFAULT_RESEARCH_SITE
 from natsort import natsorted
 from tqdm import tqdm
 
@@ -130,7 +129,7 @@ class IcechunkDataReader:
     def __init__(
         self,
         matched_dirs: MatchedDirs,
-        site_name: str = DEFAULT_RESEARCH_SITE,
+        site_name: str | None = None,
         n_max_workers: int = N_MAX_THREADS,
         enable_gc: bool = True,
         gc_delay: float = 1.0,
@@ -141,8 +140,8 @@ class IcechunkDataReader:
         ----------
         matched_dirs : MatchedDirs
             Directory information for date/location matching.
-        site_name : str, optional
-            Name of research site.
+        site_name : str | None, optional
+            Name of research site. If ``None``, uses the first site from config.
         n_max_workers : int, optional
             Maximum number of workers for parallel operations.
         enable_gc : bool, optional
@@ -150,6 +149,11 @@ class IcechunkDataReader:
         gc_delay : float, optional
             Delay in seconds after garbage collection.
         """
+        if site_name is None:
+            from canvod.utils.config import load_config
+
+            site_name = next(iter(load_config().sites.sites))
+
         self.matched_dirs = matched_dirs
         self.site_name = site_name
         self.n_max_workers = n_max_workers
