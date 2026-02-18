@@ -137,7 +137,22 @@ class MyIcechunkStore:
 
         self._repo = None
         self._logger = get_logger(__name__)
+
+        # Remove .DS_Store files that corrupt icechunk ref listing on macOS
+        self._clean_ds_store()
         self._ensure_store_exists()
+
+    def _clean_ds_store(self) -> None:
+        """Remove .DS_Store files from the store directory tree.
+
+        macOS creates these files automatically and they corrupt icechunk's
+        ref listing, causing 'invalid ref type `.DS_Store`' errors.
+        """
+        if not self.store_path.exists():
+            return
+        for ds_store in self.store_path.rglob(".DS_Store"):
+            ds_store.unlink()
+            self._logger.debug(f"Removed {ds_store}")
 
     def _normalize_encodings(self, ds: xr.Dataset) -> xr.Dataset:
         """Normalize dataset encodings for Icechunk.
