@@ -223,8 +223,7 @@ class GnssResearchSite:
         # Check that all VOD analyses reference valid receivers
         # Build set of valid reference store groups (e.g. reference_01_canopy_01)
         valid_ref_groups = {
-            f"{ref}_{canopy}"
-            for ref, canopy in self.get_reference_canopy_pairs()
+            f"{ref}_{canopy}" for ref, canopy in self.get_reference_canopy_pairs()
         }
 
         for analysis_name, analysis_config in self.vod_analyses.items():

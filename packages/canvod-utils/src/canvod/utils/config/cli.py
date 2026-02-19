@@ -372,18 +372,24 @@ def _show_processing(config: ProcessingConfig) -> None:
     console.print(f"  VOD store name:    {st.vod_store_name}")
     aux_dir = str(st.aux_data_dir) if st.aux_data_dir else "[dim]system temp[/dim]"
     console.print(f"  Aux data dir:      {aux_dir}")
-    console.print(f"  RINEX strategy:    {st.rinex_store_strategy} (expire: {st.rinex_store_expire_days}d)")
+    console.print(
+        f"  RINEX strategy:    {st.rinex_store_strategy} (expire: {st.rinex_store_expire_days}d)"
+    )
     console.print(f"  VOD strategy:      {st.vod_store_strategy}")
     console.print()
 
     # Icechunk
     ic = config.icechunk
     console.print("[bold]Icechunk:[/bold]")
-    console.print(f"  Compression:       {ic.compression_algorithm} (level {ic.compression_level})")
+    console.print(
+        f"  Compression:       {ic.compression_algorithm} (level {ic.compression_level})"
+    )
     console.print(f"  Inline threshold:  {ic.inline_threshold} bytes")
     console.print(f"  Get concurrency:   {ic.get_concurrency}")
     for store_name, strategy in ic.chunk_strategies.items():
-        console.print(f"  Chunks ({store_name}): epoch={strategy.epoch}, sid={strategy.sid}")
+        console.print(
+            f"  Chunks ({store_name}): epoch={strategy.epoch}, sid={strategy.sid}"
+        )
     console.print()
 
 
@@ -417,12 +423,8 @@ def _show_sites(config: SitesConfig) -> None:
 
         # Store paths
         if storage:
-            console.print(
-                f"    RINEX store: {storage.get_rinex_store_path(site_name)}"
-            )
-            console.print(
-                f"    VOD store:   {storage.get_vod_store_path(site_name)}"
-            )
+            console.print(f"    RINEX store: {storage.get_rinex_store_path(site_name)}")
+            console.print(f"    VOD store:   {storage.get_vod_store_path(site_name)}")
 
         # Receivers table
         canopy_names = site.get_canopy_receiver_names()
@@ -443,9 +445,7 @@ def _show_sites(config: SitesConfig) -> None:
             console.print(f"        dir: {abs_dir}")
             if recv.scs_from is not None:
                 if recv.scs_from == "all":
-                    console.print(
-                        f"        scs_from: all -> {canopy_names}"
-                    )
+                    console.print(f"        scs_from: all -> {canopy_names}")
                 else:
                     console.print(f"        scs_from: {recv.scs_from}")
 

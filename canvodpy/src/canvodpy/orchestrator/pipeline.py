@@ -132,7 +132,9 @@ class PipelineOrchestrator:
         for date_key, receivers in sorted(grouped.items()):
             date_info = {"date": date_key, "receivers": []}
 
-            for receiver_name, (data_dir, receiver_type, _pos_dir) in sorted(receivers.items()):
+            for receiver_name, (data_dir, receiver_type, _pos_dir) in sorted(
+                receivers.items()
+            ):
                 files = list(data_dir.glob("*.2*o"))
 
                 receiver_info = {
@@ -234,9 +236,11 @@ class PipelineOrchestrator:
             # Build receiver_configs for this date (4-tuples with position_data_dir)
             receiver_configs = [
                 (receiver_name, receiver_type, data_dir, position_data_dir)
-                for receiver_name, (data_dir, receiver_type, position_data_dir) in sorted(
-                    receivers.items()
-                )
+                for receiver_name, (
+                    data_dir,
+                    receiver_type,
+                    position_data_dir,
+                ) in sorted(receivers.items())
             ]
 
             # Convert to MatchedDirs for aux data (use any dir, aux is date-based)

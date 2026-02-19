@@ -2047,7 +2047,9 @@ class RinexDataProcessor:
     def parsed_rinex_data_gen(
         self,
         keep_vars: list[str] | None = None,
-        receiver_configs: list[tuple[str, str, Path]] | list[tuple[str, str, Path, Path | None]] | None = None,
+        receiver_configs: list[tuple[str, str, Path]]
+        | list[tuple[str, str, Path, Path | None]]
+        | None = None,
     ) -> Generator[tuple[str, xr.Dataset, float], None, None]:
         """Generate datasets from RINEX files and append to Icechunk stores.
 
@@ -2102,7 +2104,9 @@ class RinexDataProcessor:
         # STEP 1: Preprocess aux data ONCE per day with Hermite splines
         # ====================================================================
         # Get first receiver files to infer sampling rate
-        first_receiver_name, _first_receiver_type, first_data_dir, _ = normalized_configs[0]
+        first_receiver_name, _first_receiver_type, first_data_dir, _ = (
+            normalized_configs[0]
+        )
         first_files = self._get_rinex_files(first_data_dir)
 
         if not first_files:
@@ -2123,7 +2127,12 @@ class RinexDataProcessor:
         # ====================================================================
         # STEP 2: Process each receiver independently
         # ====================================================================
-        for receiver_name, receiver_type, data_dir, position_data_dir in normalized_configs:
+        for (
+            receiver_name,
+            receiver_type,
+            data_dir,
+            position_data_dir,
+        ) in normalized_configs:
             receiver_start = time.time()
 
             self._logger.info(
@@ -2273,9 +2282,7 @@ class RinexDataProcessor:
         for name, cfg in site_config.receivers.items():
             if cfg.type == "canopy":
                 canopy_data_dirs[name] = (
-                    base_path
-                    / cfg.directory
-                    / self.matched_data_dirs.yyyydoy.yydoy
+                    base_path / cfg.directory / self.matched_data_dirs.yyyydoy.yydoy
                 )
 
         # Add all canopy receivers (each uses own position)
