@@ -31,7 +31,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 # Lazy imports to avoid circular dependencies
-from canvodpy.globals import KEEP_RNX_VARS
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -212,7 +211,11 @@ class Pipeline:
             site = Site(site)
 
         self.site = site
-        self.keep_vars = keep_vars or KEEP_RNX_VARS
+        if keep_vars is None:
+            from canvod.utils.config import load_config
+
+            keep_vars = load_config().processing.processing.keep_rnx_vars
+        self.keep_vars = keep_vars
         self.aux_agency = aux_agency
         self.n_workers = n_workers
         self.dry_run = dry_run
@@ -239,7 +242,7 @@ class Pipeline:
             "pipeline_initialized",
             aux_agency=aux_agency,
             n_workers=n_workers,
-            keep_vars=len(keep_vars or KEEP_RNX_VARS),
+            keep_vars=len(self.keep_vars),
             dry_run=dry_run,
         )
 

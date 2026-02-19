@@ -33,7 +33,6 @@ from typing import TYPE_CHECKING, Any
 
 from canvodpy.api import Site
 from canvodpy.factories import GridFactory, ReaderFactory, VODFactory
-from canvodpy.globals import KEEP_RNX_VARS
 from canvodpy.logging import get_logger
 
 if TYPE_CHECKING:
@@ -121,7 +120,11 @@ class FluentWorkflow:
         self._reader_name = reader
         self._grid_type = grid_type
         self._vod_calculator_name = vod_calculator
-        self._keep_vars = keep_vars or KEEP_RNX_VARS
+        if keep_vars is None:
+            from canvod.utils.config import load_config
+
+            keep_vars = load_config().processing.processing.keep_rnx_vars
+        self._keep_vars = keep_vars
 
         self.log = get_logger(__name__).bind(site=self._site.name)
 

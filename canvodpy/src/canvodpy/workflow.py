@@ -36,7 +36,6 @@ import xarray as xr
 
 from canvodpy.api import Site
 from canvodpy.factories import GridFactory, ReaderFactory, VODFactory
-from canvodpy.globals import KEEP_RNX_VARS
 from canvodpy.logging import get_logger
 
 if TYPE_CHECKING:
@@ -129,7 +128,11 @@ class VODWorkflow:
         self.reader_name = reader
         self.grid_name = grid
         self.vod_calculator_name = vod_calculator
-        self.keep_vars = keep_vars or KEEP_RNX_VARS
+        if keep_vars is None:
+            from canvod.utils.config import load_config
+
+            keep_vars = load_config().processing.processing.keep_rnx_vars
+        self.keep_vars = keep_vars
 
         # Create grid using factory (cached for workflow)
         grid_params = grid_params or {}

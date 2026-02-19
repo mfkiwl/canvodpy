@@ -21,6 +21,9 @@ processing:
   n_max_threads: 20
   keep_rnx_vars:
     - SNR
+    - Pseudorange
+    - Phase
+    - Doppler
   aggregate_glonass_fdma: true
 
 compression:
@@ -39,6 +42,9 @@ icechunk:
     vod_store:
       epoch: 34560
       sid: -1
+  manifest_preload_enabled: false
+  manifest_preload_max_refs: 100000000
+  manifest_preload_pattern: "epoch|sid"
 
 storage:
   stores_root_dir: /path/to/stores  # MUST be set by user!

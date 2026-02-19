@@ -13,19 +13,15 @@ import xarray as xr
 from canvod.readers.matching import MatchedDirs
 from canvod.readers.matching.dir_matcher import DataDirMatcher
 from canvod.utils.tools import YYYYDOY
-from canvodpy.globals import (
-    AGENCY,
-    CLK_FILE_PATH,
-    FTP_SERVER,
-    PRODUCT_TYPE,
-    SP3_FILE_PATH,
-)
 
 from canvod.auxiliary._internal import get_logger
 from canvod.auxiliary.clock import ClkFile
 from canvod.auxiliary.core.base import AuxFile
 from canvod.auxiliary.ephemeris import Sp3File
 from canvod.auxiliary.preprocessing import prep_aux_ds
+
+_SP3_SUBDIR = Path("01_SP3")
+_CLK_SUBDIR = Path("02_CLK")
 
 
 class AuxDataPipeline:
@@ -380,11 +376,11 @@ class AuxDataPipeline:
         aux_file_path : Path
             Root path for auxiliary files (site's gnss_site_data_root).
         agency : str, optional
-            Analysis center code (e.g., "COD"). If None, uses AGENCY from globals.
+            Analysis center code (e.g., "COD"). If None, uses config value.
         product_type : str, optional
-            Product type ("final", "rapid"). If None, uses PRODUCT_TYPE from globals.
+            Product type ("final", "rapid"). If None, uses config value.
         ftp_server : str, optional
-            FTP server URL. If None, uses FTP_SERVER from globals.
+            FTP server URL. If None, uses config value.
         user_email : str, optional
             Email for authenticated FTP (nasa_earthdata_acc_mail from config).
         keep_sids : list[str] | None, optional
@@ -401,22 +397,24 @@ class AuxDataPipeline:
         >>> pipeline.load_all()
         >>> ephem_ds = pipeline.get_ephemerides()
         """
-        from canvodpy.globals import AGENCY as DEFAULT_AGENCY
-        from canvodpy.globals import CLK_FILE_PATH, SP3_FILE_PATH
-        from canvodpy.globals import FTP_SERVER as DEFAULT_FTP_SERVER
-        from canvodpy.globals import PRODUCT_TYPE as DEFAULT_PRODUCT_TYPE
+        from canvod.utils.config import load_config
 
         from canvod.auxiliary.clock import ClkFile
         from canvod.auxiliary.ephemeris import Sp3File
 
-        # Use defaults from globals if not provided
-        agency = agency or DEFAULT_AGENCY
-        product_type = product_type or DEFAULT_PRODUCT_TYPE
-        ftp_server = ftp_server or DEFAULT_FTP_SERVER
+        cfg = load_config()
+        aux_cfg = cfg.processing.aux_data
+
+        # Use defaults from config if not provided
+        agency = agency or aux_cfg.agency
+        product_type = product_type or aux_cfg.product_type
+        if ftp_server is None:
+            servers = aux_cfg.get_ftp_servers(cfg.nasa_earthdata_acc_mail)
+            ftp_server = servers[0][0]
 
         # Determine aux file paths
-        sp3_dir = aux_file_path / SP3_FILE_PATH
-        clk_dir = aux_file_path / CLK_FILE_PATH
+        sp3_dir = aux_file_path / _SP3_SUBDIR
+        clk_dir = aux_file_path / _CLK_SUBDIR
 
         # Initialize pipeline
         pipeline = cls(matched_dirs=matched_dirs, keep_sids=keep_sids)
@@ -493,16 +491,23 @@ if __name__ == "__main__":
         # Initialize pipeline
         pipeline = AuxDataPipeline(matched_dirs=matched_dirs)
 
+        from canvod.utils.config import load_config as _load_cfg
+
+        _cfg = _load_cfg()
+        _aux = _cfg.processing.aux_data
+        _servers = _aux.get_ftp_servers(_cfg.nasa_earthdata_acc_mail)
+        _ftp = _servers[0][0]
+
         # Determine aux file paths
-        sp3_dir = aux_file_path / SP3_FILE_PATH
-        clk_dir = aux_file_path / CLK_FILE_PATH
+        sp3_dir = aux_file_path / _SP3_SUBDIR
+        clk_dir = aux_file_path / _CLK_SUBDIR
 
         # Register ephemerides (REQUIRED)
         sp3_file = Sp3File.from_datetime_date(
             date=matched_dirs.yyyydoy.date,
-            agency=AGENCY,
-            product_type=PRODUCT_TYPE,
-            ftp_server=FTP_SERVER,
+            agency=_aux.agency,
+            product_type=_aux.product_type,
+            ftp_server=_ftp,
             local_dir=sp3_dir,
             user_email=user_email,
         )
@@ -511,9 +516,9 @@ if __name__ == "__main__":
         # Register clock (REQUIRED)
         clk_file = ClkFile.from_datetime_date(
             date=matched_dirs.yyyydoy.date,
-            agency=AGENCY,
-            product_type=PRODUCT_TYPE,
-            ftp_server=FTP_SERVER,
+            agency=_aux.agency,
+            product_type=_aux.product_type,
+            ftp_server=_ftp,
             local_dir=clk_dir,
             user_email=user_email,
         )
@@ -639,30 +644,25 @@ The threading.Lock ensures safe concurrent access!
     pipeline2 = AuxDataPipeline(matched_dirs=md)
 
     # Manually register files for custom configuration
-    from canvodpy.globals import (
-        AGENCY,
-        CLK_FILE_PATH,
-        FTP_SERVER,
-        PRODUCT_TYPE,
-        SP3_FILE_PATH,
-    )
+    from canvod.utils.config import load_config
 
     from canvod.auxiliary.clock import ClkFile
     from canvod.auxiliary.ephemeris import Sp3File
 
-    from canvod.utils.config import load_config
-
     config = load_config()
+    aux_cfg = config.processing.aux_data
     site_config = list(config.sites.sites.values())[0]
     root = Path(site_config.gnss_site_data_root)
     user_email = config.nasa_earthdata_acc_mail
+    servers = aux_cfg.get_ftp_servers(user_email)
+    ftp = servers[0][0]
 
     sp3_file = Sp3File.from_datetime_date(
         date=md.yyyydoy.date,
-        agency=AGENCY,
-        product_type=PRODUCT_TYPE,
-        ftp_server=FTP_SERVER,
-        local_dir=root / SP3_FILE_PATH,
+        agency=aux_cfg.agency,
+        product_type=aux_cfg.product_type,
+        ftp_server=ftp,
+        local_dir=root / _SP3_SUBDIR,
         user_email=user_email,
         add_velocities=True,  # Custom option!
     )
@@ -670,10 +670,10 @@ The threading.Lock ensures safe concurrent access!
 
     clk_file = ClkFile.from_datetime_date(
         date=md.yyyydoy.date,
-        agency=AGENCY,
-        product_type=PRODUCT_TYPE,
-        ftp_server=FTP_SERVER,
-        local_dir=root / CLK_FILE_PATH,
+        agency=aux_cfg.agency,
+        product_type=aux_cfg.product_type,
+        ftp_server=ftp,
+        local_dir=root / _CLK_SUBDIR,
         user_email=user_email,
     )
     pipeline2.register("clock", clk_file, required=True)

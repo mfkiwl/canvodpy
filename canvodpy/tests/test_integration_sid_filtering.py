@@ -57,8 +57,8 @@ _TEST_VOD_ANALYSES = {
 def test_sid_filtering_integration():
     """Test SID filtering with full orchestrator."""
     from canvod.store import GnssResearchSite
+    from canvod.utils.config import load_config
     from canvod.utils.config.models import ReceiverConfig, VodAnalysisConfig
-    from canvodpy.globals import KEEP_RNX_VARS
     from canvodpy.orchestrator.pipeline import PipelineOrchestrator
 
     site = GnssResearchSite(site_name="Rosalia")
@@ -76,7 +76,9 @@ def test_sid_filtering_integration():
 
     counter = 0
     for date_key, _datasets, _receiver_times in orchestrator.process_by_date(
-        keep_vars=KEEP_RNX_VARS, start_from=None, end_at=None
+        keep_vars=load_config().processing.processing.keep_rnx_vars,
+        start_from=None,
+        end_at=None,
     ):
         counter += 1
         if counter >= 1:

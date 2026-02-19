@@ -391,9 +391,9 @@ class SingleReceiverProcessor:
 
 if __name__ == "__main__":
     from canvod.store import GnssResearchSite
+    from canvod.utils.config import load_config
 
-    from canvodpy.globals import KEEP_RNX_VARS
-
+    cfg = load_config()
     site = GnssResearchSite(site_name="Rosalia")
 
     # Test with dry run first
@@ -403,7 +403,8 @@ if __name__ == "__main__":
     )
 
     # Process all dates
-    for date_key, datasets in orchestrator.process_by_date(keep_vars=KEEP_RNX_VARS):
+    keep_vars = cfg.processing.processing.keep_rnx_vars
+    for date_key, datasets in orchestrator.process_by_date(keep_vars=keep_vars):
         print(f"\nProcessed date: {date_key}")
         for receiver_name, ds in datasets.items():
             print(f"  {receiver_name}: {dict(ds.sizes)}")

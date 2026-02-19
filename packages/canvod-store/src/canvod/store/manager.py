@@ -19,7 +19,6 @@ import xarray as xr
 if TYPE_CHECKING:
     from canvod.vod import VODCalculator
 
-from canvodpy.globals import RINEX_STORE_STRATEGY
 from canvodpy.logging import get_logger
 
 from canvod.store.store import (
@@ -348,7 +347,7 @@ class GnssResearchSite:
 
         self._logger.info(f"Reading data for receiver '{receiver_name}'")
 
-        if RINEX_STORE_STRATEGY == "append":
+        if self.rinex_store._rinex_store_strategy == "append":
             ds = self.rinex_store.read_group_deduplicated(receiver_name, keep="last")
         else:
             ds = self.rinex_store.read_group(receiver_name)

@@ -16,8 +16,6 @@ COORDS_METADATA : dict
     Metadata for dataset coordinates (epoch, sid, sv, etc.)
 DTYPES : dict
     Data types for coordinates and variables.
-GLOBAL_ATTRS_TEMPLATE : dict
-    Template for global attributes (author, institution, etc.)
 DATAVARS_TO_BE_FILLED : dict
     Metadata for auxiliary variables (r, theta, phi, v, a).
 
@@ -35,16 +33,7 @@ canvod.readers.base.DatasetStructureValidator : Validates dataset structure
 from typing import Any, Final
 
 import numpy as np
-from canvod.readers.gnss_specs.constants import (
-    AUTHOR,
-    DEPARTMENT,
-    EMAIL,
-    FREQ_UNIT,
-    INSTITUTION,
-    RESEARCH_GROUP,
-    SOFTWARE,
-    WEBSITE,
-)
+from canvod.readers.gnss_specs.constants import FREQ_UNIT
 
 # -------------------
 # Observable metadata
@@ -245,14 +234,31 @@ DTYPES: Final[dict[str, np.dtype]] = {
 # -------------------
 # Global attributes
 # -------------------
-GLOBAL_ATTRS_TEMPLATE: Final[dict[str, str]] = {
-    "Author": AUTHOR,
-    "Email": EMAIL,
-    "Institution": INSTITUTION,
-    "Department": DEPARTMENT,
-    "Research Group": f"{RESEARCH_GROUP}, {WEBSITE}",
-    "Software": SOFTWARE,
-}
+
+def get_global_attrs() -> dict[str, str]:
+    """Build global attributes from the active configuration.
+
+    Returns
+    -------
+    dict[str, str]
+        Global attributes dict suitable for xarray Dataset attrs.
+    """
+    from canvod.utils.config import load_config
+
+    cfg = load_config()
+    meta = cfg.processing.metadata
+    attrs: dict[str, str] = {
+        "Author": meta.author,
+        "Email": meta.email,
+        "Institution": meta.institution,
+    }
+    if meta.department:
+        attrs["Department"] = meta.department
+    rg_parts = [p for p in [meta.research_group, meta.website] if p]
+    if rg_parts:
+        attrs["Research Group"] = ", ".join(rg_parts)
+    attrs["Software"] = "canVODpy"
+    return attrs
 
 # -------------------
 # Additional data variables

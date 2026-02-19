@@ -84,6 +84,9 @@ from canvodpy.factories import (
     VODFactory,
 )
 
+# Fluent workflow API (deferred execution)
+from canvodpy.fluent import FluentWorkflow
+
 # Functional API (Airflow-compatible)
 from canvodpy.functional import (
     assign_grid_cells,
@@ -94,16 +97,12 @@ from canvodpy.functional import (
     read_rinex,
     read_rinex_to_file,
 )
-from canvodpy.globals import KEEP_RNX_VARS
 
 # Logging (for all users)
 from canvodpy.logging import get_logger, setup_logging
 
 # New workflow API
 from canvodpy.workflow import VODWorkflow
-
-# Fluent workflow API (deferred execution)
-from canvodpy.fluent import FluentWorkflow
 
 
 def workflow(site: str, **kwargs) -> FluentWorkflow:
@@ -202,8 +201,6 @@ __all__ = [  # noqa: RUF022
     "GridFactory",
     "VODFactory",
     "AugmentationFactory",
-    # Configuration (useful for all users)
-    "KEEP_RNX_VARS",
     # Subpackages (advanced users)
     "readers",
     "aux",

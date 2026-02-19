@@ -13,8 +13,9 @@ from datetime import datetime
 from pathlib import Path
 
 from canvod.store import GnssResearchSite
+from canvod.utils.config import load_config
 
-from canvodpy.globals import KEEP_RNX_VARS, LOG_DIR, RINEX_STORE_STRATEGY
+from canvodpy.globals import LOG_DIR
 from canvodpy.orchestrator import PipelineOrchestrator
 
 
@@ -117,8 +118,11 @@ def diagnose_processing(
     print("TIMING DIAGNOSTIC WITH GENERALIZED PIPELINE")
     print("=" * 80)
     print(f"Start time: {datetime.now()}")
-    print(f"RINEX_STORE_STRATEGY: {RINEX_STORE_STRATEGY}")
-    print(f"KEEP_RNX_VARS: {KEEP_RNX_VARS}")
+    cfg = load_config()
+    keep_vars = cfg.processing.processing.keep_rnx_vars
+    rinex_store_strategy = cfg.processing.storage.rinex_store_strategy
+    print(f"rinex_store_strategy: {rinex_store_strategy}")
+    print(f"keep_rnx_vars: {keep_vars}")
     if start_from:
         print(f"Starting from: {start_from}")
     if end_at:
@@ -138,7 +142,7 @@ def diagnose_processing(
 
     # Main processing loop
     for date_key, datasets, receiver_times in orchestrator.process_by_date(
-        keep_vars=KEEP_RNX_VARS, start_from=start_from, end_at=end_at
+        keep_vars=keep_vars, start_from=start_from, end_at=end_at
     ):
         day_start_time = datetime.now()  # Capture start time
 

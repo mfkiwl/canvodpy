@@ -8,6 +8,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 from datetime import datetime, timezone
 from datetime import time as dt_time
 from pathlib import Path
+
 import numpy as np
 import polars as pl
 import pydantic_core
@@ -29,13 +30,6 @@ from natsort import natsorted
 from pydantic import ValidationError
 from tqdm import tqdm
 
-from canvodpy.globals import (
-    AGENCY,
-    FTP_SERVER,
-    KEEP_RNX_VARS,
-    PRODUCT_TYPE,
-    RINEX_STORE_STRATEGY,
-)
 from canvodpy.logging import get_logger
 from canvodpy.orchestrator.interpolator import (
     ClockConfig,
@@ -490,6 +484,14 @@ class RinexDataProcessor:
         config = load_config()
         self.keep_sids = config.sids.get_sids()
 
+        # Cache config values formerly in globals
+        aux_cfg = config.processing.aux_data
+        self._agency = aux_cfg.agency
+        self._product_type = aux_cfg.product_type
+        servers = aux_cfg.get_ftp_servers(config.nasa_earthdata_acc_mail)
+        self._ftp_server = servers[0][0]
+        self._rinex_store_strategy = config.processing.storage.rinex_store_strategy
+
         self._logger.info(
             "processor_initialized",
             aux_file_path=str(aux_file_path) if aux_file_path else None,
@@ -512,25 +514,29 @@ class RinexDataProcessor:
         start_time = time.time()
         self._logger.info(
             "aux_pipeline_initialization_started",
-            agency=AGENCY,
-            product_type=PRODUCT_TYPE,
+            agency=self._agency,
+            product_type=self._product_type,
         )
 
         # Get credentials from YAML config
         config = load_config()
         user_email = config.nasa_earthdata_acc_mail
 
-        # Determine aux_file_path from site config if not explicitly provided
+        # Determine aux_file_path: explicit > config aux_data_dir > site data root
         aux_file_path = self.aux_file_path
         if aux_file_path is None:
-            aux_file_path = Path(self.site.site_config["gnss_site_data_root"])
+            configured_aux_dir = config.processing.storage.aux_data_dir
+            if configured_aux_dir is not None:
+                aux_file_path = configured_aux_dir
+            else:
+                aux_file_path = Path(self.site.site_config["gnss_site_data_root"])
 
         pipeline = AuxDataPipeline.create_standard(
             matched_dirs=self.matched_data_dirs,
             aux_file_path=aux_file_path,
-            agency=AGENCY,
-            product_type=PRODUCT_TYPE,
-            ftp_server=FTP_SERVER,
+            agency=self._agency,
+            product_type=self._product_type,
+            ftp_server=self._ftp_server,
             user_email=user_email,
             keep_sids=self.keep_sids,
         )
@@ -940,7 +946,7 @@ class RinexDataProcessor:
             "icechunk_write_started",
             receiver=receiver_name,
             datasets=len(augmented_datasets),
-            strategy=RINEX_STORE_STRATEGY,
+            strategy=self._rinex_store_strategy,
             mode="sequential",
         )
 
@@ -1060,8 +1066,8 @@ class RinexDataProcessor:
                     attrs_after=len(ds_clean.attrs),
                 )
 
-                # Handle different strategies based on RINEX_STORE_STRATEGY
-                match (exists, RINEX_STORE_STRATEGY):
+                # Handle different strategies based on self._rinex_store_strategy
+                match (exists, self._rinex_store_strategy):
                     case (False, _) if receiver_name not in groups and idx == 0:
                         # Initial commit
                         log.debug("performing_initial_write", group=receiver_name)
@@ -1309,7 +1315,7 @@ class RinexDataProcessor:
                         )
 
                         # Handle data writes using ONLY to_icechunk() with our session
-                        match (exists, RINEX_STORE_STRATEGY):
+                        match (exists, self._rinex_store_strategy):
                             case (False, _) if receiver_name not in groups and idx == 0:
                                 # Initial group creation
                                 size_mb = ds_clean.nbytes / (1024 * 1024)
@@ -1560,7 +1566,7 @@ class RinexDataProcessor:
                     )
 
                     # Handle data writes using ONLY to_icechunk() with our session
-                    match (exists, RINEX_STORE_STRATEGY):
+                    match (exists, self._rinex_store_strategy):
                         case (False, _) if receiver_name not in groups and idx == 0:
                             # Initial group creation
                             to_icechunk(ds_clean, session, group=receiver_name)
@@ -1768,7 +1774,7 @@ class RinexDataProcessor:
                 )
 
                 # Decide write strategy
-                match (exists, RINEX_STORE_STRATEGY):
+                match (exists, self._rinex_store_strategy):
                     case (False, _) if receiver_name not in groups and idx == 0:
                         to_icechunk(ds_clean, session, group=receiver_name)
                         groups.append(receiver_name)
@@ -1794,7 +1800,7 @@ class RinexDataProcessor:
                     if not rinex_hash:
                         continue
                     exists = rinex_hash in existing_hashes
-                    if exists and RINEX_STORE_STRATEGY == "skip":
+                    if exists and self._rinex_store_strategy == "skip":
                         actions["skipped"] += 1
                         continue
                     futures.append(pool.submit(write_one, fname, ds, exists, idx))
@@ -1932,7 +1938,7 @@ class RinexDataProcessor:
             receiver_types = ["canopy", "reference"]
 
         if keep_vars is None:
-            keep_vars = KEEP_RNX_VARS
+            keep_vars = load_config().processing.processing.keep_rnx_vars
 
         self._logger.info(
             "Starting RINEX processing pipeline for: %s",
@@ -2090,7 +2096,7 @@ class RinexDataProcessor:
                 normalized_configs.append(cfg)
 
         if keep_vars is None:
-            keep_vars = KEEP_RNX_VARS
+            keep_vars = load_config().processing.processing.keep_rnx_vars
 
         pipeline_start = time.time()
         self._logger.info(
@@ -2125,8 +2131,15 @@ class RinexDataProcessor:
         aux_zarr_path = self._ensure_aux_data_preprocessed(first_files, date_str)
 
         # ====================================================================
-        # STEP 2: Process each receiver independently
+        # STEP 2: Process each receiver, reusing RINEX parsing for
+        #         reference variants that share the same data_dir
         # ====================================================================
+        # Cache: data_dir -> (augmented_datasets, rinex_files)
+        # When multiple store groups share one data_dir (reference variants
+        # with different canopy positions), we parse RINEX once and recompute
+        # only the SCS (theta, phi, r) for each position.
+        _rinex_cache: dict[Path, tuple[list[tuple[Path, xr.Dataset]], list[Path]]] = {}
+
         for (
             receiver_name,
             receiver_type,
@@ -2152,12 +2165,6 @@ class RinexDataProcessor:
                     data_dir=str(data_dir),
                 )
                 continue
-
-            self._logger.info(
-                "rinex_files_discovered",
-                receiver=receiver_name,
-                files=len(rinex_files),
-            )
 
             # Compute receiver position: from position_data_dir if set,
             # otherwise from this receiver's own first file
@@ -2210,19 +2217,58 @@ class RinexDataProcessor:
                 str(position_data_dir) if position_data_dir else "own files",
             )
 
-            # Parallel process with ProcessPoolExecutor
-            augmented_datasets = self._parallel_process_with_processpool(
-                rinex_files=rinex_files,
-                keep_vars=keep_vars,
-                aux_zarr_path=aux_zarr_path,
-                receiver_position=receiver_position,
-                receiver_type=receiver_name,
-            )
+            if data_dir not in _rinex_cache:
+                # First time seeing this data_dir — full parallel processing
+                self._logger.info(
+                    "rinex_files_discovered",
+                    receiver=receiver_name,
+                    files=len(rinex_files),
+                )
+
+                augmented_datasets = self._parallel_process_with_processpool(
+                    rinex_files=rinex_files,
+                    keep_vars=keep_vars,
+                    aux_zarr_path=aux_zarr_path,
+                    receiver_position=receiver_position,
+                    receiver_type=receiver_name,
+                )
+
+                # Cache for reuse by other store groups with the same data_dir
+                _rinex_cache[data_dir] = (augmented_datasets, rinex_files)
+            else:
+                # Reuse cached RINEX data, only recompute SCS with new position
+                cached_datasets, rinex_files = _rinex_cache[data_dir]
+
+                self._logger.info(
+                    "recomputing_scs_from_cache",
+                    receiver=receiver_name,
+                    cached_files=len(cached_datasets),
+                    new_position=str(receiver_position),
+                )
+
+                augmented_datasets = []
+                for fpath, ds in cached_datasets:
+                    # Drop old SCS vars and recompute with new position
+                    scs_vars = [v for v in ("theta", "phi", "r") if v in ds.data_vars]
+                    ds_no_scs = ds.drop_vars(scs_vars)
+
+                    # Recompute SCS using the aux data
+                    aux_store = xr.open_zarr(aux_zarr_path, decode_timedelta=True)
+                    aux_slice = aux_store.sel(epoch=ds_no_scs.epoch, method="nearest")
+                    common_sids = sorted(
+                        set(ds_no_scs.sid.values) & set(aux_slice.sid.values)
+                    )
+                    aux_slice = aux_slice.sel(sid=common_sids)
+
+                    ds_recomputed = _compute_spherical_coords_fast(
+                        ds_no_scs, aux_slice, receiver_position
+                    )
+                    augmented_datasets.append((fpath, ds_recomputed))
 
             # Append to Icechunk with receiver_name as group
             self._append_to_icechunk(
                 augmented_datasets=augmented_datasets,
-                receiver_name=receiver_name,  # Use actual receiver name as group
+                receiver_name=receiver_name,
                 rinex_files=rinex_files,
             )
 
@@ -2615,9 +2661,9 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
                 if not exists and receiver_name not in groups:
                     ds_clean.to_zarr(store, group=receiver_name, mode="w")
                     return "initial"
-                if exists and RINEX_STORE_STRATEGY == "skip":
+                if exists and self._rinex_store_strategy == "skip":
                     return "skipped"
-                if exists and RINEX_STORE_STRATEGY == "append":
+                if exists and self._rinex_store_strategy == "append":
                     ds_clean.to_zarr(
                         store, group=receiver_name, mode="a", append_dim="epoch"
                     )
@@ -2655,7 +2701,7 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
                     )
 
                     # skip writing if exists & skip strategy
-                    if exists and RINEX_STORE_STRATEGY == "skip":
+                    if exists and self._rinex_store_strategy == "skip":
                         actions["skipped"] += 1
                         continue
 
@@ -2782,7 +2828,7 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
                     )
 
                     # Handle data writes using ONLY to_icechunk() with our session
-                    match (exists, RINEX_STORE_STRATEGY):
+                    match (exists, self._rinex_store_strategy):
                         case (False, _) if receiver_name not in groups and idx == 0:
                             # Initial group creation
                             to_icechunk(ds_clean, session, group=receiver_name)
@@ -2910,7 +2956,7 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
             receiver_types = ["canopy", "reference"]
 
         if keep_vars is None:
-            keep_vars = KEEP_RNX_VARS
+            keep_vars = load_config().processing.processing.keep_rnx_vars
 
         self._logger.info(
             "Starting RINEX processing pipeline for: %s",
@@ -3046,7 +3092,7 @@ if __name__ == "__main__":
             )
 
             # Check if should skip
-            if RINEX_STORE_STRATEGY in ["skip", "append"]:
+            if processor._rinex_store_strategy in ["skip", "append"]:
                 should_skip, coverage = processor.should_skip_day()
 
                 if should_skip:

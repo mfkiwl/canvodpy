@@ -187,12 +187,14 @@ class TestAPIExports:
 class TestConfigurationCompatibility:
     """Test configuration still works with new API."""
 
-    def test_keep_rnx_vars_still_exported(self):
-        """KEEP_RNX_VARS should still be available."""
-        from canvodpy import KEEP_RNX_VARS
+    def test_keep_rnx_vars_available_via_config(self):
+        """KEEP_RNX_VARS should be available via load_config()."""
+        from canvod.utils.config import load_config
 
-        assert KEEP_RNX_VARS is not None
-        assert isinstance(KEEP_RNX_VARS, list)
+        cfg = load_config()
+        keep_vars = cfg.processing.processing.keep_rnx_vars
+        assert keep_vars is not None
+        assert isinstance(keep_vars, list)
 
 
 class TestSubpackageCompatibility:

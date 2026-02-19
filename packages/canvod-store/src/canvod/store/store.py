@@ -14,20 +14,7 @@ import polars as pl
 import xarray as xr
 import zarr
 from canvod.utils.tools import get_version_from_pyproject
-from canvodpy.globals import (
-    ICECHUNK_CHUNK_STRATEGIES,
-    ICECHUNK_COMPRESSION_ALGORITHM,
-    ICECHUNK_COMPRESSION_LEVEL,
-    ICECHUNK_GET_CONCURRENCY,
-    ICECHUNK_INLINE_THRESHOLD,
-    ICECHUNK_MANIFEST_PRELOAD_ENABLED,
-    ICECHUNK_MANIFEST_PRELOAD_MAX_REFS,
-    ICECHUNK_MANIFEST_PRELOAD_PATTERN,
-    LOG_PATH_DEPTH,
-    RINEX_STORE_EXPIRE_DAYS,
-    RINEX_STORE_STRATEGY,
-    VOD_STORE_STRATEGY,
-)
+from canvodpy.globals import LOG_PATH_DEPTH
 from canvodpy.logging import get_logger
 from icechunk.xarray import to_icechunk
 from zarr.dtype import VariableLengthUTF8
@@ -99,40 +86,55 @@ class MyIcechunkStore:
         compression_algorithm : str | None, optional
             Override default compression algorithm.
         """
+        from canvod.utils.config import load_config
+
+        cfg = load_config()
+        ic_cfg = cfg.processing.icechunk
+        st_cfg = cfg.processing.storage
+
         self.store_path = Path(store_path)
         self.store_type = store_type
         # Site name is parent directory name
         self.site_name = self.store_path.parent.name
 
         # Compression
-        self.compression_level = compression_level or ICECHUNK_COMPRESSION_LEVEL
-        compression_alg = compression_algorithm or ICECHUNK_COMPRESSION_ALGORITHM
+        self.compression_level = compression_level or ic_cfg.compression_level
+        compression_alg = compression_algorithm or ic_cfg.compression_algorithm
         self.compression_algorithm = getattr(
             icechunk.CompressionAlgorithm, compression_alg.capitalize()
         )
 
         # Chunk strategy
-        self.chunk_strategy = ICECHUNK_CHUNK_STRATEGIES.get(store_type, {})
+        chunk_strategies = {
+            k: {"epoch": v.epoch, "sid": v.sid}
+            for k, v in ic_cfg.chunk_strategies.items()
+        }
+        self.chunk_strategy = chunk_strategies.get(store_type, {})
+
+        # Storage config cached for metadata rows
+        self._rinex_store_strategy = st_cfg.rinex_store_strategy
+        self._rinex_store_expire_days = st_cfg.rinex_store_expire_days
+        self._vod_store_strategy = st_cfg.vod_store_strategy
 
         # Configure repository
         self.config = icechunk.RepositoryConfig.default()
         self.config.compression = icechunk.CompressionConfig(
             level=self.compression_level, algorithm=self.compression_algorithm
         )
-        self.config.inline_chunk_threshold_bytes = ICECHUNK_INLINE_THRESHOLD
-        self.config.get_partial_values_concurrency = ICECHUNK_GET_CONCURRENCY
+        self.config.inline_chunk_threshold_bytes = ic_cfg.inline_threshold
+        self.config.get_partial_values_concurrency = ic_cfg.get_concurrency
 
-        if ICECHUNK_MANIFEST_PRELOAD_ENABLED:
+        if ic_cfg.manifest_preload_enabled:
             self.config.manifest = icechunk.ManifestConfig(
                 preload=icechunk.ManifestPreloadConfig(
-                    max_total_refs=ICECHUNK_MANIFEST_PRELOAD_MAX_REFS,
+                    max_total_refs=ic_cfg.manifest_preload_max_refs,
                     preload_if=icechunk.ManifestPreloadCondition.name_matches(
-                        ICECHUNK_MANIFEST_PRELOAD_PATTERN
+                        ic_cfg.manifest_preload_pattern
                     ),
                 )
             )
             self._logger.info(
-                f"Manifest preload enabled: {ICECHUNK_MANIFEST_PRELOAD_PATTERN}"
+                f"Manifest preload enabled: {ic_cfg.manifest_preload_pattern}"
             )
 
         self._repo = None
@@ -476,9 +478,7 @@ class MyIcechunkStore:
         with self.readonly_session(branch) as session:
             # Use default chunking strategy if none provided
             if chunks is None:
-                chunks = ICECHUNK_CHUNK_STRATEGIES.get(
-                    self.store_type, {"epoch": 34560, "sid": -1}
-                )
+                chunks = self.chunk_strategy or {"epoch": 34560, "sid": -1}
 
             ds = xr.open_zarr(
                 session.store,
@@ -1102,9 +1102,9 @@ class MyIcechunkStore:
             "action": str(action),
             "commit_msg": str(commit_msg),
             "written_at": written_at,
-            "write_strategy": str(RINEX_STORE_STRATEGY)
+            "write_strategy": str(self._rinex_store_strategy)
             if self.store_type == "rinex_store"
-            else str(VOD_STORE_STRATEGY),
+            else str(self._vod_store_strategy),
             "attrs": json.dumps(dataset_attrs, default=str),
         }
         df_row = pl.DataFrame([row])
@@ -1510,7 +1510,7 @@ class MyIcechunkStore:
 
     def expire_old_snapshots(
         self,
-        days: int = RINEX_STORE_EXPIRE_DAYS,
+        days: int | None = None,
         branch: str = "main",
         delete_expired_branches: bool = True,
         delete_expired_tags: bool = True,
@@ -1520,8 +1520,8 @@ class MyIcechunkStore:
 
         Parameters
         ----------
-        days : int, default RINEX_STORE_EXPIRE_DAYS
-            Number of days to retain snapshots.
+        days : int | None, optional
+            Number of days to retain snapshots. Defaults to config value.
         branch : str, default "main"
             Branch to apply expiration on.
         delete_expired_branches : bool, default True
@@ -1534,6 +1534,8 @@ class MyIcechunkStore:
         set[str]
             Expired snapshot IDs.
         """
+        if days is None:
+            days = self._rinex_store_expire_days
         cutoff = datetime.now(UTC) - timedelta(days=days)
 
         # cutoff = datetime(2025, 10, 3, 16, 44, 1, tzinfo=timezone.utc)
@@ -1782,16 +1784,7 @@ class MyIcechunkStore:
             temp_branch = f"{group_name}_rechunked_temp"
 
         if chunks is None:
-            if self.store_type == "rinex_store":
-                chunks = ICECHUNK_CHUNK_STRATEGIES.get(
-                    "rinex_store",
-                    {"epoch": 34560, "sid": -1},
-                )
-            else:
-                chunks = ICECHUNK_CHUNK_STRATEGIES.get(
-                    "vod_store",
-                    {"epoch": 34560, "sid": -1},
-                )
+            chunks = self.chunk_strategy or {"epoch": 34560, "sid": -1}
 
         print(f"\n{'=' * 60}")
         print(f"Starting rechunk of group '{group_name}'")

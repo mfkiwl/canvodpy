@@ -32,10 +32,7 @@ import pytz
 import xarray as xr
 from canvod.readers.base import GNSSDataReader, ReaderFactory
 from canvod.readers.gnss_specs.constants import (
-    AGGREGATE_GLONASS_FDMA,
-    COMPRESSION,
     EPOCH_RECORD_INDICATOR,
-    KEEP_RNX_VARS,
     UREG,
 )
 from canvod.readers.gnss_specs.exceptions import (
@@ -47,9 +44,9 @@ from canvod.readers.gnss_specs.metadata import (
     CN0_METADATA,
     COORDS_METADATA,
     DTYPES,
-    GLOBAL_ATTRS_TEMPLATE,
     OBSERVABLES_METADATA,
     SNR_METADATA,
+    get_global_attrs,
 )
 from canvod.readers.gnss_specs.models import (
     Observation,
@@ -707,7 +704,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     apply_overlap_filter: bool = False
     overlap_preferences: dict[str, str] | None = None
 
-    aggregate_glonass_fdma: bool = AGGREGATE_GLONASS_FDMA
+    aggregate_glonass_fdma: bool = True
 
     _header: Rnxv3Header = PrivateAttr()
     _signal_mapper: "SignalIDMapper" = PrivateAttr()
@@ -1629,7 +1626,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
     def to_ds(
         self,
         outname: Path | str | None = None,
-        keep_rnx_data_vars: list[str] = KEEP_RNX_VARS,
+        keep_rnx_data_vars: list[str] | None = None,
         write_global_attrs: bool = False,
         pad_global_sid: bool = True,
         strip_fillval: bool = True,
@@ -1642,8 +1639,8 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         ----------
         outname : Path or str, optional
             If provided, saves dataset to this file path
-        keep_rnx_data_vars : list of str, default KEEP_RNX_VARS
-            Data variables to include in dataset
+        keep_rnx_data_vars : list of str or None, optional
+            Data variables to include in dataset. Defaults to config value.
         write_global_attrs : bool, default False
             If True, adds comprehensive global attributes
         pad_global_sid : bool, default True
@@ -1662,6 +1659,11 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
             Dataset with dimensions (epoch, sid) and requested data variables
 
         """
+        if keep_rnx_data_vars is None:
+            from canvod.utils.config import load_config
+
+            keep_rnx_data_vars = load_config().processing.processing.keep_rnx_vars
+
         ds = self.create_rinex_netcdf_with_signal_id()
 
         # drop unwanted vars
@@ -1689,7 +1691,13 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         ds.attrs["RINEX File Hash"] = self.file_hash
 
         if outname:
-            encoding = {var: {**COMPRESSION} for var in ds.data_vars}
+            from canvod.utils.config import load_config as _load_config
+
+            comp = _load_config().processing.compression
+            encoding = {
+                var: {"zlib": comp.zlib, "complevel": comp.complevel}
+                for var in ds.data_vars
+            }
             ds.to_netcdf(str(outname), encoding=encoding)
 
         # Validate output structure for pipeline compatibility
@@ -1763,7 +1771,7 @@ class Rnxv3Obs(GNSSDataReader, BaseModel):
         return results
 
     def _create_basic_attrs(self) -> dict[str, object]:
-        attrs = GLOBAL_ATTRS_TEMPLATE.copy()
+        attrs = get_global_attrs()
         attrs["Created"] = datetime.now(timezone.utc).isoformat()
         attrs["Software"] = (
             f"{attrs['Software']}, Version: {get_version_from_pyproject()}"

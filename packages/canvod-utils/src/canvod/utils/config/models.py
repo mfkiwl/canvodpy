@@ -146,7 +146,7 @@ class ProcessingParams(BaseModel):
         description="Maximum number of threads for parallel processing",
     )
     keep_rnx_vars: list[str] = Field(
-        default_factory=lambda: ["SNR"],
+        default_factory=lambda: ["SNR", "Pseudorange", "Phase", "Doppler"],
         description="RINEX variables to keep",
     )
     aggregate_glonass_fdma: bool = Field(
@@ -204,6 +204,19 @@ class IcechunkConfig(BaseModel):
             "rinex_store": ChunkStrategy(epoch=34560, sid=-1),
             "vod_store": ChunkStrategy(epoch=34560, sid=-1),
         },
+    )
+    manifest_preload_enabled: bool = Field(
+        False,
+        description="Enable manifest preloading for faster chunk access",
+    )
+    manifest_preload_max_refs: int = Field(
+        100_000_000,
+        ge=0,
+        description="Maximum total refs to preload",
+    )
+    manifest_preload_pattern: str = Field(
+        "epoch|sid",
+        description="Regex pattern for coordinate names to preload",
     )
 
 

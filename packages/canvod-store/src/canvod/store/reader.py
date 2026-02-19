@@ -11,8 +11,8 @@ import numpy as np
 import xarray as xr
 from canvod.auxiliary.preprocessing import prep_aux_ds
 from canvod.readers import MatchedDirs, Rnxv3Obs
+from canvod.utils.config import load_config
 from canvod.utils.tools import get_version_from_pyproject
-from canvodpy.globals import KEEP_RNX_VARS, N_MAX_THREADS, RINEX_STORE_STRATEGY
 from canvodpy.logging import get_logger
 from natsort import natsorted
 from tqdm import tqdm
@@ -130,7 +130,7 @@ class IcechunkDataReader:
         self,
         matched_dirs: MatchedDirs,
         site_name: str | None = None,
-        n_max_workers: int = N_MAX_THREADS,
+        n_max_workers: int | None = None,
         enable_gc: bool = True,
         gc_delay: float = 1.0,
     ) -> None:
@@ -142,17 +142,18 @@ class IcechunkDataReader:
             Directory information for date/location matching.
         site_name : str | None, optional
             Name of research site. If ``None``, uses the first site from config.
-        n_max_workers : int, optional
-            Maximum number of workers for parallel operations.
+        n_max_workers : int | None, optional
+            Maximum number of workers for parallel operations. Defaults to config.
         enable_gc : bool, optional
             Whether to enable garbage collection between operations.
         gc_delay : float, optional
             Delay in seconds after garbage collection.
         """
+        config = load_config()
         if site_name is None:
-            from canvod.utils.config import load_config
-
-            site_name = next(iter(load_config().sites.sites))
+            site_name = next(iter(config.sites.sites))
+        if n_max_workers is None:
+            n_max_workers = config.processing.processing.n_max_threads
 
         self.matched_dirs = matched_dirs
         self.site_name = site_name
@@ -355,7 +356,7 @@ class IcechunkDataReader:
                         log.info(msg)
                         continue
 
-                    match (exists, RINEX_STORE_STRATEGY):
+                    match (exists, self._site.rinex_store._rinex_store_strategy):
                         case (True, "skip"):
                             log.info(f"[v{version}] Skipped {rel_path}")
                             # just metadata row
@@ -536,7 +537,7 @@ class IcechunkDataReader:
                         continue
 
                     # --- Handle strategies with match ---
-                    match (exists, RINEX_STORE_STRATEGY):
+                    match (exists, self._site.rinex_store._rinex_store_strategy):
                         case (True, "skip"):
                             msg = (
                                 f"[v{version}] Skipped {rel_path} "
@@ -744,7 +745,7 @@ if __name__ == "__main__":
 
     # Use the generator (same interface as before)
     data_generator = reader.parsed_rinex_data_gen(
-        keep_vars=KEEP_RNX_VARS,
+        keep_vars=load_config().processing.processing.keep_rnx_vars,
     )
 
     try:
@@ -793,7 +794,7 @@ if __name__ == "__main__":
 
     # Use the generator (same interface as before)
     data_generator = reader.parsed_rinex_data_gen(
-        keep_vars=KEEP_RNX_VARS,
+        keep_vars=load_config().processing.processing.keep_rnx_vars,
     )
 
     try:
