@@ -220,7 +220,11 @@ def configure_logging(logfile: Path | None = None) -> structlog.BoundLogger:
         Configured structlog logger.
     """
     if logfile is None:
-        logfile = load_config().processing.logging.get_log_file()
+        try:
+            logfile = load_config().processing.logging.get_log_file()
+        except (FileNotFoundError, Exception):
+            # Fallback when config system isn't available (e.g. CI, tests)
+            logfile = Path.cwd() / ".logs" / "canvodpy.log"
 
     # Set up directory structure
     base_dir = logfile.parent
@@ -422,6 +426,9 @@ def get_file_logger(fname: Path) -> structlog.BoundLogger:
         File path to include in the log context.
 
     """
-    depth = load_config().processing.logging.log_path_depth
+    try:
+        depth = load_config().processing.logging.log_path_depth
+    except (FileNotFoundError, Exception):
+        depth = 6
     rel_path = Path(*fname.parts[-depth:])
     return LOGGER.bind(file=str(rel_path))

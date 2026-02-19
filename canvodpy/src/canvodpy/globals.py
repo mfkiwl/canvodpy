@@ -48,4 +48,3 @@ IGS_RNX_DUMP_INTERVALS: list[pint.Quantity] = [
 
 # ── GNSS frequency unit ────────────────────────────────────────────────────
 FREQ_UNIT = UREG.MHz
-

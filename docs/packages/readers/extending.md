@@ -133,7 +133,7 @@ from canvod.readers.gnss_specs.signals import SignalIDMapper
 from canvod.readers.gnss_specs.metadata import (
     SNR_METADATA,
     COORDS_METADATA,
-    GLOBAL_ATTRS_TEMPLATE,
+    get_global_attrs,
 )
 
 class MyFormatReader(BaseModel, GNSSDataReader):
@@ -236,7 +236,7 @@ class MyFormatReader(BaseModel, GNSSDataReader):
                 "freq_max": ("sid", freq_max, COORDS_METADATA["freq_max"]),
             },
             attrs={
-                **GLOBAL_ATTRS_TEMPLATE,
+                **get_global_attrs(),
                 "Created": datetime.now().isoformat(),
                 "RINEX File Hash": self.file_hash,
                 "Source Format": "My Custom Format",
