@@ -3043,18 +3043,19 @@ recorded steps, clears the plan, then runs the terminal method.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.vod</span><span class="w"> </span><span class="kn">import</span> <span class="n">VODCalculator</span>
 </code></pre></div>
 <h2 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">&para;</a></h2>
-<p>Credentials and configuration are separated:</p>
+<p>All configuration is managed through YAML files validated by Pydantic models:</p>
 <ul>
-<li><strong>Credentials</strong> (<code>.env</code>, never committed): CDDIS authentication, data directory paths</li>
-<li><strong>Configuration</strong> (YAML, version-controlled): Processing parameters, site definitions, metadata</li>
+<li><strong><code>config/processing.yaml</code></strong> — Processing parameters, storage paths, metadata, NASA CDDIS credentials</li>
+<li><strong><code>config/sites.yaml</code></strong> — Site definitions and receiver mappings</li>
+<li><strong><code>config/sids.yaml</code></strong> — Signal ID filtering rules</li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseSettings</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">Settings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">SettingsConfigDict</span><span class="p">(</span><span class="n">env_file</span><span class="o">=</span><span class="s2">&quot;.env&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-    <span class="n">cddis_mail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">gnss_root_dir</span><span class="p">:</span> <span class="nb">str</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">()</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">aux_data</span><span class="o">.</span><span class="n">nasa_earthdata_acc_mail</span>  <span class="c1"># Optional NASA CDDIS email</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">gnss_root_dir</span>             <span class="c1"># Data directory</span>
 </code></pre></div>
+<p>Initialize configuration with <code>canvodpy config init</code>, inspect with <code>canvodpy config show</code>.</p>
 <h2 id="airflow-compatibility">Airflow Compatibility<a class="headerlink" href="#airflow-compatibility" title="Permanent link">&para;</a></h2>
 <p>API functions are stateless, suitable for distributed execution:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">airflow.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span>

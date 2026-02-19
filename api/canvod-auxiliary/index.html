@@ -10589,7 +10589,7 @@ maintaining consistent behavior regardless of how the instance is created.</p>
 <li>user_email: Optional email for NASA CDDIS authentication</li>
 <li>If None: Uses ESA FTP server exclusively (no authentication required)</li>
 <li>If provided: Enables NASA CDDIS as fallback server (requires registration)</li>
-<li>To enable CDDIS, set CDDIS_MAIL environment variable</li>
+<li>To enable CDDIS, set nasa_earthdata_acc_mail in config/processing.yaml</li>
 </ul>
 <h4 id="canvod.auxiliary.AuxFile--notes">Notes<a class="headerlink" href="#canvod.auxiliary.AuxFile--notes" title="Permanent link">&para;</a></h4>
 <p>This is a Pydantic dataclass with <code>arbitrary_types_allowed=True</code>, and
@@ -10826,7 +10826,7 @@ it uses <code>ABC</code> to define required subclass hooks.</p>
 <span class="sd">    - user_email: Optional email for NASA CDDIS authentication</span>
 <span class="sd">      - If None: Uses ESA FTP server exclusively (no authentication required)</span>
 <span class="sd">      - If provided: Enables NASA CDDIS as fallback server (requires registration)</span>
-<span class="sd">      - To enable CDDIS, set CDDIS_MAIL environment variable</span>
+<span class="sd">      - To enable CDDIS, set nasa_earthdata_acc_mail in config/processing.yaml</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
