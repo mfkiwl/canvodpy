@@ -17,7 +17,7 @@
 | canvodpy/tests/test\_factory\_validation.py                                  |       77 |        3 |     96% |88, 91, 142 |
 | canvodpy/tests/test\_fluent\_workflow.py                                     |      128 |        0 |    100% |           |
 | canvodpy/tests/test\_integration\_aux\_sid\_filtering.py                     |       45 |       43 |      4% |     13-93 |
-| canvodpy/tests/test\_integration\_sid\_filtering.py                          |       44 |       29 |     34% |58-84, 88-103 |
+| canvodpy/tests/test\_integration\_sid\_filtering.py                          |       44 |       29 |     34% |59-85, 89-104 |
 | canvodpy/tests/test\_umbrella\_meta.py                                       |        4 |        0 |    100% |           |
 | canvodpy/tests/test\_workflow\_integration.py                                |       78 |        0 |    100% |           |
 | conftest.py                                                                  |      109 |       65 |     40% |25-30, 36, 42, 48, 54-65, 71-82, 88, 94, 100, 106-112, 118-124, 146-150, 156, 162, 168, 174-185, 191-202, 208-211, 217-220 |
@@ -110,7 +110,7 @@
 | packages/canvod-readers/tests/test\_rinex\_v3.py                             |      139 |       98 |     29% |19, 27-32, 36-43, 47-55, 59-65, 73-77, 81-84, 88-98, 102-108, 112-118, 122-129, 133-140, 144-151, 155-161, 165-171, 175-181, 189-200, 204-215, 238-242 |
 | packages/canvod-readers/tests/test\_signal\_mapping.py                       |      250 |        6 |     98% |433-436, 441-444 |
 | packages/canvod-store/src/canvod/store/\_\_init\_\_.py                       |        5 |        0 |    100% |           |
-| packages/canvod-store/src/canvod/store/manager.py                            |      220 |      180 |     18% |71-91, 100, 105, 112, 121-123, 131, 161-171, 190-219, 230, 241, 263-276, 301-326, 351-364, 389-406, 434-458, 487-517, 539-574, 585-653, 679-732, 742, 752-754, 773-775 |
+| packages/canvod-store/src/canvod/store/manager.py                            |      230 |      188 |     18% |71-91, 100, 105, 112, 125-130, 135, 165-175, 187, 199-207, 225-261, 272, 283, 305-318, 343-368, 393-406, 431-448, 476-500, 529-559, 581-616, 627-695, 721-774, 784, 794-796, 815-817 |
 | packages/canvod-store/src/canvod/store/reader.py                             |      311 |      278 |     11% |44-62, 85-105, 152-179, 185-188, 192-195, 211, 219-222, 226-229, 243-417, 441-619, 623-626, 631-643, 652-675, 686-693, 703-704, 714-812 |
 | packages/canvod-store/src/canvod/store/store.py                              |      921 |      774 |     16% |126-134, 154-155, 170-173, 191, 258-261, 280, 326, 341-364, 390-415, 435-446, 474-497, 532-593, 598-614, 642-671, 681-714, 738-772, 797-846, 860-898, 930-953, 969, 980-1004, 1016-1063, 1095-1164, 1189-1273, 1290-1306, 1323-1338, 1379-1422, 1427-1437, 1457-1509, 1537-1571, 1589-1604, 1610-1612, 1637-1650, 1690-1744, 1781-1933, 1946-1951, 1955, 1959-1960, 1983-2241, 2259-2278, 2282-2286, 2303-2323, 2341-2347, 2376-2402, 2433-2547, 2564-2592, 2626-2658, 2692-2720, 2768-2787, 2792-2813 |
 | packages/canvod-store/src/canvod/store/viewer.py                             |      238 |      207 |     13% |33-40, 61, 69, 371-383, 388-411, 426-462, 486-508, 521-561, 565-586, 601-661, 669-720, 724-782, 793-875, 912-913, 922-927, 936, 977-988, 1005-1007 |
@@ -122,7 +122,7 @@
 | packages/canvod-utils/src/canvod/utils/\_meta.py                             |        5 |        0 |    100% |           |
 | packages/canvod-utils/src/canvod/utils/config/\_\_init\_\_.py                |        3 |        0 |    100% |           |
 | packages/canvod-utils/src/canvod/utils/config/loader.py                      |       83 |       40 |     52% |43-54, 80-82, 106-119, 129-130, 153-154, 158-165, 204-214, 228-233 |
-| packages/canvod-utils/src/canvod/utils/config/models.py                      |      121 |       34 |     72% |50-61, 241-254, 269, 284, 349, 375-378, 423-427, 437-442, 454, 486 |
+| packages/canvod-utils/src/canvod/utils/config/models.py                      |      174 |       75 |     57% |50-61, 256-269, 284, 299, 309-314, 361-367, 393-408, 418, 428, 443-452, 462-468, 494-497, 542-546, 556-561, 573, 605 |
 | packages/canvod-utils/src/canvod/utils/tools/\_\_init\_\_.py                 |        6 |        0 |    100% |           |
 | packages/canvod-utils/src/canvod/utils/tools/date\_utils.py                  |       96 |       14 |     85% |37, 44, 124, 138, 154, 171, 210, 226, 246, 286-287, 328, 383-384 |
 | packages/canvod-utils/src/canvod/utils/tools/hashing.py                      |        9 |        6 |     33% |     32-37 |
@@ -147,7 +147,7 @@
 | packages/canvod-vod/tests/test\_vod\_calculator.py                           |      113 |        1 |     99% |       359 |
 | packages/canvod-vod/tests/test\_vod\_meta.py                                 |        3 |        0 |    100% |           |
 | packages/canvod-vod/tests/test\_vod\_properties.py                           |      138 |        9 |     93% |27, 36, 45, 183, 235, 299, 466, 469, 481 |
-| **TOTAL**                                                                    | **12118** | **5222** | **57%** |           |
+| **TOTAL**                                                                    | **12181** | **5271** | **57%** |           |
 
 
 ## Setup coverage badge
