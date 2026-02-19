@@ -73,8 +73,8 @@ class FtpDownloader(FileDownloader):
                 self.alt_servers = []
                 print("ℹ Using ESA FTP exclusively")
                 print(
-                    "  To enable NASA CDDIS fallback, set CDDIS_MAIL "
-                    "environment variable"
+                    "  To enable NASA CDDIS fallback, set nasa_earthdata_acc_mail "
+                    "in config/processing.yaml"
                 )
         else:
             if user_email is None:
@@ -170,8 +170,8 @@ class FtpDownloader(FileDownloader):
                     f"{file_info.get('latency', 'unknown')} hours)\n"
                     f"  - Incorrect FTP path for server\n"
                     f"  - Temporary server issue\n"
-                    f"\nTip: Set CDDIS_MAIL environment variable to enable "
-                    f"NASA CDDIS fallback"
+                    f"\nTip: Set nasa_earthdata_acc_mail in config/processing.yaml "
+                    f"to enable NASA CDDIS fallback"
                 )
 
             for alt_server in self.alt_servers:
@@ -245,8 +245,8 @@ class FtpDownloader(FileDownloader):
         """Download file from NASA CDDIS server using FTPS."""
         if self.user_email is None:
             raise RuntimeError(
-                "NASA CDDIS requires authentication. Set CDDIS_MAIL "
-                "environment variable.\n"
+                "NASA CDDIS requires authentication. Set nasa_earthdata_acc_mail "
+                "in config/processing.yaml.\n"
                 "Register at: https://urs.earthdata.nasa.gov/users/new"
             )
 

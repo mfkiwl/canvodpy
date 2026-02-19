@@ -189,19 +189,21 @@ from canvod.vod import VODCalculator
 
 ## Configuration Management
 
-Credentials and configuration are separated:
+All configuration is managed through YAML files validated by Pydantic models:
 
-- **Credentials** (`.env`, never committed): CDDIS authentication, data directory paths
-- **Configuration** (YAML, version-controlled): Processing parameters, site definitions, metadata
+- **`config/processing.yaml`** — Processing parameters, storage paths, metadata, NASA CDDIS credentials
+- **`config/sites.yaml`** — Site definitions and receiver mappings
+- **`config/sids.yaml`** — Signal ID filtering rules
 
 ```python
-from pydantic_settings import BaseSettings
+from canvod.utils.config import load_config
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-    cddis_mail: str | None = None
-    gnss_root_dir: str
+cfg = load_config()
+cfg.processing.aux_data.nasa_earthdata_acc_mail  # Optional NASA CDDIS email
+cfg.processing.storage.gnss_root_dir             # Data directory
 ```
+
+Initialize configuration with `canvodpy config init`, inspect with `canvodpy config show`.
 
 ## Airflow Compatibility
 

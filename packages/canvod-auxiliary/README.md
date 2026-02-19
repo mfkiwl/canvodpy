@@ -184,7 +184,7 @@ just docs          # Build documentation
 
 **Network:**
 - requests ≥2.31.0
-- python-dotenv ≥1.0.1
+
 - retrying ≥1.3.4
 - beautifulsoup4 ≥4.12.0
 - lxml ≥5.3.0
