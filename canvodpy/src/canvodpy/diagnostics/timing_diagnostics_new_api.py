@@ -42,10 +42,9 @@ class TimingLogger:
 
         # Fixed fieldnames for consistent CSV structure
         self.fieldnames = (
-            ["day", "start_time", "end_time"]
-            + [f"{name}_seconds" for name in self.expected_receivers]
-            + ["total_seconds"]
-        )
+            ["day", "start_time", "end_time"] +
+            [f"{name}_seconds"
+             for name in self.expected_receivers] + ["total_seconds"])
 
     def log(self, day, start_time, end_time, receiver_times, total_time):
         """Log a day's processing times."""
@@ -142,8 +141,8 @@ def diagnose_processing_new_api(
     # Note: Pipeline.process_range() doesn't return timing info,
     # so we need to time manually
     for date_key, datasets in pipeline.process_range(
-        start=start_from or "2000001",  # Default to very early date
-        end=end_at or "2099365",  # Default to far future date
+            start=start_from or "2000001",  # Default to very early date
+            end=end_at or "2099365",  # Default to far future date
     ):
         day_start_time = datetime.now()
 
@@ -165,8 +164,7 @@ def diagnose_processing_new_api(
                 # Manual timing (less accurate than orchestrator's internal timing)
                 receiver_end = datetime.now()
                 receiver_times[receiver_name] = (
-                    receiver_end - receiver_start
-                ).total_seconds()
+                    receiver_end - receiver_start).total_seconds()
                 receiver_start = receiver_end
 
             day_end_time = datetime.now()
@@ -177,10 +175,8 @@ def diagnose_processing_new_api(
             print("SUMMARY")
             print(f"{'=' * 80}")
             for receiver_name, ds in datasets.items():
-                print(
-                    f"{receiver_name}: {dict(ds.sizes)} "
-                    f"({receiver_times[receiver_name]:.2f}s)"
-                )
+                print(f"{receiver_name}: {dict(ds.sizes)} "
+                      f"({receiver_times[receiver_name]:.2f}s)")
             print(f"Total time: {total_time:.2f}s")
             print(f"\n✓ Successfully processed {date_key}")
 
@@ -223,7 +219,8 @@ if __name__ == "__main__":
     # diagnose_processing_new_api()
 
     # Start from a specific date
-    diagnose_processing_new_api(start_from="2025222", end_at="2025222")  # July 1, 2024
+    diagnose_processing_new_api(start_from="2025222",
+                                end_at="2025222")  # July 1, 2024
 
     # Process a specific range
     # diagnose_processing_new_api(start_from="2025278", end_at="2025280")

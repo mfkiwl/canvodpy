@@ -117,13 +117,17 @@ class GnssResearchSite:
 
     @property
     def vod_analyses(self) -> dict[str, dict[str, Any]]:
-        """Get all configured VOD analyses for this site."""
-        if self._site_config.vod_analyses is None:
-            return {}
-        return {
-            name: cfg.model_dump()
-            for name, cfg in self._site_config.vod_analyses.items()
-        }
+        """Get all configured VOD analyses for this site.
+
+        Returns auto-derived analyses from scs_from if no explicit
+        vod_analyses are configured.
+        """
+        if self._site_config.vod_analyses is not None:
+            return {
+                name: cfg.model_dump()
+                for name, cfg in self._site_config.vod_analyses.items()
+            }
+        return self.get_auto_vod_analyses()
 
     @property
     def active_vod_analyses(self) -> dict[str, dict[str, Any]]:
@@ -172,6 +176,36 @@ class GnssResearchSite:
             f"No research site found for RINEX store path: {rinex_store_path}"
         )
 
+    def get_reference_canopy_pairs(self) -> list[tuple[str, str]]:
+        """Expand scs_from into (reference_name, canopy_name) pairs.
+
+        Returns
+        -------
+        list[tuple[str, str]]
+            List of (reference_name, canopy_name) pairs.
+        """
+        return self._site_config.get_reference_canopy_pairs()
+
+    def get_auto_vod_analyses(self) -> dict[str, dict[str, Any]]:
+        """Derive VOD analysis pairs from scs_from configuration.
+
+        Creates one VOD pair per (canopy, reference_for_that_canopy) combination.
+
+        Returns
+        -------
+        dict[str, dict[str, Any]]
+            Auto-derived VOD analyses keyed by analysis name.
+        """
+        analyses: dict[str, dict[str, Any]] = {}
+        for ref_name, canopy_name in self.get_reference_canopy_pairs():
+            analysis_name = f"{canopy_name}_vs_{ref_name}"
+            analyses[analysis_name] = {
+                "canopy_receiver": canopy_name,
+                "reference_receiver": f"{ref_name}_{canopy_name}",
+                "description": f"VOD analysis {canopy_name} vs {ref_name}",
+            }
+        return analyses
+
     def validate_site_config(self) -> bool:
         """
         Validate that the site configuration is consistent.
@@ -187,6 +221,12 @@ class GnssResearchSite:
             If configuration is invalid.
         """
         # Check that all VOD analyses reference valid receivers
+        # Build set of valid reference store groups (e.g. reference_01_canopy_01)
+        valid_ref_groups = {
+            f"{ref}_{canopy}"
+            for ref, canopy in self.get_reference_canopy_pairs()
+        }
+
         for analysis_name, analysis_config in self.vod_analyses.items():
             canopy_rx = analysis_config["canopy_receiver"]
             ref_rx = analysis_config["reference_receiver"]
@@ -196,24 +236,26 @@ class GnssResearchSite:
                     f"VOD analysis '{analysis_name}' references "
                     f"unknown canopy receiver: {canopy_rx}"
                 )
-            if ref_rx not in self.receivers:
+            # ref_rx can be either a raw receiver name or a store group name
+            if ref_rx not in self.receivers and ref_rx not in valid_ref_groups:
                 raise ValueError(
                     f"VOD analysis '{analysis_name}' references "
-                    f"unknown reference receiver: {ref_rx}"
+                    f"unknown reference receiver/group: {ref_rx}"
                 )
 
-            # Check receiver types match their roles
+            # Check canopy type
             canopy_type = self.receivers[canopy_rx]["type"]
-            ref_type = self.receivers[ref_rx]["type"]
-
             if canopy_type != "canopy":
                 raise ValueError(
                     f"Receiver '{canopy_rx}' used as canopy but type is '{canopy_type}'"
                 )
-            if ref_type != "reference":
-                raise ValueError(
-                    f"Receiver '{ref_rx}' used as reference but type is '{ref_type}'"
-                )
+            # Check reference type (only if it's a raw receiver name)
+            if ref_rx in self.receivers:
+                ref_type = self.receivers[ref_rx]["type"]
+                if ref_type != "reference":
+                    raise ValueError(
+                        f"Receiver '{ref_rx}' used as reference but type is '{ref_type}'"
+                    )
 
         self._logger.debug("Site configuration validation passed")
         return True

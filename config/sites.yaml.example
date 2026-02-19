@@ -15,6 +15,7 @@ sites:
       reference_01:
         type: reference
         directory: 01_reference/01_GNSS/01_raw
+        scs_from: all                        # 'all' or list of canopy receiver names
         description: First reference receiver (open sky)
 
       canopy_01:
@@ -46,6 +47,7 @@ sites:
   #     reference_01:
   #       type: reference
   #       directory: 01_reference/01_GNSS/01_raw
+  #       scs_from: all
   #       description: TU Wien reference receiver
   #     canopy_01:
   #       type: canopy

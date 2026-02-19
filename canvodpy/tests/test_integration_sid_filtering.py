@@ -31,6 +31,7 @@ _TEST_RECEIVERS = {
     "reference_01": {
         "type": "reference",
         "directory": "01_reference/01_GNSS/01_raw",
+        "scs_from": "all",
         "description": "Test reference receiver",
     },
     "canopy_01": {

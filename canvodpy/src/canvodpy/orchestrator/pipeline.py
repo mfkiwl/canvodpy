@@ -57,33 +57,57 @@ class PipelineOrchestrator:
 
     def _group_by_date_and_receiver(
         self,
-    ) -> dict[str, dict[str, tuple[Path, str]]]:
-        """Group receivers by date to avoid duplicate processing.
+    ) -> dict[str, dict[str, tuple[Path, str, Path | None]]]:
+        """Group receivers by date, expanding references per canopy via scs_from.
+
+        Canopy receivers are deduplicated (processed once with own position).
+        Reference receivers are expanded: one entry per canopy in scs_from,
+        stored as ``{ref_name}_{canopy_name}`` with position_data_dir pointing
+        to the canopy's RINEX directory.
 
         Returns
         -------
-        dict[str, dict[str, tuple[Path, str]]]
-            {date: {receiver_name: (data_dir, receiver_type)}}
+        dict[str, dict[str, tuple[Path, str, Path | None]]]
+            {date: {store_group_name: (data_dir, receiver_type, position_data_dir)}}
 
         """
-        grouped = defaultdict(dict)
+        grouped: dict[str, dict[str, tuple[Path, str, Path | None]]] = defaultdict(dict)
+        site_config = self.site._site_config
 
         for pair_dirs in self.pair_matcher:
             date_key = pair_dirs.yyyydoy.to_str()
 
-            # Add canopy receiver if not already present
+            # Add canopy receiver if not already present (uses own position)
             if pair_dirs.canopy_receiver not in grouped[date_key]:
                 grouped[date_key][pair_dirs.canopy_receiver] = (
                     pair_dirs.canopy_data_dir,
                     "canopy",
+                    None,
                 )
 
-            # Add reference receiver if not already present
-            if pair_dirs.reference_receiver not in grouped[date_key]:
-                grouped[date_key][pair_dirs.reference_receiver] = (
-                    pair_dirs.reference_data_dir,
-                    "reference",
-                )
+            # Expand reference receiver per canopy in scs_from
+            ref_name = pair_dirs.reference_receiver
+            ref_cfg = site_config.receivers.get(ref_name)
+            if ref_cfg and ref_cfg.type == "reference":
+                canopy_names = site_config.resolve_scs_from(ref_name)
+                for canopy_name in canopy_names:
+                    store_group = f"{ref_name}_{canopy_name}"
+                    if store_group not in grouped[date_key]:
+                        # Get canopy data dir for position computation
+                        canopy_cfg = site_config.receivers.get(canopy_name)
+                        if canopy_cfg:
+                            canopy_position_dir = (
+                                site_config.get_base_path()
+                                / canopy_cfg.directory
+                                / pair_dirs.yyyydoy.yydoy
+                            )
+                        else:
+                            canopy_position_dir = None
+                        grouped[date_key][store_group] = (
+                            pair_dirs.reference_data_dir,
+                            "reference",
+                            canopy_position_dir,
+                        )
 
         return grouped
 
@@ -108,7 +132,7 @@ class PipelineOrchestrator:
         for date_key, receivers in sorted(grouped.items()):
             date_info = {"date": date_key, "receivers": []}
 
-            for receiver_name, (data_dir, receiver_type) in sorted(receivers.items()):
+            for receiver_name, (data_dir, receiver_type, _pos_dir) in sorted(receivers.items()):
                 files = list(data_dir.glob("*.2*o"))
 
                 receiver_info = {
@@ -207,10 +231,10 @@ class PipelineOrchestrator:
                 receiver_names=sorted(receivers.keys()),
             )
 
-            # Build receiver_configs for this date
+            # Build receiver_configs for this date (4-tuples with position_data_dir)
             receiver_configs = [
-                (receiver_name, receiver_type, data_dir)
-                for receiver_name, (data_dir, receiver_type) in sorted(
+                (receiver_name, receiver_type, data_dir, position_data_dir)
+                for receiver_name, (data_dir, receiver_type, position_data_dir) in sorted(
                     receivers.items()
                 )
             ]

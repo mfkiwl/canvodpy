@@ -11,7 +11,7 @@ These models provide:
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, EmailStr, Field, ValidationInfo, field_validator, model_validator
 
 # ============================================================================
 # Processing Configuration
@@ -212,6 +212,21 @@ class StorageConfig(BaseModel):
         ...,
         description="Root directory for all IceChunk stores",
     )
+    rinex_store_name: str = Field(
+        "rinex",
+        description="Name of the RINEX Icechunk store directory",
+    )
+    vod_store_name: str = Field(
+        "vod",
+        description="Name of the VOD Icechunk store directory",
+    )
+    aux_data_dir: Path | None = Field(
+        None,
+        description=(
+            "Directory for auxiliary data files (SP3, CLK Zarr caches). "
+            "Defaults to system temp directory if not set."
+        ),
+    )
     rinex_store_strategy: Literal["skip", "overwrite", "append"] = "skip"
     rinex_store_expire_days: int = Field(2, ge=1)
     vod_store_strategy: Literal["skip", "overwrite", "append"] = "overwrite"
@@ -266,7 +281,7 @@ class StorageConfig(BaseModel):
         Path
             Path to the site's RINEX store.
         """
-        return self.stores_root_dir / site_name / "rinex"
+        return self.stores_root_dir / site_name / self.rinex_store_name
 
     def get_vod_store_path(self, site_name: str) -> Path:
         """Get the VOD store path for a site.
@@ -281,7 +296,22 @@ class StorageConfig(BaseModel):
         Path
             Path to the site's VOD store.
         """
-        return self.stores_root_dir / site_name / "vod"
+        return self.stores_root_dir / site_name / self.vod_store_name
+
+    def get_aux_data_dir(self) -> Path:
+        """Get the directory for auxiliary data files.
+
+        Returns
+        -------
+        Path
+            Aux data directory (configured or system temp).
+        """
+        if self.aux_data_dir is not None:
+            self.aux_data_dir.mkdir(parents=True, exist_ok=True)
+            return self.aux_data_dir
+        from tempfile import gettempdir
+
+        return Path(gettempdir())
 
 
 class ProcessingConfig(BaseModel):
@@ -312,10 +342,29 @@ class ReceiverConfig(BaseModel):
         description="Receiver type",
     )
     directory: str = Field(..., description="Subdirectory for receiver data")
+    scs_from: str | list[str] | None = Field(
+        None,
+        description=(
+            "Which canopy receiver(s) to use for SCS computation. "
+            "Required for reference receivers: 'all' or a list of canopy names. "
+            "Must not be set for canopy receivers."
+        ),
+    )
     description: str | None = Field(
         None,
         description="Human-readable description",
     )
+
+    @model_validator(mode="after")
+    def validate_scs_from(self) -> "ReceiverConfig":
+        """Validate scs_from is required for reference, forbidden for canopy."""
+        if self.type == "reference" and self.scs_from is None:
+            msg = "scs_from is required for reference receivers"
+            raise ValueError(msg)
+        if self.type == "canopy" and self.scs_from is not None:
+            msg = "scs_from must not be set for canopy receivers"
+            raise ValueError(msg)
+        return self
 
 
 class VodAnalysisConfig(BaseModel):
@@ -338,6 +387,26 @@ class SiteConfig(BaseModel):
         description="VOD analysis pairs",
     )
 
+    @model_validator(mode="after")
+    def validate_scs_from_targets(self) -> "SiteConfig":
+        """Validate that scs_from entries reference existing canopy receivers."""
+        canopy_names = self.get_canopy_receiver_names()
+        for name, cfg in self.receivers.items():
+            if cfg.type != "reference" or cfg.scs_from is None:
+                continue
+            if isinstance(cfg.scs_from, str) and cfg.scs_from == "all":
+                continue
+            targets = cfg.scs_from if isinstance(cfg.scs_from, list) else [cfg.scs_from]
+            for target in targets:
+                if target not in canopy_names:
+                    msg = (
+                        f"Receiver '{name}' scs_from references '{target}' "
+                        f"which is not a canopy receiver. "
+                        f"Available canopy receivers: {canopy_names}"
+                    )
+                    raise ValueError(msg)
+        return self
+
     def get_base_path(self) -> Path:
         """Get gnss_site_data_root as a Path.
 
@@ -347,6 +416,56 @@ class SiteConfig(BaseModel):
             Site data root directory as a Path object.
         """
         return Path(self.gnss_site_data_root)
+
+    def get_canopy_receiver_names(self) -> list[str]:
+        """Get names of all canopy receivers.
+
+        Returns
+        -------
+        list[str]
+            Canopy receiver names.
+        """
+        return [name for name, cfg in self.receivers.items() if cfg.type == "canopy"]
+
+    def resolve_scs_from(self, receiver_name: str) -> list[str]:
+        """Resolve scs_from for a reference receiver to a list of canopy names.
+
+        Parameters
+        ----------
+        receiver_name : str
+            Name of the reference receiver.
+
+        Returns
+        -------
+        list[str]
+            List of canopy receiver names for SCS computation.
+        """
+        cfg = self.receivers[receiver_name]
+        if cfg.type != "reference":
+            msg = f"resolve_scs_from only applies to reference receivers, got '{cfg.type}'"
+            raise ValueError(msg)
+        if cfg.scs_from == "all":
+            return self.get_canopy_receiver_names()
+        if isinstance(cfg.scs_from, list):
+            return cfg.scs_from
+        # Single canopy name as string
+        return [cfg.scs_from]
+
+    def get_reference_canopy_pairs(self) -> list[tuple[str, str]]:
+        """Expand scs_from into (reference_name, canopy_name) pairs.
+
+        Returns
+        -------
+        list[tuple[str, str]]
+            List of (reference_name, canopy_name) pairs.
+        """
+        pairs = []
+        for name, cfg in self.receivers.items():
+            if cfg.type != "reference":
+                continue
+            for canopy_name in self.resolve_scs_from(name):
+                pairs.append((name, canopy_name))
+        return pairs
 
 
 class SitesConfig(BaseModel):

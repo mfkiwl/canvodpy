@@ -337,12 +337,17 @@ def _show_processing(config: ProcessingConfig) -> None:
     None
     """
     console.print("[bold]Processing Configuration:[/bold]")
-    table = Table(show_header=False)
+    table = Table(show_header=False, padding=(0, 2))
 
+    email = config.credentials.nasa_earthdata_acc_mail
     table.add_row(
         "NASA Earthdata Email",
-        config.credentials.nasa_earthdata_acc_mail or "[yellow]Not set[/yellow]",
+        email or "[yellow]Not set (ESA only)[/yellow]",
     )
+    if email:
+        table.add_row("FTP Priority", "NASA CDDIS -> ESA (fallback)")
+    else:
+        table.add_row("FTP Priority", "ESA only")
 
     table.add_row("Agency", config.aux_data.agency)
     table.add_row("Product Type", config.aux_data.product_type)
@@ -355,7 +360,30 @@ def _show_processing(config: ProcessingConfig) -> None:
         "Aggregated" if config.processing.aggregate_glonass_fdma else "Individual"
     )
     table.add_row("GLONASS FDMA", glonass_mode)
+    table.add_row("Keep RINEX Vars", ", ".join(config.processing.keep_rnx_vars))
     console.print(table)
+    console.print()
+
+    # Storage
+    console.print("[bold]Storage:[/bold]")
+    st = config.storage
+    console.print(f"  Stores root:       {st.stores_root_dir}")
+    console.print(f"  RINEX store name:  {st.rinex_store_name}")
+    console.print(f"  VOD store name:    {st.vod_store_name}")
+    aux_dir = str(st.aux_data_dir) if st.aux_data_dir else "[dim]system temp[/dim]"
+    console.print(f"  Aux data dir:      {aux_dir}")
+    console.print(f"  RINEX strategy:    {st.rinex_store_strategy} (expire: {st.rinex_store_expire_days}d)")
+    console.print(f"  VOD strategy:      {st.vod_store_strategy}")
+    console.print()
+
+    # Icechunk
+    ic = config.icechunk
+    console.print("[bold]Icechunk:[/bold]")
+    console.print(f"  Compression:       {ic.compression_algorithm} (level {ic.compression_level})")
+    console.print(f"  Inline threshold:  {ic.inline_threshold} bytes")
+    console.print(f"  Get concurrency:   {ic.get_concurrency}")
+    for store_name, strategy in ic.chunk_strategies.items():
+        console.print(f"  Chunks ({store_name}): epoch={strategy.epoch}, sid={strategy.sid}")
     console.print()
 
 
@@ -371,13 +399,95 @@ def _show_sites(config: SitesConfig) -> None:
     -------
     None
     """
+    from .loader import load_config as _load_config
+
+    try:
+        full_config = _load_config()
+        storage = full_config.processing.storage
+    except Exception:
+        storage = None
+
     console.print("[bold]Research Sites:[/bold]")
-    for name, site in config.sites.items():
-        console.print(f"\n  [cyan]{name}[/cyan]:")
+
+    for site_name, site in config.sites.items():
+        base_path = site.get_base_path()
+
+        console.print(f"\n  [bold cyan]{site_name}[/bold cyan]")
         console.print(f"    Data root: {site.gnss_site_data_root}")
-        console.print(f"    Receivers: {len(site.receivers)}")
+
+        # Store paths
+        if storage:
+            console.print(
+                f"    RINEX store: {storage.get_rinex_store_path(site_name)}"
+            )
+            console.print(
+                f"    VOD store:   {storage.get_vod_store_path(site_name)}"
+            )
+
+        # Receivers table
+        canopy_names = site.get_canopy_receiver_names()
+        ref_names = [n for n, c in site.receivers.items() if c.type == "reference"]
+
+        console.print(
+            f"\n    [bold]Receivers[/bold] "
+            f"({len(canopy_names)} canopy, {len(ref_names)} reference):"
+        )
+
         for recv_name, recv in site.receivers.items():
-            console.print(f"      - {recv_name} ({recv.type})")
+            abs_dir = str(base_path / recv.directory)
+            type_color = "magenta" if recv.type == "reference" else "blue"
+            console.print(
+                f"      [green]{recv_name}[/green] "
+                f"[{type_color}]({recv.type})[/{type_color}]"
+            )
+            console.print(f"        dir: {abs_dir}")
+            if recv.scs_from is not None:
+                if recv.scs_from == "all":
+                    console.print(
+                        f"        scs_from: all -> {canopy_names}"
+                    )
+                else:
+                    console.print(f"        scs_from: {recv.scs_from}")
+
+        # Reference-canopy pairs (expanded from scs_from)
+        pairs = site.get_reference_canopy_pairs()
+        if pairs:
+            console.print(
+                f"\n    [bold]Reference x Canopy store groups[/bold] ({len(pairs)}):"
+            )
+            pair_table = Table(
+                show_header=True, padding=(0, 1), box=None, pad_edge=False
+            )
+            pair_table.add_column("Store Group", style="green")
+            pair_table.add_column("Reference")
+            pair_table.add_column("Position From")
+
+            for ref_name, canopy_name in pairs:
+                group_name = f"{ref_name}_{canopy_name}"
+                pair_table.add_row(group_name, ref_name, canopy_name)
+
+            console.print(pair_table)
+
+        # VOD analyses
+        if site.vod_analyses:
+            console.print(
+                f"\n    [bold]VOD Analyses[/bold] ({len(site.vod_analyses)}):"
+            )
+            vod_table = Table(
+                show_header=True, padding=(0, 1), box=None, pad_edge=False
+            )
+            vod_table.add_column("Name", style="green")
+            vod_table.add_column("Canopy")
+            vod_table.add_column("Reference")
+
+            for analysis_name, analysis in site.vod_analyses.items():
+                vod_table.add_row(
+                    analysis_name,
+                    analysis.canopy_receiver,
+                    analysis.reference_receiver,
+                )
+
+            console.print(vod_table)
 
 
 def _show_sids(config: SidsConfig) -> None:

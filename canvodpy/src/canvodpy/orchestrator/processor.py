@@ -8,8 +8,6 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 from datetime import datetime, timezone
 from datetime import time as dt_time
 from pathlib import Path
-from tempfile import gettempdir
-
 import numpy as np
 import polars as pl
 import pydantic_core
@@ -730,7 +728,9 @@ class RinexDataProcessor:
         RuntimeError
             If preprocessing fails or file doesn't exist after preprocessing
         """
-        aux_zarr_path = Path(gettempdir()) / f"aux_{date_str}.zarr"
+        config = load_config()
+        aux_base_dir = config.processing.storage.get_aux_data_dir()
+        aux_zarr_path = aux_base_dir / f"aux_{date_str}.zarr"
 
         # Check if file exists AND is valid
         is_valid = False
@@ -1949,7 +1949,8 @@ class RinexDataProcessor:
         # ====================================================================
         # STEP 1: Preprocess aux data ONCE per day with Hermite splines
         # ====================================================================
-        aux_zarr_path = Path(gettempdir()) / (
+        _aux_base_dir = load_config().processing.storage.get_aux_data_dir()
+        aux_zarr_path = _aux_base_dir / (
             f"aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr"
         )
 
@@ -2046,14 +2047,14 @@ class RinexDataProcessor:
     def parsed_rinex_data_gen(
         self,
         keep_vars: list[str] | None = None,
-        receiver_configs: list[tuple[str, str, Path]] | None = None,
+        receiver_configs: list[tuple[str, str, Path]] | list[tuple[str, str, Path, Path | None]] | None = None,
     ) -> Generator[tuple[str, xr.Dataset, float], None, None]:
         """Generate datasets from RINEX files and append to Icechunk stores.
 
         Pipeline:
         1. Preprocess aux data ONCE per day with Hermite splines → Zarr
         2. For each receiver:
-        a. Compute receiver position from its first file
+        a. Compute receiver position (from own files or position_data_dir)
         b. Parallel process RINEX files with ProcessPoolExecutor
         c. Append to Icechunk store with receiver_name as group
         d. Yield final daily dataset
@@ -2062,9 +2063,12 @@ class RinexDataProcessor:
         ----------
         keep_vars : list[str], optional
             Variables to keep in datasets (default: from globals)
-        receiver_configs : list[tuple[str, str, Path]], optional
-            List of (receiver_name, receiver_type, data_dir) tuples.
-            If None, uses default behavior with matched_data_dirs
+        receiver_configs : list[tuple], optional
+            List of (receiver_name, receiver_type, data_dir) or
+            (receiver_name, receiver_type, data_dir, position_data_dir) tuples.
+            When position_data_dir is provided, the receiver position is
+            computed from files in that directory instead of data_dir.
+            If None, uses default behavior with matched_data_dirs.
 
         Yields
         ------
@@ -2075,13 +2079,21 @@ class RinexDataProcessor:
         if receiver_configs is None:
             receiver_configs = self._get_default_receiver_configs()
 
+        # Normalize to 4-tuples
+        normalized_configs: list[tuple[str, str, Path, Path | None]] = []
+        for cfg in receiver_configs:
+            if len(cfg) == 3:
+                normalized_configs.append((*cfg, None))
+            else:
+                normalized_configs.append(cfg)
+
         if keep_vars is None:
             keep_vars = KEEP_RNX_VARS
 
         pipeline_start = time.time()
         self._logger.info(
             "rinex_pipeline_started",
-            receivers=len(receiver_configs),
+            receivers=len(normalized_configs),
             date=self.matched_data_dirs.yyyydoy.to_str(),
             keep_vars=keep_vars,
         )
@@ -2090,7 +2102,7 @@ class RinexDataProcessor:
         # STEP 1: Preprocess aux data ONCE per day with Hermite splines
         # ====================================================================
         # Get first receiver files to infer sampling rate
-        first_receiver_name, _first_receiver_type, first_data_dir = receiver_configs[0]
+        first_receiver_name, _first_receiver_type, first_data_dir, _ = normalized_configs[0]
         first_files = self._get_rinex_files(first_data_dir)
 
         if not first_files:
@@ -2111,7 +2123,7 @@ class RinexDataProcessor:
         # ====================================================================
         # STEP 2: Process each receiver independently
         # ====================================================================
-        for receiver_name, receiver_type, data_dir in receiver_configs:
+        for receiver_name, receiver_type, data_dir, position_data_dir in normalized_configs:
             receiver_start = time.time()
 
             self._logger.info(
@@ -2119,6 +2131,7 @@ class RinexDataProcessor:
                 receiver=receiver_name,
                 receiver_type=receiver_type,
                 data_dir=str(data_dir),
+                position_from=str(position_data_dir) if position_data_dir else "self",
             )
 
             # Get RINEX files for this receiver
@@ -2137,33 +2150,35 @@ class RinexDataProcessor:
                 files=len(rinex_files),
             )
 
-            # Compute receiver position from THIS receiver's first file
+            # Compute receiver position: from position_data_dir if set,
+            # otherwise from this receiver's own first file
+            position_files = (
+                self._get_rinex_files(position_data_dir)
+                if position_data_dir
+                else rinex_files
+            )
             first_rnx = None
-            for _f, ff in enumerate(rinex_files):
+            for _f, ff in enumerate(position_files):
                 try:
                     first_rnx = Rnxv3Obs(fpath=ff, include_auxiliary=False)
                     break
                 except ValidationError as e:
-                    # Handle Pydantic validation errors
                     self._logger.warning(
                         "Validation error for %s: %s",
                         ff.name,
                         e,
                     )
-                    # You can access specific error details:
                     for error in e.errors():
                         self._logger.debug("Field: %s", error["loc"])
                         self._logger.debug("Message: %s", error["msg"])
                         self._logger.debug("Type: %s", error["type"])
                 except pydantic_core.ValidationError as e:
-                    # Handle lower-level pydantic_core validation errors
                     self._logger.warning(
                         "Core validation error for %s: %s",
                         ff.name,
                         e,
                     )
                 except (OSError, RuntimeError, ValueError) as e:
-                    # Handle any other unexpected errors
                     self._logger.warning(
                         "Unexpected error for %s: %s",
                         ff.name,
@@ -2180,9 +2195,10 @@ class RinexDataProcessor:
             first_ds = first_rnx.to_ds(keep_rnx_data_vars=[], write_global_attrs=True)
             receiver_position = ECEFPosition.from_ds_metadata(first_ds)
             self._logger.info(
-                "Computed receiver position for %s: %s",
+                "Computed receiver position for %s: %s (from %s)",
                 receiver_name,
                 receiver_position,
+                str(position_data_dir) if position_data_dir else "own files",
             )
 
             # Parallel process with ProcessPoolExecutor
@@ -2228,26 +2244,57 @@ class RinexDataProcessor:
         self._logger.info(
             "rinex_pipeline_complete",
             duration_seconds=round(pipeline_duration, 2),
-            receivers=len(receiver_configs),
+            receivers=len(normalized_configs),
         )
 
-    def _get_default_receiver_configs(self) -> list[tuple[str, str, Path]]:
-        """Get default receiver configs from matched_data_dirs."""
-        configs = []
+    def _get_default_receiver_configs(
+        self,
+    ) -> list[tuple[str, str, Path, Path | None]]:
+        """Get default receiver configs from matched_data_dirs.
 
-        # Get canopy receiver
-        for name, config in self.site.active_receivers.items():
-            if config.get("type") == "canopy":
-                configs.append((name, "canopy", self.matched_data_dirs.canopy_data_dir))
-                break
+        Returns a list of (store_group_name, receiver_type, data_dir,
+        position_data_dir) tuples. For canopy receivers, position_data_dir
+        is None (use own files). For reference receivers, one entry is
+        created per canopy in scs_from, with position_data_dir pointing
+        to the canopy's RINEX directory.
 
-        # Get reference receiver
-        for name, config in self.site.active_receivers.items():
-            if config.get("type") == "reference":
-                configs.append(
-                    (name, "reference", self.matched_data_dirs.reference_data_dir)
+        Returns
+        -------
+        list[tuple[str, str, Path, Path | None]]
+            Receiver processing configurations.
+        """
+        configs: list[tuple[str, str, Path, Path | None]] = []
+        site_config = self.site._site_config
+
+        # Collect canopy data dirs for resolving position sources
+        canopy_data_dirs: dict[str, Path] = {}
+        base_path = site_config.get_base_path()
+
+        for name, cfg in site_config.receivers.items():
+            if cfg.type == "canopy":
+                canopy_data_dirs[name] = (
+                    base_path
+                    / cfg.directory
+                    / self.matched_data_dirs.yyyydoy.yydoy
                 )
-                break
+
+        # Add all canopy receivers (each uses own position)
+        for name, cfg in site_config.receivers.items():
+            if cfg.type == "canopy" and name in canopy_data_dirs:
+                configs.append((name, "canopy", canopy_data_dirs[name], None))
+
+        # Add reference receivers — one entry per canopy in scs_from
+        for name, cfg in site_config.receivers.items():
+            if cfg.type != "reference":
+                continue
+            ref_data_dir = (
+                base_path / cfg.directory / self.matched_data_dirs.yyyydoy.yydoy
+            )
+            canopy_names = site_config.resolve_scs_from(name)
+            for canopy_name in canopy_names:
+                store_group = f"{name}_{canopy_name}"
+                position_dir = canopy_data_dirs.get(canopy_name)
+                configs.append((store_group, "reference", ref_data_dir, position_dir))
 
         return configs
 
@@ -2873,7 +2920,8 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
         # ====================================================================
         # STEP 1: Preprocess aux data ONCE per day with Hermite splines
         # ====================================================================
-        aux_zarr_path = Path(gettempdir()) / (
+        _aux_base_dir = load_config().processing.storage.get_aux_data_dir()
+        aux_zarr_path = _aux_base_dir / (
             f"aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr"
         )
 

@@ -89,9 +89,17 @@ icechunk:
 
 storage:
   # Root directory for all IceChunk stores
-  # Stores will be organized as: {stores_root_dir}/{site_name}/rinex/
-  #                              {stores_root_dir}/{site_name}/vod/
+  # Stores will be organized as: {stores_root_dir}/{site_name}/{rinex_store_name}/
+  #                              {stores_root_dir}/{site_name}/{vod_store_name}/
   stores_root_dir: /path/to/your/gnss/stores
+
+  # Custom store directory names (default: "rinex" and "vod")
+  # rinex_store_name: rinex
+  # vod_store_name: vod
+
+  # Directory for auxiliary data caches (SP3/CLK Zarr files)
+  # If not set, uses system temp directory
+  # aux_data_dir: /path/to/aux_cache
 
   rinex_store_strategy: skip      # skip, overwrite, append
   rinex_store_expire_days: 2
