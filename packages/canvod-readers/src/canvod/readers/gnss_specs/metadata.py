@@ -235,6 +235,7 @@ DTYPES: Final[dict[str, np.dtype]] = {
 # Global attributes
 # -------------------
 
+
 def get_global_attrs() -> dict[str, str]:
     """Build global attributes from the active configuration.
 
@@ -259,6 +260,7 @@ def get_global_attrs() -> dict[str, str]:
         attrs["Research Group"] = ", ".join(rg_parts)
     attrs["Software"] = "canVODpy"
     return attrs
+
 
 # -------------------
 # Additional data variables

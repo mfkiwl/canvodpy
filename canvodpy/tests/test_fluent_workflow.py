@@ -155,6 +155,7 @@ class _FakeSite:
 
 def _make_workflow(**kwargs) -> FluentWorkflow:
     """Create a FluentWorkflow with a fake Site (no I/O)."""
+    kwargs.setdefault("keep_vars", ["SNR"])
     return FluentWorkflow(site=_FakeSite(), **kwargs)
 
 
@@ -199,6 +200,6 @@ class TestWorkflowConvenienceFunction:
         import canvodpy
 
         with patch("canvodpy.fluent.Site", side_effect=lambda name: _FakeSite(name)):
-            fw = canvodpy.workflow("Rosalia")
+            fw = canvodpy.workflow("Rosalia", keep_vars=["SNR"])
         assert isinstance(fw, FluentWorkflow)
         assert fw._site.name == "Rosalia"

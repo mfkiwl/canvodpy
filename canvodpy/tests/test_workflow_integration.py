@@ -22,6 +22,7 @@ class _FakeSite:
 
 def _make_workflow(**kwargs) -> VODWorkflow:
     """Create a VODWorkflow with a fake Site (no I/O)."""
+    kwargs.setdefault("keep_vars", ["SNR"])
     return VODWorkflow(site=_FakeSite(), **kwargs)
 
 
@@ -36,7 +37,7 @@ class TestWorkflowInitialization:
     def test_workflow_creates_with_site_name(self):
         """Should create workflow from site name string."""
         with patch("canvodpy.workflow.Site", side_effect=lambda n: _FakeSite(n)):
-            workflow = VODWorkflow(site="Rosalia")
+            workflow = VODWorkflow(site="Rosalia", keep_vars=["SNR"])
         assert workflow.site.name == "Rosalia"
 
     def test_workflow_uses_default_components(self):
