@@ -40,6 +40,62 @@ Orchestration:
 
 ## ABC + Factory Pattern
 
+```mermaid
+flowchart TD
+    subgraph ABCS["Abstract Base Classes"]
+        READER_ABC["GNSSDataReader\n(read, to_ds, validate_output)"]
+        GRID_ABC["BaseGridBuilder\n(_build_grid, build)"]
+        VOD_ABC["VODCalculator\n(calculate_vod)"]
+        AUG_ABC["AugmentationStep\n(apply)"]
+    end
+
+    subgraph FACTORIES["Factory Registry"]
+        RF["ReaderFactory"]
+        GF["GridFactory"]
+        VF["VODFactory"]
+        AF["AugmentationFactory"]
+    end
+
+    subgraph BUILTIN["Built-in Implementations"]
+        RINEX3["Rnxv3Obs\n(RINEX v3.04)"]
+        EA["EqualAreaBuilder"]
+        HP["HEALPixBuilder"]
+        GD["GeodesicBuilder"]
+        FB["FibonacciBuilder"]
+        TO["TauOmegaZerothOrder"]
+    end
+
+    subgraph CUSTOM["User Extension"]
+        IMPL["Custom Implementation\n(inherits ABC)"]
+        REG["Factory.register(\nname, class)"]
+        USE["Factory.create(\nname, **params)"]
+    end
+
+    subgraph VALIDATION["Validation Chain"]
+        V1["1. ABC compliance check\n(issubclass)"]
+        V2["2. Pydantic model\nvalidation (at creation)"]
+        V3["3. Runtime type\nchecking (Generic T)"]
+    end
+
+    READER_ABC --> RF
+    GRID_ABC --> GF
+    VOD_ABC --> VF
+    AUG_ABC --> AF
+
+    RINEX3 --> RF
+    EA --> GF
+    HP --> GF
+    GD --> GF
+    FB --> GF
+    TO --> VF
+
+    IMPL --> REG
+    REG --> V1
+    V1 --> V2
+    V2 --> V3
+    V3 --> USE
+```
+
 ### Abstract Base Class (Contract)
 
 ```python
@@ -188,6 +244,54 @@ from canvod.vod import VODCalculator
 ```
 
 ## Configuration Management
+
+```mermaid
+flowchart LR
+    subgraph CONFIG["YAML Configuration"]
+        PROC["processing.yaml\n\nProcessing parameters\nStorage paths\nCompression settings\nNASA credentials"]
+        SITES["sites.yaml\n\nReceiver definitions\nDirectory mappings\nVOD analysis pairs"]
+        SIDS["sids.yaml\n\nSignal ID filters\n(system, band, code)"]
+    end
+
+    subgraph LOADER["Configuration Loader"]
+        DEFAULTS["Package Defaults\n(built-in YAML)"]
+        MERGE["Deep Merge\n(user overrides defaults)"]
+        PYDANTIC["Pydantic Validation\n(type safety, constraints)"]
+    end
+
+    subgraph VALIDATED["CanvodConfig (validated)"]
+        PC["ProcessingConfig\n  ProcessingParams\n  StorageConfig\n  IcechunkConfig\n  MetadataConfig"]
+        SC["SitesConfig\n  ReceiverConfig\n  VODAnalysisConfig"]
+        SIC["SidsConfig\n  Signal filters"]
+    end
+
+    subgraph VERSIONED["Versioned Data Storage"]
+        IC_WRITE["Icechunk Write\n(atomic commits)"]
+        SNAPSHOT["Snapshot ID\n(content-addressable)"]
+        BRANCH["Branch Management\n(main, rechunk)"]
+        METADATA["Metadata Parquet\n(RINEX hash, epochs,\nsnapshot, timestamp)"]
+    end
+
+    subgraph PROVENANCE["Full Provenance"]
+        TRACE["Every dataset traceable to:\n  Config version\n  RINEX file hash\n  Snapshot ID\n  Processing timestamp"]
+    end
+
+    PROC --> MERGE
+    SITES --> MERGE
+    SIDS --> MERGE
+    DEFAULTS --> MERGE
+    MERGE --> PYDANTIC
+    PYDANTIC --> PC
+    PYDANTIC --> SC
+    PYDANTIC --> SIC
+
+    PC --> IC_WRITE
+    IC_WRITE --> SNAPSHOT
+    SNAPSHOT --> METADATA
+    BRANCH --> SNAPSHOT
+    METADATA --> TRACE
+    SC --> TRACE
+```
 
 All configuration is managed through YAML files validated by Pydantic models:
 

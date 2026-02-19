@@ -1,0 +1,45 @@
+flowchart LR
+    subgraph ACQ["Acquisition"]
+        RINEX["RINEX 3.04"]
+        SP3["SP3"]
+        CLK["CLK"]
+    end
+
+    subgraph PREP["Preprocessing"]
+        PARSE["Parse & Interpolate"]
+        AUX["Auxiliary Dataset"]
+    end
+
+    subgraph OBS["Observation Processing"]
+        READ["Read & Filter"]
+        SCS["Spherical Coordinates"]
+    end
+
+    subgraph STORE["Storage"]
+        ICE["Icechunk Store"]
+    end
+
+    subgraph GRID["Gridding"]
+        HGRID["Hemispheric Grid"]
+        KDTREE["KDTree Assignment"]
+    end
+
+    subgraph VOD["VOD Retrieval"]
+        PAIR["Canopy / Reference"]
+        TAU["Tau-Omega Inversion"]
+    end
+
+    OUT["VOD Dataset"]
+
+    RINEX --> READ
+    SP3 --> PARSE
+    CLK --> PARSE
+    PARSE --> AUX
+    AUX --> SCS
+    READ --> SCS
+    SCS --> ICE
+    ICE --> HGRID
+    HGRID --> KDTREE
+    KDTREE --> PAIR
+    PAIR --> TAU
+    TAU --> OUT

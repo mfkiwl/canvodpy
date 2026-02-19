@@ -13,6 +13,71 @@ The zeroth-order model assumes:
 - Plane-parallel canopy layer
 - Signal attenuation proportional to the path length through the canopy
 
+## Multi-Receiver SCS Expansion
+
+When a reference receiver serves multiple canopy receivers, its satellite geometry must be recomputed relative to each canopy position. The `scs_from` configuration controls this expansion, creating separate store groups and matched VOD analysis pairs.
+
+```mermaid
+flowchart TD
+    subgraph FIELD["Field Setup"]
+        C1["Canopy Receiver 1\n(below canopy, NE)"]
+        C2["Canopy Receiver 2\n(below canopy, SW)"]
+        R1["Reference Receiver\n(open sky)"]
+    end
+
+    subgraph SCS_CONFIG["SCS Configuration (sites.yaml)"]
+        C1_CFG["canopy_01\ntype: canopy\nscs_from: null\n(uses own position)"]
+        C2_CFG["canopy_02\ntype: canopy\nscs_from: null\n(uses own position)"]
+        R1_CFG["reference_01\ntype: reference\nscs_from:\n  - canopy_01\n  - canopy_02"]
+    end
+
+    subgraph EXPANSION["SCS Processing Expansion"]
+        C1_PROC["Process canopy_01\nposition: canopy_01"]
+        C2_PROC["Process canopy_02\nposition: canopy_02"]
+        R1_C1["Process reference_01\nposition: canopy_01\n(satellite geometry\nrelative to canopy_01)"]
+        R1_C2["Process reference_01\nposition: canopy_02\n(satellite geometry\nrelative to canopy_02)"]
+    end
+
+    subgraph STORE_GROUPS["RINEX Store Groups"]
+        SG1["canopy_01"]
+        SG2["canopy_02"]
+        SG3["reference_01_canopy_01"]
+        SG4["reference_01_canopy_02"]
+    end
+
+    subgraph VOD_PAIRS["VOD Analysis Pairs"]
+        VP1["canopy_01\nvs\nreference_01_canopy_01"]
+        VP2["canopy_02\nvs\nreference_01_canopy_02"]
+    end
+
+    subgraph VOD_OUT["VOD Output"]
+        V1["VOD (canopy_01)\nSNR attenuation by\ncanopy at position 1"]
+        V2["VOD (canopy_02)\nSNR attenuation by\ncanopy at position 2"]
+    end
+
+    C1 --> C1_CFG
+    C2 --> C2_CFG
+    R1 --> R1_CFG
+
+    C1_CFG --> C1_PROC
+    C2_CFG --> C2_PROC
+    R1_CFG --> R1_C1
+    R1_CFG --> R1_C2
+
+    C1_PROC --> SG1
+    C2_PROC --> SG2
+    R1_C1 --> SG3
+    R1_C2 --> SG4
+
+    SG1 --> VP1
+    SG3 --> VP1
+    SG2 --> VP2
+    SG4 --> VP2
+
+    VP1 --> V1
+    VP2 --> V2
+```
+
 ## Usage
 
 ### Direct instantiation

@@ -1,0 +1,79 @@
+flowchart TD
+    subgraph CFG["Configuration"]
+        YAML["YAML"]
+        VALID["Validate"]
+        CONF["Config"]
+    end
+
+    subgraph INIT["Initialization"]
+        SITE["Site"]
+        RX_ST["RINEX Store"]
+        VOD_ST["VOD Store"]
+    end
+
+    subgraph DISC["Discovery"]
+        MATCH["Match Dirs"]
+        EXPAND["SCS Expand"]
+        SCHED["Schedule"]
+    end
+
+    subgraph AUX["Auxiliary Pipeline"]
+        DL["Download SP3 + CLK"]
+        INTERP["Interpolate"]
+        AUX_DS["Auxiliary Dataset"]
+    end
+
+    subgraph PAR["Parallel Processing"]
+        READ["Read RINEX"]
+        FILT["Filter Signals"]
+        SLICE["Slice Auxiliary"]
+        SCS["Spherical Coords"]
+    end
+
+    subgraph STORE["Storage"]
+        HASH["Hash Check"]
+        WRITE["Append"]
+        COMMIT["Commit"]
+    end
+
+    subgraph GRID["Grid"]
+        BUILD["Build Grid"]
+        KD["KDTree"]
+        ASSIGN["Assign Cells"]
+    end
+
+    subgraph VOD["VOD"]
+        LOAD["Load Pairs"]
+        DELTA["Delta-SNR"]
+        TAU["Tau-Omega"]
+        DS["VOD Dataset"]
+    end
+
+    subgraph OUT["Output"]
+        SAVE["Store"]
+        VIS["Visualize"]
+        EXP["Export"]
+    end
+
+    YAML --> VALID --> CONF
+    CONF --> SITE
+    SITE --> RX_ST
+    SITE --> VOD_ST
+
+    CONF --> MATCH --> EXPAND --> SCHED
+
+    SCHED --> DL --> INTERP --> AUX_DS
+
+    SCHED --> READ --> FILT --> SLICE --> SCS
+    AUX_DS --> SLICE
+
+    SCS --> HASH --> WRITE --> COMMIT
+    COMMIT --> RX_ST
+
+    RX_ST --> BUILD --> KD --> ASSIGN
+
+    ASSIGN --> LOAD --> DELTA --> TAU --> DS
+
+    DS --> SAVE --> VOD_ST
+    DS --> VIS
+    DS --> EXP
