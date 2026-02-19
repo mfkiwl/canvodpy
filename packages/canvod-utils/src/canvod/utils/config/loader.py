@@ -137,18 +137,14 @@ class ConfigLoader:
     def _load_sites(self) -> SitesConfig:
         """Load sites config.
 
-        Raises
-        ------
-        FileNotFoundError
-            If sites.yaml config file is missing.
+        Returns an empty SitesConfig if sites.yaml is missing (e.g. CI, tests).
         """
         user_file = self.config_dir / "sites.yaml"
 
         if not user_file.exists():
-            raise FileNotFoundError(
-                f"Required configuration file missing: {user_file}\n"
-                f"Run: canvodpy config init"
-            )
+            print(f"\n⚠️  Warning: {user_file} not found, no sites configured")
+            print("   Run: canvodpy config init\n")
+            return SitesConfig(sites={})
 
         data = self._load_yaml(user_file)
         return SitesConfig(**data)

@@ -555,7 +555,7 @@ class SitesConfig(BaseModel):
         cls,
         v: dict[str, "SiteConfig"],
     ) -> dict[str, "SiteConfig"]:
-        """Ensure at least one site is defined.
+        """Warn if no sites are defined.
 
         Parameters
         ----------
@@ -568,8 +568,14 @@ class SitesConfig(BaseModel):
             Validated sites dictionary.
         """
         if not v:
-            msg = "At least one research site must be defined"
-            raise ValueError(msg)
+            import warnings
+
+            warnings.warn(
+                "No research sites defined in sites.yaml. "
+                "Run: canvodpy config init",
+                UserWarning,
+                stacklevel=2,
+            )
         return v
 
 
