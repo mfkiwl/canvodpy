@@ -5821,10 +5821,7 @@ dict_keys(['canopy_01', 'canopy_02', 'reference_01'])</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">423</span>
-<span class="normal">424</span>
-<span class="normal">425</span>
-<span class="normal">426</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">426</span>
 <span class="normal">427</span>
 <span class="normal">428</span>
 <span class="normal">429</span>
@@ -5873,7 +5870,10 @@ dict_keys(['canopy_01', 'canopy_02', 'reference_01'])</p>
 <span class="normal">472</span>
 <span class="normal">473</span>
 <span class="normal">474</span>
-<span class="normal">475</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span>
     <span class="n">site</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">keep_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5978,10 +5978,7 @@ print(vod.vod.mean().values)
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">478</span>
-<span class="normal">479</span>
-<span class="normal">480</span>
-<span class="normal">481</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">481</span>
 <span class="normal">482</span>
 <span class="normal">483</span>
 <span class="normal">484</span>
@@ -6029,7 +6026,10 @@ print(vod.vod.mean().values)
 <span class="normal">526</span>
 <span class="normal">527</span>
 <span class="normal">528</span>
-<span class="normal">529</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
     <span class="n">site</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">canopy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -6116,10 +6116,7 @@ Total files: 8640</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">532</span>
-<span class="normal">533</span>
-<span class="normal">534</span>
-<span class="normal">535</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">535</span>
 <span class="normal">536</span>
 <span class="normal">537</span>
 <span class="normal">538</span>
@@ -6138,7 +6135,10 @@ Total files: 8640</p>
 <span class="normal">551</span>
 <span class="normal">552</span>
 <span class="normal">553</span>
-<span class="normal">554</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">preview_processing</span><span class="p">(</span><span class="n">site</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">preview_processing</span><span class="p">(</span><span class="n">site</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Preview processing plan for a site (convenience function).</span>
 
 <span class="sd">    Parameters</span>
@@ -6292,7 +6292,8 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 46</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 45</span>
+<span class="normal"> 46</span>
 <span class="normal"> 47</span>
 <span class="normal"> 48</span>
 <span class="normal"> 49</span>
@@ -6710,7 +6711,10 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
 <span class="normal">461</span>
 <span class="normal">462</span>
 <span class="normal">463</span>
-<span class="normal">464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VODWorkflow</span><span class="p">:</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VODWorkflow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orchestrate complete VOD analysis workflow.</span>
 
@@ -6796,7 +6800,11 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
         <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span> <span class="o">=</span> <span class="n">reader</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vod_calculator_name</span> <span class="o">=</span> <span class="n">vod_calculator</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+        <span class="k">if</span> <span class="n">keep_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+
+            <span class="n">keep_vars</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">()</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">keep_rnx_vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span>
 
         <span class="c1"># Create grid using factory (cached for workflow)</span>
         <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_params</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -7161,7 +7169,8 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
+<span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
@@ -7196,7 +7205,10 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
 <span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
-<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Site</span><span class="p">,</span>
     <span class="n">reader</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rinex3&quot;</span><span class="p">,</span>
@@ -7218,7 +7230,11 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
     <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span> <span class="o">=</span> <span class="n">reader</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vod_calculator_name</span> <span class="o">=</span> <span class="n">vod_calculator</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+    <span class="k">if</span> <span class="n">keep_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+
+        <span class="n">keep_vars</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">()</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">keep_rnx_vars</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span>
 
     <span class="c1"># Create grid using factory (cached for workflow)</span>
     <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_params</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -7289,10 +7305,7 @@ the full pipeline from raw RINEX to grid-assigned observations.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">150</span>
 <span class="normal">151</span>
 <span class="normal">152</span>
 <span class="normal">153</span>
@@ -7365,7 +7378,10 @@ the full pipeline from raw RINEX to grid-assigned observations.</p>
 <span class="normal">220</span>
 <span class="normal">221</span>
 <span class="normal">222</span>
-<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">receivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -7508,10 +7524,7 @@ extensions via factory registration.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
@@ -7597,7 +7610,10 @@ extensions via factory registration.</p>
 <span class="normal">311</span>
 <span class="normal">312</span>
 <span class="normal">313</span>
-<span class="normal">314</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">canopy_receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">sky_receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -7709,12 +7725,12 @@ extensions via factory registration.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">459</span>
-<span class="normal">460</span>
-<span class="normal">461</span>
-<span class="normal">462</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">462</span>
 <span class="normal">463</span>
-<span class="normal">464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;VODWorkflow(site=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
@@ -7774,7 +7790,8 @@ keep_vars : list[str], optional
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 87</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 86</span>
+<span class="normal"> 87</span>
 <span class="normal"> 88</span>
 <span class="normal"> 89</span>
 <span class="normal"> 90</span>
@@ -7982,7 +7999,10 @@ keep_vars : list[str], optional
 <span class="normal">292</span>
 <span class="normal">293</span>
 <span class="normal">294</span>
-<span class="normal">295</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FluentWorkflow</span><span class="p">:</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FluentWorkflow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Chainable, deferred-execution workflow for VOD analysis.</span>
 
 <span class="sd">    Parameters</span>
@@ -8019,7 +8039,11 @@ keep_vars : list[str], optional
         <span class="bp">self</span><span class="o">.</span><span class="n">_reader_name</span> <span class="o">=</span> <span class="n">reader</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grid_type</span> <span class="o">=</span> <span class="n">grid_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vod_calculator_name</span> <span class="o">=</span> <span class="n">vod_calculator</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+        <span class="k">if</span> <span class="n">keep_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+
+            <span class="n">keep_vars</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">()</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">keep_rnx_vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_site</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
@@ -8229,10 +8253,7 @@ receivers : list[str], optional
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
@@ -8258,7 +8279,10 @@ receivers : list[str], optional
 <span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
-<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">receivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load RINEX observations for *date*.</span>
 
@@ -8313,10 +8337,7 @@ receivers : list[str], optional
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
 <span class="normal">169</span>
@@ -8334,7 +8355,10 @@ receivers : list[str], optional
 <span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
-<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agency</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;COD&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply auxiliary preprocessing to loaded datasets.</span>
 
@@ -8384,10 +8408,7 @@ receivers : list[str], optional
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
 <span class="normal">192</span>
@@ -8406,7 +8427,10 @@ receivers : list[str], optional
 <span class="normal">205</span>
 <span class="normal">206</span>
 <span class="normal">207</span>
-<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a hemisphere grid and assign cell IDs to all datasets.</span>
 
@@ -8456,10 +8480,7 @@ reference : str
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
 <span class="normal">216</span>
@@ -8478,7 +8499,10 @@ reference : str
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
-<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@step</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">vod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canopy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute vegetation optical depth for a receiver pair.</span>
 
@@ -8525,16 +8549,16 @@ otherwise returns the dict of per-receiver datasets.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">241</span>
 <span class="normal">242</span>
 <span class="normal">243</span>
 <span class="normal">244</span>
 <span class="normal">245</span>
 <span class="normal">246</span>
-<span class="normal">247</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute the plan and return the final data.</span>
 
@@ -8566,10 +8590,7 @@ otherwise returns the dict of per-receiver datasets.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">252</span>
 <span class="normal">253</span>
 <span class="normal">254</span>
 <span class="normal">255</span>
@@ -8577,7 +8598,10 @@ otherwise returns the dict of per-receiver datasets.</p>
 <span class="normal">257</span>
 <span class="normal">258</span>
 <span class="normal">259</span>
-<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">to_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FluentWorkflow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute the plan and write results to Icechunk storage.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vod_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -8611,14 +8635,14 @@ otherwise returns the dict of per-receiver datasets.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">265</span>
 <span class="normal">266</span>
 <span class="normal">267</span>
 <span class="normal">268</span>
-<span class="normal">269</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@terminal</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute the plan and visualise the result.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">HemisphereVisualizer</span>
@@ -8652,10 +8676,7 @@ otherwise returns the dict of per-receiver datasets.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/fluent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">278</span>
 <span class="normal">279</span>
 <span class="normal">280</span>
 <span class="normal">281</span>
@@ -8664,7 +8685,10 @@ otherwise returns the dict of per-receiver datasets.</p>
 <span class="normal">284</span>
 <span class="normal">285</span>
 <span class="normal">286</span>
-<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">explain</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a description of the recorded plan without executing it.</span>
 
 <span class="sd">    Returns</span>
@@ -8745,7 +8769,8 @@ print(site.receivers)
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 43</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 42</span>
+<span class="normal"> 43</span>
 <span class="normal"> 44</span>
 <span class="normal"> 45</span>
 <span class="normal"> 46</span>
@@ -8863,8 +8888,7 @@ print(site.receivers)
 <span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Site</span><span class="p">:</span>
+<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Site</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;User-friendly wrapper around GnssResearchSite.</span>
 
 <span class="sd">    Provides a clean, modern API for site management while using</span>
@@ -9148,7 +9172,8 @@ data = pipeline.process_date("2025001")</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
+<span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
@@ -9185,8 +9210,7 @@ data = pipeline.process_date("2025001")</p>
 <span class="normal">150</span>
 <span class="normal">151</span>
 <span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pipeline</span><span class="p">(</span>
+<span class="normal">153</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pipeline</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">keep_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">aux_agency</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;COD&quot;</span><span class="p">,</span>
@@ -9289,7 +9313,8 @@ pipeline = Pipeline(site)</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">165</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">164</span>
+<span class="normal">165</span>
 <span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
@@ -9539,7 +9564,10 @@ pipeline = Pipeline(site)</p>
 <span class="normal">412</span>
 <span class="normal">413</span>
 <span class="normal">414</span>
-<span class="normal">415</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Pipeline</span><span class="p">:</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Pipeline</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;User-friendly wrapper around PipelineOrchestrator.</span>
 
 <span class="sd">    Provides a clean API for processing workflows while using</span>
@@ -9589,7 +9617,11 @@ pipeline = Pipeline(site)</p>
             <span class="n">site</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="n">site</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+        <span class="k">if</span> <span class="n">keep_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+
+            <span class="n">keep_vars</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">()</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">keep_rnx_vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aux_agency</span> <span class="o">=</span> <span class="n">aux_agency</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_workers</span> <span class="o">=</span> <span class="n">n_workers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dry_run</span> <span class="o">=</span> <span class="n">dry_run</span>
@@ -9616,7 +9648,7 @@ pipeline = Pipeline(site)</p>
             <span class="s2">&quot;pipeline_initialized&quot;</span><span class="p">,</span>
             <span class="n">aux_agency</span><span class="o">=</span><span class="n">aux_agency</span><span class="p">,</span>
             <span class="n">n_workers</span><span class="o">=</span><span class="n">n_workers</span><span class="p">,</span>
-            <span class="n">keep_vars</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span><span class="p">),</span>
+            <span class="n">keep_vars</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span><span class="p">),</span>
             <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -9843,10 +9875,7 @@ Dimensions: (epoch: 2880, sv: 32, ...)</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">249</span>
 <span class="normal">250</span>
 <span class="normal">251</span>
 <span class="normal">252</span>
@@ -9886,7 +9915,10 @@ Dimensions: (epoch: 2880, sv: 32, ...)</p>
 <span class="normal">286</span>
 <span class="normal">287</span>
 <span class="normal">288</span>
-<span class="normal">289</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Process RINEX data for one date.</span>
 
 <span class="sd">    Parameters</span>
@@ -9973,10 +10005,7 @@ Processed 2025002: 3 receivers
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">294</span>
 <span class="normal">295</span>
 <span class="normal">296</span>
 <span class="normal">297</span>
@@ -10008,7 +10037,10 @@ Processed 2025002: 3 receivers
 <span class="normal">323</span>
 <span class="normal">324</span>
 <span class="normal">325</span>
-<span class="normal">326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_range</span><span class="p">(</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_range</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">end</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -10087,10 +10119,7 @@ print(vod.vod.mean().values)
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">328</span>
-<span class="normal">329</span>
-<span class="normal">330</span>
-<span class="normal">331</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">331</span>
 <span class="normal">332</span>
 <span class="normal">333</span>
 <span class="normal">334</span>
@@ -10150,7 +10179,10 @@ print(vod.vod.mean().values)
 <span class="normal">388</span>
 <span class="normal">389</span>
 <span class="normal">390</span>
-<span class="normal">391</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">canopy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -10249,10 +10281,7 @@ print(f"Total files: {plan['total_files']}")</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/api.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">393</span>
-<span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">396</span>
 <span class="normal">397</span>
 <span class="normal">398</span>
 <span class="normal">399</span>
@@ -10264,7 +10293,10 @@ print(f"Total files: {plan['total_files']}")</p>
 <span class="normal">405</span>
 <span class="normal">406</span>
 <span class="normal">407</span>
-<span class="normal">408</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">preview</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">preview</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Preview processing plan without execution.</span>
 
 <span class="sd">    Returns</span>
@@ -10362,7 +10394,8 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 46</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 45</span>
+<span class="normal"> 46</span>
 <span class="normal"> 47</span>
 <span class="normal"> 48</span>
 <span class="normal"> 49</span>
@@ -10780,7 +10813,10 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
 <span class="normal">461</span>
 <span class="normal">462</span>
 <span class="normal">463</span>
-<span class="normal">464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VODWorkflow</span><span class="p">:</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VODWorkflow</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Orchestrate complete VOD analysis workflow.</span>
 
@@ -10866,7 +10902,11 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
         <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span> <span class="o">=</span> <span class="n">reader</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vod_calculator_name</span> <span class="o">=</span> <span class="n">vod_calculator</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+        <span class="k">if</span> <span class="n">keep_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+
+            <span class="n">keep_vars</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">()</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">keep_rnx_vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span>
 
         <span class="c1"># Create grid using factory (cached for workflow)</span>
         <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_params</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -11231,7 +11271,8 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
+<span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
@@ -11266,7 +11307,10 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
 <span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
-<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Site</span><span class="p">,</span>
     <span class="n">reader</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rinex3&quot;</span><span class="p">,</span>
@@ -11288,7 +11332,11 @@ Site → Pipeline → process_date → load → augment → grid → calculate</
     <span class="bp">self</span><span class="o">.</span><span class="n">reader_name</span> <span class="o">=</span> <span class="n">reader</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vod_calculator_name</span> <span class="o">=</span> <span class="n">vod_calculator</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span> <span class="ow">or</span> <span class="n">KEEP_RNX_VARS</span>
+    <span class="k">if</span> <span class="n">keep_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+
+        <span class="n">keep_vars</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">()</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">keep_rnx_vars</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">keep_vars</span> <span class="o">=</span> <span class="n">keep_vars</span>
 
     <span class="c1"># Create grid using factory (cached for workflow)</span>
     <span class="n">grid_params</span> <span class="o">=</span> <span class="n">grid_params</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -11359,10 +11407,7 @@ the full pipeline from raw RINEX to grid-assigned observations.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">150</span>
 <span class="normal">151</span>
 <span class="normal">152</span>
 <span class="normal">153</span>
@@ -11435,7 +11480,10 @@ the full pipeline from raw RINEX to grid-assigned observations.</p>
 <span class="normal">220</span>
 <span class="normal">221</span>
 <span class="normal">222</span>
-<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_date</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">receivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -11578,10 +11626,7 @@ extensions via factory registration.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
@@ -11667,7 +11712,10 @@ extensions via factory registration.</p>
 <span class="normal">311</span>
 <span class="normal">312</span>
 <span class="normal">313</span>
-<span class="normal">314</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">canopy_receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">sky_receiver</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -11779,12 +11827,12 @@ extensions via factory registration.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>canvodpy/src/canvodpy/workflow.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">459</span>
-<span class="normal">460</span>
-<span class="normal">461</span>
-<span class="normal">462</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">462</span>
 <span class="normal">463</span>
-<span class="normal">464</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;VODWorkflow(site=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>

@@ -2371,6 +2371,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#just-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Just Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#cli-configuration-tool" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2521,9 +2532,16 @@
 <h2 id="initial-setup">Initial Setup<a class="headerlink" href="#initial-setup" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/nfb2021/canvodpy.git
 <span class="nb">cd</span><span class="w"> </span>canvodpy
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
 uv<span class="w"> </span>sync
 just<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
+<p>The submodule step pulls two external data repositories:</p>
+<ul>
+<li><strong><code>packages/canvod-readers/tests/test_data</code></strong> — validation test data (falsified/corrupted RINEX files)</li>
+<li><strong><code>demo</code></strong> — clean real-world data for demos and documentation</li>
+</ul>
+<p>Tests that depend on these datasets are automatically skipped if the submodules are not initialized.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p>Two external tools are required:</p>
 <ol>
@@ -2534,22 +2552,47 @@ just<span class="w"> </span><span class="nb">test</span>
 <div class="highlight"><pre><span></span><code>just<span class="w"> </span>check-dev-tools
 </code></pre></div>
 <h2 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">&para;</a></h2>
+<p>canVODpy uses three YAML files in the <code>config/</code> directory:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sites.yaml</code></td>
+<td>Research sites: data root paths, receiver definitions (name, type, directory), and VOD analysis pairs. Each receiver's <code>directory</code> is the full relative path from the site data root to the raw RINEX date folders (e.g. <code>01_reference/01_GNSS/01_raw</code>).</td>
+</tr>
+<tr>
+<td><code>processing.yaml</code></td>
+<td>Processing parameters: metadata, credentials (NASA Earthdata), auxiliary data settings, time aggregation, compression, Icechunk storage, and store strategies.</td>
+</tr>
+<tr>
+<td><code>sids.yaml</code></td>
+<td>Signal ID filtering: choose <code>all</code>, a named <code>preset</code> (e.g. <code>gps_galileo</code>), or list <code>custom</code> SIDs to keep.</td>
+</tr>
+</tbody>
+</table>
+<p>Each file has a <code>.example</code> template in the same directory.</p>
+<h3 id="just-commands">Just Commands<a class="headerlink" href="#just-commands" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>config-init<span class="w">             </span><span class="c1"># Initialize config files from templates</span>
+just<span class="w"> </span>config-show<span class="w">             </span><span class="c1"># View resolved settings</span>
+just<span class="w"> </span>config-validate<span class="w">         </span><span class="c1"># Validate configuration</span>
+</code></pre></div>
 <h3 id="cli-configuration-tool">CLI Configuration Tool<a class="headerlink" href="#cli-configuration-tool" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>canvodpy<span class="w"> </span>config<span class="w"> </span>init<span class="w">         </span><span class="c1"># Initialize configuration files</span>
-canvodpy<span class="w"> </span>config<span class="w"> </span>show<span class="w">         </span><span class="c1"># View current settings</span>
-canvodpy<span class="w"> </span>config<span class="w"> </span>validate<span class="w">     </span><span class="c1"># Validate configuration</span>
-canvodpy<span class="w"> </span>config<span class="w"> </span>edit<span class="w"> </span>processing<span class="w">  </span><span class="c1"># Edit processing config</span>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>canvodpy<span class="w"> </span>config<span class="w"> </span>init<span class="w">         </span><span class="c1"># Initialize configuration files</span>
+uv<span class="w"> </span>run<span class="w"> </span>canvodpy<span class="w"> </span>config<span class="w"> </span>show<span class="w">         </span><span class="c1"># View current settings</span>
+uv<span class="w"> </span>run<span class="w"> </span>canvodpy<span class="w"> </span>config<span class="w"> </span>validate<span class="w">     </span><span class="c1"># Validate configuration</span>
+uv<span class="w"> </span>run<span class="w"> </span>canvodpy<span class="w"> </span>config<span class="w"> </span>edit<span class="w"> </span>processing<span class="w">  </span><span class="c1"># Edit processing config</span>
 </code></pre></div>
 <h3 id="first-time-setup">First-Time Setup<a class="headerlink" href="#first-time-setup" title="Permanent link">&para;</a></h3>
 <ol>
-<li>Initialize config files: <code>uv run canvodpy config init</code></li>
-<li>Create <code>.env</code> with credentials (never commit):
-   <div class="highlight"><pre><span></span><code><span class="nv">CDDIS_MAIL</span><span class="o">=</span>your.email@example.com
-<span class="nv">GNSS_ROOT_DIR</span><span class="o">=</span>/path/to/gnss/data
-</code></pre></div></li>
+<li>Initialize config files: <code>just config-init</code></li>
+<li>Edit research sites: <code>uv run canvodpy config edit sites</code></li>
 <li>Edit processing configuration: <code>uv run canvodpy config edit processing</code></li>
-<li>Define research sites: <code>uv run canvodpy config edit sites</code></li>
-<li>Validate: <code>uv run canvodpy config validate</code></li>
+<li>Validate: <code>just config-validate</code></li>
 </ol>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>just<span class="w"> </span><span class="nb">test</span><span class="w">                    </span><span class="c1"># All tests</span>
@@ -2601,6 +2644,9 @@ just<span class="w"> </span><span class="nb">test</span><span class="w">        
 just<span class="w"> </span>sync<span class="w">                    </span><span class="c1"># Install/update dependencies</span>
 just<span class="w"> </span>clean<span class="w">                   </span><span class="c1"># Remove build artifacts</span>
 just<span class="w"> </span>hooks<span class="w">                   </span><span class="c1"># Install pre-commit hooks</span>
+just<span class="w"> </span>config-init<span class="w">             </span><span class="c1"># Initialize config files from templates</span>
+just<span class="w"> </span>config-validate<span class="w">         </span><span class="c1"># Validate configuration</span>
+just<span class="w"> </span>config-show<span class="w">             </span><span class="c1"># View resolved configuration</span>
 just<span class="w"> </span>docs<span class="w">                    </span><span class="c1"># Preview documentation</span>
 just<span class="w"> </span>build-all<span class="w">               </span><span class="c1"># Build all packages</span>
 just<span class="w"> </span>release<span class="w"> </span>&lt;VERSION&gt;<span class="w">       </span><span class="c1"># Full release workflow</span>
