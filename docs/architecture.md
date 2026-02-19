@@ -26,29 +26,29 @@ canVODpy Monorepo
 ```mermaid
 graph LR
     subgraph FOUNDATION["Foundation Layer"]
-        UTILS["canvod-utils\n\nConfiguration (Pydantic)\nDate utilities (YYYYDOY)\nShared tooling"]
+        UTILS["canvod-utils  Configuration (Pydantic) Date utilities (YYYYDOY) Shared tooling"]
     end
 
     subgraph DATAIO["Data I/O Layer"]
-        READERS["canvod-readers\n\nRINEX v3.04 parser\nSignal ID mapping\nData directory matching"]
-        AUX["canvod-auxiliary\n\nSP3/CLK retrieval\nHermite interpolation\nFTP download management"]
+        READERS["canvod-readers  RINEX v3.04 parser Signal ID mapping Data directory matching"]
+        AUX["canvod-auxiliary  SP3/CLK retrieval Hermite interpolation FTP download management"]
     end
 
     subgraph STORE_LAYER["Persistence Layer"]
-        STORE["canvod-store\n\nIcechunk versioned storage\nSite/receiver management\nMetadata tracking"]
+        STORE["canvod-store  Icechunk versioned storage Site/receiver management Metadata tracking"]
     end
 
     subgraph COMPUTE["Computation Layer"]
-        VOD["canvod-vod\n\nVOD calculator (ABC)\nTau-Omega inversion\nExtensible algorithms"]
-        GRIDS["canvod-grids\n\nHemispheric grids (7 types)\nKDTree cell assignment\nGrid I/O operations"]
+        VOD["canvod-vod  VOD calculator (ABC) Tau-Omega inversion Extensible algorithms"]
+        GRIDS["canvod-grids  Hemispheric grids (7 types) KDTree cell assignment Grid I/O operations"]
     end
 
     subgraph PRESENT["Presentation Layer"]
-        VIZ["canvod-viz\n\n2D polar projections\n3D interactive surfaces\nTime-series plots"]
+        VIZ["canvod-viz  2D polar projections 3D interactive surfaces Time-series plots"]
     end
 
     subgraph ORCHESTRATION["Orchestration Layer"]
-        CANVODPY["canvodpy\n\nPipeline orchestrator\nFactory system\nPublic API (3 levels)"]
+        CANVODPY["canvodpy  Pipeline orchestrator Factory system Public API (3 levels)"]
     end
 
     READERS -.-> UTILS
@@ -148,79 +148,79 @@ The following diagram shows the full logical flow of canVODpy — from YAML conf
 flowchart TD
     %% ── Configuration ──
     subgraph CFG["Configuration"]
-        YAML["YAML Config Files\n(processing, sites, sids)"]
-        PYDANTIC["Pydantic Validation\n+ Deep Merge with Defaults"]
+        YAML["YAML Config Files (processing, sites, sids)"]
+        PYDANTIC["Pydantic Validation + Deep Merge with Defaults"]
         CONFIG["CanvodConfig"]
     end
 
     %% ── Site Initialization ──
     subgraph INIT["Site Initialization"]
-        SITE["Site(name)\nLoad receiver configs,\ninitialize stores"]
-        RINEX_STORE["RINEX Icechunk Store\n(versioned observations)"]
-        VOD_STORE["VOD Icechunk Store\n(versioned retrievals)"]
+        SITE["Site(name) Load receiver configs, initialize stores"]
+        RINEX_STORE["RINEX Icechunk Store (versioned observations)"]
+        VOD_STORE["VOD Icechunk Store (versioned retrievals)"]
     end
 
     %% ── Data Discovery ──
     subgraph DISCOVERY["Data Discovery (per DOY)"]
-        MATCHER["PairDataDirMatcher\n(ThreadPoolExecutor)"]
-        EXPAND["SCS Expansion\nReference receivers expanded\nper canopy position"]
-        SCHEDULE["Processing Schedule\n{date: {group: (dir, type, pos_dir)}}"]
+        MATCHER["PairDataDirMatcher (ThreadPoolExecutor)"]
+        EXPAND["SCS Expansion Reference receivers expanded per canopy position"]
+        SCHEDULE["Processing Schedule {date: {group: (dir, type, pos_dir)}}"]
     end
 
     %% ── Auxiliary Data (once per DOY) ──
     subgraph AUX["Auxiliary Data Pipeline (sequential, once per DOY)"]
-        FTP["FTP Download\nESA primary / NASA fallback"]
-        SP3_PARSE["Parse SP3 Ephemerides\n(ECEF positions + velocities)"]
-        CLK_PARSE["Parse CLK Corrections\n(satellite clock offsets)"]
-        EPOCH_GRID["Generate 24h Epoch Grid\n(n = 86400 / sampling_interval)"]
-        HERMITE["Hermite Spline Interpolation\n(ephemerides, cubic,\nvelocity-aware)"]
-        LINEAR["Piecewise Linear Interpolation\n(clock corrections,\nwindow=9, jump_thr=1e-6)"]
-        AUX_ZARR["Merged Auxiliary Zarr\n(cached per DOY)"]
+        FTP["FTP Download ESA primary / NASA fallback"]
+        SP3_PARSE["Parse SP3 Ephemerides (ECEF positions + velocities)"]
+        CLK_PARSE["Parse CLK Corrections (satellite clock offsets)"]
+        EPOCH_GRID["Generate 24h Epoch Grid (n = 86400 / sampling_interval)"]
+        HERMITE["Hermite Spline Interpolation (ephemerides, cubic, velocity-aware)"]
+        LINEAR["Piecewise Linear Interpolation (clock corrections, window=9, jump_thr=1e-6)"]
+        AUX_ZARR["Merged Auxiliary Zarr (cached per DOY)"]
     end
 
     %% ── Parallel RINEX Processing ──
     subgraph PARALLEL["Parallel RINEX Processing (ProcessPoolExecutor, n workers)"]
         subgraph WORKER["Per Hourly File (independent process)"]
-            READ["1. Read RINEX v3.04\n(Rnxv3Obs.to_ds)"]
-            FILTER["2. Filter Signals\n(keep_vars, keep_sids)"]
-            SLICE_AUX["3. Slice Auxiliary\n(nearest-epoch match)"]
-            COMMON_SID["4. Intersect SIDs\n(RINEX ∩ auxiliary)"]
-            SPHERICAL["5. Spherical Coordinates\n(ECEF to r, theta, phi\nrelative to receiver position)"]
+            READ["1. Read RINEX v3.04 (Rnxv3Obs.to_ds)"]
+            FILTER["2. Filter Signals (keep_vars, keep_sids)"]
+            SLICE_AUX["3. Slice Auxiliary (nearest-epoch match)"]
+            COMMON_SID["4. Intersect SIDs (RINEX ∩ auxiliary)"]
+            SPHERICAL["5. Spherical Coordinates (ECEF to r, theta, phi relative to receiver position)"]
         end
     end
 
     %% ── Storage ──
     subgraph WRITE["Icechunk Storage (sequential)"]
-        HASH_CHECK["Check RINEX File Hash\n(skip if exists)"]
-        NORMALIZE["Normalize Encodings\n(dtype compatibility)"]
-        APPEND["Append to Group\n(epoch dimension)"]
-        COMMIT["Atomic Commit\n(snapshot ID)"]
-        META["Update Metadata\n(hash, epochs, snapshot,\ntimestamp)"]
+        HASH_CHECK["Check RINEX File Hash (skip if exists)"]
+        NORMALIZE["Normalize Encodings (dtype compatibility)"]
+        APPEND["Append to Group (epoch dimension)"]
+        COMMIT["Atomic Commit (snapshot ID)"]
+        META["Update Metadata (hash, epochs, snapshot, timestamp)"]
     end
 
     %% ── Grid Assignment ──
     subgraph GRID["Hemispheric Grid Assignment"]
-        BUILD_GRID["Construct Grid\n(equal-area, HEALPix,\ngeodesic, fibonacci, ...)"]
-        KDTREE["Build KDTree\n(cell centres in\nCartesian coordinates)"]
-        ASSIGN["Spatial Query\n(O(n log m) per observation)"]
+        BUILD_GRID["Construct Grid (equal-area, HEALPix, geodesic, fibonacci, ...)"]
+        KDTREE["Build KDTree (cell centres in Cartesian coordinates)"]
+        ASSIGN["Spatial Query (O(n log m) per observation)"]
     end
 
     %% ── VOD Retrieval ──
     subgraph VOD["VOD Retrieval"]
-        LOAD_C["Load Canopy Dataset\n(from RINEX store)"]
-        LOAD_R["Load Reference Dataset\n(from RINEX store,\nSCS-matched group)"]
-        DELTA["Compute Delta-SNR\n(SNR_canopy - SNR_ref)"]
-        TRANSMISSIVITY["Convert to Transmissivity\n(10^(Delta-SNR/10))"]
-        TAU["Tau-Omega Inversion\nVOD = -ln(T) * cos(theta)"]
-        VOD_DS["VOD Dataset\n(per sid, epoch, cell)"]
+        LOAD_C["Load Canopy Dataset (from RINEX store)"]
+        LOAD_R["Load Reference Dataset (from RINEX store, SCS-matched group)"]
+        DELTA["Compute Delta-SNR (SNR_canopy - SNR_ref)"]
+        TRANSMISSIVITY["Convert to Transmissivity (10^(Delta-SNR/10))"]
+        TAU["Tau-Omega Inversion VOD = -ln(T) * cos(theta)"]
+        VOD_DS["VOD Dataset (per sid, epoch, cell)"]
     end
 
     %% ── Output ──
     subgraph OUTPUT["Output"]
-        VOD_WRITE["Write to VOD Store\n(versioned, per analysis pair)"]
-        VIZ_2D["2D Hemispheric Plot\n(polar projection)"]
-        VIZ_3D["3D Interactive Surface\n(Plotly)"]
-        EXPORT["Data Export\n(NetCDF, CSV, Zarr)"]
+        VOD_WRITE["Write to VOD Store (versioned, per analysis pair)"]
+        VIZ_2D["2D Hemispheric Plot (polar projection)"]
+        VIZ_3D["3D Interactive Surface (Plotly)"]
+        EXPORT["Data Export (NetCDF, CSV, Zarr)"]
     end
 
     %% ── Connections ──

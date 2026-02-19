@@ -43,10 +43,10 @@ Orchestration:
 ```mermaid
 flowchart TD
     subgraph ABCS["Abstract Base Classes"]
-        READER_ABC["GNSSDataReader\n(read, to_ds, validate_output)"]
-        GRID_ABC["BaseGridBuilder\n(_build_grid, build)"]
-        VOD_ABC["VODCalculator\n(calculate_vod)"]
-        AUG_ABC["AugmentationStep\n(apply)"]
+        READER_ABC["GNSSDataReader (read, to_ds, validate_output)"]
+        GRID_ABC["BaseGridBuilder (_build_grid, build)"]
+        VOD_ABC["VODCalculator (calculate_vod)"]
+        AUG_ABC["AugmentationStep (apply)"]
     end
 
     subgraph FACTORIES["Factory Registry"]
@@ -57,7 +57,7 @@ flowchart TD
     end
 
     subgraph BUILTIN["Built-in Implementations"]
-        RINEX3["Rnxv3Obs\n(RINEX v3.04)"]
+        RINEX3["Rnxv3Obs (RINEX v3.04)"]
         EA["EqualAreaBuilder"]
         HP["HEALPixBuilder"]
         GD["GeodesicBuilder"]
@@ -66,15 +66,15 @@ flowchart TD
     end
 
     subgraph CUSTOM["User Extension"]
-        IMPL["Custom Implementation\n(inherits ABC)"]
-        REG["Factory.register(\nname, class)"]
-        USE["Factory.create(\nname, **params)"]
+        IMPL["Custom Implementation (inherits ABC)"]
+        REG["Factory.register( name, class)"]
+        USE["Factory.create( name, **params)"]
     end
 
     subgraph VALIDATION["Validation Chain"]
-        V1["1. ABC compliance check\n(issubclass)"]
-        V2["2. Pydantic model\nvalidation (at creation)"]
-        V3["3. Runtime type\nchecking (Generic T)"]
+        V1["1. ABC compliance check (issubclass)"]
+        V2["2. Pydantic model validation (at creation)"]
+        V3["3. Runtime type checking (Generic T)"]
     end
 
     READER_ABC --> RF
@@ -248,32 +248,32 @@ from canvod.vod import VODCalculator
 ```mermaid
 flowchart LR
     subgraph CONFIG["YAML Configuration"]
-        PROC["processing.yaml\n\nProcessing parameters\nStorage paths\nCompression settings\nNASA credentials"]
-        SITES["sites.yaml\n\nReceiver definitions\nDirectory mappings\nVOD analysis pairs"]
-        SIDS["sids.yaml\n\nSignal ID filters\n(system, band, code)"]
+        PROC["processing.yaml  Processing parameters Storage paths Compression settings NASA credentials"]
+        SITES["sites.yaml  Receiver definitions Directory mappings VOD analysis pairs"]
+        SIDS["sids.yaml  Signal ID filters (system, band, code)"]
     end
 
     subgraph LOADER["Configuration Loader"]
-        DEFAULTS["Package Defaults\n(built-in YAML)"]
-        MERGE["Deep Merge\n(user overrides defaults)"]
-        PYDANTIC["Pydantic Validation\n(type safety, constraints)"]
+        DEFAULTS["Package Defaults (built-in YAML)"]
+        MERGE["Deep Merge (user overrides defaults)"]
+        PYDANTIC["Pydantic Validation (type safety, constraints)"]
     end
 
     subgraph VALIDATED["CanvodConfig (validated)"]
-        PC["ProcessingConfig\n  ProcessingParams\n  StorageConfig\n  IcechunkConfig\n  MetadataConfig"]
-        SC["SitesConfig\n  ReceiverConfig\n  VODAnalysisConfig"]
-        SIC["SidsConfig\n  Signal filters"]
+        PC["ProcessingConfig   ProcessingParams   StorageConfig   IcechunkConfig   MetadataConfig"]
+        SC["SitesConfig   ReceiverConfig   VODAnalysisConfig"]
+        SIC["SidsConfig   Signal filters"]
     end
 
     subgraph VERSIONED["Versioned Data Storage"]
-        IC_WRITE["Icechunk Write\n(atomic commits)"]
-        SNAPSHOT["Snapshot ID\n(content-addressable)"]
-        BRANCH["Branch Management\n(main, rechunk)"]
-        METADATA["Metadata Parquet\n(RINEX hash, epochs,\nsnapshot, timestamp)"]
+        IC_WRITE["Icechunk Write (atomic commits)"]
+        SNAPSHOT["Snapshot ID (content-addressable)"]
+        BRANCH["Branch Management (main, rechunk)"]
+        METADATA["Metadata Parquet (RINEX hash, epochs, snapshot, timestamp)"]
     end
 
     subgraph PROVENANCE["Full Provenance"]
-        TRACE["Every dataset traceable to:\n  Config version\n  RINEX file hash\n  Snapshot ID\n  Processing timestamp"]
+        TRACE["Every dataset traceable to:   Config version   RINEX file hash   Snapshot ID   Processing timestamp"]
     end
 
     PROC --> MERGE

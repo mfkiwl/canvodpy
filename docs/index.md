@@ -28,50 +28,50 @@ analyzing canopy Vegetation Optical Depth (VOD) from GNSS signal-to-noise ratio 
 ```mermaid
 flowchart TD
     subgraph INPUT["Data Acquisition"]
-        RINEX["RINEX v3.04\nObservation Files\n(SNR, Pseudorange, Phase)"]
-        SP3["SP3 Precise\nEphemerides\n(satellite orbits)"]
-        CLK["CLK Precise\nClock Corrections"]
+        RINEX["RINEX v3.04 Observation Files (SNR, Pseudorange, Phase)"]
+        SP3["SP3 Precise Ephemerides (satellite orbits)"]
+        CLK["CLK Precise Clock Corrections"]
     end
 
     subgraph DOWNLOAD["Auxiliary Data Retrieval"]
-        FTP["FTP Download\n(ESA primary,\nNASA CDDIS fallback)"]
-        CACHE["Local File Cache\n(SP3/CLK per DOY)"]
+        FTP["FTP Download (ESA primary, NASA CDDIS fallback)"]
+        CACHE["Local File Cache (SP3/CLK per DOY)"]
     end
 
     subgraph PREPROCESS["Auxiliary Preprocessing"]
-        PARSE_SP3["Parse SP3\n(ECEF satellite positions\n+ velocities)"]
-        PARSE_CLK["Parse CLK\n(satellite clock offsets)"]
-        HERMITE["Hermite Spline\nInterpolation\n(cubic, velocity-aware)"]
-        LINEAR["Piecewise Linear\nInterpolation\n(clock corrections)"]
-        MERGE_AUX["Merge Interpolated\nAuxiliary Data\n(Zarr cache)"]
+        PARSE_SP3["Parse SP3 (ECEF satellite positions + velocities)"]
+        PARSE_CLK["Parse CLK (satellite clock offsets)"]
+        HERMITE["Hermite Spline Interpolation (cubic, velocity-aware)"]
+        LINEAR["Piecewise Linear Interpolation (clock corrections)"]
+        MERGE_AUX["Merge Interpolated Auxiliary Data (Zarr cache)"]
     end
 
     subgraph PARALLEL["Parallel RINEX Processing (ProcessPoolExecutor)"]
-        READ["Read RINEX\n(per hourly file)"]
-        SID["Signal ID Mapping\n(sv|band|code)"]
-        SLICE["Slice Auxiliary to\nObservation Epochs\n(nearest-neighbour)"]
-        SCS["Spherical Coordinate\nTransformation\n(ECEF to r, theta, phi)"]
+        READ["Read RINEX (per hourly file)"]
+        SID["Signal ID Mapping (sv|band|code)"]
+        SLICE["Slice Auxiliary to Observation Epochs (nearest-neighbour)"]
+        SCS["Spherical Coordinate Transformation (ECEF to r, theta, phi)"]
     end
 
     subgraph STORAGE["Versioned Storage"]
-        ICECHUNK["Icechunk Repository\n(append per epoch,\ncommit per file)"]
-        META["Metadata Tracking\n(RINEX hash, snapshot ID,\nepoch range)"]
+        ICECHUNK["Icechunk Repository (append per epoch, commit per file)"]
+        META["Metadata Tracking (RINEX hash, snapshot ID, epoch range)"]
     end
 
     subgraph GRIDDING["Hemispheric Grid Assignment"]
-        GRID["Grid Construction\n(equal-area, HEALPix,\ngeodesic, ...)"]
-        KDTREE["KDTree Cell Assignment\n(O(n log m) spatial query)"]
+        GRID["Grid Construction (equal-area, HEALPix, geodesic, ...)"]
+        KDTREE["KDTree Cell Assignment (O(n log m) spatial query)"]
     end
 
     subgraph VOD["VOD Retrieval"]
-        PAIR["Canopy-Reference\nDataset Pairing"]
-        TAU["Zeroth-Order\nTau-Omega Inversion"]
-        FORMULA["DELTA_SNR = SNR_canopy - SNR_ref\ntransmissivity = 10^(DELTA_SNR/10)\nVOD = -ln(transmissivity) * cos(theta)"]
+        PAIR["Canopy-Reference Dataset Pairing"]
+        TAU["Zeroth-Order Tau-Omega Inversion"]
+        FORMULA["DELTA_SNR = SNR_canopy - SNR_ref transmissivity = 10^(DELTA_SNR/10) VOD = -ln(transmissivity) * cos(theta)"]
     end
 
     subgraph OUTPUT["Output"]
-        VOD_DS["VOD Dataset\n(per sid, epoch, cell)"]
-        VIZ["Hemispheric\nVisualization\n(polar projection)"]
+        VOD_DS["VOD Dataset (per sid, epoch, cell)"]
+        VIZ["Hemispheric Visualization (polar projection)"]
     end
 
     SP3 --> FTP
