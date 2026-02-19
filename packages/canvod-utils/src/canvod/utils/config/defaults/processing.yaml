@@ -51,3 +51,8 @@ storage:
   rinex_store_strategy: skip
   rinex_store_expire_days: 2
   vod_store_strategy: overwrite
+
+logging:
+  log_dir: null  # Defaults to .logs/ in monorepo root
+  log_file_name: canvodpy.log
+  log_path_depth: 6

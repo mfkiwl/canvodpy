@@ -15,7 +15,6 @@ from pathlib import Path
 from canvod.store import GnssResearchSite
 from canvod.utils.config import load_config
 
-from canvodpy.globals import LOG_DIR
 from canvodpy.orchestrator import PipelineOrchestrator
 
 
@@ -25,7 +24,7 @@ class TimingLogger:
     def __init__(self, filename=None, expected_receivers=None):
         # Default to .logs directory in project root
         if filename is None:
-            filename = LOG_DIR / "timing_log.csv"
+            filename = load_config().processing.logging.get_log_dir() / "timing_log.csv"
         self.filename = filename
         self.file_exists = Path(filename).exists()
 

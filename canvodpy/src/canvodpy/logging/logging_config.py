@@ -13,8 +13,7 @@ from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from pathlib import Path
 
 import structlog
-
-from canvodpy.globals import LOG_FILE, LOG_PATH_DEPTH
+from canvod.utils.config import load_config
 
 
 def _setup_log_directories(base_dir: Path) -> dict[str, Path]:
@@ -199,7 +198,7 @@ class ComponentFilter(logging.Filter):
         return hasattr(record, "component") and record.component == self.component_name
 
 
-def configure_logging(logfile: Path = LOG_FILE) -> structlog.BoundLogger:
+def configure_logging(logfile: Path | None = None) -> structlog.BoundLogger:
     """Configure structlog with dual-output system.
 
     Creates organized logging structure:
@@ -220,6 +219,9 @@ def configure_logging(logfile: Path = LOG_FILE) -> structlog.BoundLogger:
     structlog.BoundLogger
         Configured structlog logger.
     """
+    if logfile is None:
+        logfile = load_config().processing.logging.get_log_file()
+
     # Set up directory structure
     base_dir = logfile.parent
     log_dirs = _setup_log_directories(base_dir)
@@ -420,5 +422,6 @@ def get_file_logger(fname: Path) -> structlog.BoundLogger:
         File path to include in the log context.
 
     """
-    rel_path = Path(*fname.parts[-LOG_PATH_DEPTH:])
+    depth = load_config().processing.logging.log_path_depth
+    rel_path = Path(*fname.parts[-depth:])
     return LOGGER.bind(file=str(rel_path))

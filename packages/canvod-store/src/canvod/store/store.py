@@ -13,8 +13,8 @@ import numpy as np
 import polars as pl
 import xarray as xr
 import zarr
+from canvod.utils.config import load_config
 from canvod.utils.tools import get_version_from_pyproject
-from canvodpy.globals import LOG_PATH_DEPTH
 from canvodpy.logging import get_logger
 from icechunk.xarray import to_icechunk
 from zarr.dtype import VariableLengthUTF8
@@ -964,9 +964,10 @@ class MyIcechunkStore:
         Returns
         -------
         str
-            Relative path string with LOG_PATH_DEPTH parts.
+            Relative path string with log_path_depth parts.
         """
-        return str(Path(*file_path.parts[-LOG_PATH_DEPTH:]))
+        depth = load_config().processing.logging.log_path_depth
+        return str(Path(*file_path.parts[-depth:]))
 
     def get_store_stats(self) -> dict[str, Any]:
         """

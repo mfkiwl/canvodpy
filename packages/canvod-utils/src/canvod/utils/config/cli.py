@@ -392,6 +392,15 @@ def _show_processing(config: ProcessingConfig) -> None:
         )
     console.print()
 
+    # Logging
+    lg = config.logging
+    console.print("[bold]Logging:[/bold]")
+    log_dir = str(lg.log_dir) if lg.log_dir else "[dim]<monorepo>/.logs[/dim]"
+    console.print(f"  Log directory:     {log_dir}")
+    console.print(f"  Log file name:     {lg.log_file_name}")
+    console.print(f"  Log path depth:    {lg.log_path_depth}")
+    console.print()
+
 
 def _show_sites(config: SitesConfig) -> None:
     """Display sites config.

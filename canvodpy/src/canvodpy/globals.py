@@ -1,11 +1,9 @@
 """Global constants for canvodpy.
 
-Only true physical/technical constants and runtime paths live here.
+Only true physical/technical constants live here.
 All user-configurable settings are managed by the YAML config system
 (``canvod.utils.config.load_config()``).
 """
-
-from pathlib import Path
 
 import pint
 
@@ -51,15 +49,3 @@ IGS_RNX_DUMP_INTERVALS: list[pint.Quantity] = [
 # ── GNSS frequency unit ────────────────────────────────────────────────────
 FREQ_UNIT = UREG.MHz
 
-# ── Runtime paths / logging ─────────────────────────────────────────────────
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
-LOG_DIR = PROJECT_ROOT / ".logs"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-LOG_FILE: Path = LOG_DIR / "gnssvodpy.log"
-
-LOG_PATH_DEPTH: int = 6
-
-# ── Package identity ───────────────────────────────────────────────────────
-SOFTWARE: str = "gnssvodpy, https://github.com/nfb2021/gnssvodpy"
