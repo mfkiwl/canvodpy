@@ -2926,6 +2926,59 @@ Orchestration:
   canvodpy -&gt; all packages
 </code></pre></div>
 <h2 id="abc-factory-pattern">ABC + Factory Pattern<a class="headerlink" href="#abc-factory-pattern" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    subgraph ABCS["Abstract Base Classes"]
+        READER_ABC["GNSSDataReader\n(read, to_ds, validate_output)"]
+        GRID_ABC["BaseGridBuilder\n(_build_grid, build)"]
+        VOD_ABC["VODCalculator\n(calculate_vod)"]
+        AUG_ABC["AugmentationStep\n(apply)"]
+    end
+
+    subgraph FACTORIES["Factory Registry"]
+        RF["ReaderFactory"]
+        GF["GridFactory"]
+        VF["VODFactory"]
+        AF["AugmentationFactory"]
+    end
+
+    subgraph BUILTIN["Built-in Implementations"]
+        RINEX3["Rnxv3Obs\n(RINEX v3.04)"]
+        EA["EqualAreaBuilder"]
+        HP["HEALPixBuilder"]
+        GD["GeodesicBuilder"]
+        FB["FibonacciBuilder"]
+        TO["TauOmegaZerothOrder"]
+    end
+
+    subgraph CUSTOM["User Extension"]
+        IMPL["Custom Implementation\n(inherits ABC)"]
+        REG["Factory.register(\nname, class)"]
+        USE["Factory.create(\nname, **params)"]
+    end
+
+    subgraph VALIDATION["Validation Chain"]
+        V1["1. ABC compliance check\n(issubclass)"]
+        V2["2. Pydantic model\nvalidation (at creation)"]
+        V3["3. Runtime type\nchecking (Generic T)"]
+    end
+
+    READER_ABC --&gt; RF
+    GRID_ABC --&gt; GF
+    VOD_ABC --&gt; VF
+    AUG_ABC --&gt; AF
+
+    RINEX3 --&gt; RF
+    EA --&gt; GF
+    HP --&gt; GF
+    GD --&gt; GF
+    FB --&gt; GF
+    TO --&gt; VF
+
+    IMPL --&gt; REG
+    REG --&gt; V1
+    V1 --&gt; V2
+    V2 --&gt; V3
+    V3 --&gt; USE</code></pre>
 <h3 id="abstract-base-class-contract">Abstract Base Class (Contract)<a class="headerlink" href="#abstract-base-class-contract" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -3043,6 +3096,51 @@ recorded steps, clears the plan, then runs the terminal method.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.vod</span><span class="w"> </span><span class="kn">import</span> <span class="n">VODCalculator</span>
 </code></pre></div>
 <h2 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    subgraph CONFIG["YAML Configuration"]
+        PROC["processing.yaml\n\nProcessing parameters\nStorage paths\nCompression settings\nNASA credentials"]
+        SITES["sites.yaml\n\nReceiver definitions\nDirectory mappings\nVOD analysis pairs"]
+        SIDS["sids.yaml\n\nSignal ID filters\n(system, band, code)"]
+    end
+
+    subgraph LOADER["Configuration Loader"]
+        DEFAULTS["Package Defaults\n(built-in YAML)"]
+        MERGE["Deep Merge\n(user overrides defaults)"]
+        PYDANTIC["Pydantic Validation\n(type safety, constraints)"]
+    end
+
+    subgraph VALIDATED["CanvodConfig (validated)"]
+        PC["ProcessingConfig\n  ProcessingParams\n  StorageConfig\n  IcechunkConfig\n  MetadataConfig"]
+        SC["SitesConfig\n  ReceiverConfig\n  VODAnalysisConfig"]
+        SIC["SidsConfig\n  Signal filters"]
+    end
+
+    subgraph VERSIONED["Versioned Data Storage"]
+        IC_WRITE["Icechunk Write\n(atomic commits)"]
+        SNAPSHOT["Snapshot ID\n(content-addressable)"]
+        BRANCH["Branch Management\n(main, rechunk)"]
+        METADATA["Metadata Parquet\n(RINEX hash, epochs,\nsnapshot, timestamp)"]
+    end
+
+    subgraph PROVENANCE["Full Provenance"]
+        TRACE["Every dataset traceable to:\n  Config version\n  RINEX file hash\n  Snapshot ID\n  Processing timestamp"]
+    end
+
+    PROC --&gt; MERGE
+    SITES --&gt; MERGE
+    SIDS --&gt; MERGE
+    DEFAULTS --&gt; MERGE
+    MERGE --&gt; PYDANTIC
+    PYDANTIC --&gt; PC
+    PYDANTIC --&gt; SC
+    PYDANTIC --&gt; SIC
+
+    PC --&gt; IC_WRITE
+    IC_WRITE --&gt; SNAPSHOT
+    SNAPSHOT --&gt; METADATA
+    BRANCH --&gt; SNAPSHOT
+    METADATA --&gt; TRACE
+    SC --&gt; TRACE</code></pre>
 <p>All configuration is managed through YAML files validated by Pydantic models:</p>
 <ul>
 <li><strong><code>config/processing.yaml</code></strong> — Processing parameters, storage paths, metadata, NASA CDDIS credentials</li>

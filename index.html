@@ -431,10 +431,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pipeline" class="md-nav__link">
+  <a href="#processing-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline
+        Processing Pipeline
       
     </span>
   </a>
@@ -2505,10 +2505,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pipeline" class="md-nav__link">
+  <a href="#processing-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline
+        Processing Pipeline
       
     </span>
   </a>
@@ -2658,15 +2658,80 @@ analyzing canopy Vegetation Optical Depth (VOD) from GNSS signal-to-noise ratio 
 <a class="md-button" href="https://github.com/nfb2021/canvodpy">View on GitHub</a></p>
 </div>
 <hr />
-<h2 id="pipeline">Pipeline<a class="headerlink" href="#pipeline" title="Permanent link">&para;</a></h2>
-<pre class="mermaid"><code>graph LR
-    A[RINEX Files] --&gt; B[canvod-readers]
-    B --&gt; C[canvod-auxiliary]
-    C --&gt; D1[canvod-store]
-    D1 --&gt; E[canvod-vod]
-    E --&gt; D2[canvod-store]
-    D2 --&gt; F[canvod-grids]
-    F --&gt; G[canvod-viz]</code></pre>
+<h2 id="processing-pipeline">Processing Pipeline<a class="headerlink" href="#processing-pipeline" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+    subgraph INPUT["Data Acquisition"]
+        RINEX["RINEX v3.04\nObservation Files\n(SNR, Pseudorange, Phase)"]
+        SP3["SP3 Precise\nEphemerides\n(satellite orbits)"]
+        CLK["CLK Precise\nClock Corrections"]
+    end
+
+    subgraph DOWNLOAD["Auxiliary Data Retrieval"]
+        FTP["FTP Download\n(ESA primary,\nNASA CDDIS fallback)"]
+        CACHE["Local File Cache\n(SP3/CLK per DOY)"]
+    end
+
+    subgraph PREPROCESS["Auxiliary Preprocessing"]
+        PARSE_SP3["Parse SP3\n(ECEF satellite positions\n+ velocities)"]
+        PARSE_CLK["Parse CLK\n(satellite clock offsets)"]
+        HERMITE["Hermite Spline\nInterpolation\n(cubic, velocity-aware)"]
+        LINEAR["Piecewise Linear\nInterpolation\n(clock corrections)"]
+        MERGE_AUX["Merge Interpolated\nAuxiliary Data\n(Zarr cache)"]
+    end
+
+    subgraph PARALLEL["Parallel RINEX Processing (ProcessPoolExecutor)"]
+        READ["Read RINEX\n(per hourly file)"]
+        SID["Signal ID Mapping\n(sv|band|code)"]
+        SLICE["Slice Auxiliary to\nObservation Epochs\n(nearest-neighbour)"]
+        SCS["Spherical Coordinate\nTransformation\n(ECEF to r, theta, phi)"]
+    end
+
+    subgraph STORAGE["Versioned Storage"]
+        ICECHUNK["Icechunk Repository\n(append per epoch,\ncommit per file)"]
+        META["Metadata Tracking\n(RINEX hash, snapshot ID,\nepoch range)"]
+    end
+
+    subgraph GRIDDING["Hemispheric Grid Assignment"]
+        GRID["Grid Construction\n(equal-area, HEALPix,\ngeodesic, ...)"]
+        KDTREE["KDTree Cell Assignment\n(O(n log m) spatial query)"]
+    end
+
+    subgraph VOD["VOD Retrieval"]
+        PAIR["Canopy-Reference\nDataset Pairing"]
+        TAU["Zeroth-Order\nTau-Omega Inversion"]
+        FORMULA["DELTA_SNR = SNR_canopy - SNR_ref\ntransmissivity = 10^(DELTA_SNR/10)\nVOD = -ln(transmissivity) * cos(theta)"]
+    end
+
+    subgraph OUTPUT["Output"]
+        VOD_DS["VOD Dataset\n(per sid, epoch, cell)"]
+        VIZ["Hemispheric\nVisualization\n(polar projection)"]
+    end
+
+    SP3 --&gt; FTP
+    CLK --&gt; FTP
+    FTP --&gt; CACHE
+    CACHE --&gt; PARSE_SP3
+    CACHE --&gt; PARSE_CLK
+    PARSE_SP3 --&gt; HERMITE
+    PARSE_CLK --&gt; LINEAR
+    HERMITE --&gt; MERGE_AUX
+    LINEAR --&gt; MERGE_AUX
+
+    RINEX --&gt; READ
+    READ --&gt; SID
+    MERGE_AUX --&gt; SLICE
+    SID --&gt; SLICE
+    SLICE --&gt; SCS
+    SCS --&gt; ICECHUNK
+    ICECHUNK --&gt; META
+
+    ICECHUNK --&gt; GRID
+    GRID --&gt; KDTREE
+    KDTREE --&gt; PAIR
+    PAIR --&gt; TAU
+    TAU --&gt; FORMULA
+    FORMULA --&gt; VOD_DS
+    VOD_DS --&gt; VIZ</code></pre>
 <h2 id="packages">Packages<a class="headerlink" href="#packages" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

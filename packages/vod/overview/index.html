@@ -1264,6 +1264,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#multi-receiver-scs-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Receiver SCS Expansion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2537,6 +2548,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#multi-receiver-scs-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Receiver SCS Expansion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2709,6 +2731,66 @@
 - Single-scattering approximation (no multiple scattering between canopy elements)
 - Plane-parallel canopy layer
 - Signal attenuation proportional to the path length through the canopy</p>
+<h2 id="multi-receiver-scs-expansion">Multi-Receiver SCS Expansion<a class="headerlink" href="#multi-receiver-scs-expansion" title="Permanent link">&para;</a></h2>
+<p>When a reference receiver serves multiple canopy receivers, its satellite geometry must be recomputed relative to each canopy position. The <code>scs_from</code> configuration controls this expansion, creating separate store groups and matched VOD analysis pairs.</p>
+<pre class="mermaid"><code>flowchart TD
+    subgraph FIELD["Field Setup"]
+        C1["Canopy Receiver 1\n(below canopy, NE)"]
+        C2["Canopy Receiver 2\n(below canopy, SW)"]
+        R1["Reference Receiver\n(open sky)"]
+    end
+
+    subgraph SCS_CONFIG["SCS Configuration (sites.yaml)"]
+        C1_CFG["canopy_01\ntype: canopy\nscs_from: null\n(uses own position)"]
+        C2_CFG["canopy_02\ntype: canopy\nscs_from: null\n(uses own position)"]
+        R1_CFG["reference_01\ntype: reference\nscs_from:\n  - canopy_01\n  - canopy_02"]
+    end
+
+    subgraph EXPANSION["SCS Processing Expansion"]
+        C1_PROC["Process canopy_01\nposition: canopy_01"]
+        C2_PROC["Process canopy_02\nposition: canopy_02"]
+        R1_C1["Process reference_01\nposition: canopy_01\n(satellite geometry\nrelative to canopy_01)"]
+        R1_C2["Process reference_01\nposition: canopy_02\n(satellite geometry\nrelative to canopy_02)"]
+    end
+
+    subgraph STORE_GROUPS["RINEX Store Groups"]
+        SG1["canopy_01"]
+        SG2["canopy_02"]
+        SG3["reference_01_canopy_01"]
+        SG4["reference_01_canopy_02"]
+    end
+
+    subgraph VOD_PAIRS["VOD Analysis Pairs"]
+        VP1["canopy_01\nvs\nreference_01_canopy_01"]
+        VP2["canopy_02\nvs\nreference_01_canopy_02"]
+    end
+
+    subgraph VOD_OUT["VOD Output"]
+        V1["VOD (canopy_01)\nSNR attenuation by\ncanopy at position 1"]
+        V2["VOD (canopy_02)\nSNR attenuation by\ncanopy at position 2"]
+    end
+
+    C1 --&gt; C1_CFG
+    C2 --&gt; C2_CFG
+    R1 --&gt; R1_CFG
+
+    C1_CFG --&gt; C1_PROC
+    C2_CFG --&gt; C2_PROC
+    R1_CFG --&gt; R1_C1
+    R1_CFG --&gt; R1_C2
+
+    C1_PROC --&gt; SG1
+    C2_PROC --&gt; SG2
+    R1_C1 --&gt; SG3
+    R1_C2 --&gt; SG4
+
+    SG1 --&gt; VP1
+    SG3 --&gt; VP1
+    SG2 --&gt; VP2
+    SG4 --&gt; VP2
+
+    VP1 --&gt; V1
+    VP2 --&gt; V2</code></pre>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <h3 id="direct-instantiation">Direct instantiation<a class="headerlink" href="#direct-instantiation" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.vod</span><span class="w"> </span><span class="kn">import</span> <span class="n">TauOmegaZerothOrder</span>
