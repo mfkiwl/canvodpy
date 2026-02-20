@@ -243,8 +243,9 @@ class StorageConfig(BaseModel):
     aux_data_dir: Path | None = Field(
         None,
         description=(
-            "Directory for auxiliary data files (SP3, CLK Zarr caches). "
-            "Defaults to system temp directory if not set."
+            "Directory for downloaded auxiliary files (SP3, CLK) and "
+            "transient Zarr caches. Raw files persist; caches are rebuilt "
+            "each run. Defaults to system temp directory if not set."
         ),
     )
     rinex_store_strategy: Literal["skip", "overwrite", "append"] = "skip"

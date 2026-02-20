@@ -256,7 +256,7 @@ class FtpDownloader(FileDownloader):
         filename = parts[-1]
 
         print(f"Connecting to {host} using FTPS...")
-        ftps = FTP_TLS(host=host)
+        ftps = FTP_TLS(host=host, timeout=30)
         ftps.login(user="anonymous", passwd=self.user_email)
         ftps.prot_p()
 

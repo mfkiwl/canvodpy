@@ -734,61 +734,43 @@ class RinexDataProcessor:
         RuntimeError
             If preprocessing fails or file doesn't exist after preprocessing
         """
+        import shutil
+
         config = load_config()
         aux_base_dir = config.processing.storage.get_aux_data_dir()
         aux_zarr_path = aux_base_dir / f"aux_{date_str}.zarr"
 
-        # Check if file exists AND is valid
-        is_valid = False
+        # Always reprocess from raw SP3/CLK files — the Hermite interpolation
+        # is cheap and this avoids stale caches when SIDs change.
         if aux_zarr_path.exists():
-            # Verify the zarr file has required metadata
-            zgroup_v2 = aux_zarr_path / ".zgroup"
-            zarr_json_v3 = aux_zarr_path / "zarr.json"
-            is_valid = zgroup_v2.exists() or zarr_json_v3.exists()
+            shutil.rmtree(aux_zarr_path)
 
-            if not is_valid:
-                self._logger.warning(
-                    "aux_zarr_corrupted",
-                    path=str(aux_zarr_path),
-                    action="removing",
+        self._logger.info(
+            "aux_preprocessing_required",
+            output_path=str(aux_zarr_path),
+            interpolation="hermite_cubic",
+        )
+        try:
+            self._preprocess_aux_data_with_hermite(canopy_files, aux_zarr_path)
+
+            if not aux_zarr_path.exists():
+                raise RuntimeError(
+                    f"Aux preprocessing completed but file not found: {aux_zarr_path}"
                 )
-                import shutil
 
-                shutil.rmtree(aux_zarr_path)
-
-        if not is_valid:
             self._logger.info(
-                "aux_preprocessing_required",
-                output_path=str(aux_zarr_path),
-                interpolation="hermite_cubic",
-            )
-            try:
-                self._preprocess_aux_data_with_hermite(canopy_files, aux_zarr_path)
-
-                # Verify the file was created
-                if not aux_zarr_path.exists():
-                    raise RuntimeError(
-                        f"Aux preprocessing completed but file not found: {aux_zarr_path}"
-                    )
-
-                self._logger.info(
-                    "aux_preprocessing_verified",
-                    file_exists=True,
-                    path=str(aux_zarr_path),
-                )
-            except Exception as e:
-                self._logger.error(
-                    "aux_preprocessing_failed",
-                    error=str(e),
-                    exception=type(e).__name__,
-                    path=str(aux_zarr_path),
-                )
-                raise
-        else:
-            self._logger.info(
-                "aux_preprocessing_cached",
+                "aux_preprocessing_verified",
+                file_exists=True,
                 path=str(aux_zarr_path),
             )
+        except Exception as e:
+            self._logger.error(
+                "aux_preprocessing_failed",
+                error=str(e),
+                exception=type(e).__name__,
+                path=str(aux_zarr_path),
+            )
+            raise
 
         return aux_zarr_path
 
@@ -1955,23 +1937,23 @@ class RinexDataProcessor:
         # ====================================================================
         # STEP 1: Preprocess aux data ONCE per day with Hermite splines
         # ====================================================================
+        import shutil as _shutil
+
         _aux_base_dir = load_config().processing.storage.get_aux_data_dir()
         aux_zarr_path = _aux_base_dir / (
             f"aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr"
         )
 
-        if not aux_zarr_path.exists():
-            self._logger.info(
-                "Preprocessing aux data with Hermite splines (once per day)"
-            )
-            _sampling_interval = self._preprocess_aux_data_with_hermite(
-                canopy_files, aux_zarr_path
-            )
-        else:
-            self._logger.info(
-                "Using existing preprocessed aux data: %s",
-                aux_zarr_path,
-            )
+        # Always reprocess from raw SP3/CLK files to avoid stale SID caches
+        if aux_zarr_path.exists():
+            _shutil.rmtree(aux_zarr_path)
+
+        self._logger.info(
+            "Preprocessing aux data with Hermite splines (once per day)"
+        )
+        _sampling_interval = self._preprocess_aux_data_with_hermite(
+            canopy_files, aux_zarr_path
+        )
 
         # ====================================================================
         # STEP 2: Compute receiver position ONCE (same for all receivers)
@@ -2973,23 +2955,23 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
         # ====================================================================
         # STEP 1: Preprocess aux data ONCE per day with Hermite splines
         # ====================================================================
+        import shutil as _shutil
+
         _aux_base_dir = load_config().processing.storage.get_aux_data_dir()
         aux_zarr_path = _aux_base_dir / (
             f"aux_{self.matched_data_dirs.yyyydoy.to_str()}.zarr"
         )
 
-        if not aux_zarr_path.exists():
-            self._logger.info(
-                "Preprocessing aux data with Hermite splines (once per day)"
-            )
-            _sampling_interval = self._preprocess_aux_data_with_hermite(
-                canopy_files, aux_zarr_path
-            )
-        else:
-            self._logger.info(
-                "Using existing preprocessed aux data: %s",
-                aux_zarr_path,
-            )
+        # Always reprocess from raw SP3/CLK files to avoid stale SID caches
+        if aux_zarr_path.exists():
+            _shutil.rmtree(aux_zarr_path)
+
+        self._logger.info(
+            "Preprocessing aux data with Hermite splines (once per day)"
+        )
+        _sampling_interval = self._preprocess_aux_data_with_hermite(
+            canopy_files, aux_zarr_path
+        )
 
         # ====================================================================
         # STEP 2: Compute receiver position ONCE (same for all receivers)

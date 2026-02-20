@@ -97,9 +97,10 @@ storage:
   # rinex_store_name: rinex
   # vod_store_name: vod
 
-  # Directory for auxiliary data caches (SP3/CLK Zarr files)
-  # If not set, uses system temp directory
-  # aux_data_dir: /path/to/aux_cache
+  # Directory for downloaded auxiliary files (SP3, CLK) and transient Zarr caches.
+  # Raw SP3/CLK files are kept across runs; Zarr caches are rebuilt each time.
+  # If not set, uses system temp directory.
+  # aux_data_dir: /path/to/aux_data
 
   rinex_store_strategy: skip      # skip, overwrite, append
   rinex_store_expire_days: 2
