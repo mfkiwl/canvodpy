@@ -121,7 +121,7 @@
 | packages/canvod-utils/src/canvod/utils/\_meta.py                             |        5 |        0 |    100% |           |
 | packages/canvod-utils/src/canvod/utils/config/\_\_init\_\_.py                |        3 |        0 |    100% |           |
 | packages/canvod-utils/src/canvod/utils/config/loader.py                      |       85 |       32 |     62% |43-54, 80-82, 115-117, 129-130, 149-150, 158-159, 200-210, 224-229 |
-| packages/canvod-utils/src/canvod/utils/config/models.py                      |      191 |       72 |     62% |57-68, 276-289, 304, 319, 329-334, 372, 437-443, 469-484, 494, 504, 519-528, 538-544, 623-627, 637-642, 654, 686 |
+| packages/canvod-utils/src/canvod/utils/config/models.py                      |      191 |       72 |     62% |57-68, 277-290, 305, 320, 330-335, 373, 438-444, 470-485, 495, 505, 520-529, 539-545, 624-628, 638-643, 655, 687 |
 | packages/canvod-utils/src/canvod/utils/tools/\_\_init\_\_.py                 |        6 |        0 |    100% |           |
 | packages/canvod-utils/src/canvod/utils/tools/date\_utils.py                  |       96 |       14 |     85% |37, 44, 124, 138, 154, 171, 210, 226, 246, 286-287, 328, 383-384 |
 | packages/canvod-utils/src/canvod/utils/tools/hashing.py                      |        9 |        6 |     33% |     32-37 |
