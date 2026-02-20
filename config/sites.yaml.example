@@ -2,7 +2,7 @@
 # Research Sites Configuration Template
 # =============================================================================
 # Copy this file to config/sites.yaml and customize for your setup
-# Run: canvodpy config init
+# Run: just config-init
 
 sites:
   # Example site configuration

@@ -571,7 +571,7 @@ class SitesConfig(BaseModel):
             import warnings
 
             warnings.warn(
-                "No research sites defined in sites.yaml. Run: canvodpy config init",
+                "No research sites defined in sites.yaml. Run: just config-init",
                 UserWarning,
                 stacklevel=2,
             )

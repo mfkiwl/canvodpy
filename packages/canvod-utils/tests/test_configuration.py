@@ -24,7 +24,7 @@ def test_config_loads():
     if not sites_yaml.exists():
         pytest.skip(
             "Config files not found (user-specific). "
-            "Run 'canvodpy config init' to create them."
+            "Run 'just config-init' to create them."
         )
 
     config = load_config()

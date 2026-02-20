@@ -2,7 +2,7 @@
 # Processing Configuration Template
 # =============================================================================
 # Copy this file to config/processing.yaml and customize for your setup
-# Run: canvodpy config init
+# Run: just config-init
 
 # =============================================================================
 # Metadata (Written to Processed Files)
@@ -104,3 +104,13 @@ storage:
   rinex_store_strategy: skip      # skip, overwrite, append
   rinex_store_expire_days: 2
   vod_store_strategy: overwrite
+
+# =============================================================================
+# Logging
+# =============================================================================
+
+logging:
+  # Directory for log files. If not set, defaults to .logs/ in monorepo root
+  # log_dir: /path/to/logs
+  log_file_name: canvodpy.log
+  log_path_depth: 6              # Path components shown in log references

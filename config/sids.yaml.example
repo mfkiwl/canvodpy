@@ -2,7 +2,7 @@
 # Signal IDs Configuration Template
 # =============================================================================
 # Copy this file to config/sids.yaml and customize for your setup
-# Run: canvodpy config init
+# Run: just config-init
 
 # =============================================================================
 # SID Selection Mode

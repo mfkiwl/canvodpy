@@ -20,7 +20,7 @@ uv pip install -e packages/canvod-utils
 ### 1. Initialize Configuration
 
 ```bash
-canvodpy config init
+just config-init
 ```
 
 This creates:
@@ -32,9 +32,9 @@ This creates:
 
 ```bash
 # Edit in your preferred editor
-canvodpy config edit processing
-canvodpy config edit sites
-canvodpy config edit sids
+just config-edit processing
+just config-edit sites
+just config-edit sids
 ```
 
 Or edit files directly:
@@ -45,7 +45,7 @@ Or edit files directly:
 ### 3. Validate Configuration
 
 ```bash
-canvodpy config validate
+just config-validate
 ```
 
 ### 4. Use in Code
@@ -116,19 +116,19 @@ mode: all  # all, preset, custom
 
 ```bash
 # Initialize configuration
-canvodpy config init
+just config-init
 
 # Validate configuration
-canvodpy config validate
+just config-validate
 
 # Show current configuration
-canvodpy config show
-canvodpy config show --section processing
+just config-show
+uv run canvodpy config show --section processing  # filtered view
 
 # Edit configuration
-canvodpy config edit processing
-canvodpy config edit sites
-canvodpy config edit sids
+just config-edit processing
+just config-edit sites
+just config-edit sids
 ```
 
 ## FTP Server Selection

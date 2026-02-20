@@ -105,6 +105,10 @@ config-show:
 config-init:
     uv run canvodpy config init
 
+# edit a configuration file (processing, sites, sids)
+config-edit FILE:
+    uv run canvodpy config edit {{ FILE }}
+
 # ============================================================================
 # Utilities
 # ============================================================================

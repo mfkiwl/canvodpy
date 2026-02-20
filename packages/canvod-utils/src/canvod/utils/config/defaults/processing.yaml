@@ -2,7 +2,7 @@
 # Default Processing Configuration
 # ============================================================================
 # These are package defaults. Users should create config/processing.yaml
-# with their own settings by running: canvodpy config init
+# with their own settings by running: just config-init
 
 metadata:
   author: Unknown

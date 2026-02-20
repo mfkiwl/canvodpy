@@ -111,17 +111,17 @@ The `canvodpy` command-line interface manages configuration files.
 ### Commands
 
 ```bash
-canvodpy config init       # Copy templates to config/
-canvodpy config validate   # Validate all configuration files
-canvodpy config show       # Display current settings
-canvodpy config edit processing  # Open in $EDITOR
+just config-init       # Copy templates to config/
+just config-validate   # Validate all configuration files
+just config-show       # Display current settings
+just config-edit processing  # Open in $EDITOR
 ```
 
 ### Initial Setup Workflow
 
 ```bash
-canvodpy config init
-canvodpy config edit processing   # Set metadata, paths, agency
-canvodpy config edit sites        # Define research sites
-canvodpy config validate          # Check for errors
+just config-init
+just config-edit processing   # Set metadata, paths, agency
+just config-edit sites        # Define research sites
+just config-validate          # Check for errors
 ```

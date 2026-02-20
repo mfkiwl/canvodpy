@@ -178,7 +178,7 @@ def init(
     console.print("     - Set nasa_earthdata_acc_mail (optional, for NASA CDDIS)")
     console.print("  2. Edit config/sites.yaml with your research sites")
     console.print("     - Set gnss_site_data_root for each site")
-    console.print("  3. Run: canvodpy config validate\n")
+    console.print("  3. Run: just config-validate\n")
 
 
 @config_app.command()
@@ -316,7 +316,7 @@ def edit(
 
     if not file_path.exists():
         console.print(f"[red]File not found:[/red] {file_path}")
-        console.print("\nRun: canvodpy config init")
+        console.print("\nRun: just config-init")
         raise typer.Exit(1)
 
     # Open in editor

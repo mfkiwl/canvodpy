@@ -307,7 +307,7 @@ cfg.processing.aux_data.nasa_earthdata_acc_mail  # Optional NASA CDDIS email
 cfg.processing.storage.gnss_root_dir             # Data directory
 ```
 
-Initialize configuration with `canvodpy config init`, inspect with `canvodpy config show`.
+Initialize configuration with `just config-init`, inspect with `just config-show`.
 
 ## Airflow Compatibility
 

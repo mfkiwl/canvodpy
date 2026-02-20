@@ -130,7 +130,7 @@ class ConfigLoader:
             defaults = self._deep_merge(defaults, user_config)
         else:
             print(f"\n⚠️  Warning: {user_file} not found, using defaults")
-            print("   Run: canvodpy config init\n")
+            print("   Run: just config-init\n")
 
         return ProcessingConfig(**defaults)
 
@@ -143,7 +143,7 @@ class ConfigLoader:
 
         if not user_file.exists():
             print(f"\n⚠️  Warning: {user_file} not found, no sites configured")
-            print("   Run: canvodpy config init\n")
+            print("   Run: just config-init\n")
             return SitesConfig(sites={})
 
         data = self._load_yaml(user_file)

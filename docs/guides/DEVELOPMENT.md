@@ -53,17 +53,17 @@ just config-validate         # Validate configuration
 ### CLI Configuration Tool
 
 ```bash
-uv run canvodpy config init         # Initialize configuration files
-uv run canvodpy config show         # View current settings
-uv run canvodpy config validate     # Validate configuration
-uv run canvodpy config edit processing  # Edit processing config
+uv run just config-init         # Initialize configuration files
+uv run just config-show         # View current settings
+uv run just config-validate     # Validate configuration
+uv run just config-edit processing  # Edit processing config
 ```
 
 ### First-Time Setup
 
 1. Initialize config files: `just config-init`
-2. Edit research sites: `uv run canvodpy config edit sites`
-3. Edit processing configuration: `uv run canvodpy config edit processing`
+2. Edit research sites: `uv run just config-edit sites`
+3. Edit processing configuration: `uv run just config-edit processing`
 4. Validate: `just config-validate`
 
 ## Testing
@@ -150,6 +150,6 @@ just release <VERSION>       # Full release workflow
 
 **"No module named 'canvod.X'"**: Run `uv sync` to install packages.
 
-**"Command not found: canvodpy"**: Use `uv run canvodpy config init`.
+**"Command not found: canvodpy"**: Use `uv run just config-init`.
 
 **Tests fail after dependency changes**: Run `uv sync --all-extras`.
