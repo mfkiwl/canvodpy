@@ -141,12 +141,12 @@
 | packages/canvod-vod/src/canvod/vod/\_\_init\_\_.py                           |        3 |        0 |    100% |           |
 | packages/canvod-vod/src/canvod/vod/\_internal/\_\_init\_\_.py                |        2 |        0 |    100% |           |
 | packages/canvod-vod/src/canvod/vod/\_internal/logger.py                      |        5 |        1 |     80% |        26 |
-| packages/canvod-vod/src/canvod/vod/calculator.py                             |       64 |       15 |     77% |51, 65, 98-112, 214-220 |
+| packages/canvod-vod/src/canvod/vod/calculator.py                             |       67 |       16 |     76% |51, 65, 98-112, 219-225, 255 |
 | packages/canvod-vod/tests/test\_vod\_basic.py                                |        8 |        0 |    100% |           |
 | packages/canvod-vod/tests/test\_vod\_calculator.py                           |      113 |        1 |     99% |       359 |
 | packages/canvod-vod/tests/test\_vod\_meta.py                                 |        3 |        0 |    100% |           |
 | packages/canvod-vod/tests/test\_vod\_properties.py                           |      138 |        9 |     93% |27, 36, 45, 183, 235, 299, 466, 469, 481 |
-| **TOTAL**                                                                    | **12196** | **5297** | **57%** |           |
+| **TOTAL**                                                                    | **12199** | **5298** | **57%** |           |
 
 
 ## Setup coverage badge
