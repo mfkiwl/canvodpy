@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 915.125 660" width="915.125" height="660" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 915.125 660" width="915.125" height="660" style="--bg:#f5f5f5;--fg:#333333;background:var(--bg)">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
   text { font-family: 'Inter', system-ui, sans-serif; }
@@ -28,22 +28,22 @@
 </defs>
 <rect x="68.32500000000005" y="40" width="772.775" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="68.32500000000005" y="40" width="772.775" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="80.32500000000005" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Orchestration&quot;</text>
+<text x="80.32500000000005" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Orchestration</text>
 <rect x="40" y="196" width="296.32500000000005" height="268" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="40" y="196" width="296.32500000000005" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="52" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Data I/O&quot;</text>
+<text x="52" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Data IO</text>
 <rect x="416.32500000000005" y="196" width="176.10000000000002" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="416.32500000000005" y="196" width="176.10000000000002" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="428.32500000000005" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Persistence&quot;</text>
+<text x="428.32500000000005" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Persistence</text>
 <rect x="356.32500000000005" y="352" width="518.8" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="356.32500000000005" y="352" width="518.8" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="368.32500000000005" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Computation&quot;</text>
+<text x="368.32500000000005" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Computation</text>
 <rect x="612.4250000000001" y="196" width="161.79999999999998" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="612.4250000000001" y="196" width="161.79999999999998" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="624.4250000000001" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Presentation&quot;</text>
+<text x="624.4250000000001" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Presentation</text>
 <rect x="71.17500000000007" y="508" width="453.20000000000005" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="71.17500000000007" y="508" width="453.20000000000005" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="83.17500000000007" y="522" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Foundation&quot;</text>
+<text x="83.17500000000007" y="522" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Foundation</text>
 <polyline points="450.3500000000001,132 450.3500000000001,152 125.20000000000005,152 125.20000000000005,426 62.00000000000004,426" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="450.3500000000001,132 450.3500000000001,152 233.97500000000002,152 233.97500000000002,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="450.3500000000001,132 450.3500000000001,152 504.3750000000001,152 504.3750000000001,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />

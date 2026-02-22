@@ -1397,10 +1397,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#behaviour-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Behaviour Reference
       
     </span>
   </a>
@@ -1408,43 +1408,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#skip-strategy" class="md-nav__link">
+  <a href="#usage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Skip Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#overwrite-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overwrite Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#append-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Append Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration
+        Usage
       
     </span>
   </a>
@@ -1463,10 +1430,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#performance-characteristics" class="md-nav__link">
+  <a href="#performance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Performance Characteristics
+        Performance
       
     </span>
   </a>
@@ -2498,10 +2465,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#behaviour-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Behaviour Reference
       
     </span>
   </a>
@@ -2509,43 +2476,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#skip-strategy" class="md-nav__link">
+  <a href="#usage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Skip Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#overwrite-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overwrite Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#append-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Append Strategy
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration
+        Usage
       
     </span>
   </a>
@@ -2564,10 +2498,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#performance-characteristics" class="md-nav__link">
+  <a href="#performance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Performance Characteristics
+        Performance
       
     </span>
   </a>
@@ -2667,97 +2601,167 @@
 
 
 <h1 id="storage-strategies">Storage Strategies<a class="headerlink" href="#storage-strategies" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Three storage strategies control how existing data is handled during writes:</p>
-<table>
-<thead>
-<tr>
-<th>Strategy</th>
-<th>Behavior</th>
-<th>Use Case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Skip</td>
-<td>No write if data exists for the time range</td>
-<td>Initial ingestion, pipeline restarts</td>
-</tr>
-<tr>
-<td>Overwrite</td>
-<td>Replace existing data for the time range</td>
-<td>Reprocessing, algorithm updates</td>
-</tr>
-<tr>
-<td>Append</td>
-<td>Merge new data with existing</td>
-<td>Continuous monitoring, extending time series</td>
-</tr>
-</tbody>
-</table>
-<h2 id="skip-strategy">Skip Strategy<a class="headerlink" href="#skip-strategy" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="n">store_path</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">)</span>
-<span class="n">store</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>  <span class="c1"># No-op if data exists</span>
-</code></pre></div>
-<p>Checks whether data exists for the given time range before writing. Suitable for raw RINEX observations, which do not change after initial ingestion.</p>
-<h2 id="overwrite-strategy">Overwrite Strategy<a class="headerlink" href="#overwrite-strategy" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="n">store_path</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;overwrite&quot;</span><span class="p">)</span>
-<span class="n">store</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>  <span class="c1"># Replaces existing data</span>
-</code></pre></div>
-<p>Deletes existing data for the time range and writes new data with a new version snapshot. Suitable for processed results that may be recomputed with improved algorithms.</p>
-<h2 id="append-strategy">Append Strategy<a class="headerlink" href="#append-strategy" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="n">store_path</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">)</span>
-<span class="n">store</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>  <span class="c1"># Merges with existing</span>
-</code></pre></div>
-<p>Merges new data with existing data, handling overlapping time ranges. Suitable for live monitoring stations.</p>
-<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p>Strategy can be set via constructor, configuration file, or environment variable:</p>
-<div class="highlight"><pre><span></span><code><span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="n">store_path</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">)</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># config/processing.yaml</span>
-<span class="nt">storage</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">rinex_store_strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skip</span>
-<span class="w">  </span><span class="nt">vod_store_strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">overwrite</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">CANVOD_STORE_STRATEGY</span><span class="o">=</span>append
-</code></pre></div>
-<h2 id="recommended-defaults">Recommended Defaults<a class="headerlink" href="#recommended-defaults" title="Permanent link">&para;</a></h2>
+<p>The write strategy controls how <code>MyIcechunkStore</code> handles the time range already in the store. Choose once per store type — set it in <code>processing.yaml</code>.</p>
+<div class="grid cards">
 <ul>
-<li><strong>RINEX data (raw observations)</strong>: <code>skip</code> -- raw data is immutable</li>
-<li><strong>VOD data (processed results)</strong>: <code>overwrite</code> -- recompute as algorithms improve</li>
-<li><strong>Continuous monitoring</strong>: <code>append</code> -- extend time series daily</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M21 36.8c12.9-7 28.7-6.3 41 1.8l258 169.5V64c0-17.7 14.3-32 32-32s32 14.3 32 32v384c0 17.7-14.3 32-32 32s-32-14.3-32-32V303.9L62 473.5c-12.3 8.1-28 8.8-41 1.8S0 454.7 0 440V72c0-14.7 8.1-28.2 21-35.2"/></svg></span> &nbsp; <strong>Skip</strong></p>
+<hr />
+<p>No-op if any data already exists for the incoming time range.
+Safe for immutable raw observations — never overwrites.</p>
+<p><em>Best for: initial ingestion, pipeline restarts</em></p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M65.9 228.5C79.2 135.5 159.3 64 256 64c53 0 101 21.5 135.8 56.2l.6.6 7.6 7.2h-47.9c-17.7 0-32 14.3-32 32s14.3 32 32 32h128c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32s-32 14.3-32 32v53.4l-11.3-10.7C390.5 28.6 326.5 0 256 0 127 0 20.3 95.4 2.6 219.5c-2.5 17.5 9.6 33.7 27.1 36.2s33.7-9.7 36.2-27.1zm443.5 64c2.5-17.5-9.7-33.7-27.1-36.2s-33.7 9.7-36.2 27.1c-13.3 93-93.4 164.5-190.1 164.5-53 0-101-21.5-135.8-56.2l-.6-.6-7.6-7.2h47.9c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 320c-8.5 0-16.7 3.4-22.7 9.5S-.1 343.7 0 352.3l1 127c.1 17.7 14.6 31.9 32.3 31.7s31.9-14.6 31.7-32.3l-.4-51.5 10.7 10.1C121.6 483.4 185.5 512 256 512c129 0 235.7-95.4 253.4-219.5"/></svg></span> &nbsp; <strong>Overwrite</strong></p>
+<hr />
+<p>Deletes existing data for the time range, then writes fresh.
+Each run produces a new Icechunk snapshot for audit.</p>
+<p><em>Best for: reprocessed results, algorithm updates</em></p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M232.5 5.2c14.9-6.9 32.1-6.9 47 0l218.6 101c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0l-218.6-101C5.4 145.8 0 137.3 0 128s5.4-17.9 13.9-21.8zM48.1 218.4l164.3 75.9c27.7 12.8 59.6 12.8 87.3 0L464 218.4l34.1 15.8c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0l-218.6-101C5.4 273.8 0 265.3 0 256s5.4-17.9 13.9-21.8L48 218.4zM13.9 362.2 48 346.4l164.3 75.9c27.7 12.8 59.6 12.8 87.3 0l164.3-75.9 34.1 15.8c8.5 3.9 13.9 12.4 13.9 21.8s-5.4 17.9-13.9 21.8l-218.6 101c-14.9 6.9-32.1 6.9-47 0l-218.5-101C5.4 401.8 0 393.3 0 384s5.4-17.9 13.9-21.8"/></svg></span> &nbsp; <strong>Append</strong></p>
+<hr />
+<p>Merges new data with existing, extending the time series.
+Handles overlapping epochs by keeping existing values.</p>
+<p><em>Best for: continuous monitoring, daily live ingestion</em></p>
+</li>
 </ul>
-<h2 id="performance-characteristics">Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h2>
+</div>
+<hr />
+<h2 id="behaviour-reference">Behaviour Reference<a class="headerlink" href="#behaviour-reference" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Strategy</th>
-<th>Write Speed</th>
-<th>Storage Efficiency</th>
-<th>Data Safety</th>
+<th style="text-align: center;">Data exists</th>
+<th style="text-align: center;">Data missing</th>
+<th style="text-align: center;">Version snapshot</th>
+<th style="text-align: center;">Speed</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Skip</td>
-<td>Fast</td>
-<td>High</td>
-<td>High</td>
+<td><code>skip</code></td>
+<td style="text-align: center;">No write</td>
+<td style="text-align: center;">Write</td>
+<td style="text-align: center;">On write</td>
+<td style="text-align: center;">Fast</td>
 </tr>
 <tr>
-<td>Overwrite</td>
-<td>Medium</td>
-<td>Moderate</td>
-<td>Medium</td>
+<td><code>overwrite</code></td>
+<td style="text-align: center;">Delete + write</td>
+<td style="text-align: center;">Write</td>
+<td style="text-align: center;">Always</td>
+<td style="text-align: center;">Medium</td>
 </tr>
 <tr>
-<td>Append</td>
-<td>Slow</td>
-<td>Lower</td>
-<td>Lower</td>
+<td><code>append</code></td>
+<td style="text-align: center;">Merge</td>
+<td style="text-align: center;">Write</td>
+<td style="text-align: center;">Always</td>
+<td style="text-align: center;">Slower</td>
 </tr>
 </tbody>
 </table>
+<hr />
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Constructor</label><label for="__tabbed_1_2">processing.yaml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyIcechunkStore</span>
+
+<span class="c1"># Raw observations — skip if already ingested</span>
+<span class="n">rinex_store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span>
+    <span class="s2">&quot;/data/stores/rosalia/rinex&quot;</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Processed VOD — rewrite on algorithm update</span>
+<span class="n">vod_store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span>
+    <span class="s2">&quot;/data/stores/rosalia/vod&quot;</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;overwrite&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Monitoring — extend daily</span>
+<span class="n">live_store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span>
+    <span class="s2">&quot;/data/stores/live/rinex&quot;</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nt">storage</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rinex_store_strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skip</span><span class="w">      </span><span class="c1"># raw observations are immutable</span>
+<span class="w">  </span><span class="nt">vod_store_strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">overwrite</span><span class="w">   </span><span class="c1"># recompute as algorithms improve</span>
+</code></pre></div>
+<p>The <code>Site</code> object reads these keys automatically:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.site</span><span class="w"> </span><span class="kn">import</span> <span class="n">Site</span>
+<span class="n">site</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="s2">&quot;Rosalia&quot;</span><span class="p">)</span>           <span class="c1"># strategy from config</span>
+<span class="n">site</span><span class="o">.</span><span class="n">rinex_store</span><span class="o">.</span><span class="n">strategy</span>        <span class="c1"># → &quot;skip&quot;</span>
+<span class="n">site</span><span class="o">.</span><span class="n">vod_store</span><span class="o">.</span><span class="n">strategy</span>          <span class="c1"># → &quot;overwrite&quot;</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<hr />
+<h2 id="recommended-defaults">Recommended Defaults<a class="headerlink" href="#recommended-defaults" title="Permanent link">&para;</a></h2>
+<div class="admonition success">
+<p class="admonition-title">Raw RINEX observations → <code>skip</code></p>
+<p>Raw GNSS data never changes after collection.
+Skip prevents accidental re-ingestion and keeps ingest pipelines
+idempotent — safe to restart at any point.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Processed VOD products → <code>overwrite</code></p>
+<p>As the tau-omega inversion improves or auxiliary data quality changes,
+re-running the pipeline should replace old values.
+Each overwrite creates a new Icechunk snapshot so you can compare
+before/after.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Continuous monitoring → <code>append</code></p>
+<p>Use <code>append</code> only when truly extending a live time series.
+It is slower and may produce unexpected results if a day is
+partially processed and re-submitted.</p>
+</div>
+<hr />
+<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Typical write throughput</th>
+<th>Storage overhead</th>
+<th>Re-ingest safety</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skip</code></td>
+<td>Fastest — hash check only</td>
+<td>None</td>
+<td>Safe</td>
+</tr>
+<tr>
+<td><code>overwrite</code></td>
+<td>Moderate — delete + write</td>
+<td>Low (old chunks GC'd)</td>
+<td>Safe</td>
+</tr>
+<tr>
+<td><code>append</code></td>
+<td>Slowest — read-merge-write</td>
+<td>Higher (old + new chunks)</td>
+<td>Risky</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Garbage collection</p>
+<p>Overwritten chunks remain in the Icechunk object store until you run
+GC. The old versions are still accessible via snapshot IDs — useful for
+auditing before cleaning up.</p>
+</div>
 
 
 

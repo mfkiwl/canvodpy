@@ -2367,45 +2367,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Configuration Management">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#just-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Just Commands
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cli-configuration-tool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI Configuration Tool
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#first-time-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        First-Time Setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2424,28 +2385,6 @@
     <span class="md-ellipsis">
       
         Code Quality
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dependency-analysis" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dependency Analysis
       
     </span>
   </a>
@@ -2481,10 +2420,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#common-just-commands" class="md-nav__link">
+  <a href="#all-just-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Common Just Commands
+        All Just Commands
       
     </span>
   </a>
@@ -2529,30 +2468,55 @@
 
 
 <h1 id="development-guide">Development Guide<a class="headerlink" href="#development-guide" title="Permanent link">&para;</a></h1>
+<p>Quick reference for day-to-day canVODpy development.</p>
+<hr />
 <h2 id="initial-setup">Initial Setup<a class="headerlink" href="#initial-setup" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/nfb2021/canvodpy.git
 <span class="nb">cd</span><span class="w"> </span>canvodpy
-git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
-uv<span class="w"> </span>sync
-just<span class="w"> </span><span class="nb">test</span>
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive<span class="w">   </span><span class="c1"># test data + demo data</span>
+uv<span class="w"> </span>sync<span class="w">                                    </span><span class="c1"># install all packages (editable)</span>
+just<span class="w"> </span>hooks<span class="w">                                 </span><span class="c1"># install pre-commit hooks</span>
+just<span class="w"> </span><span class="nb">test</span><span class="w">                                  </span><span class="c1"># verify everything works</span>
 </code></pre></div>
-<p>The submodule step pulls two external data repositories:</p>
+<div class="admonition info">
+<p class="admonition-title">Submodules</p>
+<p>Two data repositories are pulled as submodules:</p>
 <ul>
-<li><strong><code>packages/canvod-readers/tests/test_data</code></strong> — validation test data (falsified/corrupted RINEX files)</li>
+<li><strong><code>packages/canvod-readers/tests/test_data</code></strong> — falsified/corrupted RINEX files for validation tests</li>
 <li><strong><code>demo</code></strong> — clean real-world data for demos and documentation</li>
 </ul>
-<p>Tests that depend on these datasets are automatically skipped if the submodules are not initialized.</p>
+<p>Tests that depend on these datasets are automatically skipped if submodules are not initialised.</p>
+</div>
+<hr />
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<p>Two external tools are required:</p>
-<ol>
-<li><strong>uv</strong> -- Python package manager (<a href="https://docs.astral.sh/uv/getting-started/installation/">installation</a>)</li>
-<li><strong>just</strong> -- Command runner (<a href="https://github.com/casey/just">installation</a>)</li>
-</ol>
-<p>Verify installation:</p>
-<div class="highlight"><pre><span></span><code>just<span class="w"> </span>check-dev-tools
+<p>Two tools must be installed outside <code>uv</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Install</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>uv</strong></td>
+<td><code>brew install uv</code></td>
+<td>Python + dependency management</td>
+</tr>
+<tr>
+<td><strong>just</strong></td>
+<td><code>brew install just</code></td>
+<td>Task runner</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>check-dev-tools<span class="w">   </span><span class="c1"># verify both are present</span>
 </code></pre></div>
+<p><a href="../getting-started/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> Full installation guide</a></p>
+<hr />
 <h2 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">&para;</a></h2>
-<p>canVODpy uses three YAML files in the <code>config/</code> directory:</p>
+<p>canVODpy uses three YAML files in <code>config/</code>:</p>
 <table>
 <thead>
 <tr>
@@ -2563,98 +2527,115 @@ just<span class="w"> </span><span class="nb">test</span>
 <tbody>
 <tr>
 <td><code>sites.yaml</code></td>
-<td>Research sites: data root paths, receiver definitions (name, type, directory), and VOD analysis pairs. Each receiver's <code>directory</code> is the full relative path from the site data root to the raw RINEX date folders (e.g. <code>01_reference/01_GNSS/01_raw</code>).</td>
+<td>Research sites, receiver definitions, data root paths, VOD analysis pairs</td>
 </tr>
 <tr>
 <td><code>processing.yaml</code></td>
-<td>Processing parameters: metadata, credentials (NASA Earthdata), auxiliary data settings, time aggregation, compression, Icechunk storage, and store strategies.</td>
+<td>Processing parameters, NASA Earthdata credentials, storage strategies, Icechunk config</td>
 </tr>
 <tr>
 <td><code>sids.yaml</code></td>
-<td>Signal ID filtering: choose <code>all</code>, a named <code>preset</code> (e.g. <code>gps_galileo</code>), or list <code>custom</code> SIDs to keep.</td>
+<td>Signal ID filtering — <code>all</code>, a named <code>preset</code>, or <code>custom</code> list</td>
 </tr>
 </tbody>
 </table>
 <p>Each file has a <code>.example</code> template in the same directory.</p>
-<h3 id="just-commands">Just Commands<a class="headerlink" href="#just-commands" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>just<span class="w"> </span>config-init<span class="w">             </span><span class="c1"># Initialize config files from templates</span>
-just<span class="w"> </span>config-show<span class="w">             </span><span class="c1"># View resolved settings</span>
-just<span class="w"> </span>config-validate<span class="w">         </span><span class="c1"># Validate configuration</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">First-time setup</label><label for="__tabbed_1_2">Daily use</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>config-init<span class="w">        </span><span class="c1"># copy .example templates → YAML files</span>
+<span class="c1"># edit config/sites.yaml and config/processing.yaml</span>
+just<span class="w"> </span>config-validate<span class="w">    </span><span class="c1"># check for errors</span>
+just<span class="w"> </span>config-show<span class="w">        </span><span class="c1"># print resolved config</span>
 </code></pre></div>
-<h3 id="cli-configuration-tool">CLI Configuration Tool<a class="headerlink" href="#cli-configuration-tool" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>just<span class="w"> </span>config-init<span class="w">         </span><span class="c1"># Initialize configuration files</span>
-uv<span class="w"> </span>run<span class="w"> </span>just<span class="w"> </span>config-show<span class="w">         </span><span class="c1"># View current settings</span>
-uv<span class="w"> </span>run<span class="w"> </span>just<span class="w"> </span>config-validate<span class="w">     </span><span class="c1"># Validate configuration</span>
-uv<span class="w"> </span>run<span class="w"> </span>just<span class="w"> </span>config-edit<span class="w"> </span>processing<span class="w">  </span><span class="c1"># Edit processing config</span>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>config-validate<span class="w">    </span><span class="c1"># after editing</span>
+just<span class="w"> </span>config-show<span class="w">        </span><span class="c1"># inspect current values</span>
 </code></pre></div>
-<h3 id="first-time-setup">First-Time Setup<a class="headerlink" href="#first-time-setup" title="Permanent link">&para;</a></h3>
-<ol>
-<li>Initialize config files: <code>just config-init</code></li>
-<li>Edit research sites: <code>uv run just config-edit sites</code></li>
-<li>Edit processing configuration: <code>uv run just config-edit processing</code></li>
-<li>Validate: <code>just config-validate</code></li>
-</ol>
+</div>
+</div>
+</div>
+<hr />
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>just<span class="w"> </span><span class="nb">test</span><span class="w">                    </span><span class="c1"># All tests</span>
-just<span class="w"> </span>test-package<span class="w"> </span>canvod-readers<span class="w">  </span><span class="c1"># Specific package</span>
-just<span class="w"> </span>test-coverage<span class="w">           </span><span class="c1"># With coverage report</span>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span><span class="nb">test</span><span class="w">                            </span><span class="c1"># all tests</span>
+just<span class="w"> </span>test-package<span class="w"> </span>canvod-readers<span class="w">     </span><span class="c1"># specific package</span>
+just<span class="w"> </span>test-coverage<span class="w">                   </span><span class="c1"># with HTML coverage report</span>
 </code></pre></div>
-<p>Tests are located in each package's <code>tests/</code> directory.</p>
+<p>Tests live in <code>packages/&lt;pkg&gt;/tests/</code>. Integration tests are marked
+<code>@pytest.mark.integration</code> and excluded from the default run.</p>
+<hr />
 <h2 id="code-quality">Code Quality<a class="headerlink" href="#code-quality" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>just<span class="w"> </span>check<span class="w">                   </span><span class="c1"># Lint + format + type-check</span>
-just<span class="w"> </span>check-lint<span class="w">              </span><span class="c1"># Linting only</span>
-just<span class="w"> </span>check-format<span class="w">            </span><span class="c1"># Formatting only</span>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>check<span class="w">          </span><span class="c1"># lint + format + type-check (run before committing)</span>
+just<span class="w"> </span>check-lint<span class="w">     </span><span class="c1"># ruff linting only</span>
+just<span class="w"> </span>check-format<span class="w">   </span><span class="c1"># ruff formatting only</span>
 </code></pre></div>
-<p>Tools used:
-- <strong>ruff</strong>: Linting and formatting
-- <strong>ty</strong>: Type checking
-- <strong>pytest</strong>: Testing with coverage</p>
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>just<span class="w"> </span>docs<span class="w">                    </span><span class="c1"># Build and serve locally</span>
-</code></pre></div>
-<p>Documentation is built with MyST/Zensical and served at http://localhost:3000.</p>
-<h2 id="dependency-analysis">Dependency Analysis<a class="headerlink" href="#dependency-analysis" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>just<span class="w"> </span>deps-report<span class="w">             </span><span class="c1"># Full metrics report</span>
-just<span class="w"> </span>deps-graph<span class="w">              </span><span class="c1"># Mermaid dependency graph</span>
-</code></pre></div>
-<p>Architecture summary:
-<div class="highlight"><pre><span></span><code>Foundation (0 deps):          Consumers (1 dep):
-  canvod-readers              canvod-auxiliary -&gt; canvod-readers
-  canvod-grids                canvod-viz -&gt; canvod-grids
-  canvod-vod                  canvod-store -&gt; canvod-grids
-  canvod-utils
-</code></pre></div></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ruff</strong></td>
+<td>Linting + formatting (replaces flake8, black, isort)</td>
+</tr>
+<tr>
+<td><strong>ty</strong></td>
+<td>Type checking (replaces mypy)</td>
+</tr>
+<tr>
+<td><strong>pytest</strong></td>
+<td>Testing with coverage</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="contributing-workflow">Contributing Workflow<a class="headerlink" href="#contributing-workflow" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Create a feature branch: <code>git checkout -b feature/my-feature</code></li>
-<li>Make changes in <code>packages/&lt;package&gt;/src/canvod/&lt;package&gt;/</code></li>
-<li>Add tests in <code>packages/&lt;package&gt;/tests/</code></li>
-<li>Run quality checks: <code>just check &amp;&amp; just test</code></li>
-<li>Commit with conventional commits:
-   <div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(readers): add RINEX 4.0 support&quot;</span>
-</code></pre></div></li>
-<li>Push and create PR: <code>git push origin feature/my-feature</code></li>
-</ol>
-<h3 id="conventional-commit-scopes">Conventional Commit Scopes<a class="headerlink" href="#conventional-commit-scopes" title="Permanent link">&para;</a></h3>
-<p><code>readers</code>, <code>aux</code>, <code>grids</code>, <code>vod</code>, <code>store</code>, <code>viz</code>, <code>utils</code>, <code>docs</code>, <code>ci</code>, <code>deps</code></p>
-<h2 id="common-just-commands">Common Just Commands<a class="headerlink" href="#common-just-commands" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>just<span class="w">                         </span><span class="c1"># List all commands</span>
-just<span class="w"> </span>check<span class="w">                   </span><span class="c1"># Lint + format + type-check</span>
-just<span class="w"> </span><span class="nb">test</span><span class="w">                    </span><span class="c1"># Run all tests</span>
-just<span class="w"> </span>sync<span class="w">                    </span><span class="c1"># Install/update dependencies</span>
-just<span class="w"> </span>clean<span class="w">                   </span><span class="c1"># Remove build artifacts</span>
-just<span class="w"> </span>hooks<span class="w">                   </span><span class="c1"># Install pre-commit hooks</span>
-just<span class="w"> </span>config-init<span class="w">             </span><span class="c1"># Initialize config files from templates</span>
-just<span class="w"> </span>config-validate<span class="w">         </span><span class="c1"># Validate configuration</span>
-just<span class="w"> </span>config-show<span class="w">             </span><span class="c1"># View resolved configuration</span>
-just<span class="w"> </span>docs<span class="w">                    </span><span class="c1"># Preview documentation</span>
-just<span class="w"> </span>build-all<span class="w">               </span><span class="c1"># Build all packages</span>
-just<span class="w"> </span>release<span class="w"> </span>&lt;VERSION&gt;<span class="w">       </span><span class="c1"># Full release workflow</span>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/my-feature
+<span class="c1"># … make changes in packages/&lt;pkg&gt;/src/ …</span>
+<span class="c1"># … add tests in packages/&lt;pkg&gt;/tests/ …</span>
+just<span class="w"> </span>check<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>just<span class="w"> </span><span class="nb">test</span>
+git<span class="w"> </span>add<span class="w"> </span>packages/&lt;pkg&gt;/src/...<span class="w"> </span>packages/&lt;pkg&gt;/tests/...
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(readers): add RINEX 4.0 support&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/my-feature
+<span class="c1"># → open pull request on GitHub</span>
 </code></pre></div>
+<h3 id="conventional-commit-scopes">Conventional Commit Scopes<a class="headerlink" href="#conventional-commit-scopes" title="Permanent link">&para;</a></h3>
+<p><code>readers</code> · <code>aux</code> · <code>grids</code> · <code>vod</code> · <code>store</code> · <code>viz</code> · <code>utils</code> · <code>docs</code> · <code>ci</code> · <code>deps</code></p>
+<hr />
+<h2 id="all-just-commands">All Just Commands<a class="headerlink" href="#all-just-commands" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>just<span class="w">                     </span><span class="c1"># list all commands</span>
+just<span class="w"> </span>check<span class="w">               </span><span class="c1"># lint + format + type-check</span>
+just<span class="w"> </span><span class="nb">test</span><span class="w">                </span><span class="c1"># run all tests</span>
+just<span class="w"> </span>sync<span class="w">                </span><span class="c1"># install/update dependencies</span>
+just<span class="w"> </span>clean<span class="w">               </span><span class="c1"># remove build artifacts</span>
+just<span class="w"> </span>hooks<span class="w">               </span><span class="c1"># install pre-commit hooks</span>
+just<span class="w"> </span>config-init<span class="w">         </span><span class="c1"># initialize config files</span>
+just<span class="w"> </span>config-validate<span class="w">     </span><span class="c1"># validate configuration</span>
+just<span class="w"> </span>config-show<span class="w">         </span><span class="c1"># view resolved configuration</span>
+just<span class="w"> </span>docs<span class="w">                </span><span class="c1"># preview documentation (localhost:3000)</span>
+just<span class="w"> </span>build-all<span class="w">           </span><span class="c1"># build all packages</span>
+just<span class="w"> </span>deps-report<span class="w">         </span><span class="c1"># dependency metrics report</span>
+just<span class="w"> </span>deps-graph<span class="w">          </span><span class="c1"># mermaid dependency graph</span>
+</code></pre></div>
+<hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<p><strong>"No module named 'canvod.X'"</strong>: Run <code>uv sync</code> to install packages.</p>
-<p><strong>"Command not found: canvodpy"</strong>: Use <code>uv run just config-init</code>.</p>
-<p><strong>Tests fail after dependency changes</strong>: Run <code>uv sync --all-extras</code>.</p>
+<details class="failure">
+<summary><code>No module named 'canvod.X'</code></summary>
+<p>Run <code>uv sync</code> to install/reinstall packages in editable mode.</p>
+</details>
+<details class="failure">
+<summary><code>Command not found: just</code></summary>
+<p>Install just: <code>brew install just</code> (macOS) or see <a href="../getting-started/">getting-started</a>.</p>
+</details>
+<details class="failure">
+<summary>Tests fail after dependency changes</summary>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>sync<span class="w"> </span>--all-extras
+</code></pre></div>
+</details>
 
 
 

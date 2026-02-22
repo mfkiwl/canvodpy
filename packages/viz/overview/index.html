@@ -1522,43 +1522,9 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#unified-api-recommended" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unified API (recommended)
-      
-    </span>
-  </a>
-  
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#convenience-functions" class="md-nav__link">
-    <span class="md-ellipsis">
       
-        Convenience functions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#specialized-visualizers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specialized visualizers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
+        <li class="md-nav__item">
   <a href="#styling" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1566,22 +1532,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#comparison-and-export" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comparison and export
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2556,43 +2506,9 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#unified-api-recommended" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Unified API (recommended)
-      
-    </span>
-  </a>
-  
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#convenience-functions" class="md-nav__link">
-    <span class="md-ellipsis">
       
-        Convenience functions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#specialized-visualizers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specialized visualizers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
+        <li class="md-nav__item">
   <a href="#styling" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2600,22 +2516,6 @@
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#comparison-and-export" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comparison and export
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2724,70 +2624,57 @@
 
 <h1 id="canvod-viz">canvod-viz<a class="headerlink" href="#canvod-viz" title="Permanent link">&para;</a></h1>
 <h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
-<p>The <code>canvod-viz</code> package provides 2D and 3D hemispheric visualization for GNSS-T grids, SNR data, and VOD results. It wraps matplotlib (publication-quality 2D polar plots) and plotly (interactive 3D hemispheres) behind a unified API.</p>
+<p>The <code>canvod-viz</code> package provides 2D and 3D hemispheric visualization for GNSS-T grids, SNR data, and VOD results. It wraps matplotlib (publication-quality polar plots) and plotly (interactive 3D hemispheres) behind a unified API.</p>
+<hr />
 <h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Class / Function</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>HemisphereVisualizer</code></td>
-<td>Unified API combining 2D and 3D</td>
-</tr>
-<tr>
-<td><code>HemisphereVisualizer2D</code></td>
-<td>Matplotlib polar projection plots</td>
-</tr>
-<tr>
-<td><code>HemisphereVisualizer3D</code></td>
-<td>Plotly interactive 3D hemispheres</td>
-</tr>
-<tr>
-<td><code>visualize_grid</code></td>
-<td>One-call 2D grid plot</td>
-</tr>
-<tr>
-<td><code>visualize_grid_3d</code></td>
-<td>One-call 3D grid plot</td>
-</tr>
-<tr>
-<td><code>add_tissot_indicatrix</code></td>
-<td>Overlay angular distortion circles</td>
-</tr>
-<tr>
-<td><code>PlotStyle</code> / <code>PolarPlotStyle</code></td>
-<td>Styling configuration</td>
-</tr>
-<tr>
-<td><code>create_publication_style</code></td>
-<td>Pre-configured publication settings</td>
-</tr>
-<tr>
-<td><code>create_interactive_style</code></td>
-<td>Pre-configured interactive settings</td>
-</tr>
-</tbody>
-</table>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M448 256c0-106-86-192-192-192v384c106 0 192-86 192-192M0 256a256 256 0 1 1 512 0 256 256 0 1 1-512 0"/></svg></span> &nbsp; <strong>HemisphereVisualizer</strong></p>
+<hr />
+<p>Unified entry point combining both 2D and 3D backends.
+Swap between publication and interactive modes with one method call.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M32 32c17.7 0 32 14.3 32 32v336c0 8.8 7.2 16 16 16h400c17.7 0 32 14.3 32 32s-14.3 32-32 32H80c-44.2 0-80-35.8-80-80V64c0-17.7 14.3-32 32-32m208 64c6.7 0 13.1 2.8 17.7 7.8l71.1 77.5L375 135c9.4-9.4 24.6-9.4 33.9 0l64 64c4.5 4.5 7 10.6 7 17v112c0 13.3-10.7 24-24 24h-304c-13.3 0-24-10.7-24-24V216c0-6 2.3-11.8 6.3-16.2l88-96c4.5-5 11-7.8 17.7-7.8z"/></svg></span> &nbsp; <strong>HemisphereVisualizer2D</strong></p>
+<hr />
+<p>Matplotlib polar projection plots. Patch-based rendering of grid cells.
+Publication-quality output at configurable DPI.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M224.3-2.5c19.8-11.4 44.2-11.4 64 0L464.2 99c19.8 11.4 32 32.6 32 55.4v203c0 22.9-12.2 44-32 55.4L288.3 514.5a64.16 64.16 0 0 1-64 0L48.5 413c-19.8-11.4-32-32.6-32-55.4v-203c0-22.9 12.2-44 32-55.4zm207.8 360V191.4l-143.8 83v166.1z"/></svg></span> &nbsp; <strong>HemisphereVisualizer3D</strong></p>
+<hr />
+<p>Plotly interactive 3D hemispheres. Pan, zoom, rotate in the browser.
+One-call HTML export for sharing.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m0-352a96 96 0 1 1 0 192 96 96 0 1 1 0-192"/></svg></span> &nbsp; <strong>Tissot Indicatrix</strong></p>
+<hr />
+<p><code>add_tissot_indicatrix</code> — overlay angular distortion circles on 2D
+plots to evaluate grid cell shape fidelity.</p>
+</li>
+</ul>
+</div>
+<hr />
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<h3 id="unified-api-recommended">Unified API (recommended)<a class="headerlink" href="#unified-api-recommended" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Unified API (recommended)</label><label for="__tabbed_1_2">Convenience functions</label><label for="__tabbed_1_3">Publication output</label><label for="__tabbed_1_4">Interactive export</label><label for="__tabbed_1_5">Side-by-side comparison</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.grids</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_hemigrid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">canvod.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">HemisphereVisualizer</span>
 
 <span class="n">grid</span> <span class="o">=</span> <span class="n">create_hemigrid</span><span class="p">(</span><span class="s2">&quot;equal_area&quot;</span><span class="p">,</span> <span class="n">angular_resolution</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
-<span class="n">viz</span> <span class="o">=</span> <span class="n">HemisphereVisualizer</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+<span class="n">viz</span>  <span class="o">=</span> <span class="n">HemisphereVisualizer</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 
-<span class="c1"># 2D publication plot</span>
+<span class="c1"># Publication-quality 2D</span>
 <span class="n">fig_2d</span><span class="p">,</span> <span class="n">ax_2d</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_2d</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;VOD Distribution&quot;</span><span class="p">)</span>
 
-<span class="c1"># 3D interactive plot</span>
+<span class="c1"># Interactive 3D</span>
 <span class="n">fig_3d</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_3d</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Interactive VOD&quot;</span><span class="p">)</span>
 <span class="n">fig_3d</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
-<h3 id="convenience-functions">Convenience functions<a class="headerlink" href="#convenience-functions" title="Permanent link">&para;</a></h3>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">visualize_grid</span><span class="p">,</span> <span class="n">visualize_grid_3d</span><span class="p">,</span> <span class="n">add_tissot_indicatrix</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">visualize_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
@@ -2795,51 +2682,68 @@
 
 <span class="n">fig_3d</span> <span class="o">=</span> <span class="n">visualize_grid_3d</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">)</span>
 </code></pre></div>
-<h3 id="specialized-visualizers">Specialized visualizers<a class="headerlink" href="#specialized-visualizers" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">HemisphereVisualizer2D</span><span class="p">,</span> <span class="n">HemisphereVisualizer3D</span>
-
-<span class="n">viz2d</span> <span class="o">=</span> <span class="n">HemisphereVisualizer2D</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">viz2d</span><span class="o">.</span><span class="n">plot_grid_patches</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;VOD&quot;</span><span class="p">)</span>
-
-<span class="n">viz3d</span> <span class="o">=</span> <span class="n">HemisphereVisualizer3D</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">viz3d</span><span class="o">.</span><span class="n">plot_hemisphere_surface</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Interactive VOD&quot;</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="styling">Styling<a class="headerlink" href="#styling" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">HemisphereVisualizer</span><span class="p">,</span> <span class="n">create_publication_style</span><span class="p">,</span> <span class="n">create_interactive_style</span>
-
-<span class="n">viz</span> <span class="o">=</span> <span class="n">HemisphereVisualizer</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
-
-<span class="c1"># Publication quality</span>
-<span class="n">viz</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="n">create_publication_style</span><span class="p">())</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_2d</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">)</span>
-
-<span class="c1"># Interactive dark mode</span>
-<span class="n">viz</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="n">create_interactive_style</span><span class="p">(</span><span class="n">dark_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_3d</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="comparison-and-export">Comparison and export<a class="headerlink" href="#comparison-and-export" title="Permanent link">&para;</a></h3>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">viz</span> <span class="o">=</span> <span class="n">HemisphereVisualizer</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+<span class="n">viz</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="n">create_publication_style</span><span class="p">())</span>
 
-<span class="c1"># Side-by-side 2D + 3D</span>
-<span class="p">(</span><span class="n">fig_2d</span><span class="p">,</span> <span class="n">ax_2d</span><span class="p">),</span> <span class="n">fig_3d</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">create_comparison_plot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">)</span>
-
-<span class="c1"># Publication figure with custom DPI</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">create_publication_figure</span><span class="p">(</span>
     <span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">,</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;VOD Distribution&quot;</span><span class="p">,</span>
     <span class="n">save_path</span><span class="o">=</span><span class="s2">&quot;figure_3.png&quot;</span><span class="p">,</span>
     <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>
 <span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">viz</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="n">create_interactive_style</span><span class="p">(</span><span class="n">dark_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
-<span class="c1"># Interactive HTML export</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">create_interactive_explorer</span><span class="p">(</span>
     <span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">,</span>
     <span class="n">dark_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">save_html</span><span class="o">=</span><span class="s2">&quot;explorer.html&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="p">(</span><span class="n">fig_2d</span><span class="p">,</span> <span class="n">ax_2d</span><span class="p">),</span> <span class="n">fig_3d</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">create_comparison_plot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vod_data</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<hr />
+<h2 id="styling">Styling<a class="headerlink" href="#styling" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Style factory</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create_publication_style()</code></td>
+<td>Print-ready figures, configurable DPI, white background</td>
+</tr>
+<tr>
+<td><code>create_interactive_style()</code></td>
+<td>Browser-ready Plotly, dark mode option</td>
+</tr>
+</tbody>
+</table>
+<p>Both return a <code>PlotStyle</code> / <code>PolarPlotStyle</code> object passed to <code>viz.set_style()</code>.</p>
+<hr />
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
-<p>canvod-viz depends on canvod-grids for grid geometry. 2D plots use matplotlib; 3D plots use plotly.</p>
+<div class="admonition info">
+<p class="admonition-title">Optional backends</p>
+<ul>
+<li><strong>matplotlib</strong> — required for <code>HemisphereVisualizer2D</code> and all 2D functions</li>
+<li><strong>plotly</strong> — required for <code>HemisphereVisualizer3D</code> and all 3D functions</li>
+<li><strong>canvod-grids</strong> — always required for grid geometry</li>
+</ul>
+<p>Neither backend is a hard dependency of <code>canvod-viz</code> itself; import errors are
+raised only when the corresponding visualizer is instantiated.</p>
+</div>
 
 
 

@@ -3986,7 +3986,19 @@
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
-<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TauOmegaZerothOrder</span><span class="p">(</span><span class="n">VODCalculator</span><span class="p">):</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TauOmegaZerothOrder</span><span class="p">(</span><span class="n">VODCalculator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate VOD using the zeroth-order Tau-Omega approximation.</span>
 
 <span class="sd">    Based on Humphrey, V., &amp; Frankenberg, C. (2022).</span>
@@ -4015,10 +4027,14 @@
 <span class="sd">        xr.DataArray</span>
 <span class="sd">            Linear-scale values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">delta_snr_db</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">delta_snr_db</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate VOD using the zeroth-order approximation.</span>
+
+<span class="sd">        Returns a lazy xarray.Dataset when the inputs are dask-backed so that</span>
+<span class="sd">        the caller can rechunk and let a single write trigger computation.</span>
+<span class="sd">        For in-memory (numpy) inputs the result is computed immediately.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -4028,7 +4044,7 @@
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        ValueError</span>
-<span class="sd">            If all delta SNR values are NaN.</span>
+<span class="sd">            If all delta SNR values are NaN (eager arrays only).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -4040,19 +4056,20 @@
 
         <span class="n">delta_snr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_delta_snr</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;vod_calculation_failed&quot;</span><span class="p">,</span>
-                <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;all_delta_snr_nan&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="c1"># Detect lazy (dask-backed) arrays — avoid .item()/.any()/.all() on</span>
+        <span class="c1"># large dask arrays, as each call triggers a full compute pass.</span>
+        <span class="n">_lazy</span> <span class="o">=</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span> <span class="ow">and</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;vod_calculation_failed&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;all_delta_snr_nan&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;All delta_snr values are NaN - check data alignment&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">canopy_transmissivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decibel2linear</span><span class="p">(</span><span class="n">delta_snr</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-            <span class="n">n_invalid</span> <span class="o">=</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span> <span class="ow">and</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">n_invalid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
             <span class="n">total</span> <span class="o">=</span> <span class="n">canopy_transmissivity</span><span class="o">.</span><span class="n">size</span>
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="n">n_invalid</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> transmissivity values &lt;= 0 &quot;</span>
@@ -4078,15 +4095,22 @@
         <span class="p">)</span>
 
         <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-        <span class="n">n_valid</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">vod</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
-            <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-            <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
-            <span class="n">valid_values</span><span class="o">=</span><span class="n">n_valid</span><span class="p">,</span>
-            <span class="n">valid_percent</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_valid</span> <span class="o">/</span> <span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span><span class="p">:</span>
+            <span class="n">n_valid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">vod</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
+                <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">valid_values</span><span class="o">=</span><span class="n">n_valid</span><span class="p">,</span>
+                <span class="n">valid_percent</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_valid</span> <span class="o">/</span> <span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
+                <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">note</span><span class="o">=</span><span class="s2">&quot;lazy graph built; compute deferred to write&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">vod_ds</span>
 </code></pre></div></td></tr></table></div>
@@ -4195,7 +4219,7 @@
 <span class="sd">    xr.DataArray</span>
 <span class="sd">        Linear-scale values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">delta_snr_db</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">delta_snr_db</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4214,12 +4238,15 @@
     <div class="doc doc-contents ">
 
         <p>Calculate VOD using the zeroth-order approximation.</p>
+<p>Returns a lazy xarray.Dataset when the inputs are dask-backed so that
+the caller can rechunk and let a single write trigger computation.
+For in-memory (numpy) inputs the result is computed immediately.</p>
 <h5 id="canvod.vod.TauOmegaZerothOrder.calculate_vod--returns">Returns<a class="headerlink" href="#canvod.vod.TauOmegaZerothOrder.calculate_vod--returns" title="Permanent link">&para;</a></h5>
 <p>xr.Dataset
     Dataset containing VOD and angular coordinates.</p>
 <h5 id="canvod.vod.TauOmegaZerothOrder.calculate_vod--raises">Raises<a class="headerlink" href="#canvod.vod.TauOmegaZerothOrder.calculate_vod--raises" title="Permanent link">&para;</a></h5>
 <p>ValueError
-    If all delta SNR values are NaN.</p>
+    If all delta SNR values are NaN (eager arrays only).</p>
 
 
             <details class="mkdocstrings-source">
@@ -4295,8 +4322,24 @@
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
-<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate VOD using the zeroth-order approximation.</span>
+
+<span class="sd">    Returns a lazy xarray.Dataset when the inputs are dask-backed so that</span>
+<span class="sd">    the caller can rechunk and let a single write trigger computation.</span>
+<span class="sd">    For in-memory (numpy) inputs the result is computed immediately.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4306,7 +4349,7 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If all delta SNR values are NaN.</span>
+<span class="sd">        If all delta SNR values are NaN (eager arrays only).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -4318,19 +4361,20 @@
 
     <span class="n">delta_snr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_delta_snr</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;vod_calculation_failed&quot;</span><span class="p">,</span>
-            <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;all_delta_snr_nan&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="c1"># Detect lazy (dask-backed) arrays — avoid .item()/.any()/.all() on</span>
+    <span class="c1"># large dask arrays, as each call triggers a full compute pass.</span>
+    <span class="n">_lazy</span> <span class="o">=</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span> <span class="ow">and</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;vod_calculation_failed&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;all_delta_snr_nan&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;All delta_snr values are NaN - check data alignment&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">canopy_transmissivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decibel2linear</span><span class="p">(</span><span class="n">delta_snr</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="n">n_invalid</span> <span class="o">=</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span> <span class="ow">and</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">n_invalid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">canopy_transmissivity</span><span class="o">.</span><span class="n">size</span>
         <span class="nb">print</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="n">n_invalid</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> transmissivity values &lt;= 0 &quot;</span>
@@ -4356,15 +4400,22 @@
     <span class="p">)</span>
 
     <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-    <span class="n">n_valid</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">vod</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
-        <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-        <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
-        <span class="n">valid_values</span><span class="o">=</span><span class="n">n_valid</span><span class="p">,</span>
-        <span class="n">valid_percent</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_valid</span> <span class="o">/</span> <span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span><span class="p">:</span>
+        <span class="n">n_valid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">vod</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
+            <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="n">valid_values</span><span class="o">=</span><span class="n">n_valid</span><span class="p">,</span>
+            <span class="n">valid_percent</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_valid</span> <span class="o">/</span> <span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
+            <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="n">note</span><span class="o">=</span><span class="s2">&quot;lazy graph built; compute deferred to write&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">vod_ds</span>
 </code></pre></div></td></tr></table></div>
@@ -5898,7 +5949,19 @@ align : bool
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
-<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TauOmegaZerothOrder</span><span class="p">(</span><span class="n">VODCalculator</span><span class="p">):</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TauOmegaZerothOrder</span><span class="p">(</span><span class="n">VODCalculator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate VOD using the zeroth-order Tau-Omega approximation.</span>
 
 <span class="sd">    Based on Humphrey, V., &amp; Frankenberg, C. (2022).</span>
@@ -5927,10 +5990,14 @@ align : bool
 <span class="sd">        xr.DataArray</span>
 <span class="sd">            Linear-scale values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">delta_snr_db</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">delta_snr_db</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate VOD using the zeroth-order approximation.</span>
+
+<span class="sd">        Returns a lazy xarray.Dataset when the inputs are dask-backed so that</span>
+<span class="sd">        the caller can rechunk and let a single write trigger computation.</span>
+<span class="sd">        For in-memory (numpy) inputs the result is computed immediately.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -5940,7 +6007,7 @@ align : bool
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        ValueError</span>
-<span class="sd">            If all delta SNR values are NaN.</span>
+<span class="sd">            If all delta SNR values are NaN (eager arrays only).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -5952,19 +6019,20 @@ align : bool
 
         <span class="n">delta_snr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_delta_snr</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;vod_calculation_failed&quot;</span><span class="p">,</span>
-                <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;all_delta_snr_nan&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="c1"># Detect lazy (dask-backed) arrays — avoid .item()/.any()/.all() on</span>
+        <span class="c1"># large dask arrays, as each call triggers a full compute pass.</span>
+        <span class="n">_lazy</span> <span class="o">=</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span> <span class="ow">and</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;vod_calculation_failed&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;all_delta_snr_nan&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;All delta_snr values are NaN - check data alignment&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">canopy_transmissivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decibel2linear</span><span class="p">(</span><span class="n">delta_snr</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-            <span class="n">n_invalid</span> <span class="o">=</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span> <span class="ow">and</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">n_invalid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
             <span class="n">total</span> <span class="o">=</span> <span class="n">canopy_transmissivity</span><span class="o">.</span><span class="n">size</span>
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="n">n_invalid</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> transmissivity values &lt;= 0 &quot;</span>
@@ -5990,15 +6058,22 @@ align : bool
         <span class="p">)</span>
 
         <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-        <span class="n">n_valid</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">vod</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
-            <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-            <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
-            <span class="n">valid_values</span><span class="o">=</span><span class="n">n_valid</span><span class="p">,</span>
-            <span class="n">valid_percent</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_valid</span> <span class="o">/</span> <span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span><span class="p">:</span>
+            <span class="n">n_valid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">vod</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
+                <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">valid_values</span><span class="o">=</span><span class="n">n_valid</span><span class="p">,</span>
+                <span class="n">valid_percent</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_valid</span> <span class="o">/</span> <span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
+                <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                <span class="n">note</span><span class="o">=</span><span class="s2">&quot;lazy graph built; compute deferred to write&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">vod_ds</span>
 </code></pre></div></td></tr></table></div>
@@ -6107,7 +6182,7 @@ align : bool
 <span class="sd">    xr.DataArray</span>
 <span class="sd">        Linear-scale values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">delta_snr_db</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">delta_snr_db</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -6126,12 +6201,15 @@ align : bool
     <div class="doc doc-contents ">
 
         <p>Calculate VOD using the zeroth-order approximation.</p>
+<p>Returns a lazy xarray.Dataset when the inputs are dask-backed so that
+the caller can rechunk and let a single write trigger computation.
+For in-memory (numpy) inputs the result is computed immediately.</p>
 <h5 id="canvod.vod.calculator.TauOmegaZerothOrder.calculate_vod--returns">Returns<a class="headerlink" href="#canvod.vod.calculator.TauOmegaZerothOrder.calculate_vod--returns" title="Permanent link">&para;</a></h5>
 <p>xr.Dataset
     Dataset containing VOD and angular coordinates.</p>
 <h5 id="canvod.vod.calculator.TauOmegaZerothOrder.calculate_vod--raises">Raises<a class="headerlink" href="#canvod.vod.calculator.TauOmegaZerothOrder.calculate_vod--raises" title="Permanent link">&para;</a></h5>
 <p>ValueError
-    If all delta SNR values are NaN.</p>
+    If all delta SNR values are NaN (eager arrays only).</p>
 
 
             <details class="mkdocstrings-source">
@@ -6207,8 +6285,24 @@ align : bool
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
-<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_vod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate VOD using the zeroth-order approximation.</span>
+
+<span class="sd">    Returns a lazy xarray.Dataset when the inputs are dask-backed so that</span>
+<span class="sd">    the caller can rechunk and let a single write trigger computation.</span>
+<span class="sd">    For in-memory (numpy) inputs the result is computed immediately.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -6218,7 +6312,7 @@ align : bool
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If all delta SNR values are NaN.</span>
+<span class="sd">        If all delta SNR values are NaN (eager arrays only).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -6230,19 +6324,20 @@ align : bool
 
     <span class="n">delta_snr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_delta_snr</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;vod_calculation_failed&quot;</span><span class="p">,</span>
-            <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;all_delta_snr_nan&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="c1"># Detect lazy (dask-backed) arrays — avoid .item()/.any()/.all() on</span>
+    <span class="c1"># large dask arrays, as each call triggers a full compute pass.</span>
+    <span class="n">_lazy</span> <span class="o">=</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span> <span class="ow">and</span> <span class="n">delta_snr</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;vod_calculation_failed&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;all_delta_snr_nan&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;All delta_snr values are NaN - check data alignment&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">canopy_transmissivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decibel2linear</span><span class="p">(</span><span class="n">delta_snr</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="n">n_invalid</span> <span class="o">=</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span> <span class="ow">and</span> <span class="p">(</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">n_invalid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">canopy_transmissivity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">canopy_transmissivity</span><span class="o">.</span><span class="n">size</span>
         <span class="nb">print</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="n">n_invalid</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> transmissivity values &lt;= 0 &quot;</span>
@@ -6268,15 +6363,22 @@ align : bool
     <span class="p">)</span>
 
     <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
-    <span class="n">n_valid</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">vod</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-
-    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
-        <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-        <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
-        <span class="n">valid_values</span><span class="o">=</span><span class="n">n_valid</span><span class="p">,</span>
-        <span class="n">valid_percent</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_valid</span> <span class="o">/</span> <span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_lazy</span><span class="p">:</span>
+        <span class="n">n_valid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">vod</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
+            <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="n">valid_values</span><span class="o">=</span><span class="n">n_valid</span><span class="p">,</span>
+            <span class="n">valid_percent</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">n_valid</span> <span class="o">/</span> <span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;vod_calculation_complete&quot;</span><span class="p">,</span>
+            <span class="n">duration_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">vod_values</span><span class="o">=</span><span class="n">vod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="n">note</span><span class="o">=</span><span class="s2">&quot;lazy graph built; compute deferred to write&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">vod_ds</span>
 </code></pre></div></td></tr></table></div>

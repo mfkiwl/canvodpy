@@ -962,17 +962,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#preprocessing-first-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Preprocessing-First Architecture
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#interpolation-strategies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -992,45 +981,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Key Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#file-handlers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        File Handlers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#preprocessing-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Preprocessing Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#position-classes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Position Classes
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1038,34 +988,6 @@
     <span class="md-ellipsis">
       
         Usage
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#rinex-data-augmentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        RINEX Data Augmentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Flow
       
     </span>
   </a>
@@ -2576,17 +2498,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#preprocessing-first-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Preprocessing-First Architecture
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#interpolation-strategies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2606,45 +2517,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Key Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#file-handlers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        File Handlers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#preprocessing-pipeline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Preprocessing Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#position-classes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Position Classes
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2652,34 +2524,6 @@
     <span class="md-ellipsis">
       
         Usage
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#rinex-data-augmentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        RINEX Data Augmentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Flow
       
     </span>
   </a>
@@ -2781,117 +2625,163 @@
 <h1 id="canvod-auxiliary">canvod-auxiliary<a class="headerlink" href="#canvod-auxiliary" title="Permanent link">&para;</a></h1>
 <h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
 <p>The <code>canvod-auxiliary</code> package provides auxiliary data management for GNSS Transmissometry (GNSS-T) analysis. It handles downloading, parsing, preprocessing, and interpolating SP3 ephemerides and CLK clock corrections to augment RINEX observation data with precise satellite positions and timing information.</p>
+<hr />
 <h2 id="the-dimension-alignment-problem">The Dimension Alignment Problem<a class="headerlink" href="#the-dimension-alignment-problem" title="Permanent link">&para;</a></h2>
-<p>GNSS-T analysis requires combining two data sources with different indexing schemes:</p>
-<p><strong>RINEX Observation Files:</strong>
-- High temporal resolution (30s, 15s, or sub-second)
-- Signal-level indexing by Signal ID (sid): <code>"G01|L1|C"</code>
-- Dimensions: <code>(epoch: 2880, sid: 384)</code></p>
-<p><strong>Auxiliary Files (SP3/CLK):</strong>
-- Low temporal resolution (15 min for SP3, 5 min for CLK)
-- Satellite-level indexing by satellite vehicle (sv): <code>"G01"</code>
-- Dimensions: <code>(epoch: 96, sv: 32)</code></p>
-<p>Combining these requires:
-- Dimension conversion from sv (32 satellites) to sid (384 signal IDs)
-- Temporal interpolation from 15 min to 30s sampling
-- Coordinate system transformations (ECEF to geodetic to spherical)
-- Scientifically appropriate interpolation methods per data type</p>
-<h2 id="preprocessing-first-architecture">Preprocessing-First Architecture<a class="headerlink" href="#preprocessing-first-architecture" title="Permanent link">&para;</a></h2>
-<p>Preprocessing must occur before interpolation. Each satellite transmits on approximately 12 signal IDs; interpolation operates per-signal, and RINEX data is already signal-indexed.</p>
+<p>GNSS-T analysis requires combining two data sources with fundamentally different indexing:</p>
+<div class="grid">
+<div class="admonition abstract">
+<p class="admonition-title">RINEX Observations</p>
+<ul>
+<li>High temporal resolution: 30 s, 15 s, or sub-second</li>
+<li>Signal-level indexing by SID: <code>"G01|L1|C"</code></li>
+<li>Dimensions: <code>(epoch: 2880, sid: 384)</code></li>
+</ul>
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">SP3 / CLK Auxiliary</p>
+<ul>
+<li>Low temporal resolution: 5–15 min</li>
+<li>Satellite-level indexing by SV: <code>"G01"</code></li>
+<li>Dimensions: <code>(epoch: 96, sv: 32)</code></li>
+</ul>
+</div>
+</div>
+<p>Combining these requires:</p>
+<ol>
+<li><strong>Dimension conversion</strong> — sv (32 satellites) → sid (384 signal IDs)</li>
+<li><strong>Temporal interpolation</strong> — 15 min → 30 s sampling</li>
+<li><strong>Coordinate transform</strong> — ECEF → geodetic → spherical (r, θ, φ)</li>
+<li><strong>Physically correct interpolation</strong> per data type</li>
+</ol>
 <pre class="mermaid"><code>graph LR
-    A[SP3 File&lt;br/&gt;sv dimension] --&gt;|Download| B[Raw Dataset&lt;br/&gt;96 epochs, 32 svs]
-    B --&gt;|Preprocess| C[Preprocessed&lt;br/&gt;96 epochs, 384 sids]
-    C --&gt;|Interpolate| D[Interpolated&lt;br/&gt;2880 epochs, 384 sids]
-    D --&gt;|Match| E[RINEX Data&lt;br/&gt;2880 epochs, 384 sids]
-</code></pre>
-<div class="highlight"><pre><span></span><code><span class="c1"># Correct ordering: preprocess then interpolate</span>
-<span class="n">sp3_data</span> <span class="o">=</span> <span class="n">sp3_file</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>  <span class="c1"># {&#39;epoch&#39;: 96, &#39;sv&#39;: 32}</span>
-<span class="n">sp3_sid</span> <span class="o">=</span> <span class="n">preprocess_aux_for_interpolation</span><span class="p">(</span><span class="n">sp3_data</span><span class="p">)</span>  <span class="c1"># {&#39;epoch&#39;: 96, &#39;sid&#39;: 384}</span>
-<span class="n">sp3_interp</span> <span class="o">=</span> <span class="n">interpolator</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">sp3_sid</span><span class="p">,</span> <span class="n">target_epochs</span><span class="p">)</span>  <span class="c1"># {&#39;epoch&#39;: 2880, &#39;sid&#39;: 384}</span>
-</code></pre></div>
+    A["SP3 File\n(sv dimension)"] --&gt;|Download| B["Raw Dataset\n96 epochs · 32 svs"]
+    B --&gt;|Preprocess| C["Preprocessed\n96 epochs · 384 sids"]
+    C --&gt;|Interpolate| D["Interpolated\n2880 epochs · 384 sids"]
+    D --&gt;|Augment| E["RINEX Dataset\n2880 epochs · 384 sids"]</code></pre>
+<hr />
 <h2 id="interpolation-strategies">Interpolation Strategies<a class="headerlink" href="#interpolation-strategies" title="Permanent link">&para;</a></h2>
-<p>Different data types require different interpolation methods based on the underlying physics:</p>
-<pre class="mermaid"><code>graph TD
-    A[InterpolationStrategy&lt;br/&gt;Abstract Base] --&gt; B[Sp3InterpolationStrategy&lt;br/&gt;Hermite Splines]
-    A --&gt; C[ClockInterpolationStrategy&lt;br/&gt;Piecewise Linear]
-
-    B --&gt; D[Config:&lt;br/&gt;use_velocities=True&lt;br/&gt;fallback='linear']
-    C --&gt; E[Config:&lt;br/&gt;window_size=9&lt;br/&gt;jump_threshold=1e-6]
-</code></pre>
-<p><strong>Ephemerides (SP3):</strong> Hermite cubic splines exploit the smooth orbital motion and available velocity data to achieve sub-millimeter accuracy with C1 continuity.</p>
-<p><strong>Clock corrections (CLK):</strong> Piecewise linear interpolation accommodates discontinuities from satellite maneuvers and clock uploads, where no derivative information is available.</p>
-<h2 id="key-components">Key Components<a class="headerlink" href="#key-components" title="Permanent link">&para;</a></h2>
-<h3 id="file-handlers">File Handlers<a class="headerlink" href="#file-handlers" title="Permanent link">&para;</a></h3>
+<p>Different data types require different methods based on the underlying physics:</p>
+<div class="grid cards">
 <ul>
-<li><strong>Sp3File</strong>: Reads SP3a/c/d formats; extracts positions (X, Y, Z) and velocities (VX, VY, VZ)</li>
-<li><strong>ClkFile</strong>: Reads RINEX clock format; extracts satellite clock biases</li>
-<li><strong>ProductSpec</strong>: Declarative configuration for product URLs, latency, and authentication</li>
-</ul>
-<h3 id="preprocessing-pipeline">Preprocessing Pipeline<a class="headerlink" href="#preprocessing-pipeline" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">prep_aux_ds</span>
-
-<span class="c1"># Full 4-step pipeline: sv-&gt;sid, pad to global, normalize dtype, strip _FillValue</span>
-<span class="n">sp3_prep</span> <span class="o">=</span> <span class="n">prep_aux_ds</span><span class="p">(</span><span class="n">sp3_data</span><span class="p">)</span>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M418.4 157.9c35.3-8.3 61.6-40 61.6-77.9 0-44.2-35.8-80-80-80-43.4 0-78.7 34.5-80 77.5l-183.8 73.6C121.7 136.8 101.9 128 80 128c-44.2 0-80 35.8-80 80s35.8 80 80 80c12.2 0 23.8-2.7 34.1-7.6l145.6 127.4c-2.4 7.6-3.7 15.8-3.7 24.2 0 44.2 35.8 80 80 80s80-35.8 80-80c0-27.7-14-52.1-35.4-66.4zm-262.1 74.3c2.2-6.9 3.5-14.2 3.7-21.7L343.8 137c3.6 3.5 7.4 6.7 11.6 9.5l-37.8 207.6c-5.5 1.3-10.8 3.1-15.8 5.5z"/></svg></span> &nbsp; <strong>SP3 — Hermite Cubic Splines</strong></p>
+<hr />
+<p>Satellite orbital motion is smooth and predictable.
+Hermite splines exploit available velocity data for C1-continuity
+and sub-millimetre interpolation accuracy.</p>
+<div class="highlight"><pre><span></span><code><span class="n">config</span> <span class="o">=</span> <span class="n">Sp3Config</span><span class="p">(</span><span class="n">use_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+<span class="n">strategy</span> <span class="o">=</span> <span class="n">Sp3InterpolationStrategy</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 </code></pre></div>
-<h3 id="position-classes">Position Classes<a class="headerlink" href="#position-classes" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>ECEFPosition</strong>: Earth-Centered, Earth-Fixed Cartesian coordinates (X, Y, Z)</li>
-<li><strong>GeodeticPosition</strong>: WGS84 latitude, longitude, altitude</li>
-<li><strong>Spherical coordinates</strong>: (r, theta, phi) relative to receiver position</li>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512m-24 120v136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2V120c0-13.3-10.7-24-24-24s-24 10.7-24 24"/></svg></span> &nbsp; <strong>CLK — Piecewise Linear</strong></p>
+<hr />
+<p>Clock corrections may have discontinuities from satellite maneuvers
+and uploads. No derivative information is available.
+Piecewise linear interpolation handles these jumps safely.</p>
+<div class="highlight"><pre><span></span><code><span class="n">config</span> <span class="o">=</span> <span class="n">ClkConfig</span><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">jump_threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">strategy</span> <span class="o">=</span> <span class="n">ClockInterpolationStrategy</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</code></pre></div>
+</li>
 </ul>
+</div>
+<hr />
+<h2 id="key-components">Key Components<a class="headerlink" href="#key-components" title="Permanent link">&para;</a></h2>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M0 64C0 28.7 28.7 0 64 0h149.5c17 0 33.3 6.7 45.3 18.7l106.5 106.6c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64zm208-5.5V152c0 13.3 10.7 24 24 24h93.5zM175 441c9.4 9.4 24.6 9.4 33.9 0l64-64c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-23 23V280c0-13.3-10.7-24-24-24s-24 10.7-24 24v86.1l-23-23c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64z"/></svg></span> &nbsp; <strong>File Handlers</strong></p>
+<hr />
+<p><code>Sp3File</code> — SP3a/c/d format: positions (X, Y, Z) + velocities (VX, VY, VZ)</p>
+<p><code>ClkFile</code> — RINEX clock format: satellite clock biases</p>
+<p><code>ProductSpec</code> — Declarative config for URLs, latency, and auth</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M65.9 228.5C79.2 135.5 159.3 64 256 64c53 0 101 21.5 135.8 56.2l.6.6 7.6 7.2h-47.9c-17.7 0-32 14.3-32 32s14.3 32 32 32h128c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32s-32 14.3-32 32v53.4l-11.3-10.7C390.5 28.6 326.5 0 256 0 127 0 20.3 95.4 2.6 219.5c-2.5 17.5 9.6 33.7 27.1 36.2s33.7-9.7 36.2-27.1zm443.5 64c2.5-17.5-9.7-33.7-27.1-36.2s-33.7 9.7-36.2 27.1c-13.3 93-93.4 164.5-190.1 164.5-53 0-101-21.5-135.8-56.2l-.6-.6-7.6-7.2h47.9c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 320c-8.5 0-16.7 3.4-22.7 9.5S-.1 343.7 0 352.3l1 127c.1 17.7 14.6 31.9 32.3 31.7s31.9-14.6 31.7-32.3l-.4-51.5 10.7 10.1C121.6 483.4 185.5 512 256 512c129 0 235.7-95.4 253.4-219.5"/></svg></span> &nbsp; <strong>Preprocessing</strong></p>
+<hr />
+<p><code>prep_aux_ds()</code> — Full 4-step pipeline: sv→sid mapping, pad to global SID,
+normalise dtype, strip <code>_FillValue</code></p>
+<div class="highlight"><pre><span></span><code><span class="n">sp3_sid</span> <span class="o">=</span> <span class="n">prep_aux_ds</span><span class="p">(</span><span class="n">sp3_raw</span><span class="p">)</span>
+<span class="c1"># {&#39;epoch&#39;: 96, &#39;sid&#39;: 384}</span>
+</code></pre></div>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M288-16c17.7 0 32 14.3 32 32v18.3c98.1 14 175.7 91.6 189.7 189.7H528c17.7 0 32 14.3 32 32s-14.3 32-32 32h-18.3c-14 98.1-91.6 175.7-189.7 189.7V496c0 17.7-14.3 32-32 32s-32-14.3-32-32v-18.3c-98.1-14-175.7-91.6-189.7-189.7H48c-17.7 0-32-14.3-32-32s14.3-32 32-32h18.3c14-98.1 91.6-175.7 189.7-189.7V16c0-17.7 14.3-32 32-32M128 256a160 160 0 1 0 320 0 160 160 0 1 0-320 0m160-96a96 96 0 1 1 0 192 96 96 0 1 1 0-192"/></svg></span> &nbsp; <strong>Coordinate Classes</strong></p>
+<hr />
+<p><code>ECEFPosition</code> — Earth-Centred Earth-Fixed (X, Y, Z)</p>
+<p><code>GeodeticPosition</code> — WGS84 latitude, longitude, altitude</p>
+<p>Spherical coordinates (r, θ, φ) relative to receiver position</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M144 480C64.5 480 0 415.5 0 336c0-63.4 41-117.2 97.9-136.5C96.6 191.8 96 184 96 176c0-79.5 64.5-144 144-144 55.4 0 103.5 31.3 127.6 77.1C381.8 100.8 398.4 96 416 96c53 0 96 43 96 96 0 15.7-3.8 30.6-10.5 43.7C545.5 256 576 300.4 576 352c0 70.7-57.3 128-128 128zm233-167c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-31 31V208c0-13.3-10.7-24-24-24s-24 10.7-24 24v102.1l-31-31c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l72 72c9.4 9.4 24.6 9.4 33.9 0l72-72z"/></svg></span> &nbsp; <strong>FTP Download</strong></p>
+<hr />
+<p>Primary: ESA/CODE FTP server</p>
+<p>Fallback: NASA CDDIS (requires Earthdata account)</p>
+<p>Per-DOY caching prevents redundant downloads</p>
+</li>
+</ul>
+</div>
+<hr />
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<h3 id="rinex-data-augmentation">RINEX Data Augmentation<a class="headerlink" href="#rinex-data-augmentation" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Full RINEX augmentation</label><label for="__tabbed_1_2">Data flow</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Sp3File</span><span class="p">,</span> <span class="n">preprocess_aux_for_interpolation</span><span class="p">,</span>
+    <span class="n">Sp3File</span><span class="p">,</span> <span class="n">prep_aux_ds</span><span class="p">,</span>
     <span class="n">Sp3InterpolationStrategy</span><span class="p">,</span> <span class="n">Sp3Config</span><span class="p">,</span>
     <span class="n">compute_spherical_coordinates</span><span class="p">,</span> <span class="n">ECEFPosition</span><span class="p">,</span>
     <span class="n">add_spherical_coords_to_dataset</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">rinex_ds</span> <span class="o">=</span> <span class="n">Rnxv3Obs</span><span class="p">(</span><span class="s2">&quot;station.24o&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_ds</span><span class="p">()</span>
+<span class="n">rinex_ds</span> <span class="o">=</span> <span class="n">Rnxv3Obs</span><span class="p">(</span><span class="s2">&quot;station.25o&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_ds</span><span class="p">()</span>
 <span class="n">target_epochs</span> <span class="o">=</span> <span class="n">rinex_ds</span><span class="o">.</span><span class="n">epoch</span><span class="o">.</span><span class="n">values</span>
 
-<span class="n">sp3_data</span> <span class="o">=</span> <span class="n">Sp3File</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;CODE&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
-<span class="n">sp3_sid</span> <span class="o">=</span> <span class="n">preprocess_aux_for_interpolation</span><span class="p">(</span><span class="n">sp3_data</span><span class="p">)</span>
+<span class="c1"># Download and parse</span>
+<span class="n">sp3_raw</span> <span class="o">=</span> <span class="n">Sp3File</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s2">&quot;CODE&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">Sp3Config</span><span class="p">(</span><span class="n">use_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">interpolator</span> <span class="o">=</span> <span class="n">Sp3InterpolationStrategy</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-<span class="n">sp3_interp</span> <span class="o">=</span> <span class="n">interpolator</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">sp3_sid</span><span class="p">,</span> <span class="n">target_epochs</span><span class="p">)</span>
+<span class="c1"># Preprocess: sv → sid</span>
+<span class="n">sp3_sid</span> <span class="o">=</span> <span class="n">prep_aux_ds</span><span class="p">(</span><span class="n">sp3_raw</span><span class="p">)</span>
 
-<span class="n">receiver_pos</span> <span class="o">=</span> <span class="n">ECEFPosition</span><span class="o">.</span><span class="n">from_ds_metadata</span><span class="p">(</span><span class="n">rinex_ds</span><span class="p">)</span>
+<span class="c1"># Interpolate to obs epochs</span>
+<span class="n">interp</span> <span class="o">=</span> <span class="n">Sp3InterpolationStrategy</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">Sp3Config</span><span class="p">(</span><span class="n">use_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="n">sp3_at_obs</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">sp3_sid</span><span class="p">,</span> <span class="n">target_epochs</span><span class="p">)</span>
+
+<span class="c1"># Compute geometry</span>
+<span class="n">rx_pos</span> <span class="o">=</span> <span class="n">ECEFPosition</span><span class="o">.</span><span class="n">from_ds_metadata</span><span class="p">(</span><span class="n">rinex_ds</span><span class="p">)</span>
 <span class="n">r</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">compute_spherical_coordinates</span><span class="p">(</span>
-    <span class="n">sp3_interp</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">sp3_interp</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">],</span> <span class="n">sp3_interp</span><span class="p">[</span><span class="s1">&#39;Z&#39;</span><span class="p">],</span> <span class="n">receiver_pos</span>
+    <span class="n">sp3_at_obs</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">],</span> <span class="n">sp3_at_obs</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">],</span> <span class="n">sp3_at_obs</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">],</span> <span class="n">rx_pos</span>
 <span class="p">)</span>
 
-<span class="n">augmented_ds</span> <span class="o">=</span> <span class="n">add_spherical_coords_to_dataset</span><span class="p">(</span><span class="n">rinex_ds</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+<span class="c1"># Augment dataset</span>
+<span class="n">augmented</span> <span class="o">=</span> <span class="n">add_spherical_coords_to_dataset</span><span class="p">(</span><span class="n">rinex_ds</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
+</div>
+<div class="tabbed-block">
 <pre class="mermaid"><code>sequenceDiagram
     participant User
     participant Sp3File
     participant Preprocessor
     participant Interpolator
     participant Coordinates
-    participant RINEX
 
     User-&gt;&gt;Sp3File: from_url(date, agency, product_type)
-    Sp3File-&gt;&gt;Sp3File: Download from FTP
-    Sp3File-&gt;&gt;Sp3File: Parse SP3 format
-    Sp3File--&gt;&gt;User: to_dataset()
+    Sp3File-&gt;&gt;Sp3File: FTP download + parse
+    Sp3File--&gt;&gt;User: to_dataset() {epoch: 96, sv: 32}
 
-    User-&gt;&gt;Preprocessor: preprocess_aux_for_interpolation(sp3_data)
-    Preprocessor-&gt;&gt;Preprocessor: map_aux_sv_to_sid()
-    Preprocessor--&gt;&gt;User: Dataset with sid dimension
+    User-&gt;&gt;Preprocessor: prep_aux_ds(sp3_raw)
+    Preprocessor--&gt;&gt;User: {epoch: 96, sid: 384}
 
     User-&gt;&gt;Interpolator: interpolate(sp3_sid, target_epochs)
     Interpolator-&gt;&gt;Interpolator: Hermite splines
-    Interpolator--&gt;&gt;User: Interpolated dataset
+    Interpolator--&gt;&gt;User: {epoch: 2880, sid: 384}
 
     User-&gt;&gt;Coordinates: compute_spherical_coordinates()
-    Coordinates--&gt;&gt;User: (r, theta, phi)
+    Coordinates--&gt;&gt;User: (r, θ, φ) arrays
 
-    User-&gt;&gt;RINEX: add_spherical_coords_to_dataset()
-    RINEX--&gt;&gt;User: Augmented RINEX data</code></pre>
+    User-&gt;&gt;User: add_spherical_coords_to_dataset()</code></pre>
+</div>
+</div>
+</div>
 
 
 

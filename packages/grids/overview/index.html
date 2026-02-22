@@ -1177,45 +1177,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#factory-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Factory function
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#builder-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Builder pattern
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#via-canvodpy-factory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Via canvodpy factory
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1230,21 +1191,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#operations" class="md-nav__link">
+  <a href="#grid-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aggregation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aggregation
+        Grid Operations
       
     </span>
   </a>
@@ -1263,10 +1213,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflows" class="md-nav__link">
+  <a href="#coordinate-convention" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflows
+        Coordinate Convention
       
     </span>
   </a>
@@ -1278,17 +1228,6 @@
     <span class="md-ellipsis">
       
         Role in the VOD Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#coordinate-convention" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Coordinate Convention
       
     </span>
   </a>
@@ -2600,45 +2539,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#factory-function" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Factory function
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#builder-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Builder pattern
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#via-canvodpy-factory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Via canvodpy factory
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2653,21 +2553,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#operations" class="md-nav__link">
+  <a href="#grid-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Operations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aggregation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aggregation
+        Grid Operations
       
     </span>
   </a>
@@ -2686,10 +2575,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflows" class="md-nav__link">
+  <a href="#coordinate-convention" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflows
+        Coordinate Convention
       
     </span>
   </a>
@@ -2701,17 +2590,6 @@
     <span class="md-ellipsis">
       
         Role in the VOD Pipeline
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#coordinate-convention" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Coordinate Convention
       
     </span>
   </a>
@@ -2812,130 +2690,154 @@
 
 <h1 id="canvod-grids">canvod-grids<a class="headerlink" href="#canvod-grids" title="Permanent link">&para;</a></h1>
 <h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
-<p>The <code>canvod-grids</code> package provides spatial grid implementations for hemispheric GNSS signal analysis. It discretizes the hemisphere visible from a ground-based receiver into cells, which is required for spatially resolved VOD estimation.</p>
+<p>The <code>canvod-grids</code> package provides spatial grid implementations for hemispheric GNSS signal analysis. It discretizes the hemisphere visible from a ground-based receiver into cells — a prerequisite for spatially resolved VOD estimation.</p>
+<hr />
 <h2 id="grid-types">Grid Types<a class="headerlink" href="#grid-types" title="Permanent link">&para;</a></h2>
-<p>Seven grid implementations are available, all inheriting from <code>BaseGridBuilder</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Builder</th>
-<th>Grid Type</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>EqualAreaBuilder</code></td>
-<td>Equal-area</td>
-<td>Cells of approximately equal solid angle (recommended)</td>
-</tr>
-<tr>
-<td><code>EqualAngleBuilder</code></td>
-<td>Equal-angle</td>
-<td>Regular angular spacing; cells near zenith are smaller</td>
-</tr>
-<tr>
-<td><code>EquirectangularBuilder</code></td>
-<td>Equirectangular</td>
-<td>Simple rectangular latitude/longitude grid</td>
-</tr>
-<tr>
-<td><code>HEALPixBuilder</code></td>
-<td>HEALPix</td>
-<td>Hierarchical Equal Area isoLatitude Pixelization (requires <code>healpy</code>)</td>
-</tr>
-<tr>
-<td><code>GeodesicBuilder</code></td>
-<td>Geodesic</td>
-<td>Icosahedron subdivision; near-uniform cell area</td>
-</tr>
-<tr>
-<td><code>FibonacciBuilder</code></td>
-<td>Fibonacci</td>
-<td>Fibonacci-sphere sampling (requires <code>scipy</code>)</td>
-</tr>
-<tr>
-<td><code>HTMBuilder</code></td>
-<td>HTM</td>
-<td>Hierarchical Triangular Mesh</td>
-</tr>
-</tbody>
-</table>
-<p>All builders accept <code>angular_resolution</code> (degrees) and produce a <code>GridData</code> object.</p>
+<p>Seven implementations are available, all inheriting from <code>BaseGridBuilder</code>:</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M384 96v128H256V96zm0 192v128H256V288zm-192-64H64V96h128zM64 288h128v128H64zm0-256C28.7 32 0 60.7 0 96v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64z"/></svg></span> &nbsp; <strong>EqualAreaBuilder</strong> <em>(recommended)</em></p>
+<hr />
+<p>Cells of approximately equal solid angle. Ensures uniform spatial
+sampling across the hemisphere, avoiding zenith over-weighting.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M384 96v64h-64V96zm0 128v64h-64v-64zm0 128v64h-64v-64zm-128-64h-64v-64h64zm-64 64h64v64h-64zm-64-64H64v-64h64zm-64 64h64v64H64zm0-192V96h64v64zm128 0V96h64v64zM64 32C28.7 32 0 60.7 0 96v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64z"/></svg></span> &nbsp; <strong>EqualAngleBuilder</strong></p>
+<hr />
+<p>Regular angular spacing in θ and φ. Cells near zenith are smaller —
+appropriate when you want uniform angular resolution.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M88 96c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40H40c-22.1 0-40-17.9-40-40v-48c0-22.1 17.9-40 40-40zm192 128h-48c-22.1 0-40-17.9-40-40v-48c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40m192 0h-48c-22.1 0-40-17.9-40-40v-48c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40m0 192h-48c-22.1 0-40-17.9-40-40v-48c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40M280 288c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40h-48c-22.1 0-40-17.9-40-40v-48c0-22.1 17.9-40 40-40zM88 416H40c-22.1 0-40-17.9-40-40v-48c0-22.1 17.9-40 40-40h48c22.1 0 40 17.9 40 40v48c0 22.1-17.9 40-40 40"/></svg></span> &nbsp; <strong>EquirectangularBuilder</strong></p>
+<hr />
+<p>Simple rectangular latitude/longitude grid. Fast to compute;
+strong area distortion at low elevations.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m0-352a96 96 0 1 1 0 192 96 96 0 1 1 0-192"/></svg></span> &nbsp; <strong>HEALPixBuilder</strong></p>
+<hr />
+<p>Hierarchical Equal Area isoLatitude Pixelization. All cells have
+identical areas; supports multi-resolution refinement.
+Requires <code>healpy</code>.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M224.4-8.2c19.6-11.1 43.6-11.1 63.1 0l192 108.8c20 11.4 32.4 32.6 32.4 55.7v215.6c0 23-12.4 44.3-32.4 55.7l-192 108.8c-19.6 11.1-43.6 11.1-63.1 0l-192-108.9C12.4 416.1 0 394.8 0 371.8V156.2c0-23 12.4-44.3 32.4-55.7zm52 73.2c-9.4-15.2-31.4-15.2-40.8 0L159 188.7l-85.4-46.3-3.8-1.6c-8.9-2.7-18.8 1.1-23.4 9.6s-2.4 18.9 4.7 24.8l3.3 2.3 83.4 45.2-74.6 120.6C55.3 356.2 61 373 75 378.4l161 61.9V480c0 11 9 20 20 20s20-9 20-20v-39.7l161-61.9c14-5.4 19.7-22.2 11.8-35l-74.7-120.6 83.4-45.2c9.7-5.3 13.3-17.4 8.1-27.1s-17.4-13.3-27.1-8.1L353 188.7zm-47 329.9-122-46.9 54.5-88.1zM404.6 348l-122 46.9 67.5-135zm-85.3-116L256 358.6 192.7 232zM308 192H203.9l52-84 52 84z"/></svg></span> &nbsp; <strong>GeodesicBuilder</strong></p>
+<hr />
+<p>Icosahedron subdivision. Near-uniform cell area with triangular
+cell boundaries.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M512 32c0 108.1-76.6 198.3-178.4 219.4-7.9-58.1-34-110.4-72.5-150.9C301.2 40 369.9 0 448 0h32c17.7 0 32 14.3 32 32M0 96c0-17.7 14.3-32 32-32h32c123.7 0 224 100.3 224 224v192c0 17.7-14.3 32-32 32s-32-14.3-32-32V320C100.3 320 0 219.7 0 96"/></svg></span> &nbsp; <strong>FibonacciBuilder</strong></p>
+<hr />
+<p>Fibonacci-sphere sampling. Aesthetically uniform point
+distribution; ideal for scatter-plot analyses.
+Requires <code>scipy</code>.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M256 0c14.7 0 28.2 8.1 35.2 21l216 400c6.7 12.4 6.4 27.4-.8 39.5S486.1 480 472 480H40c-14.1 0-27.2-7.4-34.4-19.5s-7.5-27.1-.8-39.5l216-400c7-12.9 20.5-21 35.2-21m0 352a32 32 0 1 0 0 64 32 32 0 1 0 0-64m0-192c-18.2 0-32.7 15.5-31.4 33.7l7.4 104c.9 12.5 11.4 22.3 23.9 22.3 12.6 0 23-9.7 23.9-22.3l7.4-104c1.3-18.2-13.1-33.7-31.4-33.7z"/></svg></span> &nbsp; <strong>HTMBuilder</strong></p>
+<hr />
+<p>Hierarchical Triangular Mesh. Recursive triangular decomposition
+of the sphere; supports efficient spatial indexing.</p>
+</li>
+</ul>
+</div>
+<p>All builders accept <code>angular_resolution</code> (degrees) and <code>cutoff_theta</code> (maximum zenith angle) and return a <code>GridData</code> object.</p>
+<hr />
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<h3 id="factory-function">Factory function<a class="headerlink" href="#factory-function" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Factory function</label><label for="__tabbed_1_2">Builder pattern</label><label for="__tabbed_1_3">canvodpy factory</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.grids</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_hemigrid</span>
 
 <span class="n">grid</span> <span class="o">=</span> <span class="n">create_hemigrid</span><span class="p">(</span><span class="s2">&quot;equal_area&quot;</span><span class="p">,</span> <span class="n">angular_resolution</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">ncells</span><span class="p">)</span>   <span class="c1"># 216</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">nbands</span><span class="p">)</span>   <span class="c1"># 18</span>
 </code></pre></div>
-<h3 id="builder-pattern">Builder pattern<a class="headerlink" href="#builder-pattern" title="Permanent link">&para;</a></h3>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.grids</span><span class="w"> </span><span class="kn">import</span> <span class="n">EqualAreaBuilder</span>
 
 <span class="n">builder</span> <span class="o">=</span> <span class="n">EqualAreaBuilder</span><span class="p">(</span><span class="n">angular_resolution</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">cutoff_theta</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
 <span class="n">grid</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 </code></pre></div>
-<h3 id="via-canvodpy-factory">Via canvodpy factory<a class="headerlink" href="#via-canvodpy-factory" title="Permanent link">&para;</a></h3>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvodpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridFactory</span>
 
 <span class="n">builder</span> <span class="o">=</span> <span class="n">GridFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;equal_area&quot;</span><span class="p">,</span> <span class="n">angular_resolution</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
 <span class="n">grid</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>  <span class="c1"># Polars DataFrame with cell geometry</span>
 </code></pre></div>
+</div>
+</div>
+</div>
+<hr />
 <h2 id="griddata">GridData<a class="headerlink" href="#griddata" title="Permanent link">&para;</a></h2>
 <p>The <code>GridData</code> object returned by all builders provides:</p>
-<ul>
-<li><code>df</code> — Polars DataFrame with cell geometry (boundaries, centers, solid angles)</li>
-<li><code>ncells</code> — Total number of grid cells</li>
-<li><code>nbands</code> — Number of elevation bands</li>
-<li><code>definition</code> — Human-readable grid description</li>
-</ul>
-<h2 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h2>
-<p>Functions in <code>canvod.grids.operations</code> handle the interface between grids and xarray Datasets:</p>
 <table>
 <thead>
 <tr>
-<th>Function</th>
-<th>Purpose</th>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>add_cell_ids_to_ds_fast</code></td>
-<td>Assign each observation to a grid cell</td>
+<td><code>grid</code></td>
+<td><code>polars.DataFrame</code></td>
+<td>Cell geometry (boundaries, centres, solid angles)</td>
 </tr>
 <tr>
-<td><code>add_cell_ids_to_vod</code></td>
-<td>Assign cell IDs to VOD datasets</td>
+<td><code>ncells</code></td>
+<td><code>int</code></td>
+<td>Total number of grid cells</td>
 </tr>
 <tr>
-<td><code>add_cell_ids_to_vod_fast</code></td>
-<td>Assign cell IDs to VOD datasets (KD-tree accelerated)</td>
+<td><code>nbands</code></td>
+<td><code>int</code></td>
+<td>Number of elevation bands</td>
 </tr>
 <tr>
-<td><code>grid_to_dataset</code></td>
-<td>Convert GridData to an xarray Dataset</td>
-</tr>
-<tr>
-<td><code>extract_grid_vertices</code></td>
-<td>Get cell boundary polygons</td>
-</tr>
-<tr>
-<td><code>store_grid</code> / <code>load_grid</code></td>
-<td>Persist and load grid definitions</td>
+<td><code>definition</code></td>
+<td><code>str</code></td>
+<td>Human-readable grid description</td>
 </tr>
 </tbody>
 </table>
-<h2 id="aggregation">Aggregation<a class="headerlink" href="#aggregation" title="Permanent link">&para;</a></h2>
-<p><code>CellAggregator</code> and associated functions compute summary statistics over grid cells:</p>
+<hr />
+<h2 id="grid-operations">Grid Operations<a class="headerlink" href="#grid-operations" title="Permanent link">&para;</a></h2>
+<p><code>canvod.grids.operations</code> handles the interface between grids and xarray Datasets:</p>
+<div class="grid cards">
 <ul>
-<li><code>aggregate_data_to_grid</code> — Assign data to grid cells and aggregate</li>
-<li><code>compute_hemisphere_percell</code> — Per-cell statistics across the full hemisphere</li>
-<li><code>compute_zenith_percell</code> — Zenith-weighted per-cell statistics</li>
-<li><code>compute_percell_timeseries</code> — Per-cell time series</li>
-<li><code>compute_global_average</code> / <code>compute_regional_average</code> — Spatial averages</li>
-<li><code>analyze_diurnal_patterns</code> / <code>analyze_spatial_patterns</code> — Pattern analysis</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M512 48c0-11.1-5.7-21.4-15.2-27.2s-21.2-6.4-31.1-1.4L349.5 77.5 170.1 17.6c-8.1-2.7-16.8-2.1-24.4 1.7l-128 64C6.8 88.8 0 99.9 0 112v352c0 11.1 5.7 21.4 15.2 27.2s21.2 6.4 31.1 1.4l116.1-58.1 179.4 59.8c8.1 2.7 16.8 2.1 24.4-1.7l128-64c10.8-5.4 17.7-16.5 17.7-28.6V48zM192 376.9V92.4l128 42.7v284.5z"/></svg></span> &nbsp; <strong>Cell Assignment</strong></p>
+<hr />
+<p><code>add_cell_ids_to_ds_fast</code> — KDTree-accelerated assignment of each
+observation to a grid cell. O(n log m) for n observations, m cells.</p>
+<p><code>add_cell_ids_to_vod_fast</code> — Same for VOD datasets.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V173.3c0-17-6.7-33.3-18.7-45.3L352 50.7c-12-12-28.3-18.7-45.3-18.7zm32 96c0-17.7 14.3-32 32-32h160c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H128c-17.7 0-32-14.3-32-32zm128 160a64 64 0 1 1 0 128 64 64 0 1 1 0-128"/></svg></span> &nbsp; <strong>Grid Persistence</strong></p>
+<hr />
+<p><code>store_grid</code> / <code>load_grid</code> — Save and reload grid definitions
+as Zarr/NetCDF for reproducible workflows.</p>
+<p><code>grid_to_dataset</code> — Convert <code>GridData</code> to xarray Dataset.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M512.4 240h-176c-17.7 0-32-14.3-32-32V32c0-17.7 14.4-32.2 31.9-29.9 107 14.2 191.8 99 206 206 2.3 17.5-12.2 31.9-29.9 31.9M222.6 37.2c18.1-3.8 33.8 11 33.8 29.5V264c0 5.6 2 11 5.5 15.3L394 438.7c11.7 14.1 9.2 35.4-6.9 44.1C353 501.4 313.9 512 272.4 512c-132.5 0-240-107.5-240-240 0-115.5 81.5-211.9 190.2-234.8M477.8 288h64c18.5 0 33.3 15.7 29.5 33.8-10.2 48.4-35 91.4-69.6 124.2-12.3 11.7-31.6 9.2-42.4-3.9l-84.4-101.7c-17.3-20.9-2.4-52.4 24.6-52.4h78.2z"/></svg></span> &nbsp; <strong>Aggregation</strong></p>
+<hr />
+<p><code>aggregate_data_to_grid</code> — Assign and aggregate per cell.</p>
+<p><code>compute_hemisphere_percell</code> — Per-cell statistics.</p>
+<p><code>compute_zenith_percell</code> — Zenith-weighted statistics.</p>
+<p><code>compute_percell_timeseries</code> — Per-cell time series.</p>
+</li>
 </ul>
+</div>
+<hr />
 <h2 id="analysis-subpackage">Analysis Subpackage<a class="headerlink" href="#analysis-subpackage" title="Permanent link">&para;</a></h2>
-<p><code>canvod.grids.analysis</code> provides per-cell and global analysis tools:</p>
+<p><code>canvod.grids.analysis</code> provides filtering, weighting, and pattern analysis:</p>
 <table>
 <thead>
 <tr>
@@ -2946,15 +2848,15 @@
 <tbody>
 <tr>
 <td><code>filtering</code></td>
-<td>Global statistical filters (IQR, Z-score)</td>
+<td>Global IQR, Z-score statistical filters</td>
 </tr>
 <tr>
 <td><code>per_cell_filtering</code></td>
-<td>Per-cell variants of the above filters</td>
+<td>Per-cell variants of the above</td>
 </tr>
 <tr>
 <td><code>hampel_filtering</code></td>
-<td>Hampel (median-MAD) outlier filtering</td>
+<td>Hampel (median-MAD) outlier detection</td>
 </tr>
 <tr>
 <td><code>sigma_clip_filter</code></td>
@@ -2974,37 +2876,32 @@
 </tr>
 <tr>
 <td><code>temporal</code></td>
-<td>Weighted temporal aggregation and diurnal analysis</td>
+<td>Diurnal aggregation and analysis</td>
 </tr>
 <tr>
 <td><code>spatial</code></td>
 <td>Per-cell spatial statistics</td>
 </tr>
-<tr>
-<td><code>per_cell_analysis</code></td>
-<td>Multi-dataset per-cell VOD analysis</td>
-</tr>
-<tr>
-<td><code>analysis_storage</code></td>
-<td>Persistent Icechunk storage for results (requires <code>canvod-store</code>)</td>
-</tr>
 </tbody>
 </table>
-<h2 id="workflows">Workflows<a class="headerlink" href="#workflows" title="Permanent link">&para;</a></h2>
-<p><code>canvod.grids.workflows</code> contains the end-to-end pipeline classes that tie together filtering, grid operations, and Icechunk persistence. This module requires <code>canvod-store</code> at runtime.</p>
-<ul>
-<li><code>AdaptedVODWorkflow</code> — Full pipeline: filtering, grid operations, Icechunk persistence</li>
-<li><code>get_workflow_for_store</code> — Create a workflow from an existing Icechunk store path</li>
-<li><code>check_processed_data_status</code> — Check which dates have already been processed</li>
-</ul>
-<h2 id="role-in-the-vod-pipeline">Role in the VOD Pipeline<a class="headerlink" href="#role-in-the-vod-pipeline" title="Permanent link">&para;</a></h2>
-<p>Grids discretize the hemisphere above the receiver into cells. Each GNSS satellite observation is assigned to a grid cell based on its elevation and azimuth angles (computed by canvod-auxiliary). VOD is then estimated per cell or aggregated across the hemisphere.</p>
+<hr />
 <h2 id="coordinate-convention">Coordinate Convention<a class="headerlink" href="#coordinate-convention" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Angles</p>
 <p>All grids use standard spherical coordinates:</p>
 <ul>
-<li><strong>phi</strong> — Azimuth angle, 0 to 2pi (0 = North, pi/2 = East, clockwise)</li>
-<li><strong>theta</strong> — Polar angle from zenith, 0 to pi/2 (0 = zenith, pi/2 = horizon)</li>
+<li><strong>phi</strong> (φ): azimuth 0 → 2π · 0 = North · π/2 = East · clockwise</li>
+<li><strong>theta</strong> (θ): polar angle from zenith · 0 = zenith · π/2 = horizon</li>
 </ul>
+<p>This matches the canvod-auxiliary coordinate output — no conversion needed.</p>
+</div>
+<hr />
+<h2 id="role-in-the-vod-pipeline">Role in the VOD Pipeline<a class="headerlink" href="#role-in-the-vod-pipeline" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    A["Augmented Dataset\n(epoch × sid, with θ, φ)"] --&gt; B["Grid Assignment\nadd_cell_ids_to_ds_fast"]
+    B --&gt; C["Gridded Dataset\n+ cell_id coordinate"]
+    C --&gt; D["VOD per cell\nTau-Omega inversion"]
+    D --&gt; E["Hemispherical Map\ncanvod-viz"]</code></pre>
 
 
 

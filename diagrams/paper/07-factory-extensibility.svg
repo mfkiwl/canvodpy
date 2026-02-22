@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1312 756" width="1312" height="756" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1312 756" width="1312" height="756" style="--bg:#f5f5f5;--fg:#333333;background:var(--bg)">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
   text { font-family: 'Inter', system-ui, sans-serif; }
@@ -28,16 +28,16 @@
 </defs>
 <rect x="819.1999999999998" y="480" width="193.55000000000007" height="236" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="819.1999999999998" y="480" width="193.55000000000007" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="831.1999999999998" y="494" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Abstract Contracts&quot;</text>
+<text x="831.1999999999998" y="494" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Abstract Contracts</text>
 <rect x="1092.75" y="40" width="179.25" height="676" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="1092.75" y="40" width="179.25" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="1104.75" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Factory Registry&quot;</text>
+<text x="1104.75" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Factory Registry</text>
 <rect x="819.1999999999998" y="140" width="193.55000000000007" height="356" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="819.1999999999998" y="140" width="193.55000000000007" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="831.1999999999998" y="154" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Built-in&quot;</text>
+<text x="831.1999999999998" y="154" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Built-in</text>
 <rect x="286.40000000000003" y="40" width="726.35" height="116" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="286.40000000000003" y="40" width="726.35" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="298.40000000000003" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Validation&quot;</text>
+<text x="298.40000000000003" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Validation</text>
 <polyline points="989.175,556 1032.75,556 1032.75,396 1182.375,396 1182.375,234" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="992.7499999999999,616 1032.75,616 1032.75,526 1182.375,526 1182.375,514" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="985.5999999999999,676 1123.475,676" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />

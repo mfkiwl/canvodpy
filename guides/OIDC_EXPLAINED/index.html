@@ -2024,6 +2024,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#traditional-vs-oidc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traditional vs OIDC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-traditional-way-api-tokens" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2740,6 +2751,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#traditional-vs-oidc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traditional vs OIDC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-traditional-way-api-tokens" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3150,7 +3172,35 @@
 
 
 <h1 id="oidc-trusted-publishing-how-it-works">OIDC Trusted Publishing: How It Works<a class="headerlink" href="#oidc-trusted-publishing-how-it-works" title="Permanent link">&para;</a></h1>
-<p><strong>TL;DR:</strong> OIDC lets GitHub Actions publish to PyPI without passwords or tokens. It uses cryptographic JWT tokens that expire in 10 minutes.</p>
+<div class="admonition abstract">
+<p class="admonition-title">TL;DR</p>
+<p>OIDC lets GitHub Actions publish to PyPI <strong>without passwords or long-lived tokens</strong>.
+It uses cryptographic JWT proofs that expire in 10 minutes — no stored secrets.</p>
+</div>
+<hr />
+<h2 id="traditional-vs-oidc">Traditional vs OIDC<a class="headerlink" href="#traditional-vs-oidc" title="Permanent link">&para;</a></h2>
+<div class="grid">
+<div class="admonition failure">
+<p class="admonition-title">API Tokens (old way)</p>
+<ul>
+<li>Long-lived tokens (months/years)</li>
+<li>If GitHub is breached, token leaks</li>
+<li>Broad permissions (all packages)</li>
+<li>Need manual rotation</li>
+<li>Can be accidentally committed to git</li>
+</ul>
+</div>
+<div class="admonition success">
+<p class="admonition-title">OIDC (2026 standard)</p>
+<ul>
+<li>Short-lived JWT proof (10 minutes)</li>
+<li>No stored secrets anywhere</li>
+<li>Scoped to a specific repo + workflow</li>
+<li>Zero rotation overhead</li>
+<li>Cryptographically verified identity</li>
+</ul>
+</div>
+</div>
 <hr />
 <h2 id="the-traditional-way-api-tokens">The Traditional Way (API Tokens)<a class="headerlink" href="#the-traditional-way-api-tokens" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>You → Generate API token on PyPI → Store in GitHub Secrets → Workflow uses token

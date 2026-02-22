@@ -1,16 +1,16 @@
 flowchart TD
-    subgraph INPUT["Data Acquisition"]
-        RINEX["RINEX v3.04 Observation Files (SNR, Pseudorange, Phase)"]
-        SP3["SP3 Precise Ephemerides (satellite orbits)"]
-        CLK["CLK Precise Clock Corrections"]
+    subgraph INPUT[Data Acquisition]
+        RINEX["RINEX v3.04 Observation Files<br/>(SNR, Pseudorange, Phase, Doppler)"]
+        SP3["SP3 Precise Ephemerides<br/>(satellite positions every 5/15 min)"]
+        CLK["CLK Precise Clock Corrections<br/>(satellite clock offsets)"]
     end
 
-    subgraph DOWNLOAD["Auxiliary Data Retrieval"]
+    subgraph DOWNLOAD[Auxiliary Data Retrieval]
         FTP["FTP Download (ESA primary, NASA CDDIS fallback)"]
         CACHE["Local File Cache (SP3/CLK per DOY)"]
     end
 
-    subgraph PREPROCESS["Auxiliary Preprocessing"]
+    subgraph PREPROCESS_R[Auxiliary Preprocessing]
         PARSE_SP3["Parse SP3 (ECEF satellite positions + velocities)"]
         PARSE_CLK["Parse CLK (satellite clock offsets)"]
         HERMITE["Hermite Spline Interpolation (cubic, velocity-aware)"]
@@ -18,30 +18,30 @@ flowchart TD
         MERGE_AUX["Merge Interpolated Auxiliary Data (Zarr cache)"]
     end
 
-    subgraph PARALLEL["Parallel RINEX Processing (ProcessPoolExecutor)"]
+    subgraph PARALLEL[Parallel RINEX Processing]
         READ["Read RINEX (per hourly file)"]
         SID["Signal ID Mapping (sv|band|code)"]
         SLICE["Slice Auxiliary to Observation Epochs (nearest-neighbour)"]
-        SCS["Spherical Coordinate Transformation (ECEF to r, theta, phi)"]
+        SCS["Spherical Coordinate Transformation (ECEF → r, θ, φ)"]
     end
 
-    subgraph STORAGE["Versioned Storage"]
-        ICECHUNK["Icechunk Repository (append per epoch, commit per file)"]
-        META["Metadata Tracking (RINEX hash, snapshot ID, epoch range)"]
+    subgraph STORAGE[Versioned Storage - Icechunk]
+        ICECHUNK["Observations Repository<br/>(append per epoch, commit per file)"]
+        META_TRACK["Metadata Tracking<br/>(RINEX hash, snapshot ID, epoch range)"]
     end
 
-    subgraph GRIDDING["Hemispheric Grid Assignment"]
-        GRID["Grid Construction (equal-area, HEALPix, geodesic, ...)"]
+    subgraph VOD[VOD Retrieval]
+        PAIR["Canopy-Reference Dataset Pairing"]
+        TAU["Zeroth-Order Tau-Omega Inversion"]
+        FORMULA["ΔSNR = SNR_canopy − SNR_reference<br/>transmissivity T = 10^(ΔSNR/10)<br/>VOD = −ln(T) · cos(θ)"]
+    end
+
+    subgraph GRIDDING[Hemispheric Grid Assignment]
+        GRID["Grid Construction<br/>(equal-area, HEALPix, geodesic, ...)"]
         KDTREE["KDTree Cell Assignment (O(n log m) spatial query)"]
     end
 
-    subgraph VOD["VOD Retrieval"]
-        PAIR["Canopy-Reference Dataset Pairing"]
-        TAU["Zeroth-Order Tau-Omega Inversion"]
-        FORMULA["DELTA_SNR = SNR_canopy - SNR_ref transmissivity = 10^(DELTA_SNR/10) VOD = -ln(transmissivity) * cos(theta)"]
-    end
-
-    subgraph OUTPUT["Output"]
+    subgraph OUTPUT[Output]
         VOD_DS["VOD Dataset (per sid, epoch, cell)"]
         VIZ["Hemispheric Visualization (polar projection)"]
     end
@@ -62,12 +62,12 @@ flowchart TD
     SID --> SLICE
     SLICE --> SCS
     SCS --> ICECHUNK
-    ICECHUNK --> META
+    ICECHUNK --> META_TRACK
 
-    ICECHUNK --> GRID
-    GRID --> KDTREE
-    KDTREE --> PAIR
+    ICECHUNK --> PAIR
     PAIR --> TAU
     TAU --> FORMULA
     FORMULA --> VOD_DS
-    VOD_DS --> VIZ
+    VOD_DS --> GRID
+    GRID --> KDTREE
+    KDTREE --> VIZ

@@ -1962,15 +1962,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-by-step-process" class="md-nav__link">
+  <a href="#step-by-step" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step-by-Step Process
+        Step-by-Step
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step-by-Step Process">
+    <nav class="md-nav" aria-label="Step-by-Step">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1985,10 +1985,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-create-release" class="md-nav__link">
+  <a href="#2-create-the-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Create Release
+        2. Create the release
       
     </span>
   </a>
@@ -2029,10 +2029,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#6-pypi-publishing-future" class="md-nav__link">
+  <a href="#6-post-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. PyPI Publishing (Future)
+        6. Post-release
       
     </span>
   </a>
@@ -2060,28 +2060,6 @@
     <span class="md-ellipsis">
       
         Manual Release (Fallback)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#post-release" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Post-Release
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Also
       
     </span>
   </a>
@@ -2567,15 +2545,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-by-step-process" class="md-nav__link">
+  <a href="#step-by-step" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step-by-Step Process
+        Step-by-Step
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step-by-Step Process">
+    <nav class="md-nav" aria-label="Step-by-Step">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2590,10 +2568,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-create-release" class="md-nav__link">
+  <a href="#2-create-the-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Create Release
+        2. Create the release
       
     </span>
   </a>
@@ -2634,10 +2612,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#6-pypi-publishing-future" class="md-nav__link">
+  <a href="#6-post-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. PyPI Publishing (Future)
+        6. Post-release
       
     </span>
   </a>
@@ -2665,28 +2643,6 @@
     <span class="md-ellipsis">
       
         Manual Release (Fallback)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#post-release" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Post-Release
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Also
       
     </span>
   </a>
@@ -2760,15 +2716,20 @@
 
 
 <h1 id="release-process">Release Process<a class="headerlink" href="#release-process" title="Permanent link">&para;</a></h1>
-<p><strong>Last Updated:</strong> 2026-02-04
-<strong>Audience:</strong> Maintainers</p>
+<div class="admonition warning">
+<p class="admonition-title">Maintainers only</p>
+<p>This guide is for repository maintainers with push access to the main branch.</p>
+</div>
+<hr />
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<ul>
-<li>All CI checks passing</li>
-<li>Main branch is stable</li>
-<li>Push access to the repository</li>
-<li>All changes committed and pushed</li>
+<p>Before starting a release:</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> All CI checks passing on <code>main</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>main</code> branch is stable</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> All changes committed and pushed</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> You have push access to the repository</li>
 </ul>
+<hr />
 <h2 id="release-types">Release Types<a class="headerlink" href="#release-types" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2776,78 +2737,93 @@
 <th>Type</th>
 <th>Version Bump</th>
 <th>Example</th>
-<th>Description</th>
+<th>When to use</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Patch</td>
-<td>0.1.X</td>
-<td>0.1.0 -&gt; 0.1.1</td>
-<td>Bug fixes only, backward compatible</td>
+<td><code>0.1.X</code></td>
+<td>0.1.0 → 0.1.1</td>
+<td>Bug fixes only, fully backwards compatible</td>
 </tr>
 <tr>
 <td>Minor</td>
-<td>0.X.0</td>
-<td>0.1.0 -&gt; 0.2.0</td>
-<td>New features, backward compatible</td>
+<td><code>0.X.0</code></td>
+<td>0.1.0 → 0.2.0</td>
+<td>New features, backwards compatible</td>
 </tr>
 <tr>
 <td>Major</td>
-<td>X.0.0</td>
-<td>0.9.0 -&gt; 1.0.0</td>
-<td>Breaking changes, requires migration guide</td>
+<td><code>X.0.0</code></td>
+<td>0.9.0 → 1.0.0</td>
+<td>Breaking changes — requires migration guide</td>
 </tr>
 </tbody>
 </table>
-<h2 id="step-by-step-process">Step-by-Step Process<a class="headerlink" href="#step-by-step-process" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="step-by-step">Step-by-Step<a class="headerlink" href="#step-by-step" title="Permanent link">&para;</a></h2>
 <h3 id="1-prepare">1. Prepare<a class="headerlink" href="#1-prepare" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>main
 git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
-just<span class="w"> </span><span class="nb">test</span>
-just<span class="w"> </span>check
+just<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>just<span class="w"> </span>check
 </code></pre></div>
-<h3 id="2-create-release">2. Create Release<a class="headerlink" href="#2-create-release" title="Permanent link">&para;</a></h3>
+<h3 id="2-create-the-release">2. Create the release<a class="headerlink" href="#2-create-the-release" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>just<span class="w"> </span>release<span class="w"> </span><span class="m">0</span>.2.0
 </code></pre></div>
-<p>This command:
-1. Runs all tests
-2. Generates CHANGELOG.md from commits
-3. Bumps version in all packages
-4. Creates git tag <code>vX.Y.Z</code>
-5. Commits changes</p>
+<p>This command:</p>
+<ol>
+<li>Runs all tests</li>
+<li>Generates <code>CHANGELOG.md</code> from conventional commits</li>
+<li>Bumps version in all <code>pyproject.toml</code> files</li>
+<li>Creates git commit + tag <code>v0.2.0</code></li>
+</ol>
 <h3 id="3-review">3. Review<a class="headerlink" href="#3-review" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>-5
-git<span class="w"> </span>tag<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>-5<span class="w">   </span><span class="c1"># verify commit</span>
+git<span class="w"> </span>tag<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1<span class="w">      </span><span class="c1"># verify tag</span>
 </code></pre></div>
 <h3 id="4-push">4. Push<a class="headerlink" href="#4-push" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
 git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>--tags
 </code></pre></div>
 <h3 id="5-publish-github-release">5. Publish GitHub Release<a class="headerlink" href="#5-publish-github-release" title="Permanent link">&para;</a></h3>
-<p>The <code>.github/workflows/release.yml</code> workflow detects the new tag and creates a draft release. Review and publish at https://github.com/nfb2021/canvodpy/releases.</p>
-<h3 id="6-pypi-publishing-future">6. PyPI Publishing (Future)<a class="headerlink" href="#6-pypi-publishing-future" title="Permanent link">&para;</a></h3>
-<p>Once configured, publishing the GitHub release triggers PyPI upload.</p>
+<p>The <code>.github/workflows/release.yml</code> workflow detects the new tag and creates a <strong>draft</strong> release. Review and publish at <a href="https://github.com/nfb2021/canvodpy/releases">github.com/nfb2021/canvodpy/releases</a>.</p>
+<h3 id="6-post-release">6. Post-release<a class="headerlink" href="#6-post-release" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Monitor issues for regressions</li>
+<li>Create a Zenodo snapshot for DOI (<a href="../guides/ZENODO_SETUP/">Zenodo Setup</a>)</li>
+<li>Update citation information if needed</li>
+</ul>
+<hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<p><strong>Tests fail during release</strong>: Fix failing tests before retrying.</p>
-<p><strong>Version bump fails</strong>: Use explicit <code>X.Y.Z</code> format without <code>v</code> prefix.</p>
-<p><strong>Tag already exists</strong>: Delete with <code>git tag -d v0.2.0</code> and recreate.</p>
-<p><strong>Workflow did not trigger</strong>: Verify tag matches pattern <code>v*.*.*</code> at https://github.com/nfb2021/canvodpy/actions.</p>
+<details class="failure">
+<summary>Tests fail during release</summary>
+<p>Fix the failing tests on <code>main</code> before retrying <code>just release</code>.</p>
+</details>
+<details class="failure">
+<summary>Version bump fails</summary>
+<p>Use an explicit <code>X.Y.Z</code> format (no <code>v</code> prefix):
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>release<span class="w"> </span><span class="m">0</span>.2.0<span class="w">    </span><span class="c1"># correct</span>
+just<span class="w"> </span>release<span class="w"> </span>v0.2.0<span class="w">   </span><span class="c1"># wrong</span>
+</code></pre></div></p>
+</details>
+<details class="failure">
+<summary>Tag already exists</summary>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>tag<span class="w"> </span>-d<span class="w"> </span>v0.2.0<span class="w">             </span><span class="c1"># delete local tag</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>:v0.2.0<span class="w">       </span><span class="c1"># delete remote tag (if already pushed)</span>
+just<span class="w"> </span>release<span class="w"> </span><span class="m">0</span>.2.0<span class="w">            </span><span class="c1"># recreate</span>
+</code></pre></div>
+</details>
+<details class="failure">
+<summary>Workflow did not trigger</summary>
+<p>Verify the tag matches the pattern <code>v*.*.*</code> at
+<a href="https://github.com/nfb2021/canvodpy/actions">github.com/nfb2021/canvodpy/actions</a>.</p>
+</details>
+<hr />
 <h2 id="manual-release-fallback">Manual Release (Fallback)<a class="headerlink" href="#manual-release-fallback" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>just<span class="w"> </span>changelog<span class="w"> </span>v0.2.0
 </code></pre></div>
-<p>Then create a release manually at https://github.com/nfb2021/canvodpy/releases/new.</p>
-<h2 id="post-release">Post-Release<a class="headerlink" href="#post-release" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Monitor for issues related to the new release</li>
-<li>Create Zenodo snapshot for DOI (optional)</li>
-<li>Update citation information</li>
-</ul>
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href=".././VERSIONING/">VERSIONING.md</a></li>
-<li><a href=".././CONTRIBUTING/">CONTRIBUTING.md</a></li>
-</ul>
+<p>Then create a release manually at <a href="https://github.com/nfb2021/canvodpy/releases/new">github.com/nfb2021/canvodpy/releases/new</a>.</p>
 
 
 

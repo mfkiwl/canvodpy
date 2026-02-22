@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 763.725 796" width="763.725" height="796" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 763.725 796" width="763.725" height="796" style="--bg:#f5f5f5;--fg:#333333;background:var(--bg)">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
   text { font-family: 'Inter', system-ui, sans-serif; }
@@ -28,16 +28,16 @@
 </defs>
 <rect x="50.72500000000002" y="40" width="619.3125" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="50.72500000000002" y="40" width="619.3125" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="62.72500000000002" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Field&quot;</text>
+<text x="62.72500000000002" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Field</text>
 <rect x="40" y="196" width="655.125" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="40" y="196" width="655.125" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="52" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;SCS Expansion&quot;</text>
+<text x="52" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">SCS Expansion</text>
 <rect x="47.14999999999998" y="352" width="676.575" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="47.14999999999998" y="352" width="676.575" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="59.14999999999998" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Store Groups&quot;</text>
+<text x="59.14999999999998" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Store Groups</text>
 <rect x="60.450000000000045" y="508" width="614.9499999999999" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="60.450000000000045" y="508" width="614.9499999999999" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="72.45000000000005" y="522" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;VOD Pairs&quot;</text>
+<text x="72.45000000000005" y="522" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">VOD Pairs</text>
 <polyline points="124.47500000000002,132 124.47500000000002,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="277,132 277,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="529.025,132 529.025,152 436.67499999999995,152 436.67499999999995,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />

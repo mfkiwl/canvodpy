@@ -996,17 +996,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#hermite-cubic-splines-ephemerides" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1033,6 +1022,17 @@
     <span class="md-ellipsis">
       
         Custom Strategies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accuracy-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accuracy Summary
       
     </span>
   </a>
@@ -2465,17 +2465,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#hermite-cubic-splines-ephemerides" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2502,6 +2491,17 @@
     <span class="md-ellipsis">
       
         Custom Strategies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accuracy-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accuracy Summary
       
     </span>
   </a>
@@ -2601,55 +2601,153 @@
 
 
 <h1 id="interpolation-methods">Interpolation Methods<a class="headerlink" href="#interpolation-methods" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Interpolation increases the temporal resolution of auxiliary data from SP3/CLK sampling rates (15 min, 5 min) to RINEX observation rates (typically 30s or 15s).</p>
-<h2 id="hermite-cubic-splines-ephemerides">Hermite Cubic Splines (Ephemerides)<a class="headerlink" href="#hermite-cubic-splines-ephemerides" title="Permanent link">&para;</a></h2>
-<p>Hermite cubic splines are used for SP3 ephemeris interpolation because:</p>
+<p>SP3 and CLK products sample at 15-minute or 5-minute intervals. RINEX observations arrive at 1–30 s. Interpolation bridges the gap — producing per-epoch satellite positions and clock corrections at the exact observation timestamps.</p>
+<div class="grid cards">
 <ul>
-<li>Orbital motion is physically smooth, well-suited to polynomial interpolation</li>
-<li>SP3 files provide both positions and velocities, enabling Hermite (not just Lagrange) interpolation</li>
-<li>The resulting interpolant is C1 continuous (continuous first derivative)</li>
-<li>Sub-millimeter interpolation accuracy is achieved for IGS final products</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M64 96c0-17.7 14.3-32 32-32h160c17.7 0 32 14.3 32 32v288h96V256c0-17.7 14.3-32 32-32h64c17.7 0 32 14.3 32 32s-14.3 32-32 32h-32v128c0 17.7-14.3 32-32 32H256c-17.7 0-32-14.3-32-32V128h-96v128c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h32z"/></svg></span> &nbsp; <strong>Hermite Cubic Splines</strong></p>
+<hr />
+<p>Used for <strong>SP3 ephemerides</strong> (satellite XYZ positions).</p>
+<p>SP3 files include both positions <em>and</em> velocities, enabling Hermite
+interpolation — C¹ continuous, sub-millimetre accuracy for IGS final products.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64v336c0 44.2 35.8 80 80 80h400c17.7 0 32-14.3 32-32s-14.3-32-32-32H80c-8.8 0-16-7.2-16-16zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.3c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l73.4-73.4 57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z"/></svg></span> &nbsp; <strong>Piecewise Linear</strong></p>
+<hr />
+<p>Used for <strong>CLK clock corrections</strong>.</p>
+<p>Clock files provide no derivative information and exhibit discontinuities
+at manoeuvre events. Linear segments between knot points give
+sub-nanosecond accuracy without over-fitting.</p>
+</li>
 </ul>
-<p>Configuration:</p>
+</div>
+<hr />
+<h2 id="hermite-cubic-splines-ephemerides">Hermite Cubic Splines (Ephemerides)<a class="headerlink" href="#hermite-cubic-splines-ephemerides" title="Permanent link">&para;</a></h2>
+<p>Physical motivation: orbital motion is smooth — well-suited to polynomial interpolation. Positions and velocities from SP3 files determine the Hermite polynomial coefficients uniquely over each 15-minute interval.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sp3Config</span><span class="p">,</span> <span class="n">Sp3InterpolationStrategy</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">Sp3Config</span><span class="p">(</span>
-    <span class="n">use_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">fallback_method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span>
-    <span class="n">extrapolation_method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span>
+    <span class="n">use_velocities</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>          <span class="c1"># use velocity columns from SP3 (recommended)</span>
+    <span class="n">fallback_method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>     <span class="c1"># fall back if velocity missing</span>
+    <span class="n">extrapolation_method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+
 <span class="n">interpolator</span> <span class="o">=</span> <span class="n">Sp3InterpolationStrategy</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">interpolator</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">sp3_data</span><span class="p">,</span> <span class="n">target_epochs</span><span class="p">)</span>
 </code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>use_velocities</code></td>
+<td><code>True</code></td>
+<td>Enables Hermite mode (higher accuracy)</td>
+</tr>
+<tr>
+<td><code>fallback_method</code></td>
+<td><code>"linear"</code></td>
+<td>Used when velocity columns absent</td>
+</tr>
+<tr>
+<td><code>extrapolation_method</code></td>
+<td><code>"nearest"</code></td>
+<td>Behaviour outside the SP3 time span</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition success">
+<p class="admonition-title">Accuracy</p>
+<p>Hermite splines achieve <strong>&lt; 1 mm</strong> position error at 30 s cadence
+for IGS final products. Rapid products are typically &lt; 5 mm.</p>
+</div>
+<hr />
 <h2 id="piecewise-linear-interpolation-clock-corrections">Piecewise Linear Interpolation (Clock Corrections)<a class="headerlink" href="#piecewise-linear-interpolation-clock-corrections" title="Permanent link">&para;</a></h2>
-<p>Clock corrections are interpolated using piecewise linear segments because:</p>
-<ul>
-<li>Satellite clock behavior exhibits discontinuities at maneuvers and clock parameter uploads</li>
-<li>No derivative information is available in CLK files</li>
-<li>Linear interpolation provides sub-nanosecond accuracy between knot points</li>
-<li>Jump detection prevents interpolation across discontinuities</li>
-</ul>
-<p>Configuration:</p>
+<p>Clock corrections are <strong>not</strong> smooth — receiver and satellite clock models are periodically updated, causing step discontinuities. Linear interpolation between adjacent CLK knots avoids fitting across those jumps.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClockConfig</span><span class="p">,</span> <span class="n">ClockInterpolationStrategy</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">ClockConfig</span><span class="p">(</span>
-    <span class="n">window_size</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
-    <span class="n">jump_threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
-    <span class="n">extrapolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span>
+    <span class="n">window_size</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>          <span class="c1"># number of knots to fit (odd, centred)</span>
+    <span class="n">jump_threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>    <span class="c1"># discontinuity detection threshold (seconds)</span>
+    <span class="n">extrapolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+
 <span class="n">interpolator</span> <span class="o">=</span> <span class="n">ClockInterpolationStrategy</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">interpolator</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">clk_data</span><span class="p">,</span> <span class="n">target_epochs</span><span class="p">)</span>
 </code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Jump detection</p>
+<p>When <code>|Δt| &gt; jump_threshold</code> between consecutive CLK knots, the
+interpolator treats the gap as a boundary and never interpolates
+across it. The nearest valid knot value is used instead.</p>
+</div>
+<hr />
 <h2 id="custom-strategies">Custom Strategies<a class="headerlink" href="#custom-strategies" title="Permanent link">&para;</a></h2>
-<p>Custom interpolation strategies can be implemented by subclassing <code>InterpolationStrategy</code>:</p>
+<p>Implement <code>InterpolationStrategy</code> to plug in custom interpolation logic:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">InterpolationStrategy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CustomStrategy</span><span class="p">(</span><span class="n">InterpolationStrategy</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aux_ds</span><span class="p">,</span> <span class="n">target_epochs</span><span class="p">):</span>
-        <span class="c1"># Implementation</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Example: Lagrange polynomial interpolation.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">interpolate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">aux_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">target_epochs</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+        <span class="c1"># Your implementation here</span>
         <span class="k">return</span> <span class="n">interpolated_ds</span>
 </code></pre></div>
+<p>The strategy is injected into the auxiliary pipeline — no other changes required.</p>
+<hr />
+<h2 id="accuracy-summary">Accuracy Summary<a class="headerlink" href="#accuracy-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Method</th>
+<th>Expected accuracy</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SP3 final (IGS)</td>
+<td>Hermite</td>
+<td>&lt; 1 mm</td>
+<td>Requires velocity columns</td>
+</tr>
+<tr>
+<td>SP3 rapid (IGS)</td>
+<td>Hermite</td>
+<td>&lt; 5 mm</td>
+<td>Typically available within 17 h</td>
+</tr>
+<tr>
+<td>SP3 ultra-rapid</td>
+<td>Hermite</td>
+<td>few cm</td>
+<td>Predicted half</td>
+</tr>
+<tr>
+<td>CLK final</td>
+<td>Linear</td>
+<td>&lt; 0.1 ns</td>
+<td>Sub-centimetre equivalent</td>
+</tr>
+<tr>
+<td>CLK rapid</td>
+<td>Linear</td>
+<td>~0.5 ns</td>
+<td>Typically available within 17 h</td>
+</tr>
+</tbody>
+</table>
 
 
 

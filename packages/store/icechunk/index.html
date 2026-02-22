@@ -1369,21 +1369,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#why-icechunk-over-plain-zarr" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
+        Why Icechunk over plain Zarr?
       
     </span>
   </a>
@@ -1432,56 +1421,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#initialize-store" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Initialize Store
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#write-with-transaction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Write with Transaction
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#version-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Version Control
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#query-time-range" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Query Time Range
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1493,33 +1432,16 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Cloud Deployment">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#s3-backend" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deduplication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        S3 Backend
+        Deduplication
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#azure-backend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Azure Backend
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2576,21 +2498,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#why-icechunk-over-plain-zarr" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
+        Why Icechunk over plain Zarr?
       
     </span>
   </a>
@@ -2639,56 +2550,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#initialize-store" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Initialize Store
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#write-with-transaction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Write with Transaction
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#version-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Version Control
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#query-time-range" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Query Time Range
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2700,33 +2561,16 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Cloud Deployment">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#s3-backend" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deduplication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        S3 Backend
+        Deduplication
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#azure-backend" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Azure Backend
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2823,77 +2667,147 @@
 
 
 <h1 id="icechunk-storage">Icechunk Storage<a class="headerlink" href="#icechunk-storage" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Icechunk is a cloud-native transactional storage format for multidimensional array data providing ACID guarantees, built-in versioning, and Zarr compatibility.</p>
-<h2 id="rationale">Rationale<a class="headerlink" href="#rationale" title="Permanent link">&para;</a></h2>
+<p>Icechunk is a cloud-native transactional storage format for multidimensional arrays — Git-like versioning meets Zarr v3.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M80 104a24 24 0 1 0 0-48 24 24 0 1 0 0 48m80-24c0 32.8-19.7 61-48 73.3V224h176c26.5 0 48-21.5 48-48v-22.7c-28.3-12.3-48-40.5-48-73.3 0-44.2 35.8-80 80-80s80 35.8 80 80c0 32.8-19.7 61-48 73.3V176c0 61.9-50.1 112-112 112H112v70.7c28.3 12.3 48 40.5 48 73.3 0 44.2-35.8 80-80 80S0 476.2 0 432c0-32.8 19.7-61 48-73.3V153.4C19.7 141 0 112.8 0 80 0 35.8 35.8 0 80 0s80 35.8 80 80m232 0a24 24 0 1 0-48 0 24 24 0 1 0 48 0M80 456a24 24 0 1 0 0-48 24 24 0 1 0 0 48"/></svg></span> &nbsp; <strong>Versioned Writes</strong></p>
+<hr />
+<p>Every <code>commit()</code> produces an immutable snapshot with a hash-addressable ID.
+Roll back to any prior state with a single line.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M338.8-9.9c11.9 8.6 16.3 24.2 10.9 37.8L271.3 224H416c13.5 0 25.5 8.4 30.1 21.1s.7 26.9-9.6 35.5l-288 240c-11.3 9.4-27.4 9.9-39.3 1.3s-16.3-24.2-10.9-37.8L176.7 288H32c-13.5 0-25.5-8.4-30.1-21.1s-.7-26.9 9.6-35.5l288-240c11.3-9.4 27.4-9.9 39.3-1.3"/></svg></span> &nbsp; <strong>ACID Transactions</strong></p>
+<hr />
+<p>Multiple writes are atomic — either all succeed or none are persisted.
+No partial writes, no corrupt chunks, no reader/writer races.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M0 336c0 79.5 64.5 144 144 144h304c70.7 0 128-57.3 128-128 0-51.6-30.5-96.1-74.5-116.3 6.7-13.1 10.5-28 10.5-43.7 0-53-43-96-96-96-17.7 0-34.2 4.8-48.4 13.1C343.5 63.3 295.4 32 240 32 160.5 32 96 96.5 96 176c0 8 .7 15.9 1.9 23.5C41 218.7 0 272.6 0 336"/></svg></span> &nbsp; <strong>Cloud-Native</strong></p>
+<hr />
+<p>Local filesystem for development; S3, MinIO, or Cloudflare R2 for
+production. Zero code change to switch backends.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1-512 0M288 96a32 32 0 1 0-64 0 32 32 0 1 0 64 0m-32 320c35.3 0 64-28.7 64-64 0-16.2-6-31.1-16-42.3l69.5-138.9c5.9-11.9 1.1-26.3-10.7-32.2s-26.3-1.1-32.2 10.7l-69.5 138.9c-1.7-.1-3.4-.2-5.1-.2-35.3 0-64 28.7-64 64s28.7 64 64 64m-80-272a32 32 0 1 0-64 0 32 32 0 1 0 64 0M96 288a32 32 0 1 0 0-64 32 32 0 1 0 0 64m352-32a32 32 0 1 0-64 0 32 32 0 1 0 64 0"/></svg></span> &nbsp; <strong>Zarr v3 Chunks</strong></p>
+<hr />
+<p>Zstd-compressed chunks, O(1) epoch-range reads, compatible with
+<code>xarray.open_zarr()</code> out of the box.</p>
+</li>
+</ul>
+</div>
+<hr />
+<h2 id="why-icechunk-over-plain-zarr">Why Icechunk over plain Zarr?<a class="headerlink" href="#why-icechunk-over-plain-zarr" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Feature</th>
-<th>Icechunk</th>
-<th>Zarr</th>
-<th>NetCDF4</th>
-<th>HDF5</th>
+<th style="text-align: center;">Icechunk</th>
+<th style="text-align: center;">Zarr v3</th>
+<th style="text-align: center;">NetCDF4</th>
+<th style="text-align: center;">HDF5</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Version control</td>
-<td>Yes</td>
-<td>No</td>
-<td>No</td>
-<td>No</td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
 </tr>
 <tr>
 <td>Cloud-native</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>No</td>
-<td>No</td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
 </tr>
 <tr>
-<td>Transactions</td>
-<td>Yes</td>
-<td>No</td>
-<td>No</td>
-<td>No</td>
+<td>Atomic transactions</td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
 </tr>
 <tr>
-<td>Chunking</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
+<td>Chunked arrays</td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
 </tr>
 <tr>
-<td>Compression</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
+<td>Deduplication</td>
+<td style="text-align: center;"><span class="twemoji success"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 .018-1.042.75.75 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
+<td style="text-align: center;"><span class="twemoji error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.75.75 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215L8 9.06l-3.22 3.22a.75.75 0 0 1-1.042-.018.75.75 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06"/></svg></span></td>
 </tr>
 </tbody>
 </table>
+<hr />
 <h2 id="storage-structure">Storage Structure<a class="headerlink" href="#storage-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>stores/
   rosalia/
     rinex/
-      .icechunk/      # Icechunk metadata
-      data/           # Chunked data files
-      versions/       # Version snapshots
+      .icechunk/          # Repository metadata + snapshots
+      data/               # SHA-256 addressed chunk files
+      refs/               # Branch heads
     vod/
       .icechunk/
       data/
-      versions/
+      refs/
 </code></pre></div>
+<hr />
 <h2 id="chunk-strategy">Chunk Strategy<a class="headerlink" href="#chunk-strategy" title="Permanent link">&para;</a></h2>
-<p>Default chunking for RINEX data:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-    <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="mi">34560</span><span class="p">,</span>  <span class="c1"># ~24 hours at 2.5s sampling</span>
-    <span class="s2">&quot;sid&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>        <span class="c1"># All signals in one chunk</span>
-<span class="p">}</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Default</label><label for="__tabbed_1_2">Memory Estimate</label><label for="__tabbed_1_3">Custom Chunks</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>The default chunk shape is tuned for daily GNSS time series:</p>
+<div class="highlight"><pre><span></span><code><span class="n">chunk_strategy</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="mi">34560</span><span class="p">,</span> <span class="s2">&quot;sid&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
 </code></pre></div>
-<p>Epoch chunking aligns with daily processing granularity. Keeping all signal IDs in a single chunk (-1) optimizes VOD calculations that access all signals simultaneously.</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Value</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>epoch</code></td>
+<td>34560</td>
+<td>≈ 24 h at 2.5 s cadence — aligned to daily processing granularity</td>
+</tr>
+<tr>
+<td><code>sid</code></td>
+<td>−1 (unlimited)</td>
+<td>All signal IDs in one chunk — VOD computes across all signals simultaneously</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tabbed-block">
+<p>For a typical 72-SID dataset at 1 Hz:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># float32, 24 h × 72 SIDs</span>
+<span class="n">bytes_per_chunk</span> <span class="o">=</span> <span class="mi">86400</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">*</span> <span class="mi">4</span>   <span class="c1"># ≈ 24 MB uncompressed</span>
+<span class="c1"># Zstd level 5 typically achieves 4–8× for GNSS float data</span>
+<span class="n">bytes_compressed</span> <span class="err">≈</span> <span class="mi">3</span><span class="err">–</span><span class="mi">6</span> <span class="n">MB</span> <span class="n">per</span> <span class="n">chunk</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>Override per read call — does not affect on-disk layout:</p>
+<div class="highlight"><pre><span></span><code><span class="n">ds</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2024-01-31&quot;</span><span class="p">),</span>
+    <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span> <span class="s2">&quot;sid&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>  <span class="c1"># 1-hour lazy chunks in memory</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="c1"># config/processing.yaml</span>
 <span class="nt">icechunk</span><span class="p">:</span>
@@ -2902,47 +2816,147 @@
 <span class="w">  </span><span class="nt">inline_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
 <span class="w">  </span><span class="nt">get_concurrency</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>compression_algorithm</code></td>
+<td><code>zstd</code></td>
+<td>Chunk compressor — <code>zstd</code>, <code>lz4</code>, or <code>none</code></td>
+</tr>
+<tr>
+<td><code>compression_level</code></td>
+<td><code>5</code></td>
+<td>Compressor level (1 = fast, 22 = max for zstd)</td>
+</tr>
+<tr>
+<td><code>inline_threshold</code></td>
+<td><code>512</code></td>
+<td>Bytes below which chunks are stored inline in metadata</td>
+</tr>
+<tr>
+<td><code>get_concurrency</code></td>
+<td><code>1</code></td>
+<td>Parallel chunk fetches (increase for cloud reads)</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<h3 id="initialize-store">Initialize Store<a class="headerlink" href="#initialize-store" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">icechunk</span><span class="w"> </span><span class="kn">import</span> <span class="n">IcechunkStore</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:4"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Initialize / Open</label><label for="__tabbed_2_2">Write with Versioning</label><label for="__tabbed_2_3">Version History</label><label for="__tabbed_2_4">Query Time Range</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyIcechunkStore</span>
 
-<span class="n">store</span> <span class="o">=</span> <span class="n">IcechunkStore</span><span class="o">.</span><span class="n">open_or_create</span><span class="p">(</span>
-    <span class="n">storage</span><span class="o">=</span><span class="s2">&quot;file:///path/to/store&quot;</span><span class="p">,</span>
-    <span class="n">read_only</span><span class="o">=</span><span class="kc">False</span>
+<span class="c1"># Open or create (filesystem)</span>
+<span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="s2">&quot;/data/stores/rosalia/rinex&quot;</span><span class="p">)</span>
+
+<span class="c1"># Open existing (read-only)</span>
+<span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="s2">&quot;/data/stores/rosalia/rinex&quot;</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.site</span><span class="w"> </span><span class="kn">import</span> <span class="n">Site</span>
+
+<span class="n">site</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="s2">&quot;Rosalia&quot;</span><span class="p">)</span>
+
+<span class="c1"># Append one day of observations → creates snapshot</span>
+<span class="n">snapshot_id</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">rinex_store</span><span class="o">.</span><span class="n">append_dataset</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">receiver_name</span><span class="o">=</span><span class="s2">&quot;canopy_01&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Snapshot: </span><span class="si">{</span><span class="n">snapshot_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="c1"># List all snapshots on main branch</span>
+<span class="n">history</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">rinex_store</span><span class="o">.</span><span class="n">list_snapshots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">snap</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">snap</span><span class="o">.</span><span class="n">id</span><span class="p">[:</span><span class="mi">8</span><span class="p">],</span> <span class="n">snap</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">snap</span><span class="o">.</span><span class="n">written_at</span><span class="p">)</span>
+
+<span class="c1"># Open a specific historical version</span>
+<span class="n">ds_v1</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">rinex_store</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">receiver_name</span><span class="o">=</span><span class="s2">&quot;canopy_01&quot;</span><span class="p">,</span>
+    <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2024-01-31&quot;</span><span class="p">),</span>
+    <span class="n">snapshot</span><span class="o">=</span><span class="n">history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
-<h3 id="write-with-transaction">Write with Transaction<a class="headerlink" href="#write-with-transaction" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="n">store</span><span class="o">.</span><span class="n">transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">preprocess_dataset</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">to_zarr</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
-    <span class="n">txn</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Added 2024-01-15 data&quot;</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="version-control">Version Control<a class="headerlink" href="#version-control" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">versions</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">list_versions</span><span class="p">()</span>
-
-<span class="n">store_v1</span> <span class="o">=</span> <span class="n">IcechunkStore</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
-    <span class="n">storage</span><span class="o">=</span><span class="s2">&quot;file:///path/to/store&quot;</span><span class="p">,</span>
-    <span class="n">version</span><span class="o">=</span><span class="n">versions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">ds</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">rinex_store</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">receiver_name</span><span class="o">=</span><span class="s2">&quot;canopy_01&quot;</span><span class="p">,</span>
+    <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2024-06-30&quot;</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_zarr</span><span class="p">(</span><span class="n">store_v1</span><span class="p">)</span>
+
+<span class="c1"># Lazily loaded — only reads chunks covering the range</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">epoch</span><span class="o">.</span><span class="n">values</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
 </code></pre></div>
-<h3 id="query-time-range">Query Time Range<a class="headerlink" href="#query-time-range" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_zarr</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
-<span class="n">subset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">epoch</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2024-01-31&quot;</span><span class="p">))</span>
-</code></pre></div>
+</div>
+</div>
+</div>
+<hr />
 <h2 id="cloud-deployment">Cloud Deployment<a class="headerlink" href="#cloud-deployment" title="Permanent link">&para;</a></h2>
-<h3 id="s3-backend">S3 Backend<a class="headerlink" href="#s3-backend" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">store</span> <span class="o">=</span> <span class="n">IcechunkStore</span><span class="o">.</span><span class="n">open_or_create</span><span class="p">(</span>
-    <span class="n">storage</span><span class="o">=</span><span class="s2">&quot;s3://bucket-name/path/to/store&quot;</span><span class="p">,</span>
-    <span class="n">storage_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;us-east-1&quot;</span><span class="p">,</span> <span class="s2">&quot;credentials&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">}</span>
-<span class="p">)</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">AWS S3</label><label for="__tabbed_3_2">MinIO / S3-Compatible</label><label for="__tabbed_3_3">Cloudflare R2</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="c1"># No code change — set the store path to an S3 URI</span>
+<span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="s2">&quot;s3://my-bucket/rosalia/rinex&quot;</span><span class="p">)</span>
 </code></pre></div>
-<h3 id="azure-backend">Azure Backend<a class="headerlink" href="#azure-backend" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">store</span> <span class="o">=</span> <span class="n">IcechunkStore</span><span class="o">.</span><span class="n">open_or_create</span><span class="p">(</span>
-    <span class="n">storage</span><span class="o">=</span><span class="s2">&quot;az://container/path/to/store&quot;</span><span class="p">,</span>
-    <span class="n">storage_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;account_name&quot;</span><span class="p">:</span> <span class="s2">&quot;myaccount&quot;</span><span class="p">,</span> <span class="s2">&quot;account_key&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">}</span>
-<span class="p">)</span>
+<p>Configure credentials via environment variables or instance roles:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">AWS_DEFAULT_REGION</span><span class="o">=</span>eu-central-1
+<span class="nb">export</span><span class="w"> </span><span class="nv">AWS_ACCESS_KEY_ID</span><span class="o">=</span>...
+<span class="nb">export</span><span class="w"> </span><span class="nv">AWS_SECRET_ACCESS_KEY</span><span class="o">=</span>...
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_ENDPOINT_URL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;https://minio.example.com&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;minioadmin&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;minioadmin&quot;</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="s2">&quot;s3://canvod-data/rosalia/rinex&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_ENDPOINT_URL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;https://&lt;account_id&gt;.r2.cloudflarestorage.com&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&lt;r2_access_key&gt;&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&lt;r2_secret_key&gt;&quot;</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">MyIcechunkStore</span><span class="p">(</span><span class="s2">&quot;s3://canvod-data/rosalia/rinex&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Local → Cloud</p>
+<p>Switch from filesystem to S3 by changing the <code>store_path</code> string —
+no other code changes required.</p>
+</div>
+<hr />
+<h2 id="deduplication">Deduplication<a class="headerlink" href="#deduplication" title="Permanent link">&para;</a></h2>
+<p>canvod-store uses SHA-256 file hashes to skip re-ingesting the same file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In MyIcechunkStore.append_dataset()</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_already_ingested</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;File Hash&quot;</span><span class="p">]):</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;file_skipped&quot;</span><span class="p">,</span> <span class="nb">hash</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;File Hash&quot;</span><span class="p">][:</span><span class="mi">8</span><span class="p">])</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<span class="c1"># Otherwise write + record hash</span>
+<span class="n">snapshot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_and_commit</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">_record_ingested_hash</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;File Hash&quot;</span><span class="p">])</span>
+<span class="k">return</span> <span class="n">snapshot</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Hash source</p>
+<p>The <code>"RINEX File Hash"</code> attribute is set by <code>Rnxv3Obs.file_hash</code> — a
+16-character SHA-256 prefix of the raw RINEX file.
+Duplicate ingestion is impossible even if the same file is submitted twice.</p>
+</div>
 
 
 

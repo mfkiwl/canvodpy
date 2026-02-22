@@ -968,21 +968,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#the-dimension-mismatch-problem" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dimension-mismatch" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dimension Mismatch
+        The Dimension Mismatch Problem
       
     </span>
   </a>
@@ -1004,7 +993,7 @@
   <a href="#step-1-map_aux_sv_to_sid" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1: map_aux_sv_to_sid()
+        Step 1 — map_aux_sv_to_sid()
       
     </span>
   </a>
@@ -1015,7 +1004,7 @@
   <a href="#step-2-pad_to_global_sid" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 2: pad_to_global_sid()
+        Step 2 — pad_to_global_sid()
       
     </span>
   </a>
@@ -1026,7 +1015,7 @@
   <a href="#step-3-normalize_sid_dtype" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 3: normalize_sid_dtype()
+        Step 3 — normalize_sid_dtype()
       
     </span>
   </a>
@@ -1037,7 +1026,7 @@
   <a href="#step-4-strip_fillvalue" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 4: strip_fillvalue()
+        Step 4 — strip_fillvalue()
       
     </span>
   </a>
@@ -1045,10 +1034,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scientific-correctness-of-data-replication" class="md-nav__link">
+  <a href="#scientific-note" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scientific Correctness of Data Replication
+        Scientific Note
       
     </span>
   </a>
@@ -2509,21 +2498,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#the-dimension-mismatch-problem" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dimension-mismatch" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dimension Mismatch
+        The Dimension Mismatch Problem
       
     </span>
   </a>
@@ -2545,7 +2523,7 @@
   <a href="#step-1-map_aux_sv_to_sid" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1: map_aux_sv_to_sid()
+        Step 1 — map_aux_sv_to_sid()
       
     </span>
   </a>
@@ -2556,7 +2534,7 @@
   <a href="#step-2-pad_to_global_sid" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 2: pad_to_global_sid()
+        Step 2 — pad_to_global_sid()
       
     </span>
   </a>
@@ -2567,7 +2545,7 @@
   <a href="#step-3-normalize_sid_dtype" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 3: normalize_sid_dtype()
+        Step 3 — normalize_sid_dtype()
       
     </span>
   </a>
@@ -2578,7 +2556,7 @@
   <a href="#step-4-strip_fillvalue" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 4: strip_fillvalue()
+        Step 4 — strip_fillvalue()
       
     </span>
   </a>
@@ -2586,10 +2564,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scientific-correctness-of-data-replication" class="md-nav__link">
+  <a href="#scientific-note" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scientific Correctness of Data Replication
+        Scientific Note
       
     </span>
   </a>
@@ -2689,83 +2667,130 @@
 
 
 <h1 id="preprocessing-pipeline">Preprocessing Pipeline<a class="headerlink" href="#preprocessing-pipeline" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Preprocessing converts auxiliary data from satellite vehicle (sv) indexing to signal ID (sid) indexing, aligning it with the structure of RINEX observation data. This step is required before interpolation.</p>
-<h2 id="dimension-mismatch">Dimension Mismatch<a class="headerlink" href="#dimension-mismatch" title="Permanent link">&para;</a></h2>
-<p>SP3 and CLK files index data by satellite vehicle (sv), while RINEX files index by signal ID (sid). Each satellite transmits on multiple frequencies and codes, so GPS satellite G01 maps to approximately 20 signal IDs.</p>
-<div class="highlight"><pre><span></span><code><span class="n">sp3_data</span><span class="o">.</span><span class="n">dims</span>   <span class="c1"># {&#39;epoch&#39;: 96, &#39;sv&#39;: 32}</span>
-<span class="n">rinex_data</span><span class="o">.</span><span class="n">dims</span> <span class="c1"># {&#39;epoch&#39;: 2880, &#39;sid&#39;: 384}</span>
+<p>Before interpolation, auxiliary data must be restructured to match the <code>(epoch × sid)</code> layout of RINEX obs Datasets. This pipeline bridges the <strong>sv</strong> indexing of SP3/CLK files and the <strong>sid</strong> indexing of the obs Dataset.</p>
+<hr />
+<h2 id="the-dimension-mismatch-problem">The Dimension Mismatch Problem<a class="headerlink" href="#the-dimension-mismatch-problem" title="Permanent link">&para;</a></h2>
+<div class="grid">
+<div class="admonition info">
+<p class="admonition-title">SP3 / CLK files</p>
+<p>Index by <strong>satellite vehicle</strong> (sv):</p>
+<div class="highlight"><pre><span></span><code><span class="n">sp3_data</span><span class="o">.</span><span class="n">dims</span>
+<span class="c1"># {&#39;epoch&#39;: 96, &#39;sv&#39;: 32}</span>
 </code></pre></div>
+<p>GPS G01 has one entry — one position per epoch.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">RINEX obs Dataset</p>
+<p>Index by <strong>signal ID</strong> (sid):</p>
+<div class="highlight"><pre><span></span><code><span class="n">rinex_data</span><span class="o">.</span><span class="n">dims</span>
+<span class="c1"># {&#39;epoch&#39;: 2880, &#39;sid&#39;: 384}</span>
+</code></pre></div>
+<p>GPS G01 maps to ~20 Signal IDs (L1C, L2W, L5Q, …).</p>
+</div>
+</div>
+<p>Satellite <strong>position</strong> is frequency-independent (all signals leave the same antenna), so the sv → sid mapping simply <strong>replicates</strong> each position across all signal IDs for that satellite.</p>
+<hr />
 <h2 id="pipeline-functions">Pipeline Functions<a class="headerlink" href="#pipeline-functions" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Function</th>
 <th>Purpose</th>
-<th>Transformation</th>
+<th>Input dims</th>
+<th>Output dims</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>preprocess_aux_for_interpolation()</code></td>
-<td>Minimal preprocessing for interpolation</td>
-<td>sv:32 -&gt; sid:384</td>
+<td>Minimal prep for interpolation</td>
+<td>sv: 32</td>
+<td>sid: 384</td>
 </tr>
 <tr>
 <td><code>prep_aux_ds()</code></td>
-<td>Full preprocessing for Icechunk storage</td>
-<td>sv:32 -&gt; sid:~2000</td>
+<td>Full prep for Icechunk storage</td>
+<td>sv: 32</td>
+<td>sid: ~2000</td>
 </tr>
 <tr>
 <td><code>map_aux_sv_to_sid()</code></td>
-<td>Step 1: sv to sid conversion</td>
-<td>sv:32 -&gt; sid:384</td>
+<td>Step 1: expand sv → sid</td>
+<td>sv: 32</td>
+<td>sid: 384</td>
 </tr>
 <tr>
 <td><code>pad_to_global_sid()</code></td>
 <td>Step 2: pad to all constellations</td>
-<td>sid:384 -&gt; sid:~2000</td>
+<td>sid: 384</td>
+<td>sid: ~2000</td>
 </tr>
 <tr>
 <td><code>normalize_sid_dtype()</code></td>
 <td>Step 3: convert to object dtype</td>
-<td>dtype fix</td>
+<td>—</td>
+<td>dtype fixed</td>
 </tr>
 <tr>
 <td><code>strip_fillvalue()</code></td>
-<td>Step 4: remove _FillValue attributes</td>
-<td>attribute cleanup</td>
+<td>Step 4: remove <code>_FillValue</code> attrs</td>
+<td>—</td>
+<td>attrs cleaned</td>
 </tr>
 </tbody>
 </table>
-<h2 id="step-1-map_aux_sv_to_sid">Step 1: map_aux_sv_to_sid()<a class="headerlink" href="#step-1-map_aux_sv_to_sid" title="Permanent link">&para;</a></h2>
-<p>Each satellite position is replicated across all its signal IDs:</p>
+<hr />
+<h2 id="step-1-map_aux_sv_to_sid">Step 1 — <code>map_aux_sv_to_sid()</code><a class="headerlink" href="#step-1-map_aux_sv_to_sid" title="Permanent link">&para;</a></h2>
+<p>Each satellite position is <strong>replicated</strong> across all its signal IDs:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">map_aux_sv_to_sid</span>
 
 <span class="n">sp3_sid</span> <span class="o">=</span> <span class="n">map_aux_sv_to_sid</span><span class="p">(</span><span class="n">sp3_data</span><span class="p">)</span>
 
-<span class="c1"># G01 position replicated across all signal IDs</span>
-<span class="n">sp3_sid</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sid</span><span class="o">=</span><span class="s1">&#39;G01|L1|C&#39;</span><span class="p">)</span>  <span class="c1"># 12345678.9 m</span>
-<span class="n">sp3_sid</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sid</span><span class="o">=</span><span class="s1">&#39;G01|L2|W&#39;</span><span class="p">)</span>  <span class="c1"># 12345678.9 m (identical)</span>
-<span class="n">sp3_sid</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sid</span><span class="o">=</span><span class="s1">&#39;G01|L5|I&#39;</span><span class="p">)</span>  <span class="c1"># 12345678.9 m (identical)</span>
+<span class="c1"># G01 position is identical for every signal ID of G01</span>
+<span class="n">sp3_sid</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sid</span><span class="o">=</span><span class="s2">&quot;G01|L1|C&quot;</span><span class="p">)</span>  <span class="c1"># 12 345 678.9 m</span>
+<span class="n">sp3_sid</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sid</span><span class="o">=</span><span class="s2">&quot;G01|L2|W&quot;</span><span class="p">)</span>  <span class="c1"># 12 345 678.9 m  (same)</span>
+<span class="n">sp3_sid</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sid</span><span class="o">=</span><span class="s2">&quot;G01|L5|I&quot;</span><span class="p">)</span>  <span class="c1"># 12 345 678.9 m  (same)</span>
 </code></pre></div>
-<p>Signal IDs generated for GPS G01:
-<div class="highlight"><pre><span></span><code>[&#39;G01|L1|C&#39;, &#39;G01|L1|L&#39;, &#39;G01|L1|P&#39;, &#39;G01|L1|S&#39;, &#39;G01|L1|W&#39;, &#39;G01|L1|X&#39;, &#39;G01|L1|Y&#39;,
- &#39;G01|L2|C&#39;, &#39;G01|L2|D&#39;, &#39;G01|L2|L&#39;, &#39;G01|L2|M&#39;, &#39;G01|L2|P&#39;, &#39;G01|L2|S&#39;, &#39;G01|L2|W&#39;,
- &#39;G01|L2|X&#39;, &#39;G01|L2|Y&#39;, &#39;G01|L5|I&#39;, &#39;G01|L5|Q&#39;, &#39;G01|L5|X&#39;, &#39;G01|X1|X&#39;]
-</code></pre></div></p>
-<p>Signal ID format: <code>"{SV}|{BAND}|{CODE}"</code>
-- SV: Satellite vehicle (G01, E02, R24)
-- BAND: Frequency band (L1, L2, L5, E1, E5a, G1, G2)
-- CODE: Tracking code (C, P, W, I, Q, X)</p>
-<h2 id="step-2-pad_to_global_sid">Step 2: pad_to_global_sid()<a class="headerlink" href="#step-2-pad_to_global_sid" title="Permanent link">&para;</a></h2>
-<p>Pads the dataset to include all possible signal IDs across all constellations (~1987 total). This ensures consistent dimensions for Icechunk storage, where appended datasets must share the same coordinate space.</p>
-<h2 id="step-3-normalize_sid_dtype">Step 3: normalize_sid_dtype()<a class="headerlink" href="#step-3-normalize_sid_dtype" title="Permanent link">&para;</a></h2>
-<p>Converts the sid coordinate to object dtype for Zarr/Icechunk compatibility. Fixed-length Unicode string types cause dtype conflicts during sequential appends.</p>
-<h2 id="step-4-strip_fillvalue">Step 4: strip_fillvalue()<a class="headerlink" href="#step-4-strip_fillvalue" title="Permanent link">&para;</a></h2>
-<p>Removes <code>_FillValue</code> attributes that conflict with Icechunk's internal missing-data handling. NaN serves as the standard missing value marker.</p>
-<h2 id="scientific-correctness-of-data-replication">Scientific Correctness of Data Replication<a class="headerlink" href="#scientific-correctness-of-data-replication" title="Permanent link">&para;</a></h2>
-<p>Replicating satellite positions across signal IDs is scientifically valid: satellite position is independent of signal frequency. All signals originate from the same antenna. Position accuracy of IGS final products is approximately 1 cm, and antenna offset corrections at the millimeter level are already applied in SP3 files.</p>
+<p>Signal IDs generated for GPS G01 (~20 total):</p>
+<div class="highlight"><pre><span></span><code>G01|L1|C  G01|L1|L  G01|L1|P  G01|L1|S  G01|L1|W  G01|L1|X  G01|L1|Y
+G01|L2|C  G01|L2|D  G01|L2|L  G01|L2|M  G01|L2|P  G01|L2|S  G01|L2|W
+G01|L2|X  G01|L2|Y  G01|L5|I  G01|L5|Q  G01|L5|X  G01|X1|X
+</code></pre></div>
+<p>Signal ID format: <code>"{SV}|{BAND}|{CODE}"</code> — e.g. <code>"G01|L1|C"</code>, <code>"E08|E5a|Q"</code>.</p>
+<hr />
+<h2 id="step-2-pad_to_global_sid">Step 2 — <code>pad_to_global_sid()</code><a class="headerlink" href="#step-2-pad_to_global_sid" title="Permanent link">&para;</a></h2>
+<p>Pads the Dataset to include <strong>all possible</strong> Signal IDs across all supported constellations (~1 987 total). Required for Icechunk storage, where sequentially appended datasets must share the same coordinate space.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">pad_to_global_sid</span>
+
+<span class="n">sp3_global</span> <span class="o">=</span> <span class="n">pad_to_global_sid</span><span class="p">(</span><span class="n">sp3_sid</span><span class="p">)</span>
+<span class="n">sp3_global</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;sid&quot;</span><span class="p">]</span>   <span class="c1"># 1987</span>
+</code></pre></div>
+<p>Missing SIDs are filled with <code>NaN</code> — they carry no observations and are stripped during VOD computation.</p>
+<hr />
+<h2 id="step-3-normalize_sid_dtype">Step 3 — <code>normalize_sid_dtype()</code><a class="headerlink" href="#step-3-normalize_sid_dtype" title="Permanent link">&para;</a></h2>
+<p>Converts the <code>sid</code> coordinate to <code>object</code> dtype for Zarr/Icechunk compatibility. Fixed-length Unicode string types (<code>&lt;U12</code>, etc.) cause dtype conflicts when datasets from different files are concatenated and appended.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_sid_dtype</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">normalize_sid_dtype</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+<span class="n">ds</span><span class="p">[</span><span class="s2">&quot;sid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>   <span class="c1"># dtype(&#39;O&#39;)</span>
+</code></pre></div>
+<hr />
+<h2 id="step-4-strip_fillvalue">Step 4 — <code>strip_fillvalue()</code><a class="headerlink" href="#step-4-strip_fillvalue" title="Permanent link">&para;</a></h2>
+<p>Removes <code>_FillValue</code> attributes that conflict with Icechunk's internal missing-data handling. NaN is the standard missing-value marker throughout the pipeline.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">strip_fillvalue</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">strip_fillvalue</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+<span class="c1"># No variable in ds.data_vars has a &quot;_FillValue&quot; encoding key</span>
+</code></pre></div>
+<hr />
+<h2 id="scientific-note">Scientific Note<a class="headerlink" href="#scientific-note" title="Permanent link">&para;</a></h2>
+<p>Replicating satellite positions across signal IDs is scientifically valid:</p>
+<div class="admonition success">
+<p class="admonition-title">Position is frequency-independent</p>
+<p>All signals originate from the same satellite antenna phase centre.
+IGS SP3 final products have ~1 cm accuracy, with antenna offset
+corrections already applied. The replication introduces zero error.</p>
+</div>
 
 
 

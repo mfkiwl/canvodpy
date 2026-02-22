@@ -1794,10 +1794,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#build-backend-configuration" class="md-nav__link">
+  <a href="#build-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build Backend Configuration
+        Build Configuration
       
     </span>
   </a>
@@ -1813,34 +1813,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Building">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#wheel-contents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Wheel Contents
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#building-all-packages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building All Packages
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1855,41 +1827,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#publishing-to-pypi" class="md-nav__link">
+  <a href="#publishing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Publishing to PyPI
+        Publishing
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Publishing to PyPI">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#test-on-testpypi" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Test on TestPyPI
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#publish-to-production" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Publish to Production
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1898,28 +1842,6 @@
     <span class="md-ellipsis">
       
         Version Management
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#including-extra-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Including Extra Files
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#console-scripts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Console Scripts
       
     </span>
   </a>
@@ -2562,10 +2484,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#build-backend-configuration" class="md-nav__link">
+  <a href="#build-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build Backend Configuration
+        Build Configuration
       
     </span>
   </a>
@@ -2581,34 +2503,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Building">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#wheel-contents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Wheel Contents
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#building-all-packages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building All Packages
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2623,41 +2517,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#publishing-to-pypi" class="md-nav__link">
+  <a href="#publishing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Publishing to PyPI
+        Publishing
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Publishing to PyPI">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#test-on-testpypi" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Test on TestPyPI
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#publish-to-production" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Publish to Production
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2666,28 +2532,6 @@
     <span class="md-ellipsis">
       
         Version Management
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#including-extra-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Including Extra Files
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#console-scripts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Console Scripts
       
     </span>
   </a>
@@ -2772,55 +2616,68 @@
 
 
 <h1 id="build-system">Build System<a class="headerlink" href="#build-system" title="Permanent link">&para;</a></h1>
+<p>canVODpy uses <code>uv_build</code> as its build backend — a modern, fast backend from the Astral ecosystem with native namespace package support.</p>
+<hr />
 <h2 id="distribution-formats">Distribution Formats<a class="headerlink" href="#distribution-formats" title="Permanent link">&para;</a></h2>
-<p>Python packages are distributed in two formats:</p>
-<p><strong>Source distribution (sdist):</strong> <code>canvod_readers-0.1.0.tar.gz</code> -- contains source code and metadata. Requires a build step during installation.</p>
-<p><strong>Wheel (built distribution):</strong> <code>canvod_readers-0.1.0-py3-none-any.whl</code> -- pre-built, ready to install by copying to site-packages. Preferred format for installation.</p>
-<p>Wheel filename components:
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Wheel (preferred)</label><label for="__tabbed_1_2">Source Distribution</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Pre-built, installed by copying to <code>site-packages</code>. No build step at install time.</p>
 <div class="highlight"><pre><span></span><code>canvod_readers-0.1.0-py3-none-any.whl
-  package name - version - python - ABI - platform
-</code></pre></div></p>
-<h2 id="build-backend-configuration">Build Backend Configuration<a class="headerlink" href="#build-backend-configuration" title="Permanent link">&para;</a></h2>
+└── canvod/
+    └── readers/          ← namespace package (no canvod/__init__.py)
+        ├── __init__.py
+        └── base.py
+</code></pre></div>
+<p>Filename anatomy: <code>{name}-{version}-{python}-{abi}-{platform}.whl</code>.
+The <code>py3-none-any</code> suffix means: any Python 3, no native extensions, any platform.</p>
+</div>
+<div class="tabbed-block">
+<p><code>canvod_readers-0.1.0.tar.gz</code> — contains source code + metadata.
+Requires a build step during installation. Provided alongside wheels for PyPI.</p>
+</div>
+</div>
+</div>
+<hr />
+<h2 id="build-configuration">Build Configuration<a class="headerlink" href="#build-configuration" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="c1"># packages/canvod-readers/pyproject.toml</span>
 <span class="k">[build-system]</span>
-<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uv_build&gt;=0.9.17,&lt;0.10.0&quot;</span><span class="p">]</span>
+<span class="n">requires</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uv_build&gt;=0.9.17,&lt;0.10.0&quot;</span><span class="p">]</span>
 <span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;uv_build&quot;</span>
 
 <span class="k">[tool.uv.build-backend]</span>
-<span class="n">module-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;canvod.readers&quot;</span><span class="w">       </span><span class="c1"># Dot creates namespace package</span>
+<span class="n">module-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;canvod.readers&quot;</span><span class="w">       </span><span class="c1"># dot → namespace package</span>
+<span class="n">include</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/canvod/readers/data/*.dat&quot;</span><span class="p">]</span>
+<span class="n">exclude</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/canvod/readers/tests/&quot;</span><span class="p">]</span>
 </code></pre></div>
-<p>The dotted <code>module-name</code> instructs uv_build to create a namespace package structure: <code>canvod/</code> contains no <code>__init__.py</code>, while <code>canvod/readers/</code> is the actual module.</p>
+<div class="admonition note">
+<p class="admonition-title">canvod-utils exception</p>
+<p><code>canvod-utils</code> uses <code>hatchling</code> as its build backend — the only
+package in the monorepo that does not use <code>uv_build</code>.</p>
+</div>
+<hr />
 <h2 id="building">Building<a class="headerlink" href="#building" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>packages/canvod-readers
+<div class="highlight"><pre><span></span><code><span class="c1"># Single package</span>
+<span class="nb">cd</span><span class="w"> </span>packages/canvod-readers
 uv<span class="w"> </span>build
+<span class="c1"># → dist/canvod_readers-0.1.0.tar.gz</span>
+<span class="c1"># → dist/canvod_readers-0.1.0-py3-none-any.whl</span>
+
+<span class="c1"># All packages at once</span>
+just<span class="w"> </span>dist
 </code></pre></div>
-<p>This produces:
-- <code>dist/canvod_readers-0.1.0.tar.gz</code>
-- <code>dist/canvod_readers-0.1.0-py3-none-any.whl</code></p>
-<h3 id="wheel-contents">Wheel Contents<a class="headerlink" href="#wheel-contents" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>canvod/                           # Namespace directory (no __init__.py)
-  readers/                        # Module directory
-    __init__.py
-    base.py
-    rinex/
-      ...
-canvod_readers-0.1.0.dist-info/   # Metadata
-  METADATA
-  WHEEL
-  RECORD
-</code></pre></div>
-<h3 id="building-all-packages">Building All Packages<a class="headerlink" href="#building-all-packages" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>just<span class="w"> </span>dist<span class="w">                         </span><span class="c1"># Build all packages</span>
-</code></pre></div>
+<hr />
 <h2 id="package-metadata">Package Metadata<a class="headerlink" href="#package-metadata" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="k">[project]</span>
-<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;canvod-readers&quot;</span>
-<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span>
-<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;GNSS data format readers for canVODpy&quot;</span>
-<span class="n">readme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;README.md&quot;</span>
-<span class="n">license</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">text</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;Apache-2.0&quot;</span><span class="p">}</span>
-<span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span><span class="n">name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;Nicolas Bader&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;nicolas.bader@geo.tuwien.ac.at&quot;</span><span class="p">}]</span>
-<span class="n">keywords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;gnss&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;rinex&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;geodesy&quot;</span><span class="p">]</span>
+<span class="n">name</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;canvod-readers&quot;</span>
+<span class="n">version</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span>
+<span class="n">description</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;GNSS data format readers for canVODpy&quot;</span>
+<span class="n">readme</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;README.md&quot;</span>
+<span class="n">license</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">text</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;Apache-2.0&quot;</span><span class="p">}</span>
+<span class="n">authors</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span><span class="n">name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;Nicolas Bader&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;nicolas.bader@geo.tuwien.ac.at&quot;</span><span class="p">}]</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&gt;=3.13&quot;</span>
+<span class="n">keywords</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;gnss&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;rinex&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;geodesy&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;vod&quot;</span><span class="p">]</span>
+
 <span class="n">classifiers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="s2">&quot;Development Status :: 3 - Alpha&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s2">&quot;Intended Audience :: Science/Research&quot;</span><span class="p">,</span>
@@ -2828,46 +2685,70 @@ canvod_readers-0.1.0.dist-info/   # Metadata
 <span class="w">    </span><span class="s2">&quot;Programming Language :: Python :: 3.13&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s2">&quot;Topic :: Scientific/Engineering :: GIS&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&gt;=3.13&quot;</span>
-<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;numpy&gt;=1.24&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pandas&gt;=2.0&quot;</span><span class="p">]</span>
+
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;numpy&gt;=2.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;xarray&gt;=2024.0&quot;</span><span class="p">]</span>
 
 <span class="k">[project.urls]</span>
-<span class="n">Homepage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/nfb2021/canvodpy&quot;</span>
+<span class="n">Homepage</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/nfb2021/canvodpy&quot;</span>
 <span class="n">Repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/nfb2021/canvodpy&quot;</span>
-<span class="n">Issues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/nfb2021/canvodpy/issues&quot;</span>
+<span class="n">Issues</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/nfb2021/canvodpy/issues&quot;</span>
 </code></pre></div>
-<h2 id="publishing-to-pypi">Publishing to PyPI<a class="headerlink" href="#publishing-to-pypi" title="Permanent link">&para;</a></h2>
-<h3 id="test-on-testpypi">Test on TestPyPI<a class="headerlink" href="#test-on-testpypi" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="publishing">Publishing<a class="headerlink" href="#publishing" title="Permanent link">&para;</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">TestPyPI (test first)</label><label for="__tabbed_2_2">Production PyPI</label><label for="__tabbed_2_3">Automated (CI/CD)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>packages/canvod-readers
 uv<span class="w"> </span>build
 uv<span class="w"> </span>publish<span class="w"> </span>--repository<span class="w"> </span>testpypi
+
+<span class="c1"># Verify installation</span>
 pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://test.pypi.org/simple/<span class="w"> </span>canvod-readers
 </code></pre></div>
-<h3 id="publish-to-production">Publish to Production<a class="headerlink" href="#publish-to-production" title="Permanent link">&para;</a></h3>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code>uv<span class="w"> </span>build
 uv<span class="w"> </span>publish
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>The <code>just release</code> command handles version bump + publish for all packages.
+See <a href="../../RELEASING/"><code>docs/RELEASING.md</code></a> for the full release workflow.</p>
+</div>
+</div>
+</div>
+<hr />
 <h2 id="version-management">Version Management<a class="headerlink" href="#version-management" title="Permanent link">&para;</a></h2>
-<p>All packages follow <a href="https://semver.org/">Semantic Versioning</a> with unified version numbers.</p>
-<div class="highlight"><pre><span></span><code>just<span class="w"> </span>bump<span class="w"> </span>patch<span class="w">    </span><span class="c1"># 0.1.0 -&gt; 0.1.1</span>
-just<span class="w"> </span>bump<span class="w"> </span>minor<span class="w">    </span><span class="c1"># 0.1.0 -&gt; 0.2.0</span>
-just<span class="w"> </span>bump<span class="w"> </span>major<span class="w">    </span><span class="c1"># 0.1.0 -&gt; 1.0.0</span>
+<p>All packages follow <a href="https://semver.org/">Semantic Versioning</a> with unified version numbers across the monorepo.</p>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>bump<span class="w"> </span>patch<span class="w">    </span><span class="c1"># 0.1.0 → 0.1.1  (bug fix)</span>
+just<span class="w"> </span>bump<span class="w"> </span>minor<span class="w">    </span><span class="c1"># 0.1.0 → 0.2.0  (new feature, backwards compatible)</span>
+just<span class="w"> </span>bump<span class="w"> </span>major<span class="w">    </span><span class="c1"># 0.1.0 → 1.0.0  (breaking change)</span>
 </code></pre></div>
-<p>Version bumps update <code>pyproject.toml</code> in all packages, create a git commit, and tag the release.</p>
-<h2 id="including-extra-files">Including Extra Files<a class="headerlink" href="#including-extra-files" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="k">[tool.uv.build-backend]</span>
-<span class="n">module-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;canvod.readers&quot;</span>
-<span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/canvod/readers/data/*.dat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;LICENSE&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;README.md&quot;</span><span class="p">]</span>
-<span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/canvod/readers/tests/&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;*.pyc&quot;</span><span class="p">]</span>
-</code></pre></div>
-<h2 id="console-scripts">Console Scripts<a class="headerlink" href="#console-scripts" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="k">[project.scripts]</span>
-<span class="n">canvod-read</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;canvod.readers.cli:main&quot;</span>
-</code></pre></div>
+<p>A version bump:</p>
+<ol>
+<li>Updates <code>version</code> in all <code>pyproject.toml</code> files.</li>
+<li>Creates a git commit <code>chore: bump version to x.y.z</code>.</li>
+<li>Creates a git tag <code>vx.y.z</code>.</li>
+</ol>
+<hr />
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<p><strong>ModuleNotFoundError</strong>: Verify <code>module-name</code> in <code>pyproject.toml</code> uses dotted notation.</p>
-<p><strong>Wrong package structure</strong>: Ensure <code>module-name = "canvod.readers"</code> (with dot), not <code>"canvod_readers"</code>.</p>
-<p><strong>Build failures</strong>: Run <code>uv build --verbose</code> for detailed diagnostics.</p>
+<div class="admonition failure">
+<p class="admonition-title"><code>ModuleNotFoundError</code> after install</p>
+<p>Verify <code>module-name</code> in <code>pyproject.toml</code> uses dotted notation:
+<div class="highlight"><pre><span></span><code><span class="n">module-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;canvod.readers&quot;</span><span class="w">    </span><span class="c1"># correct</span>
+<span class="c1"># module-name = &quot;canvod_readers&quot;  # wrong — creates regular package</span>
+</code></pre></div></p>
+</div>
+<div class="admonition failure">
+<p class="admonition-title">Wrong package structure in wheel</p>
+<p>Run <code>unzip -l dist/*.whl</code> to inspect contents.
+The wheel must contain <code>canvod/readers/</code> but <strong>not</strong> <code>canvod/__init__.py</code>.</p>
+</div>
+<div class="admonition failure">
+<p class="admonition-title">Build failures</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>build<span class="w"> </span>--verbose<span class="w">    </span><span class="c1"># detailed diagnostics</span>
+</code></pre></div>
+</div>
 
 
 

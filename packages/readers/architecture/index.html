@@ -3053,9 +3053,9 @@
     D --&gt; C
 </code></pre>
 <h3 id="layer-responsibilities">Layer Responsibilities<a class="headerlink" href="#layer-responsibilities" title="Permanent link">&para;</a></h3>
-<p><strong>User Layer</strong> -- Instantiates readers, calls <code>to_ds()</code> and <code>iter_epochs()</code>, and operates on returned Datasets.</p>
+<p><strong>User Layer</strong> -- Instantiates readers, calls <code>to_ds()</code> or <code>iter_epochs()</code>, and operates on returned Datasets.</p>
 <p><strong>Interface Layer (ABC)</strong> -- Defines required methods, enforces contracts, and validates output structure.</p>
-<p><strong>Implementation Layer (Concrete Readers)</strong> -- Parses specific formats, implements abstract methods, and handles format-specific details.</p>
+<p><strong>Implementation Layer (Concrete Readers)</strong> -- Parses specific formats, implements abstract methods, and handles format-specific details. <code>Rnxv3Obs</code> reads RINEX v3.04 text.</p>
 <p><strong>Support Layer</strong> -- Provides constellation specifications (GPS, Galileo, etc.), Signal ID mapping, and metadata templates.</p>
 <p><strong>Model Layer (Pydantic)</strong> -- Supplies type-safe data models with automatic validation for parsing RINEX structure.</p>
 <h2 id="component-interactions">Component Interactions<a class="headerlink" href="#component-interactions" title="Permanent link">&para;</a></h2>
@@ -3102,6 +3102,37 @@
 <li><strong>Validator</strong> ensures output meets structural requirements.</li>
 </ol>
 <h2 id="design-principles">Design Principles<a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h2>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M256 0c4.6 0 9.2 1 13.4 2.9l188.4 79.9c22 9.3 38.4 31 38.3 57.2-.5 99.2-41.3 280.7-213.6 363.2-16.7 8-36.1 8-52.8 0C57.3 420.7 16.6 239.2 16.1 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.9 1 251.4 0 256 0m0 66.8v378.1c138-66.8 175.1-214.8 176-303.4L256 66.9z"/></svg></span> &nbsp; <strong>Early Validation</strong></p>
+<hr />
+<p>Errors discovered during analysis are expensive to diagnose. Validation happens at
+parse time via Pydantic — invalid headers, wrong RINEX versions, and bad dtypes
+fail immediately with structured error messages.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M288.2 0c0-17.7-14.3-32-32-32s-32 14.3-32 32v62.1l-15-15c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l49 49v70.6l-61.2-35.3-17.9-66.9c-3.4-12.8-16.6-20.4-29.4-17S95.3 98 98.7 110.8l5.5 20.5-53.7-31C35.2 91.5 15.6 96.7 6.8 112s-3.6 34.9 11.7 43.7l53.7 31-20.5 5.5c-12.8 3.4-20.4 16.6-17 29.4s16.6 20.4 29.4 17l66.9-17.9 61.2 35.3-61.2 35.3-66.9-17.9c-12.8-3.4-26 4.2-29.4 17s4.2 26 17 29.4l20.5 5.5-53.7 31C3.2 365.1-2 384.7 6.8 400s28.4 20.6 43.7 11.7l53.7-31-5.5 20.5c-3.4 12.8 4.2 26 17 29.4s26-4.2 29.4-17l17.9-66.9 61.2-35.3V382l-49 49c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l15-15V512c0 17.7 14.3 32 32 32s32-14.3 32-32v-62.1l15 15c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-49-49v-70.6l61.2 35.3 17.9 66.9c3.4 12.8 16.6 20.4 29.4 17s20.4-16.6 17-29.4l-5.5-20.5 53.7 31c15.3 8.8 34.9 3.6 43.7-11.7s3.6-34.9-11.7-43.7l-53.7-31 20.5-5.5c12.8-3.4 20.4-16.6 17-29.4s-16.6-20.4-29.4-17l-66.9 17.9L320 256l61.2-35.3 66.9 17.9c12.8 3.4 26-4.2 29.4-17s-4.2-26-17-29.4l-20.5-5.5 53.7-31c15.3-8.8 20.6-28.4 11.7-43.7s-28.4-20.5-43.7-11.7l-53.7 31 5.5-20.5c3.4-12.8-4.2-26-17-29.4s-26 4.2-29.4 17l-17.9 66.9-61.2 35.3V130l49-49c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-15 15V0z"/></svg></span> &nbsp; <strong>Immutability</strong></p>
+<hr />
+<p>Readers are <code>frozen=True</code> Pydantic models. Once constructed, <code>reader.fpath</code>
+cannot be reassigned — predictable, thread-safe, cacheable.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M224 0c35.3 0 64 21.5 64 48 0 10.4-4.4 20-12 27.9-6.6 6.9-12 15.3-12 24.9 0 15 12.2 27.2 27.2 27.2H336c26.5 0 48 21.5 48 48v44.8c0 15 12.2 27.2 27.2 27.2 9.5 0 18-5.4 24.9-12 7.9-7.5 17.5-12 27.9-12 26.5 0 48 28.7 48 64s-21.5 64-48 64c-10.4 0-20.1-4.4-27.9-12-6.9-6.6-15.3-12-24.9-12-15 0-27.2 12.2-27.2 27.2V464c0 26.5-21.5 48-48 48h-56.8c-12.8 0-23.2-10.4-23.2-23.2 0-9.2 5.8-17.3 13.2-22.8 11.6-8.7 18.8-20.7 18.8-34 0-26.5-28.7-48-64-48s-64 21.5-64 48c0 13.3 7.2 25.3 18.8 34 7.4 5.5 13.2 13.5 13.2 22.8 0 12.8-10.4 23.2-23.2 23.2H48c-26.5 0-48-21.5-48-48V343.2C0 330.4 10.4 320 23.2 320c9.2 0 17.3 5.8 22.8 13.2 8.7 11.6 20.7 18.8 34 18.8 26.5 0 48-28.7 48-64s-21.5-64-48-64c-13.3 0-25.3 7.2-34 18.8-5.5 7.4-13.5 13.2-22.8 13.2C10.4 256 0 245.6 0 232.8V176c0-26.5 21.5-48 48-48h108.8c15 0 27.2-12.2 27.2-27.2 0-9.5-5.4-18-12-24.9-7.5-7.9-12-17.5-12-27.9 0-26.5 28.7-48 64-48"/></svg></span> &nbsp; <strong>Separation of Concerns</strong></p>
+<hr />
+<p>Format-specific parsing (RINEX text) is contained within the reader.
+Generic processing — Signal ID mapping, coordinate transforms, validation — lives in
+shared helpers used by all readers.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M249.9 66.8c10.4-14.3 7.2-34.3-7.1-44.7s-34.3-7.2-44.7 7.1l-106 145.7-37.5-37.5c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l64 64c6.6 6.6 15.8 10 25.1 9.3s17.9-5.5 23.4-13.1l128-176zm128 136c10.4-14.3 7.2-34.3-7.1-44.7s-34.3-7.2-44.7 7.1l-170 233.7-69.5-69.5c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c6.6 6.6 15.8 10 25.1 9.3s17.9-5.5 23.4-13.1l192-264z"/></svg></span> &nbsp; <strong>Mandatory Validation</strong></p>
+<hr />
+<p>Every Dataset must pass <code>DatasetStructureValidator</code> before being returned.
+The base class <code>validate_output()</code> is called at the end of every <code>to_ds()</code> —
+impossible to accidentally skip it.</p>
+</li>
+</ul>
+</div>
 <h3 id="early-validation-with-pydantic">Early Validation with Pydantic<a class="headerlink" href="#early-validation-with-pydantic" title="Permanent link">&para;</a></h3>
 <p>Errors discovered during analysis are expensive to diagnose and correct. Validation is therefore performed during parsing:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">field_validator</span>

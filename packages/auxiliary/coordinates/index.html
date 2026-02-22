@@ -1024,17 +1024,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#ecef-coordinates" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1057,10 +1046,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#spherical-coordinates" class="md-nav__link">
+  <a href="#spherical-coordinates-receiver-relative" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Spherical Coordinates
+        Spherical Coordinates (receiver-relative)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computing-spherical-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Computing Spherical Coordinates
       
     </span>
   </a>
@@ -2476,17 +2476,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#ecef-coordinates" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2509,10 +2498,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#spherical-coordinates" class="md-nav__link">
+  <a href="#spherical-coordinates-receiver-relative" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Spherical Coordinates
+        Spherical Coordinates (receiver-relative)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computing-spherical-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Computing Spherical Coordinates
       
     </span>
   </a>
@@ -2623,48 +2623,119 @@
 
 
 <h1 id="coordinate-systems">Coordinate Systems<a class="headerlink" href="#coordinate-systems" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Three coordinate systems are used in GNSS positioning within canvod-auxiliary:</p>
-<ol>
-<li><strong>ECEF</strong> (Earth-Centered, Earth-Fixed): Cartesian coordinates (X, Y, Z) in meters</li>
-<li><strong>Geodetic</strong> (WGS84): Latitude, longitude (degrees), altitude (meters)</li>
-<li><strong>Spherical</strong>: Slant range, polar angle, azimuth (r, theta, phi) relative to the receiver</li>
-</ol>
+<p>canvod-auxiliary works with three coordinate systems. Knowing which one is used where prevents sign errors and unit confusion in downstream VOD calculations.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="m55.7 199.7 30.9 30.9c6 6 14.1 9.4 22.6 9.4h21.5c8.5 0 16.6 3.4 22.6 9.4l29.3 29.3c6 6 9.4 14.1 9.4 22.6v37.5c0 8.5 3.4 16.6 9.4 22.6l13.3 13.3c6 6 9.4 14.1 9.4 22.6V416c0 17.7 14.3 32 32 32s32-14.3 32-32v-2.7c0-8.5 3.4-16.6 9.4-22.6l45.3-45.3c6-6 9.4-14.1 9.4-22.6v-34.7c0-17.7-14.3-32-32-32h-82.7c-8.5 0-16.6-3.4-22.6-9.4l-16-16c-4.2-4.2-6.6-10-6.6-16 0-12.5 10.1-22.6 22.6-22.6h34.7c12.5 0 22.6-10.1 22.6-22.6 0-6-2.4-11.8-6.6-16l-19.7-19.7c-3.9-3.8-5.9-8.7-5.9-13.8s2-10 5.7-13.7L263 89c5.8-5.8 9.1-13.7 9.1-21.9 0-7.2-2.4-13.7-6.4-18.9-3.2-.1-6.4-.2-9.6-.2-95.4 0-175.7 64.2-200.3 151.7zM464 256c0-34.6-8.4-67.2-23.4-95.8-6.4.9-12.7 3.9-17.9 9.1l-13.4 13.4c-6 6-9.4 14.1-9.4 22.6V240c0 17.7 14.3 32 32 32H456c2.5 0 5-.3 7.3-.8.4-5 .5-10.1.5-15.2zM0 256a256 256 0 1 1 512 0 256 256 0 1 1-512 0"/></svg></span> &nbsp; <strong>ECEF</strong></p>
+<hr />
+<p>Earth-Centered, Earth-Fixed Cartesian <strong>(X, Y, Z)</strong> in metres.
+Used in SP3 ephemerides and the internal satellite position pipeline.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M0 188.6C0 84.4 86 0 192 0s192 84.4 192 188.6c0 119.3-120.2 262.3-170.4 316.8-11.8 12.8-31.5 12.8-43.3 0C120.1 450.9-.1 307.9-.1 188.6zM192 256a64 64 0 1 0 0-128 64 64 0 1 0 0 128"/></svg></span> &nbsp; <strong>Geodetic (WGS84)</strong></p>
+<hr />
+<p>Latitude, longitude (degrees), altitude above ellipsoid (metres).
+Stored in RINEX headers as the approximate receiver position.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m50.7-186.9-144.3 55.5c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31l-55.5 144.3c-3.2 8.5-9.9 15.1-18.4 18.4M288 256a32 32 0 1 0-64 0 32 32 0 1 0 64 0"/></svg></span> &nbsp; <strong>Spherical (receiver-relative)</strong></p>
+<hr />
+<p>Slant range <strong>r</strong>, zenith angle <strong>θ</strong>, geographic azimuth <strong>φ</strong>.
+This is the output added to the obs Dataset for VOD geometry.</p>
+</li>
+</ul>
+</div>
+<hr />
 <h2 id="ecef-coordinates">ECEF Coordinates<a class="headerlink" href="#ecef-coordinates" title="Permanent link">&para;</a></h2>
-<p>Earth-Centered, Earth-Fixed Cartesian coordinates define positions relative to the Earth's center of mass.</p>
+<p>Satellite positions from SP3 files are in ECEF Cartesian coordinates (metres, epoch-tagged to account for Earth's rotation).</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary</span><span class="w"> </span><span class="kn">import</span> <span class="n">ECEFPosition</span>
 
-<span class="n">ecef</span> <span class="o">=</span> <span class="n">ECEFPosition</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">4075539.8</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">931735.3</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">4801629.6</span><span class="p">)</span>
+<span class="c1"># From raw values</span>
+<span class="n">ecef</span> <span class="o">=</span> <span class="n">ECEFPosition</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">4_075_539.8</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">931_735.3</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">4_801_629.6</span><span class="p">)</span>
+
+<span class="c1"># From RINEX Dataset metadata (reads APPROX POSITION header)</span>
 <span class="n">ecef</span> <span class="o">=</span> <span class="n">ECEFPosition</span><span class="o">.</span><span class="n">from_ds_metadata</span><span class="p">(</span><span class="n">rinex_ds</span><span class="p">)</span>
 
+<span class="c1"># Convert to geodetic</span>
 <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">alt</span> <span class="o">=</span> <span class="n">ecef</span><span class="o">.</span><span class="n">to_geodetic</span><span class="p">()</span>
 </code></pre></div>
+<hr />
 <h2 id="geodetic-coordinates">Geodetic Coordinates<a class="headerlink" href="#geodetic-coordinates" title="Permanent link">&para;</a></h2>
-<p>WGS84 geodetic coordinates (latitude, longitude, altitude above ellipsoid).</p>
+<p>WGS84 geodetic coordinates for the <strong>receiver</strong> position — read from the <code>APPROX POSITION XYZ</code> RINEX header field.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeodeticPosition</span>
 
 <span class="n">geo</span> <span class="o">=</span> <span class="n">GeodeticPosition</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="mf">48.2</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="mf">16.4</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="mf">200.0</span><span class="p">)</span>
+
+<span class="c1"># Convert to ECEF for vector calculations</span>
 <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">to_ecef</span><span class="p">()</span>
 </code></pre></div>
-<h2 id="spherical-coordinates">Spherical Coordinates<a class="headerlink" href="#spherical-coordinates" title="Permanent link">&para;</a></h2>
-<p>Spherical coordinates relative to the receiver position, following the navigation convention:</p>
-<ul>
-<li><strong>r</strong>: Slant range from receiver to satellite (meters)</li>
-<li><strong>theta</strong>: Polar angle from zenith [0, pi] radians (0 = zenith, pi/2 = horizon)</li>
-<li><strong>phi</strong>: Azimuthal angle from North, clockwise [0, 2*pi) radians (0 = North, pi/2 = East)</li>
-</ul>
+<hr />
+<h2 id="spherical-coordinates-receiver-relative">Spherical Coordinates (receiver-relative)<a class="headerlink" href="#spherical-coordinates-receiver-relative" title="Permanent link">&para;</a></h2>
+<p>The key output of the auxiliary pipeline — added to the obs Dataset as <code>theta</code> and <code>phi</code> coordinates for each <code>(epoch, sid)</code> cell.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Symbol</th>
+<th>Range</th>
+<th>Convention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Slant range</td>
+<td>r</td>
+<td>≥ 0 m</td>
+<td>Distance from receiver antenna to satellite</td>
+</tr>
+<tr>
+<td>Zenith angle</td>
+<td>θ</td>
+<td>0 … π</td>
+<td>0 = overhead (zenith), π/2 = horizon</td>
+</tr>
+<tr>
+<td>Geographic azimuth</td>
+<td>φ</td>
+<td>0 … 2π</td>
+<td>0 = North, π/2 = East, clockwise</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Zenith angle vs elevation</p>
+<p>VOD literature often uses <strong>elevation</strong> angle <code>e = π/2 − θ</code>.
+canvod-auxiliary stores <strong>zenith angle</strong> θ internally.
+The <code>cos(θ)</code> factor in the tau-omega formula uses θ directly:
+<code>VOD = −ln(T) · cos(θ)</code>.</p>
+</div>
+<hr />
+<h2 id="computing-spherical-coordinates">Computing Spherical Coordinates<a class="headerlink" href="#computing-spherical-coordinates" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_spherical_coordinates</span>
 
 <span class="n">r</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">compute_spherical_coordinates</span><span class="p">(</span>
-    <span class="n">sat_x</span><span class="p">,</span> <span class="n">sat_y</span><span class="p">,</span> <span class="n">sat_z</span><span class="p">,</span> <span class="n">receiver_position</span>
+    <span class="n">sat_x</span><span class="p">,</span> <span class="n">sat_y</span><span class="p">,</span> <span class="n">sat_z</span><span class="p">,</span>   <span class="c1"># satellite ECEF positions (epoch × sv)</span>
+    <span class="n">receiver_position</span><span class="p">,</span>     <span class="c1"># ECEFPosition</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>These coordinates are essential for VOD calculation: theta determines the reflection zone geometry, phi maps to the hemispheric grid azimuth, and r is used in geometric corrections.</p>
+<p>The function:</p>
+<ol>
+<li>Subtracts the receiver ECEF position from each satellite ECEF position.</li>
+<li>Rotates the difference vector into the local ENU (East-North-Up) frame.</li>
+<li>Converts ENU to spherical <code>(r, θ, φ)</code>.</li>
+</ol>
+<hr />
 <h2 id="adding-coordinates-to-datasets">Adding Coordinates to Datasets<a class="headerlink" href="#adding-coordinates-to-datasets" title="Permanent link">&para;</a></h2>
+<p>After computing <code>(r, θ, φ)</code> from interpolated SP3 orbits, the results are broadcast from <code>(epoch × sv)</code> to <code>(epoch × sid)</code> and attached to the obs Dataset:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.auxiliary</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_spherical_coords_to_dataset</span>
 
 <span class="n">augmented_ds</span> <span class="o">=</span> <span class="n">add_spherical_coords_to_dataset</span><span class="p">(</span><span class="n">rinex_ds</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
-<span class="c1"># Adds r, theta, phi as data variables</span>
+
+<span class="c1"># New data variables on (epoch, sid):</span>
+<span class="c1"># augmented_ds[&quot;theta&quot;]   → zenith angle [rad]</span>
+<span class="c1"># augmented_ds[&quot;phi&quot;]     → geographic azimuth [rad]</span>
+<span class="c1"># augmented_ds[&quot;r&quot;]       → slant range [m]</span>
 </code></pre></div>
 
 

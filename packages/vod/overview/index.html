@@ -1253,21 +1253,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#theoretical-background" class="md-nav__link">
+  <a href="#physical-background" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Theoretical Background
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multi-receiver-scs-expansion" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multi-Receiver SCS Expansion
+        Physical Background
       
     </span>
   </a>
@@ -1283,45 +1272,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#direct-instantiation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Direct instantiation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-aligned-datasets" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From aligned datasets
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-icechunk-store" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From Icechunk store
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1329,6 +1279,17 @@
     <span class="md-ellipsis">
       
         Output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-receiver-scs-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Receiver SCS Expansion
       
     </span>
   </a>
@@ -2537,21 +2498,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#theoretical-background" class="md-nav__link">
+  <a href="#physical-background" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Theoretical Background
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multi-receiver-scs-expansion" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multi-Receiver SCS Expansion
+        Physical Background
       
     </span>
   </a>
@@ -2567,45 +2517,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#direct-instantiation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Direct instantiation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-aligned-datasets" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From aligned datasets
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-icechunk-store" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From Icechunk store
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -2613,6 +2524,17 @@
     <span class="md-ellipsis">
       
         Output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-receiver-scs-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Receiver SCS Expansion
       
     </span>
   </a>
@@ -2725,89 +2647,45 @@
 <h1 id="canvod-vod">canvod-vod<a class="headerlink" href="#canvod-vod" title="Permanent link">&para;</a></h1>
 <h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
 <p>The <code>canvod-vod</code> package implements vegetation optical depth (VOD) estimation from GNSS signal-to-noise ratio (SNR) data. It provides the core scientific algorithms for the canVODpy analysis pipeline.</p>
-<h2 id="theoretical-background">Theoretical Background<a class="headerlink" href="#theoretical-background" title="Permanent link">&para;</a></h2>
-<p>The package implements the zeroth-order tau-omega radiative transfer model for GNSS-transmissometry, following Humphrey and Frankenberg (2022). In this model, the attenuation of GNSS signals passing through a vegetation canopy is related to the optical depth (tau) of the canopy layer.</p>
-<p>The zeroth-order model assumes:
-- Single-scattering approximation (no multiple scattering between canopy elements)
+<hr />
+<h2 id="physical-background">Physical Background<a class="headerlink" href="#physical-background" title="Permanent link">&para;</a></h2>
+<div class="admonition abstract">
+<p class="admonition-title">Tau-Omega Radiative Transfer Model</p>
+<p>canvod-vod implements the <strong>zeroth-order tau-omega</strong> model for GNSS-Transmissometry,
+following Humphrey &amp; Frankenberg (2022).</p>
+<p>A reference receiver in open sky and a canopy receiver beneath vegetation observe
+the same satellite at zenith angle θ. The SNR difference encodes the two-way
+canopy attenuation:</p>
+<div class="arithmatex">\[\Delta\text{SNR} = \text{SNR}_\text{canopy} - \text{SNR}_\text{reference}\]</div>
+<div class="arithmatex">\[T = 10^{\Delta\text{SNR} / 10} \qquad \text{(linear transmissivity)}\]</div>
+<div class="arithmatex">\[\text{VOD} = -\ln(T) \cdot \cos\theta\]</div>
+<p>Assumptions:
+- Single-scattering approximation (no multiple canopy reflections)
 - Plane-parallel canopy layer
-- Signal attenuation proportional to the path length through the canopy</p>
-<h2 id="multi-receiver-scs-expansion">Multi-Receiver SCS Expansion<a class="headerlink" href="#multi-receiver-scs-expansion" title="Permanent link">&para;</a></h2>
-<p>When a reference receiver serves multiple canopy receivers, its satellite geometry must be recomputed relative to each canopy position. The <code>scs_from</code> configuration controls this expansion, creating separate store groups and matched VOD analysis pairs.</p>
-<pre class="mermaid"><code>flowchart TD
-    subgraph FIELD["Field Setup"]
-        C1["Canopy Receiver 1 (below canopy, NE)"]
-        C2["Canopy Receiver 2 (below canopy, SW)"]
-        R1["Reference Receiver (open sky)"]
-    end
-
-    subgraph SCS_CONFIG["SCS Configuration (sites.yaml)"]
-        C1_CFG["canopy_01 type: canopy scs_from: null (uses own position)"]
-        C2_CFG["canopy_02 type: canopy scs_from: null (uses own position)"]
-        R1_CFG["reference_01 type: reference scs_from:   - canopy_01   - canopy_02"]
-    end
-
-    subgraph EXPANSION["SCS Processing Expansion"]
-        C1_PROC["Process canopy_01 position: canopy_01"]
-        C2_PROC["Process canopy_02 position: canopy_02"]
-        R1_C1["Process reference_01 position: canopy_01 (satellite geometry relative to canopy_01)"]
-        R1_C2["Process reference_01 position: canopy_02 (satellite geometry relative to canopy_02)"]
-    end
-
-    subgraph STORE_GROUPS["RINEX Store Groups"]
-        SG1["canopy_01"]
-        SG2["canopy_02"]
-        SG3["reference_01_canopy_01"]
-        SG4["reference_01_canopy_02"]
-    end
-
-    subgraph VOD_PAIRS["VOD Analysis Pairs"]
-        VP1["canopy_01 vs reference_01_canopy_01"]
-        VP2["canopy_02 vs reference_01_canopy_02"]
-    end
-
-    subgraph VOD_OUT["VOD Output"]
-        V1["VOD (canopy_01) SNR attenuation by canopy at position 1"]
-        V2["VOD (canopy_02) SNR attenuation by canopy at position 2"]
-    end
-
-    C1 --&gt; C1_CFG
-    C2 --&gt; C2_CFG
-    R1 --&gt; R1_CFG
-
-    C1_CFG --&gt; C1_PROC
-    C2_CFG --&gt; C2_PROC
-    R1_CFG --&gt; R1_C1
-    R1_CFG --&gt; R1_C2
-
-    C1_PROC --&gt; SG1
-    C2_PROC --&gt; SG2
-    R1_C1 --&gt; SG3
-    R1_C2 --&gt; SG4
-
-    SG1 --&gt; VP1
-    SG3 --&gt; VP1
-    SG2 --&gt; VP2
-    SG4 --&gt; VP2
-
-    VP1 --&gt; V1
-    VP2 --&gt; V2</code></pre>
+- Attenuation proportional to path length through canopy</p>
+</div>
+<hr />
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<h3 id="direct-instantiation">Direct instantiation<a class="headerlink" href="#direct-instantiation" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Direct instantiation</label><label for="__tabbed_1_2">From aligned datasets</label><label for="__tabbed_1_3">From Icechunk store</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.vod</span><span class="w"> </span><span class="kn">import</span> <span class="n">TauOmegaZerothOrder</span>
 
 <span class="n">calculator</span> <span class="o">=</span> <span class="n">TauOmegaZerothOrder</span><span class="p">(</span><span class="n">canopy_ds</span><span class="o">=</span><span class="n">canopy_ds</span><span class="p">,</span> <span class="n">sky_ds</span><span class="o">=</span><span class="n">sky_ds</span><span class="p">)</span>
 <span class="n">vod_result</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">calculate_vod</span><span class="p">()</span>
 </code></pre></div>
-<h3 id="from-aligned-datasets">From aligned datasets<a class="headerlink" href="#from-aligned-datasets" title="Permanent link">&para;</a></h3>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.vod</span><span class="w"> </span><span class="kn">import</span> <span class="n">TauOmegaZerothOrder</span>
 
 <span class="n">vod_result</span> <span class="o">=</span> <span class="n">TauOmegaZerothOrder</span><span class="o">.</span><span class="n">from_datasets</span><span class="p">(</span>
     <span class="n">canopy_ds</span><span class="o">=</span><span class="n">canopy_ds</span><span class="p">,</span>
     <span class="n">sky_ds</span><span class="o">=</span><span class="n">sky_ds</span><span class="p">,</span>
-    <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># auto-align epochs before differencing</span>
 <span class="p">)</span>
 </code></pre></div>
-<h3 id="from-icechunk-store">From Icechunk store<a class="headerlink" href="#from-icechunk-store" title="Permanent link">&para;</a></h3>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">canvod.vod</span><span class="w"> </span><span class="kn">import</span> <span class="n">TauOmegaZerothOrder</span>
 
 <span class="n">vod_result</span> <span class="o">=</span> <span class="n">TauOmegaZerothOrder</span><span class="o">.</span><span class="n">from_icechunkstore</span><span class="p">(</span>
@@ -2816,20 +2694,84 @@
     <span class="n">sky_group</span><span class="o">=</span><span class="s2">&quot;reference_01&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>The calculator requires:</p>
-<ul>
-<li><strong>Canopy dataset</strong> (<code>canopy_ds</code>): RINEX observations from a receiver beneath vegetation</li>
-<li><strong>Sky dataset</strong> (<code>sky_ds</code>): RINEX observations from a nearby open-sky receiver</li>
-<li>Both datasets must contain an <code>SNR</code> data variable</li>
-<li>Both datasets should be augmented with spherical coordinates (from canvod-auxiliary) and assigned to grid cells (from canvod-grids)</li>
-</ul>
+</div>
+</div>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Input requirements</p>
+<p>Both datasets must contain an <code>SNR</code> data variable.
+Both should be augmented with spherical coordinates (θ, φ) from <code>canvod-auxiliary</code>
+and assigned to grid cells by <code>canvod-grids</code>.</p>
+</div>
+<hr />
 <h2 id="output">Output<a class="headerlink" href="#output" title="Permanent link">&para;</a></h2>
 <p><code>calculate_vod()</code> returns an <code>xr.Dataset</code> containing:</p>
-<ul>
-<li><code>VOD</code> — vegetation optical depth values</li>
-<li><code>phi</code> — azimuth angles (from canopy dataset)</li>
-<li><code>theta</code> — polar angles from zenith (from canopy dataset)</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VOD</code></td>
+<td>Vegetation optical depth</td>
+</tr>
+<tr>
+<td><code>phi</code></td>
+<td>Azimuth angles (from canopy dataset)</td>
+</tr>
+<tr>
+<td><code>theta</code></td>
+<td>Zenith angles (from canopy dataset)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="multi-receiver-scs-expansion">Multi-Receiver SCS Expansion<a class="headerlink" href="#multi-receiver-scs-expansion" title="Permanent link">&para;</a></h2>
+<p>When a single reference receiver serves multiple canopy positions, satellite geometry must be recomputed relative to each canopy location. The <code>scs_from</code> configuration in <code>sites.yaml</code> drives this expansion.</p>
+<pre class="mermaid"><code>flowchart TD
+    subgraph FIELD["Field Setup"]
+        C1["Canopy 1\n(NE position)"]
+        C2["Canopy 2\n(SW position)"]
+        R1["Reference\n(open sky)"]
+    end
+
+    subgraph STORE["RINEX Store Groups"]
+        SG1["canopy_01"]
+        SG2["canopy_02"]
+        SG3["reference_01_canopy_01\n(geometry at canopy_01 pos.)"]
+        SG4["reference_01_canopy_02\n(geometry at canopy_02 pos.)"]
+    end
+
+    subgraph VOD["VOD Analysis Pairs"]
+        VP1["canopy_01 vs reference_01_canopy_01"]
+        VP2["canopy_02 vs reference_01_canopy_02"]
+    end
+
+    C1 --&gt; SG1
+    C2 --&gt; SG2
+    R1 --&gt; SG3
+    R1 --&gt; SG4
+    SG1 --&gt; VP1
+    SG3 --&gt; VP1
+    SG2 --&gt; VP2
+    SG4 --&gt; VP2
+    VP1 --&gt; V1["VOD @ canopy_01"]
+    VP2 --&gt; V2["VOD @ canopy_02"]</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Configuration</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># config/sites.yaml</span>
+<span class="nt">receivers</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reference_01</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reference</span>
+<span class="w">    </span><span class="nt">scs_from</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">canopy_01</span><span class="w">    </span><span class="c1"># recompute geometry at canopy_01 position</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">canopy_02</span><span class="w">    </span><span class="c1"># recompute geometry at canopy_02 position</span>
+</code></pre></div>
+</div>
+<hr />
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <p>Humphrey, V. and Frankenberg, C. (2022). GNSS-transmissometry: A new approach for vegetation optical depth estimation. <em>Remote Sensing of Environment</em>.</p>
 
