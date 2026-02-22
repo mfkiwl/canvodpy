@@ -83,6 +83,7 @@ class GNSSDataReader(ABC):
         """Validate Dataset structure."""
         validator = DatasetStructureValidator(dataset=dataset)
         validator.validate_all(required_vars=required_vars)
+
 ```
 
 ### Contract Guarantees
@@ -140,11 +141,11 @@ graph TB
 
 ### Layer Responsibilities
 
-**User Layer** -- Instantiates readers, calls `to_ds()` and `iter_epochs()`, and operates on returned Datasets.
+**User Layer** -- Instantiates readers, calls `to_ds()` or `iter_epochs()`, and operates on returned Datasets.
 
 **Interface Layer (ABC)** -- Defines required methods, enforces contracts, and validates output structure.
 
-**Implementation Layer (Concrete Readers)** -- Parses specific formats, implements abstract methods, and handles format-specific details.
+**Implementation Layer (Concrete Readers)** -- Parses specific formats, implements abstract methods, and handles format-specific details. `Rnxv3Obs` reads RINEX v3.04 text.
 
 **Support Layer** -- Provides constellation specifications (GPS, Galileo, etc.), Signal ID mapping, and metadata templates.
 
@@ -199,6 +200,41 @@ Key interactions in this flow:
 4. **Validator** ensures output meets structural requirements.
 
 ## Design Principles
+
+<div class="grid cards" markdown>
+
+-   :fontawesome-solid-shield-halved: &nbsp; **Early Validation**
+
+    ---
+
+    Errors discovered during analysis are expensive to diagnose. Validation happens at
+    parse time via Pydantic — invalid headers, wrong RINEX versions, and bad dtypes
+    fail immediately with structured error messages.
+
+-   :fontawesome-solid-snowflake: &nbsp; **Immutability**
+
+    ---
+
+    Readers are `frozen=True` Pydantic models. Once constructed, `reader.fpath`
+    cannot be reassigned — predictable, thread-safe, cacheable.
+
+-   :fontawesome-solid-puzzle-piece: &nbsp; **Separation of Concerns**
+
+    ---
+
+    Format-specific parsing (RINEX text) is contained within the reader.
+    Generic processing — Signal ID mapping, coordinate transforms, validation — lives in
+    shared helpers used by all readers.
+
+-   :fontawesome-solid-check-double: &nbsp; **Mandatory Validation**
+
+    ---
+
+    Every Dataset must pass `DatasetStructureValidator` before being returned.
+    The base class `validate_output()` is called at the end of every `to_ds()` —
+    impossible to accidentally skip it.
+
+</div>
 
 ### Early Validation with Pydantic
 

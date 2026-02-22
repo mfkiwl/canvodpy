@@ -2,36 +2,36 @@ flowchart TD
     Start([🚀 Start Processing]) --> Input
 
     subgraph Input["📥 Data Ingestion"]
-        RINEX["📄 RINEX Files<br/>(Observations)"]
-        SP3["🛰️ SP3 Files<br/>(Orbits)"]
-        CLK["⏰ CLK Files<br/>(Clocks)"]
+        RINEX["📄 RINEX Files\n(.XXo, all constellations)"]
+        SP3["🛰️ SP3 Files\n(Precise Orbits)"]
+        CLK["⏰ CLK Files\n(Precise Clocks)"]
     end
 
     subgraph Reading["🔍 Reading & Parsing"]
-        RinexReader["Rnxv3Obs<br/>Parse RINEX v3.04"]
-        AuxReader["SP3/CLK Parsers<br/>Load Auxiliary Data"]
+        RinexReader["Rnxv3Obs\nParse RINEX v3.04"]
+        AuxReader["SP3/CLK Parsers\nLoad Auxiliary Data"]
     end
 
     subgraph Processing["⚙️ Processing"]
-        Interp["Interpolation<br/>Orbit/Clock to Obs Times"]
-        Position["Position Calculation<br/>ECEF → Spherical (r,θ,φ)"]
-        Augment["Dataset Augmentation<br/>Merge RINEX + Aux"]
+        Interp["Hermite Interpolation\nOrbits/clocks → obs epochs"]
+        Position["Coordinate Transform\nECEF → spherical (r, θ, φ)"]
+        Augment["Dataset Augmentation\nMerge RINEX + geometry"]
     end
 
-    subgraph Storage["💾 Storage"]
-        Icechunk["Icechunk Store<br/>Versioned Datasets"]
+    subgraph Storage["💾 Versioned Storage (Icechunk)"]
+        Icechunk["Observations Store\n(epoch × sid)"]
     end
 
     subgraph Analysis["📊 Analysis"]
-        GridAssign["Grid Assignment<br/>Map to Hemisphere Cells"]
-        VODCalc["VOD Calculation<br/>Tau-Omega Model"]
-        Aggregate["Aggregation<br/>Per-cell Statistics"]
+        GridAssign["Hemispheric Grid Assignment\nEqual-area / HEALPix / geodesic"]
+        VODCalc["VOD Retrieval\nTau-Omega model · canopy vs reference"]
+        Aggregate["Aggregation\nPer-cell statistics"]
     end
 
     subgraph Output["📈 Output"]
-        Viz2D["2D Hemisphere Plots<br/>Polar Projection"]
-        Viz3D["3D Interactive Plots<br/>Plotly Surface"]
-        Export["Data Export<br/>NetCDF/CSV"]
+        Viz2D["2D Hemisphere Plots\nPolar projection"]
+        Viz3D["3D Interactive Plots\nPlotly surface"]
+        Export["Data Export\nNetCDF / CSV"]
     end
 
     RINEX --> RinexReader
@@ -42,8 +42,8 @@ flowchart TD
     AuxReader --> Interp
     Interp --> Position
     Position --> Augment
-
     Augment --> Icechunk
+
     Icechunk --> GridAssign
     GridAssign --> VODCalc
     VODCalc --> Aggregate

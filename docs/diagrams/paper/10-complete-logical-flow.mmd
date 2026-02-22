@@ -7,7 +7,7 @@ flowchart TD
 
     subgraph INIT["Initialization"]
         SITE["Site"]
-        RX_ST["RINEX Store"]
+        RX_ST["Obs Store"]
         VOD_ST["VOD Store"]
     end
 
@@ -23,15 +23,15 @@ flowchart TD
         AUX_DS["Auxiliary Dataset"]
     end
 
-    subgraph PAR["Parallel Processing"]
-        READ["Read RINEX"]
-        FILT["Filter Signals"]
+    subgraph PAR_R["Parallel Processing — RINEX"]
+        READ_R["Read RINEX"]
+        FILT_R["Filter Signals"]
         SLICE["Slice Auxiliary"]
         SCS["Spherical Coords"]
     end
 
-    subgraph STORE["Storage"]
-        HASH["Hash Check"]
+    subgraph STORE_OBS["Obs Storage"]
+        HASH["RINEX Hash Check"]
         WRITE["Append"]
         COMMIT["Commit"]
     end
@@ -63,15 +63,12 @@ flowchart TD
     CONF --> MATCH --> EXPAND --> SCHED
 
     SCHED --> DL --> INTERP --> AUX_DS
-
-    SCHED --> READ --> FILT --> SLICE --> SCS
+    SCHED --> READ_R --> FILT_R --> SLICE --> SCS
     AUX_DS --> SLICE
 
-    SCS --> HASH --> WRITE --> COMMIT
-    COMMIT --> RX_ST
+    SCS --> HASH --> WRITE --> COMMIT --> RX_ST
 
     RX_ST --> BUILD --> KD --> ASSIGN
-
     ASSIGN --> LOAD --> DELTA --> TAU --> DS
 
     DS --> SAVE --> VOD_ST
