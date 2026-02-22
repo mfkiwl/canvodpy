@@ -2582,16 +2582,16 @@ just<span class="w"> </span>config-show<span class="w">             </span><span
 just<span class="w"> </span>config-validate<span class="w">         </span><span class="c1"># Validate configuration</span>
 </code></pre></div>
 <h3 id="cli-configuration-tool">CLI Configuration Tool<a class="headerlink" href="#cli-configuration-tool" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>canvodpy<span class="w"> </span>config<span class="w"> </span>init<span class="w">         </span><span class="c1"># Initialize configuration files</span>
-uv<span class="w"> </span>run<span class="w"> </span>canvodpy<span class="w"> </span>config<span class="w"> </span>show<span class="w">         </span><span class="c1"># View current settings</span>
-uv<span class="w"> </span>run<span class="w"> </span>canvodpy<span class="w"> </span>config<span class="w"> </span>validate<span class="w">     </span><span class="c1"># Validate configuration</span>
-uv<span class="w"> </span>run<span class="w"> </span>canvodpy<span class="w"> </span>config<span class="w"> </span>edit<span class="w"> </span>processing<span class="w">  </span><span class="c1"># Edit processing config</span>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>just<span class="w"> </span>config-init<span class="w">         </span><span class="c1"># Initialize configuration files</span>
+uv<span class="w"> </span>run<span class="w"> </span>just<span class="w"> </span>config-show<span class="w">         </span><span class="c1"># View current settings</span>
+uv<span class="w"> </span>run<span class="w"> </span>just<span class="w"> </span>config-validate<span class="w">     </span><span class="c1"># Validate configuration</span>
+uv<span class="w"> </span>run<span class="w"> </span>just<span class="w"> </span>config-edit<span class="w"> </span>processing<span class="w">  </span><span class="c1"># Edit processing config</span>
 </code></pre></div>
 <h3 id="first-time-setup">First-Time Setup<a class="headerlink" href="#first-time-setup" title="Permanent link">&para;</a></h3>
 <ol>
 <li>Initialize config files: <code>just config-init</code></li>
-<li>Edit research sites: <code>uv run canvodpy config edit sites</code></li>
-<li>Edit processing configuration: <code>uv run canvodpy config edit processing</code></li>
+<li>Edit research sites: <code>uv run just config-edit sites</code></li>
+<li>Edit processing configuration: <code>uv run just config-edit processing</code></li>
 <li>Validate: <code>just config-validate</code></li>
 </ol>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
@@ -2653,7 +2653,7 @@ just<span class="w"> </span>release<span class="w"> </span>&lt;VERSION&gt;<span 
 </code></pre></div>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <p><strong>"No module named 'canvod.X'"</strong>: Run <code>uv sync</code> to install packages.</p>
-<p><strong>"Command not found: canvodpy"</strong>: Use <code>uv run canvodpy config init</code>.</p>
+<p><strong>"Command not found: canvodpy"</strong>: Use <code>uv run just config-init</code>.</p>
 <p><strong>Tests fail after dependency changes</strong>: Run <code>uv sync --all-extras</code>.</p>
 
 

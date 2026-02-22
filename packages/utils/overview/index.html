@@ -2844,16 +2844,16 @@
 <h2 id="cli-tools">CLI Tools<a class="headerlink" href="#cli-tools" title="Permanent link">&para;</a></h2>
 <p>The <code>canvodpy</code> command-line interface manages configuration files.</p>
 <h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>canvodpy<span class="w"> </span>config<span class="w"> </span>init<span class="w">       </span><span class="c1"># Copy templates to config/</span>
-canvodpy<span class="w"> </span>config<span class="w"> </span>validate<span class="w">   </span><span class="c1"># Validate all configuration files</span>
-canvodpy<span class="w"> </span>config<span class="w"> </span>show<span class="w">       </span><span class="c1"># Display current settings</span>
-canvodpy<span class="w"> </span>config<span class="w"> </span>edit<span class="w"> </span>processing<span class="w">  </span><span class="c1"># Open in $EDITOR</span>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>config-init<span class="w">       </span><span class="c1"># Copy templates to config/</span>
+just<span class="w"> </span>config-validate<span class="w">   </span><span class="c1"># Validate all configuration files</span>
+just<span class="w"> </span>config-show<span class="w">       </span><span class="c1"># Display current settings</span>
+just<span class="w"> </span>config-edit<span class="w"> </span>processing<span class="w">  </span><span class="c1"># Open in $EDITOR</span>
 </code></pre></div>
 <h3 id="initial-setup-workflow">Initial Setup Workflow<a class="headerlink" href="#initial-setup-workflow" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>canvodpy<span class="w"> </span>config<span class="w"> </span>init
-canvodpy<span class="w"> </span>config<span class="w"> </span>edit<span class="w"> </span>processing<span class="w">   </span><span class="c1"># Set metadata, paths, agency</span>
-canvodpy<span class="w"> </span>config<span class="w"> </span>edit<span class="w"> </span>sites<span class="w">        </span><span class="c1"># Define research sites</span>
-canvodpy<span class="w"> </span>config<span class="w"> </span>validate<span class="w">          </span><span class="c1"># Check for errors</span>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>config-init
+just<span class="w"> </span>config-edit<span class="w"> </span>processing<span class="w">   </span><span class="c1"># Set metadata, paths, agency</span>
+just<span class="w"> </span>config-edit<span class="w"> </span>sites<span class="w">        </span><span class="c1"># Define research sites</span>
+just<span class="w"> </span>config-validate<span class="w">          </span><span class="c1"># Check for errors</span>
 </code></pre></div>
 
 

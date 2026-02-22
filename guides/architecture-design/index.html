@@ -3153,7 +3153,7 @@ recorded steps, clears the plan, then runs the terminal method.</p>
 <span class="n">cfg</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">aux_data</span><span class="o">.</span><span class="n">nasa_earthdata_acc_mail</span>  <span class="c1"># Optional NASA CDDIS email</span>
 <span class="n">cfg</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">gnss_root_dir</span>             <span class="c1"># Data directory</span>
 </code></pre></div>
-<p>Initialize configuration with <code>canvodpy config init</code>, inspect with <code>canvodpy config show</code>.</p>
+<p>Initialize configuration with <code>just config-init</code>, inspect with <code>just config-show</code>.</p>
 <h2 id="airflow-compatibility">Airflow Compatibility<a class="headerlink" href="#airflow-compatibility" title="Permanent link">&para;</a></h2>
 <p>API functions are stateless, suitable for distributed execution:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">airflow.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span>
