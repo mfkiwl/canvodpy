@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2317.0625 972" width="2317.0625" height="972" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2317.0625 972" width="2317.0625" height="972" style="--bg:#f5f5f5;--fg:#333333;background:var(--bg)">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
   text { font-family: 'Inter', system-ui, sans-serif; }
@@ -28,22 +28,22 @@
 </defs>
 <rect x="115.07500000000027" y="40" width="1637.0625" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="115.07500000000027" y="40" width="1637.0625" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="127.07500000000027" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Field Setup&quot;</text>
+<text x="127.07500000000027" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Field Setup</text>
 <rect x="40" y="196" width="2045.7375000000002" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="40" y="196" width="2045.7375000000002" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="52" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;SCS Configuration (sites.yaml)&quot;</text>
+<text x="52" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">SCS Configuration - sites.yaml</text>
 <rect x="111.5" y="352" width="2165.5625" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="111.5" y="352" width="2165.5625" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="123.5" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;SCS Processing Expansion&quot;</text>
+<text x="123.5" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">SCS Processing Expansion</text>
 <rect x="211.5999999999999" y="508" width="1847.3875000000003" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="211.5999999999999" y="508" width="1847.3875000000003" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="223.5999999999999" y="522" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;RINEX Store Groups&quot;</text>
+<text x="223.5999999999999" y="522" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">RINEX Store Groups</text>
 <rect x="183.7874999999999" y="664" width="1846.5375000000004" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="183.7874999999999" y="664" width="1846.5375000000004" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="195.7874999999999" y="678" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;VOD Analysis Pairs&quot;</text>
+<text x="195.7874999999999" y="678" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">VOD Analysis Pairs</text>
 <rect x="535.7250000000001" y="820" width="1054.35" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="535.7250000000001" y="820" width="1054.35" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="547.7250000000001" y="834" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;VOD Output&quot;</text>
+<text x="547.7250000000001" y="834" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">VOD Output</text>
 <polyline points="288.9250000000002,132 288.9250000000002,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="766.7750000000001,132 766.7750000000001,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="1603.3125000000002,132 1603.3125000000002,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />

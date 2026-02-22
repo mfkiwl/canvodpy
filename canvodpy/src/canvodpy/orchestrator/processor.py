@@ -1948,9 +1948,7 @@ class RinexDataProcessor:
         if aux_zarr_path.exists():
             _shutil.rmtree(aux_zarr_path)
 
-        self._logger.info(
-            "Preprocessing aux data with Hermite splines (once per day)"
-        )
+        self._logger.info("Preprocessing aux data with Hermite splines (once per day)")
         _sampling_interval = self._preprocess_aux_data_with_hermite(
             canopy_files, aux_zarr_path
         )
@@ -2966,9 +2964,7 @@ class DistributedRinexDataProcessor(RinexDataProcessor):
         if aux_zarr_path.exists():
             _shutil.rmtree(aux_zarr_path)
 
-        self._logger.info(
-            "Preprocessing aux data with Hermite splines (once per day)"
-        )
+        self._logger.info("Preprocessing aux data with Hermite splines (once per day)")
         _sampling_interval = self._preprocess_aux_data_with_hermite(
             canopy_files, aux_zarr_path
         )

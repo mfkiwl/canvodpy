@@ -1,55 +1,55 @@
 flowchart TD
-    subgraph CFG["Configuration"]
+    subgraph CFG[Configuration]
         YAML["YAML"]
         VALID["Validate"]
         CONF["Config"]
     end
 
-    subgraph INIT["Initialization"]
+    subgraph INIT[Initialization]
         SITE["Site"]
         RX_ST["Obs Store"]
         VOD_ST["VOD Store"]
     end
 
-    subgraph DISC["Discovery"]
+    subgraph DISC[Discovery]
         MATCH["Match Dirs"]
         EXPAND["SCS Expand"]
         SCHED["Schedule"]
     end
 
-    subgraph AUX["Auxiliary Pipeline"]
+    subgraph AUX[Auxiliary Pipeline]
         DL["Download SP3 + CLK"]
         INTERP["Interpolate"]
         AUX_DS["Auxiliary Dataset"]
     end
 
-    subgraph PAR_R["Parallel Processing — RINEX"]
+    subgraph PAR_R[Parallel Processing - RINEX]
         READ_R["Read RINEX"]
         FILT_R["Filter Signals"]
         SLICE["Slice Auxiliary"]
         SCS["Spherical Coords"]
     end
 
-    subgraph STORE_OBS["Obs Storage"]
+    subgraph STORE_OBS[Obs Storage]
         HASH["RINEX Hash Check"]
         WRITE["Append"]
         COMMIT["Commit"]
     end
 
-    subgraph GRID["Grid"]
-        BUILD["Build Grid"]
-        KD["KDTree"]
-        ASSIGN["Assign Cells"]
-    end
-
-    subgraph VOD["VOD"]
+    subgraph VOD[VOD]
         LOAD["Load Pairs"]
         DELTA["Delta-SNR"]
         TAU["Tau-Omega"]
         DS["VOD Dataset"]
     end
 
-    subgraph OUT["Output"]
+    subgraph GRID[Grid]
+        BUILD["Build Grid"]
+        KD["KDTree"]
+        ASSIGN["Assign Cells"]
+    end
+
+    subgraph OUT[Output]
         SAVE["Store"]
         VIS["Visualize"]
         EXP["Export"]
@@ -68,9 +68,10 @@ flowchart TD
 
     SCS --> HASH --> WRITE --> COMMIT --> RX_ST
 
-    RX_ST --> BUILD --> KD --> ASSIGN
-    ASSIGN --> LOAD --> DELTA --> TAU --> DS
+    RX_ST --> LOAD --> DELTA --> TAU --> DS
 
-    DS --> SAVE --> VOD_ST
-    DS --> VIS
-    DS --> EXP
+    DS --> BUILD --> KD --> ASSIGN
+
+    ASSIGN --> SAVE --> VOD_ST
+    ASSIGN --> VIS
+    ASSIGN --> EXP

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1067.5749999999998 1284" width="1067.5749999999998" height="1284" style="--bg:#FFFFFF;--fg:#27272A;background:var(--bg)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1067.5749999999998 1284" width="1067.5749999999998" height="1284" style="--bg:#f5f5f5;--fg:#333333;background:var(--bg)">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
   text { font-family: 'Inter', system-ui, sans-serif; }
@@ -28,16 +28,16 @@
 </defs>
 <rect x="273.51250000000005" y="40" width="311.95000000000005" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="273.51250000000005" y="40" width="311.95000000000005" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="285.51250000000005" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;User Interface&quot;</text>
+<text x="285.51250000000005" y="54" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">User Interface</text>
 <rect x="40" y="196" width="903.5" height="112" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="40" y="196" width="903.5" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="52" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Umbrella Package&quot;</text>
+<text x="52" y="210" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Umbrella Package</text>
 <rect x="40" y="664" width="820.15" height="580" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="40" y="664" width="820.15" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="52" y="678" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Core Processing Packages&quot;</text>
+<text x="52" y="678" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Core Processing Packages</text>
 <rect x="353.62499999999994" y="352" width="673.9499999999999" height="268" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
 <rect x="353.62499999999994" y="352" width="673.9499999999999" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
-<text x="365.62499999999994" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">&quot;Analysis &amp; Output Packages&quot;</text>
+<text x="365.62499999999994" y="366" dy="0.35em" font-size="12" font-weight="600" fill="var(--_text-sec)">Analysis and Output Packages</text>
 <polyline points="429.48750000000007,132 429.48750000000007,252" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="429.48750000000007,288 429.48750000000007,308 143.35000000000002,308 143.35000000000002,1050 140.32500000000005,1050" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
 <polyline points="429.48750000000007,288 429.48750000000007,308 236.70000000000005,308 236.70000000000005,894 165.35000000000005,894" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />

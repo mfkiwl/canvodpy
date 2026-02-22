@@ -174,7 +174,7 @@ class TauOmegaZerothOrder(VODCalculator):
         xr.DataArray
             Linear-scale values.
         """
-        return np.power(10, delta_snr_db / 10)
+        return 10 ** (delta_snr_db / 10)
 
     def calculate_vod(self) -> xr.Dataset:
         """Calculate VOD using the zeroth-order approximation.

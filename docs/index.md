@@ -142,36 +142,12 @@ pip install canvodpy
 
 ```mermaid
 flowchart LR
-    subgraph ACQ["Acquisition"]
-        RINEX["RINEX 3.04"]
-        SP3["SP3 / CLK"]
-    end
-
-    subgraph PREP["Preprocessing"]
-        PARSE["Parse & Hermite interpolation"]
-        SCS["ECEF → Spherical (θ, φ)"]
-    end
-
-    subgraph STORE["Icechunk"]
-        ICE["Observations (epoch × sid)"]
-    end
-
-    subgraph GRID["Grid"]
-        HGRID["Hemispheric grid"]
-        KD["KDTree assignment"]
-    end
-
-    subgraph VOD["VOD"]
-        PAIR["Canopy / Reference pairing"]
-        TAU["Tau-Omega inversion\nVOD = −ln(T)·cos(θ)"]
-    end
-
-    OUT["VOD Dataset"]
-
-    RINEX --> PARSE --> SCS --> ICE
-    SP3 --> PARSE
-
-    ICE --> HGRID --> KD --> PAIR --> TAU --> OUT
+    RINEX["RINEX 3.04"] --> PARSE["Parse & Hermite interpolation"]
+    SP3["SP3 / CLK"] --> PARSE
+    PARSE --> STORE["Icechunk store"]
+    STORE --> VOD["Tau-Omega VOD retrieval"]
+    VOD --> GRID["Hemispheric grid assignment"]
+    GRID --> VIZ["Visualisation"]
 ```
 
 ---

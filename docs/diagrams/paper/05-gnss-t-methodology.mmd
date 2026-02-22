@@ -1,31 +1,31 @@
 flowchart LR
-    subgraph ACQ["Acquisition"]
-        RINEX["RINEX 3.04\n(SNR, PR, Phase)"]
-        SP3["SP3 Precise\nEphemerides"]
-        CLK["CLK Precise\nClocks"]
+    subgraph ACQ[Acquisition]
+        RINEX["RINEX 3.04<br/>(SNR, PR, Phase)"]
+        SP3["SP3 Precise<br/>Ephemerides"]
+        CLK["CLK Precise<br/>Clocks"]
     end
 
-    subgraph PREP_R["Preprocessing"]
-        PARSE["Parse & Hermite\nInterpolation"]
-        AUX["Auxiliary Dataset\n(ECEF positions)"]
-        SCS_R["ECEF → Spherical\n(θ, φ)"]
+    subgraph PREP_R[Preprocessing]
+        PARSE["Parse and Hermite<br/>Interpolation"]
+        AUX["Auxiliary Dataset<br/>(ECEF positions)"]
+        SCS_R["ECEF → Spherical<br/>(θ, φ)"]
     end
 
-    subgraph STORE["Storage"]
-        ICE["Icechunk Store\n(obs dataset)"]
+    subgraph STORE[Storage]
+        ICE["Icechunk Store<br/>(obs dataset)"]
     end
 
-    subgraph GRID["Gridding"]
-        HGRID["Hemispheric Grid\n(equal-area / HEALPix)"]
-        KDTREE["KDTree Assignment\nO(n log m)"]
+    subgraph VOD[VOD Retrieval]
+        PAIR["Canopy / Reference<br/>Dataset Pairing"]
+        TAU["Zeroth-order Tau-Omega Inversion<br/>VOD = −ln(T)·cos(θ)"]
     end
 
-    subgraph VOD["VOD Retrieval"]
-        PAIR["Canopy / Reference\nDataset Pairing"]
-        TAU["Zeroth-order\nTau-Omega Inversion\nVOD = −ln(T)·cos(θ)"]
+    subgraph GRID[Gridding]
+        HGRID["Hemispheric Grid<br/>(equal-area / HEALPix)"]
+        KDTREE["KDTree Assignment<br/>O(n log m)"]
     end
 
-    OUT["VOD Dataset\n(epoch × cell)"]
+    OUT["VOD Dataset<br/>(epoch × cell)"]
 
     RINEX --> PARSE
     SP3 --> PARSE
@@ -34,8 +34,8 @@ flowchart LR
     AUX --> SCS_R
     SCS_R --> ICE
 
-    ICE --> HGRID
-    HGRID --> KDTREE
-    KDTREE --> PAIR
+    ICE --> PAIR
     PAIR --> TAU
     TAU --> OUT
+    OUT --> HGRID
+    HGRID --> KDTREE
