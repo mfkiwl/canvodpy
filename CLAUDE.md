@@ -24,6 +24,12 @@ Vegetation Optical Depth (VOD) products. Key packages:
 - `canvod-grids` — Spatial grid operations
 - `canvod-auxiliary` — Auxiliary data pipeline (orbits, troposphere, etc.)
 
+## Diagram rendering
+
+Use **[lukilabs/beautiful-mermaid](https://github.com/lukilabs/beautiful-mermaid)** for
+rendering Mermaid diagrams to SVG/PNG. Source files live in `docs/diagrams/` (`.mmd`).
+Do not commit `docs/diagrams/node_modules/` or `docs/diagrams/package*.json`.
+
 ## Conventions
 
 - Monorepo managed with `uv` workspaces

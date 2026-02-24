@@ -21,7 +21,7 @@ from canvod.auxiliary.interpolation import (
     ClockInterpolationStrategy,
     Interpolator,
 )
-from canvod.auxiliary.products.registry import get_product_spec
+from canvod.auxiliary.products.registry_config import get_product_spec
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
@@ -135,7 +135,6 @@ class ClkFile(AuxFile):
             "filename": clock_file,
             "type": "clock",
             "agency": self.agency,
-            "latency": spec.latency_hours,
         }
 
         try:

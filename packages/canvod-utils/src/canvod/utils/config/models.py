@@ -119,10 +119,10 @@ class AuxDataConfig(BaseModel):
             # NASA first (requires auth), ESA fallback (no auth)
             return [
                 ("ftp://gdc.cddis.eosdis.nasa.gov", cddis_mail),
-                ("ftp://gssc.esa.int/gnss", None),
+                ("ftp://gssc.esa.int", None),
             ]
         # ESA only (no auth required)
-        return [("ftp://gssc.esa.int/gnss", None)]
+        return [("ftp://gssc.esa.int", None)]
 
 
 class ProcessingParams(BaseModel):

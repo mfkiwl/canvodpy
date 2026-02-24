@@ -16,7 +16,7 @@ from canvod.auxiliary.interpolation import (
     Sp3Config,
     Sp3InterpolationStrategy,
 )
-from canvod.auxiliary.products.registry import ProductSpec, get_product_spec
+from canvod.auxiliary.products.registry_config import ProductSpec, get_product_spec
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
@@ -118,7 +118,6 @@ class Sp3File(AuxFile):
             "filename": orbit_file,
             "type": "orbit",
             "agency": self.agency,
-            "latency": self.product_spec.latency_hours,
         }
 
         try:

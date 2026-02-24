@@ -52,12 +52,14 @@ from canvod.auxiliary.preprocessing import (
 
 # Product registry
 from canvod.auxiliary.products import (
-    PRODUCT_REGISTRY,
+    FtpServerConfig,
+    ProductRegistry,
     ProductSpec,
     get_product_spec,
     get_products_for_agency,
+    get_registry,
     list_agencies,
-    list_available_products,
+    list_products,
 )
 
 __version__ = "0.1.0"
@@ -96,10 +98,12 @@ __all__ = [
     "FtpDownloader",
     "GnssData",
     # Product registry
-    "PRODUCT_REGISTRY",
+    "FtpServerConfig",
+    "ProductRegistry",
     "ProductSpec",
     "get_product_spec",
-    "list_available_products",
+    "get_registry",
+    "list_products",
     "list_agencies",
     "get_products_for_agency",
 ]
