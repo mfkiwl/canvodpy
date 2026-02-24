@@ -5,7 +5,6 @@ Run this after installing canvod-utils to ensure everything works.
 """
 
 import sys
-from pathlib import Path
 
 print("Testing configuration system imports...")
 print("=" * 70)

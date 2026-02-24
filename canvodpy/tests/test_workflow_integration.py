@@ -134,9 +134,8 @@ class TestWorkflowErrorHandling:
         with patch(
             "canvodpy.workflow.Site",
             side_effect=KeyError("NonexistentSite123"),
-        ):
-            with pytest.raises(KeyError, match="NonexistentSite123"):
-                VODWorkflow(site="NonexistentSite123")
+        ), pytest.raises(KeyError, match="NonexistentSite123"):
+            VODWorkflow(site="NonexistentSite123")
 
     def test_workflow_invalid_grid_type_fails(self):
         """Should fail with invalid grid type."""
